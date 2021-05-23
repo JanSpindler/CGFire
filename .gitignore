@@ -1,0 +1,11 @@
+vs-build
+.idea
+/lib
+out
+.vs
+/build*
+/venv
+cmake-build-*
+cmakesettings.json
+/docs/html/
+/vendor
