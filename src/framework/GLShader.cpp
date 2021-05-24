@@ -34,7 +34,7 @@ compileShader(const char* filename, unsigned int type) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if(!success) {
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cerr << "Shader compilation failed\n" << infoLog << std::endl;
+        std::cerr << "GLShader compilation failed\n" << infoLog << std::endl;
         return 0;
     }
 

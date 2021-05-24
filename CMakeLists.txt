@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(ITCGExercises)
+project(CGFire)
 
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
@@ -35,12 +35,16 @@ include_directories(include/
 
 file(GLOB VENDORS_SOURCES vendor/glad/src/glad.c src/vendor/*.cpp)
 file(GLOB PROJECT_HEADERS include/*.hpp)
-file(GLOB PROJECT_SOURCES src/*.cpp src/Aufgaben/*.cpp)
+file(GLOB PROJECT_SOURCES src/project/main.cpp)
 file(GLOB LIBRARY_SOURCES src/framework/*.cpp)
 file(GLOB PROJECT_SHADERS shaders/*.comp
                           shaders/*.frag
                           shaders/*.geom
                           shaders/*.vert)
+
+file(GLOB ENGINE_HEADERS include/engine/*.hpp)
+file(GLOB ENGINE_SOURCES src/engine/*.cpp)
+
 file(GLOB PROJECT_CONFIGS CMakeLists.txt
 #                          Readme.md
                          .gitignore
@@ -58,7 +62,7 @@ foreach(PROJECT_SOURCE_FILE ${PROJECT_SOURCES})
     get_filename_component(SRC_NAME ${PROJECT_SOURCE_FILE} NAME_WE)
     add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
-                               ${LIBRARY_SOURCES} ${VENDORS_SOURCES})
+                               ${LIBRARY_SOURCES} ${VENDORS_SOURCES} ${ENGINE_HEADERS} ${ENGINE_SOURCES})
     target_link_libraries(${SRC_NAME} assimp glfw
                           ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
     #set_target_properties(${SRC_NAME} PROPERTIES
