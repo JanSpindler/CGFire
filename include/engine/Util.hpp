@@ -10,6 +10,7 @@
 namespace en
 {
     unsigned int PopGLError(bool exit);
+    void ClearGLError();
 
     std::vector<char> ReadFileBinary(const char* filename);
 

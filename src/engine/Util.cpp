@@ -23,6 +23,11 @@ namespace en
         return error;
     }
 
+    void ClearGLError()
+    {
+        while (glGetError() != GL_NO_ERROR);
+    }
+
     std::vector<char> ReadFileBinary(const char* filename)
     {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);

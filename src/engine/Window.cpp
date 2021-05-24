@@ -20,7 +20,10 @@ namespace en
 
         // Init GLFW
         Log::Info("Initializing GLFW");
-        glfwInit();
+        if (!glfwInit())
+        {
+            Log::Error("Failed to initialize GLFW", true);
+        }
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -31,15 +34,23 @@ namespace en
         if (handle_ == nullptr)
         {
             Log::Error("Failed to create GLFW Window", true);
-            Destroy();
-            return;
         }
         glfwSetWindowSizeCallback(handle_, resize_callback);
         glfwMakeContextCurrent(handle_);
 
         // OpenGL Setup
         gladLoadGL();
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            Log::Error("Failed to load GLAD", true);
+        }
+        ClearGLError();
+
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glEnable(GL_DEPTH_TEST);
+
+        PopGLError(true);
+        Log::Info("OpenGL and GLFW have been initialized");
     }
 
     Window::~Window()
@@ -60,8 +71,7 @@ namespace en
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwPollEvents();
 
-        // Clear Error before drawing
-        while (!glGetError() != GL_NO_ERROR);
+        ClearGLError();
 
         // Image will be drawn after this function
     }
