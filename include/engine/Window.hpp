@@ -25,6 +25,8 @@ namespace en
 
     private:
         GLFWwindow* handle_;
+        int width_;
+        int height_;
     };
 }
 

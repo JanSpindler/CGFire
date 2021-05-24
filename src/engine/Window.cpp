@@ -9,14 +9,11 @@
 
 namespace en
 {
-    void resize_callback(GLFWwindow* window, int width, int height)
-    {
-        glViewport(0, 0, width, height);
-    }
-
     Window::Window(int width, int height, const char* title)
     {
         handle_ = nullptr;
+        width_ = width;
+        height_ = height;
 
         // Init GLFW
         Log::Info("Initializing GLFW");
@@ -35,7 +32,6 @@ namespace en
         {
             Log::Error("Failed to create GLFW Window", true);
         }
-        glfwSetWindowSizeCallback(handle_, resize_callback);
         glfwMakeContextCurrent(handle_);
 
         // OpenGL Setup
@@ -66,11 +62,13 @@ namespace en
         // Check for Errors after drawing
         while(PopGLError(false) != GL_NO_ERROR);
 
-        // Clear image and check for Window updates
+        glfwGetWindowSize(handle_, &width_, &height_);
+        glViewport(0, 0, width_, height_);
+
         glfwSwapBuffers(handle_);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glfwPollEvents();
 
+        glfwPollEvents();
         ClearGLError();
 
         // Image will be drawn after this function
@@ -84,6 +82,16 @@ namespace en
 
         Log::Info("Terminating GLFW");
         glfwTerminate();
+    }
+
+    int Window::GetWidth() const
+    {
+        return width_;
+    }
+
+    int Window::GetHeight() const
+    {
+        return height_;
     }
 
     bool Window::IsOpen()
