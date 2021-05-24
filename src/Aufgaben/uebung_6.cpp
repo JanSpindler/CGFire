@@ -2,12 +2,12 @@
 #include <glm/gtx/transform.hpp>
 #include <stb_image.h>
 
-#include "common.hpp"
-#include "shader.hpp"
-#include "camera.hpp"
-#include "buffer.hpp"
+#include "framework/common.hpp"
+#include "framework/shader.hpp"
+#include "framework/camera.hpp"
+#include "framework/buffer.hpp"
 
-#include <imgui.hpp>
+#include <framework/imgui_util.hpp>
 
 const int WINDOW_WIDTH =  800;
 const int WINDOW_HEIGHT = 800;

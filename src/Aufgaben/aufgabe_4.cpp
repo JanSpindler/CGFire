@@ -1,8 +1,8 @@
-#include "common.hpp"
-#include "shader.hpp"
-#include "mesh.hpp"
-#include "camera.hpp"
-#include "raytracer.hpp"
+#include "framework/common.hpp"
+#include "framework/shader.hpp"
+#include "framework/mesh.hpp"
+#include "framework/camera.hpp"
+#include "framework/raytracer.hpp"
 
 const int WINDOW_WIDTH =  800;
 const int WINDOW_HEIGHT = 800;
@@ -82,10 +82,10 @@ intersect_triangle(ray const& r,
     }
 
     // TASK 3: Compute correct barycentric coordinates
-    float A = 0.5f * glm::length(glm::cross(p1-p0, p2-p0));
-    float A0 = 0.5f * glm::length(glm::cross(p1-x, p2-x));
-    float A1 = 0.5f * glm::length(glm::cross(x-p0, p2-p0));
-    float A2 = 0.5f * glm::length(glm::cross(p1-p0, x-p0));
+    float A = glm::length(glm::cross(p1-p0, p2-p0));
+    float A0 = glm::length(glm::cross(p1-x, p2-x));
+    float A1 = glm::length(glm::cross(x-p0, p2-p0));
+    float A2 = glm::length(glm::cross(p1-p0, x-p0));
 
     float b0 = A0 / A;
     float b1 = A1 / A;

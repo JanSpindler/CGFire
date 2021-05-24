@@ -1,7 +1,7 @@
-#include "common.hpp"
-#include "shader.hpp"
-#include "mesh.hpp"
-#include "camera.hpp"
+#include "framework/common.hpp"
+#include "framework/shader.hpp"
+#include "framework/mesh.hpp"
+#include "framework/camera.hpp"
 
 const int WINDOW_WIDTH =  800;
 const int WINDOW_HEIGHT = 800;

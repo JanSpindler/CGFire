@@ -1,11 +1,12 @@
-#include <shader.hpp>
+#include <framework/shader.hpp>
 
 #include <fstream>
-
 
 // loads code of file into string
 const char*
 loadShaderFile(const char* filename) {
+
+
     std::string actualFile = SHADER_ROOT + filename;
     std::ifstream in(actualFile.c_str());
     std::string str((std::istreambuf_iterator<char>(in)),

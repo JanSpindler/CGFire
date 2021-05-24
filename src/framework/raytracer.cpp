@@ -1,4 +1,4 @@
-#include <raytracer.hpp>
+#include <framework/raytracer.hpp>
 #include <thread>
 #include <mutex>
 #include <fstream>

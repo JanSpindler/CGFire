@@ -1,5 +1,5 @@
-#include "common.hpp"
-#include "shader.hpp"
+#include "framework/common.hpp"
+#include "framework/shader.hpp"
 
 const int WINDOW_WIDTH =  800;
 const int WINDOW_HEIGHT = 800;

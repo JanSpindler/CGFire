@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 
-#define SHADER_ROOT std::string("E:/docs/Uni/SoSe 21/Computergraphik/Uebung/framework/shaders/")
-#define DATA_ROOT std::string("E:/docs/Uni/SoSe 21/Computergraphik/Uebung/framework/data/")
+#define ROOT_FOLDER std::filesystem::current_path().parent_path().parent_path().string()
+#define SHADER_ROOT (ROOT_FOLDER + std::string("/shaders/"))
+#define DATA_ROOT (ROOT_FOLDER + std::string("/data/"))

@@ -1,10 +1,10 @@
 #include <chrono>
 #include <glm/gtx/transform.hpp>
-#include "common.hpp"
-#include "shader.hpp"
-#include "buffer.hpp"
-#include "camera.hpp"
-#include "mesh.hpp"
+#include "framework/common.hpp"
+#include "framework/shader.hpp"
+#include "framework/buffer.hpp"
+#include "framework/camera.hpp"
+#include "framework/mesh.hpp"
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
 #endif

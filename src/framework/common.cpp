@@ -1,4 +1,4 @@
-#include <common.hpp>
+#include <framework/common.hpp>
 
 GLFWwindow*
 initOpenGL(int width, int height, const char* title) {

@@ -1,67 +1,86 @@
 cmake_minimum_required(VERSION 3.0)
-project(ITCGExercises)
+project(CGFire)
+set(CMAKE_CXX_STANDARD 17)
 
-option(GLFW_BUILD_DOCS OFF)
-option(GLFW_BUILD_EXAMPLES OFF)
-option(GLFW_BUILD_TESTS OFF)
-add_subdirectory(vendor/glfw)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+include_directories(include/)
+
+
+
+#ASSIMP laden
+#umfangreiche Asset Importer Bibliothek
 option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
 add_subdirectory(vendor/assimp)
+include_directories(vendor/assimp/include/)
 
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++11")
-    if(NOT WIN32)
-        set(GLAD_LIBRARIES dl)
-    endif()
-endif()
+#glad laden
+#ein OpenGl loader, Header-only
+include_directories(vendor/glad/include/)
+add_library(gladLibrary STATIC vendor/glad/src/glad.c)
 
-configure_file ( 
-    "${PROJECT_SOURCE_DIR}/config.hpp.in"
-    "${PROJECT_SOURCE_DIR}/include/config.hpp"
-)
 
-include_directories(include/
-                    include/framework
-                    vendor/assimp/include/
-                    vendor/glad/include/
-                    vendor/glfw/include/
-                    vendor/glm/
-                    vendor/stb/)
+#GLFW laden
+#zur Window-Erzeugung
+option(GLFW_BUILD_DOCS OFF)
+option(GLFW_BUILD_EXAMPLES OFF)
+option(GLFW_BUILD_TESTS OFF)
+add_subdirectory(vendor/glfw)
+include_directories(vendor/glfw/include/)
 
-file(GLOB VENDORS_SOURCES vendor/glad/src/glad.c src/vendor/*.cpp)
-file(GLOB PROJECT_HEADERS include/*.hpp)
-file(GLOB PROJECT_SOURCES src/*.cpp src/Aufgaben/*.cpp)
-file(GLOB LIBRARY_SOURCES src/framework/*.cpp)
-file(GLOB PROJECT_SHADERS shaders/*.comp
-                          shaders/*.frag
-                          shaders/*.geom
-                          shaders/*.vert)
-file(GLOB PROJECT_CONFIGS CMakeLists.txt
-#                          Readme.md
-                         .gitignore
-                         .gitmodules)
+#GLM laden
+#ist eine OpenGL-konforme Mathe Bibliothek, Header Only
+include_directories(vendor/glm)
 
-source_group("Headers" FILES ${PROJECT_HEADERS})
-source_group("Shaders" FILES ${PROJECT_SHADERS})
-source_group("Sources" FILES ${PROJECT_SOURCES})
-source_group("Library" FILES ${LIBRARY_SOURCES})
-source_group("Vendors" FILES ${VENDORS_SOURCES})
+#ImGui laden
+#ist eine GUI die auch header only ist
+file(GLOB_RECURSE imguiSOURCES vendor/imgui/*.cpp)
+add_library(imGUILibrary STATIC
+        ${imguiSOURCES})
+include_directories(vendor/imgui/)
 
-add_definitions(-DGLFW_INCLUDE_NONE
-                -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
-foreach(PROJECT_SOURCE_FILE ${PROJECT_SOURCES})
+#STB laden
+#stb ist eine Header-only Library, d.h. man muss sie nur inkludieren
+#https://github.com/nothings/stb#stb
+#u.a. für image loading/writing/resizing nützlich
+include_directories(vendor/stb/)
+
+
+#in dieser Variable befinden sich alle zu linkenden Vendor Bibliotheken
+set(VENDOR_LIBRARIES
+        assimp
+        gladLibrary
+        glfw
+        ${GLFW_LIBRARIES}
+        imGUILibrary)
+
+
+
+# frameworkLibrary
+# diese ist erstmal nur das gegebene framework
+# und wird mit allen vendor libraries verlinkt
+file(GLOB_RECURSE frameworkSOURCES src/framework/*.cpp)
+add_library(frameworkLibrary STATIC ${frameworkSOURCES})
+target_link_libraries(frameworkLibrary ${VENDOR_LIBRARIES})
+
+
+
+
+file(GLOB EXECUTABLES
+        src/Aufgaben/*.cpp)
+
+#evtl kann man weitere Executables mittels set(EXECUTABLES ${EXECUTABLES} <NeueExecutable>) adden
+
+#folgendes fügt für jede Datei aus EXECUTABLES eine Executable hinzu
+# und linkt alle Executables mit der frameworkLibrary
+foreach(PROJECT_SOURCE_FILE ${EXECUTABLES})
     get_filename_component(SRC_NAME ${PROJECT_SOURCE_FILE} NAME_WE)
-    add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE} ${PROJECT_HEADERS}
-                               ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
-                               ${LIBRARY_SOURCES} ${VENDORS_SOURCES})
-    target_link_libraries(${SRC_NAME} assimp glfw
-                          ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
-    #set_target_properties(${SRC_NAME} PROPERTIES
-        #RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
+    add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE} )
+    target_link_libraries(${SRC_NAME} frameworkLibrary)
 endforeach(PROJECT_SOURCE_FILE)
+
+
 

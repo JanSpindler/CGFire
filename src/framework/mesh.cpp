@@ -1,11 +1,12 @@
-#include <mesh.hpp>
+#include <framework/mesh.hpp>
+#include <framework/config.hpp>
+#include <framework/buffer.hpp>
 
 #include <functional>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <config.hpp>
-#include <buffer.hpp>
+
 
 void
 geometry::bind() {

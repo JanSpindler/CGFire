@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 
+// loads code of file into string
 const char*
 loadShaderFile(const char* filename);
 
@@ -9,6 +10,7 @@ loadShaderFile(const char* filename);
 // and checks for compilation errors
 unsigned int
 compileShader(const char* filename, unsigned int type);
+
 
 unsigned int
 linkProgram(unsigned int vertexShader, unsigned int fragmentShader);

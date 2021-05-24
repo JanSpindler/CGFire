@@ -1,4 +1,4 @@
-#include <buffer.hpp>
+#include <framework/buffer.hpp>
 
 unsigned int
 makeBuffer(unsigned int bufferType, GLenum usageHint, unsigned int bufferSize, void* data) {

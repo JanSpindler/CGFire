@@ -1,6 +1,6 @@
-#include "common.hpp"
-#include "shader.hpp"
-#include "buffer.hpp"
+#include "framework/common.hpp"
+#include "framework/shader.hpp"
+#include "framework/buffer.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
