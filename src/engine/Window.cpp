@@ -5,7 +5,7 @@
 #include "engine/gr_include.hpp"
 
 #include "engine/Window.hpp"
-#include "engine/Util.hpp"
+#include "engine/util.hpp"
 
 namespace en
 {
@@ -50,7 +50,7 @@ namespace en
         ClearGLError();
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        //glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
 
         PopGLError(true);
         Log::Info("OpenGL and GLFW have been initialized");
@@ -74,7 +74,7 @@ namespace en
         glViewport(0, 0, width_, height_);
 
         glfwSwapBuffers(handle_);
-        glClear(GL_COLOR_BUFFER_BIT /*| GL_DEPTH_BUFFER_BIT*/);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Image will be drawn after this function
     }
@@ -97,6 +97,11 @@ namespace en
     int Window::GetHeight() const
     {
         return height_;
+    }
+
+    float Window::GetAspectRatio() const
+    {
+        return (float) width_ / (float) height_;
     }
 
     bool Window::IsOpen()

@@ -21,6 +21,7 @@ namespace en
 
         int GetWidth() const;
         int GetHeight() const;
+        float GetAspectRatio() const;
         bool IsOpen();
 
     private:

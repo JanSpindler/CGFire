@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 
-#include "engine/Util.hpp"
+#include "engine/util.hpp"
 
 namespace en
 {
@@ -47,20 +47,43 @@ namespace en
         return buffer;
     }
 
-    void Log::Info(const char* msg)
+    void Log::Info(const std::string& msg)
     {
         std::cout << "INFO:  " << msg << std::endl;
     }
 
-    void Log::Warn(const char* msg)
+    void Log::Warn(const std::string& msg)
     {
         std::cout << "Warn:  " << msg << std::endl;
     }
 
-    void Log::Error(const char* msg, bool exit)
+    void Log::Error(const std::string& msg, bool exit)
     {
         std::cout << "Error: " << msg << std::endl;
         if (exit)
             throw std::runtime_error("Closing Application due to Error");
+    }
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> Time::last_ = std::chrono::high_resolution_clock::now();
+    double Time::deltaTime_ = 0.0f;
+    int Time::fps_ = 0;
+
+    void Time::Update()
+    {
+        std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+        std::chrono::nanoseconds delta = now - last_;
+        deltaTime_ = (double) delta.count() / 100000000.0;
+
+        // TODO: implement fps
+    }
+
+    double Time::GetDeltaTime()
+    {
+        return deltaTime_;
+    }
+
+    int Time::GetFps()
+    {
+        return fps_;
     }
 }

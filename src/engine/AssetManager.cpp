@@ -12,7 +12,7 @@
 #include <unordered_map>
 
 #include "engine/config.hpp"
-#include "engine/Util.hpp"
+#include "engine/util.hpp"
 
 namespace en
 {

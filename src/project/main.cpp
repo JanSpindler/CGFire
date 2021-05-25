@@ -2,7 +2,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "engine/Util.hpp"
+#include "engine/util.hpp"
 #include "engine/Camera.hpp"
 #include "engine/GLShader.hpp"
 #include "engine/Mesh.hpp"
@@ -17,16 +17,17 @@ int main(int argc, char** argv)
 {
     en::Log::Info("Initializing CGFire");
 
+    en::Time::Update();
     en::Window window(800, 600, "CGFire");
 
     float fov = glm::radians(60.f);
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
     en::Camera cam(
-            glm::vec3(0.0f, 0.0f, -10.0f),
+            glm::vec3(0.0f, 3.0f, -10.0f),
             glm::vec3(0.0f, 0.0f, 1.0f),
             glm::vec3(0.0f, 1.0f, 0.0f),
-            (float) window.GetWidth() / (float) window.GetHeight(),
+            window.GetAspectRatio(),
             fov,
             nearPlane,
             farPlane);
@@ -40,7 +41,7 @@ int main(int argc, char** argv)
     glm::mat4 modelMat = glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, 10.0f));
     glm::mat4 viewMat;
     glm::mat4 projMat;
-    glm::vec4 color(1.0f, 0.0f, 1.0f, 1.0f);
+    glm::vec4 color(0.0f, 1.0f, 0.0f, 1.0f);
 
     program.Use();
     program.SetUniformVec4f("color", color);
@@ -49,9 +50,11 @@ int main(int argc, char** argv)
     {
         window.Update();
 
-        cam.SetAspectRatio((float) window.GetWidth() / (float) window.GetHeight());
+        cam.SetAspectRatio(window.GetAspectRatio());
         viewMat = cam.GetViewMat();
         projMat = cam.GetProjMat();
+
+        modelMat = glm::rotate(modelMat, (float)(en::Time::GetDeltaTime() * 1.0), glm::vec3(0.0f, 1.0f, 0.0f));
 
         program.Use();
         program.SetUniformMat4("model_mat", false, &modelMat[0][0]);
