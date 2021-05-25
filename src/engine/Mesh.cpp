@@ -20,6 +20,7 @@ namespace en
         int width;
         int height;
         int channelCount;
+        stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load(path.c_str(), &width, &height, &channelCount, 0);
         if (!data)
             Log::Error("Failed to load Texture", true);

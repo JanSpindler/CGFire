@@ -6,9 +6,9 @@
 #include "engine/Camera.hpp"
 #include "engine/GLShader.hpp"
 #include "engine/Model.hpp"
-#include "engine/config.hpp"
 
-#include "engine/gr_include.hpp"
+//#include "engine/config.hpp"
+//#include "engine/gr_include.hpp"
 
 struct Vert
 {
