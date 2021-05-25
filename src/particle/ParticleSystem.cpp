@@ -63,8 +63,8 @@ void ParticleSystem::OnRender(camera& cam)
 
 
         // load and compile shaders and link program
-        unsigned int vertexShader = compileShader("particles.vert", GL_VERTEX_SHADER);
-        unsigned int fragmentShader = compileShader("particles.frag", GL_FRAGMENT_SHADER);
+        unsigned int vertexShader = compileShader("CGFire/particles.vert", GL_VERTEX_SHADER);
+        unsigned int fragmentShader = compileShader("CGFire/particles.frag", GL_FRAGMENT_SHADER);
         m_ParticleShader = linkProgram(vertexShader, fragmentShader);
         glDeleteShader(fragmentShader);
         glDeleteShader(vertexShader);
@@ -95,9 +95,9 @@ void ParticleSystem::OnRender(camera& cam)
 		float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
 		
 		// Render
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), { particle.Position.x, particle.Position.y, 0.0f })
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), { particle.Position.x, particle.Position.y, 0 })
 			* glm::rotate(glm::mat4(1.0f), particle.Rotation, { 0.0f, 0.0f, 1.0f })
-			* glm::scale(glm::mat4(1.0f), { size, size, 1.0f });
+			* glm::scale(glm::mat4(100.0f), { size, size, 1 });
 		glUniformMatrix4fv(m_ParticleShaderTransform, 1, GL_FALSE, glm::value_ptr(transform));
 		glUniform4fv(m_ParticleShaderColor, 1, glm::value_ptr(color));
 		glBindVertexArray(m_QuadVA);
@@ -116,7 +116,7 @@ void ParticleSystem::Emit(const ParticleProps& particleProps)
 	particle.Velocity = particleProps.Velocity;
 	particle.Velocity.x += particleProps.VelocityVariation.x * (util::Random::Float() - 0.5f);
     particle.Velocity.y += particleProps.VelocityVariation.y * (util::Random::Float() - 0.5f);
-    particle.Velocity.z += particleProps.VelocityVariation.z * (util::Random::Float() - 0.5f);
+    particle.Velocity.z += 0;//particleProps.VelocityVariation.z * (util::Random::Float() - 0.5f);
 
 	// Color
 	particle.ColorBegin = particleProps.ColorBegin;

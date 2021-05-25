@@ -67,16 +67,28 @@ add_library(frameworkLibrary STATIC ${frameworkSOURCES})
 target_link_libraries(frameworkLibrary ${VENDOR_LIBRARIES})
 
 
+# alles was zu unserer engine gehört
+file(GLOB_RECURSE engineSOURCES
+        src/engine/*.cpp
+        src/particle/*.cpp
+        src/util/*.cpp)
+add_library(engineLibrary STATIC ${engineSOURCES})
+target_link_libraries(engineLibrary frameworkLibrary)
 
 
-file(GLOB EXECUTABLES
+
+#man kann weitere Executables mittels set(EXECUTABLES ${EXECUTABLES} <NeueExecutable>) adden:
+
+add_executable(Particle_Test src/particle/Test_Particle.cpp)
+target_link_libraries(Particle_Test engineLibrary)
+
+
+file(GLOB AUFGABEN_EXECUTABLES
         src/Aufgaben/*.cpp)
 
-#evtl kann man weitere Executables mittels set(EXECUTABLES ${EXECUTABLES} <NeueExecutable>) adden
-
-#folgendes fügt für jede Datei aus EXECUTABLES eine Executable hinzu
+#folgendes fügt für jede Datei aus AUFGABEN_EXECUTABLES eine Executable hinzu
 # und linkt alle Executables mit der frameworkLibrary
-foreach(PROJECT_SOURCE_FILE ${EXECUTABLES})
+foreach(PROJECT_SOURCE_FILE ${AUFGABEN_EXECUTABLES})
     get_filename_component(SRC_NAME ${PROJECT_SOURCE_FILE} NAME_WE)
     add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE} )
     target_link_libraries(${SRC_NAME} frameworkLibrary)

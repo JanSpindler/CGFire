@@ -2,7 +2,7 @@
 
 namespace util {
 
-    //represents an amount of time passed
+    //represents an amount of time passed, in Seconds
 	class TimeStep
 	{
 	public:

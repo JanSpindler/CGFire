@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "common.hpp"
+#include "framework/common.hpp"
 #include "util/Timestep.h"
 #include "util/Random.h"
-#include "camera.hpp"
-#include "shader.hpp"
+#include "framework/camera.hpp"
+#include "framework/shader.hpp"
 
 struct ParticleProps
 {

@@ -29,6 +29,9 @@ float beckmannDistribution(float dotNH) {
     float tanalpha_squared = pow(tan(alpha), 2);
     float D = exp(-tanalpha_squared/sigma2) / (pi * sigma2 * pow(alpha, 4));
 
+    //So wie ich es falsch gemacht habe sieht es viel besser aus!! Richtig ist aber:
+    //float D = exp(-tanalpha_squared/sigma2) / (pi * sigma2 * pow(cos(alpha), 4));
+
     return D;
 }
 
@@ -81,14 +84,14 @@ float orennayarTerm(float lambert, vec3 n, vec3 l) {
     float alpha = max(thetaL, thetaV);
     float beta = min(thetaL, thetaV);
 
-    vec3 V_proj = (n - cdot(v, n)*n);
+    vec3 V_proj = (n - dot(v, n)*n);
     V_proj = V_proj / length(V_proj);
 
-    vec3 L_proj = (n - cdot(l, n)*n);
+    vec3 L_proj = (n - dot(l, n)*n);
     L_proj = L_proj / length(L_proj);
 
     float cosTheta_L_V = cdot(L_proj, V_proj);
-    float L = cos(thetaL)*(A + (B*max(0, cosTheta_L_V)*sin(alpha)*tan(beta)));
+    float L = /*cos(thetaL)**/(A + (B*max(0, cosTheta_L_V)*sin(alpha)*tan(beta)));
 
     return lambert * L;
 }
