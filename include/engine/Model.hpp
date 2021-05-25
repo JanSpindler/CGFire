@@ -15,7 +15,7 @@ namespace en
     class Model
     {
     public:
-        Model(const std::string& path);
+        Model(const std::string& path, bool flipUv);
         ~Model();
 
         void Draw(const GLProgram* program) const;
@@ -24,6 +24,7 @@ namespace en
         std::vector<Mesh> meshes_;
         std::string directory;
         std::vector<Texture> loadedTextures_;
+        bool flipUv_;
 
         void LoadModel(const std::string& path);
         void ProcessNode(aiNode* node, const aiScene* scene);

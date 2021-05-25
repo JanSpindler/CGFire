@@ -26,7 +26,7 @@ namespace en
         std::string type;
         std::string path;
 
-        Texture(const std::string& path);
+        Texture(const std::string& path, bool flip);
     };
 
     class Mesh

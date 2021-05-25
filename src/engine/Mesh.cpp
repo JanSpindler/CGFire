@@ -13,14 +13,14 @@
 
 namespace en
 {
-    Texture::Texture(const std::string &path)
+    Texture::Texture(const std::string &path, bool flip)
     {
         Log::Info(path);
 
         int width;
         int height;
         int channelCount;
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(flip);
         unsigned char* data = stbi_load(path.c_str(), &width, &height, &channelCount, 0);
         if (!data)
             Log::Error("Failed to load Texture", true);

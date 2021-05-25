@@ -8,8 +8,9 @@
 
 namespace en
 {
-    Model::Model(const std::string& path)
+    Model::Model(const std::string& path, bool flipUv)
     {
+        flipUv_ = flipUv;
         LoadModel(MODEL_ROOT + "/" + path);
     }
 
@@ -122,7 +123,7 @@ namespace en
             }
             if(!skip)
             {   // if texture hasn't been loaded already, load it
-                Texture texture(std::string(directory + "/" + str.C_Str()));
+                Texture texture(std::string(directory + "/" + str.C_Str()), flipUv_);
                 texture.type = typeName;
                 texture.path = str.C_Str();
                 textures.push_back(texture);

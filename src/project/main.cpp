@@ -48,7 +48,7 @@ int main()
     program.SetUniformVec4f("color", color);
     program.SetUniformB("use_tex", true);
 
-    en::Model model("backpack/backpack.obj");
+    en::Model model("mouse/Mouse 3D Model.obj", false);
 
     while (window.IsOpen())
     {
