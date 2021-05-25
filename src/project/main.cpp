@@ -5,15 +5,17 @@
 #include "engine/util.hpp"
 #include "engine/Camera.hpp"
 #include "engine/GLShader.hpp"
-#include "engine/Mesh.hpp"
-#include "engine/AssetManager.hpp"
+#include "engine/Model.hpp"
+#include "engine/config.hpp"
+
+#include "engine/gr_include.hpp"
 
 struct Vert
 {
     glm::vec3 pos;
 };
 
-int main(int argc, char** argv)
+int main()
 {
     en::Log::Info("Initializing CGFire");
 
@@ -36,15 +38,17 @@ int main(int argc, char** argv)
     en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram program(vertShader, fragShader);
 
-    en::Mesh mesh = en::AssetManager::LoadMesh("dragon.obj");
-
-    glm::mat4 modelMat = glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, 10.0f));
+    glm::mat4 modelMat = glm::scale(glm::identity<glm::mat4>(), glm::vec3(5.0f));
+    modelMat = glm::translate(modelMat, glm::vec3(0.0f, 0.0f, 10.0f));
     glm::mat4 viewMat;
     glm::mat4 projMat;
     glm::vec4 color(0.0f, 1.0f, 0.0f, 1.0f);
 
     program.Use();
     program.SetUniformVec4f("color", color);
+    program.SetUniformB("use_tex", true);
+
+    en::Model model("backpack/backpack.obj");
 
     while (window.IsOpen())
     {
@@ -61,7 +65,7 @@ int main(int argc, char** argv)
         program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
 
-        mesh.Draw();
+        model.Draw(&program);
     }
 
     en::Log::Info("Ending CGFire");

@@ -7,6 +7,9 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <string>
+
+#include "engine/GLShader.hpp"
 
 namespace en
 {
@@ -15,37 +18,35 @@ namespace en
         glm::vec3 pos;
         glm::vec3 normal;
         glm::vec2 uv;
-
-        bool operator==(const Vertex& other) const;
     };
-}
 
-namespace std
-{
-    template<> struct hash<en::Vertex>
+    struct Texture
     {
-        size_t operator()(en::Vertex const &vert) const;
-    };
-}
+        unsigned int id;
+        std::string type;
+        std::string path;
 
-namespace en
-{
+        Texture(const std::string& path);
+    };
+
     class Mesh
     {
     public:
-        Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
+        std::vector<Vertex> vertices_;
+        std::vector<unsigned int> indices_;
+        std::vector<Texture> textures_;
+
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
         ~Mesh();
 
-        void Draw() const;
-        void Bind() const;
-        void Delete() const;
+        void Draw(const GLProgram* program) const;
 
     private:
         unsigned int vao_;
         unsigned int vbo_;
         unsigned int ibo_;
-        std::vector<Vertex> vertices_;
-        std::vector<unsigned int> indices_;
+
+        void SetupMesh();
     };
 }
 

@@ -160,7 +160,7 @@ main(int, char* argv[]) {
     float* random_tex_data = random_texture_data(TEXTURE_WIDTH, TEXTURE_HEIGHT);
     float* gradient_tex_data = gradient_texture_data(TEXTURE_WIDTH, TEXTURE_HEIGHT);
     int image_width, image_height;
-    float* image_tex_data = load_texture_data(DATA_ROOT + "blue_painted_planks.png", &image_width, &image_height);
+    float* image_tex_data = load_texture_data(DATA_ROOT + "planks.png", &image_width, &image_height);
 
     unsigned int gradient_tex = create_texture_rgba32f(TEXTURE_WIDTH, TEXTURE_HEIGHT, gradient_tex_data);
     unsigned int random_tex = create_texture_rgba32f(TEXTURE_WIDTH, TEXTURE_HEIGHT, random_tex_data);
