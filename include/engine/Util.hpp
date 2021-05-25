@@ -6,13 +6,14 @@
 #define CGFIRE_UTIL_HPP
 
 #include <vector>
+#include <string>
 
 namespace en
 {
     unsigned int PopGLError(bool exit);
     void ClearGLError();
 
-    std::vector<char> ReadFileBinary(const char* filename);
+    std::vector<char> ReadFileBinary(const std::string& filename);
 
     class Log
     {

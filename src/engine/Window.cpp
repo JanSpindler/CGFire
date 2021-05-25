@@ -9,6 +9,12 @@
 
 namespace en
 {
+    void ErrorCallback(int error, const char* desc)
+    {
+        std::string errorStr = "GLFW Error " + std::to_string(error) + " - " + desc;
+        Log::Error(errorStr.c_str(), false);
+    }
+
     Window::Window(int width, int height, const char* title)
     {
         handle_ = nullptr;
@@ -32,6 +38,7 @@ namespace en
         {
             Log::Error("Failed to create GLFW Window", true);
         }
+        glfwSetErrorCallback(ErrorCallback);
         glfwMakeContextCurrent(handle_);
 
         // OpenGL Setup
@@ -43,7 +50,7 @@ namespace en
         ClearGLError();
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glEnable(GL_DEPTH_TEST);
+        //glEnable(GL_DEPTH_TEST);
 
         PopGLError(true);
         Log::Info("OpenGL and GLFW have been initialized");
@@ -60,16 +67,14 @@ namespace en
         // Image has just been drawn
 
         // Check for Errors after drawing
-        while(PopGLError(false) != GL_NO_ERROR);
+        while(PopGLError(true) != GL_NO_ERROR);
 
+        glfwPollEvents();
         glfwGetWindowSize(handle_, &width_, &height_);
         glViewport(0, 0, width_, height_);
 
         glfwSwapBuffers(handle_);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glfwPollEvents();
-        ClearGLError();
+        glClear(GL_COLOR_BUFFER_BIT /*| GL_DEPTH_BUFFER_BIT*/);
 
         // Image will be drawn after this function
     }

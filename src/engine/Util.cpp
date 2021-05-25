@@ -28,7 +28,7 @@ namespace en
         while (glGetError() != GL_NO_ERROR);
     }
 
-    std::vector<char> ReadFileBinary(const char* filename)
+    std::vector<char> ReadFileBinary(const std::string& filename)
     {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
         if (!file)
