@@ -15,8 +15,21 @@ namespace en
         glm::vec3 pos;
         glm::vec3 normal;
         glm::vec2 uv;
-    };
 
+        bool operator==(const Vertex& other) const;
+    };
+}
+
+namespace std
+{
+    template<> struct hash<en::Vertex>
+    {
+        size_t operator()(en::Vertex const &vert) const;
+    };
+}
+
+namespace en
+{
     class Mesh
     {
     public:

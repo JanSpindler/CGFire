@@ -9,6 +9,7 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader.h>
+#include <unordered_map>
 
 #include "engine/config.hpp"
 #include "engine/Util.hpp"
@@ -30,6 +31,7 @@ namespace en
             Log::Error(errorStr.c_str(), true);
         }
 
+        std::unordered_map<Vertex, unsigned int> vertMap;
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         for (tinyobj::shape_t shape : shapes)
@@ -52,8 +54,12 @@ namespace en
                 vert.normal = normal;
                 vert.uv = glm::vec2(0.0f);
 
-                vertices.push_back(vert);
-                indices.push_back(indices.size());
+                if (vertMap.count(vert) == 0)
+                {
+                    vertMap[vert] = vertMap.size();
+                    vertices.push_back(vert);
+                }
+                indices.push_back(vertMap[vert]);
             }
         }
 

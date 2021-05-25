@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram program(vertShader, fragShader);
 
-    en::Mesh mesh = en::AssetManager::LoadMesh("cube.obj");
+    en::Mesh mesh = en::AssetManager::LoadMesh("dragon.obj");
 
     glm::mat4 modelMat = glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 0.0f, 10.0f));
     glm::mat4 viewMat;

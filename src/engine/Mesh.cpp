@@ -4,17 +4,28 @@
 
 #include "engine/gr_include.hpp"
 
-#include <functional>
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/hash.hpp>
 
 #include "engine/Mesh.hpp"
-#include "engine/Util.hpp"
+
+namespace std
+{
+    size_t hash<en::Vertex>::operator()(const en::Vertex &vert) const
+    {
+        size_t h1 = hash<glm::vec3>()(vert.pos);
+        size_t h2 = hash<glm::vec3>()(vert.normal);
+        size_t h3 = hash<glm::vec2>()(vert.uv);
+        return ((h1 ^ (h2 << 1)) >> 1) ^ h3;
+    }
+}
 
 namespace en
 {
+    bool Vertex::operator==(const Vertex &other) const
+    {
+        return (pos == other.pos) && (normal == other.normal) && (uv == other.uv);
+    }
+
     Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
     {
         vertices_ = vertices;
