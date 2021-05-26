@@ -6,7 +6,7 @@
 #include "engine/Camera.hpp"
 #include "engine/GLShader.hpp"
 #include "engine/Model.hpp"
-#include "engine/Renderer.hpp"
+#include "engine/Light.hpp"
 
 //#include "engine/config.hpp"
 //#include "engine/gr_include.hpp"
@@ -39,7 +39,7 @@ int main()
     en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram program(vertShader, fragShader);
 
-    glm::mat4 modelMat = glm::scale(glm::identity<glm::mat4>(), glm::vec3(5.0f));
+    glm::mat4 modelMat = glm::scale(glm::identity<glm::mat4>(), glm::vec3(1.0f));
     modelMat = glm::translate(modelMat, glm::vec3(0.0f, 0.0f, 10.0f));
     glm::mat4 viewMat;
     glm::mat4 projMat;
@@ -48,11 +48,12 @@ int main()
     en::Model model("backpack/backpack.obj", true);
 
     en::DirectionalLight dirLight;
-    dirLight.dir_ = glm::normalize(glm::vec3(-1.0, -0.4f, 1.0f));
+    dirLight.dir_ = glm::normalize(glm::vec3(-0.3f, -0.4f, 1.0f));
     dirLight.color_ = glm::vec3(1.0f);
 
-    en::Renderer renderer(&program);
-    renderer.SetDirectionalLight(dirLight);
+    program.Use();
+    program.SetUniformVec3f("dir_light_dir", dirLight.dir_);
+    program.SetUniformVec3f("dir_light_color", dirLight.color_);
 
     while (window.IsOpen())
     {
@@ -68,8 +69,7 @@ int main()
         program.SetUniformMat4("model_mat", false, &modelMat[0][0]);
         program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
-
-        renderer.Render(&model);
+        model.Draw(&program);
     }
 
     en::Log::Info("Ending CGFire");
