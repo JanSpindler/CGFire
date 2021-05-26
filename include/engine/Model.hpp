@@ -9,6 +9,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include "Material.hpp"
+#include <unordered_map>
 
 namespace en
 {
@@ -22,14 +24,14 @@ namespace en
 
     private:
         std::vector<Mesh> meshes_;
-        std::string directory;
-        std::vector<Texture> loadedTextures_;
+        std::string directory_;
+        std::unordered_map<const aiMaterial*, Material*> materials_;
+        std::unordered_map<std::string, GLPictureTex*> textures_;
         bool flipUv_;
 
-        void LoadModel(const std::string& path);
+        void LoadMaterials(const aiScene* scene);
         void ProcessNode(aiNode* node, const aiScene* scene);
         Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
-        std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
     };
 }
 

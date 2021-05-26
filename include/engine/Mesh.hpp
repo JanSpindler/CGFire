@@ -9,34 +9,17 @@
 #include <vector>
 #include <string>
 
-#include "engine/GLShader.hpp"
+#include "GLShader.hpp"
+#include "Vertex.hpp"
+#include "GLTexture.hpp"
+#include "Material.hpp"
 
 namespace en
 {
-    struct Vertex
-    {
-        glm::vec3 pos;
-        glm::vec3 normal;
-        glm::vec2 uv;
-    };
-
-    struct Texture
-    {
-        unsigned int id;
-        std::string type;
-        std::string path;
-
-        Texture(const std::string& path, bool flip);
-    };
-
     class Mesh
     {
     public:
-        std::vector<Vertex> vertices_;
-        std::vector<unsigned int> indices_;
-        std::vector<Texture> textures_;
-
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+        Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material* material);
         ~Mesh();
 
         void Draw(const GLProgram* program) const;
@@ -45,8 +28,9 @@ namespace en
         unsigned int vao_;
         unsigned int vbo_;
         unsigned int ibo_;
-
-        void SetupMesh();
+        std::vector<Vertex> vertices_;
+        std::vector<unsigned int> indices_;
+        const Material* material_;
     };
 }
 

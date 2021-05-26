@@ -22,7 +22,7 @@ endif()
 
 configure_file ( 
     "${PROJECT_SOURCE_DIR}/config.hpp.in"
-    "${PROJECT_SOURCE_DIR}/include/config.hpp"
+    "include/framework/config.hpp"
 )
 
 include_directories(include/

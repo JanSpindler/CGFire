@@ -2,10 +2,11 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "engine/util.hpp"
+#include "engine/Util.hpp"
 #include "engine/Camera.hpp"
 #include "engine/GLShader.hpp"
 #include "engine/Model.hpp"
+#include "engine/Renderer.hpp"
 
 //#include "engine/config.hpp"
 //#include "engine/gr_include.hpp"
@@ -42,13 +43,17 @@ int main()
     modelMat = glm::translate(modelMat, glm::vec3(0.0f, 0.0f, 10.0f));
     glm::mat4 viewMat;
     glm::mat4 projMat;
-    glm::vec4 color(0.0f, 1.0f, 0.0f, 1.0f);
+    glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
     program.Use();
     program.SetUniformVec4f("color", color);
-    program.SetUniformB("use_tex", true);
 
-    en::Model model("mouse/Mouse 3D Model.obj", false);
+    en::Model model("backpack/backpack.obj", true);
+    en::Renderer renderer(&program);
+
+    en::DirectionalLight dirLight;
+    dirLight.dir_ = glm::normalize(glm::vec3(-0.5f, -1.0f, -0.5f));
+    dirLight.color_ = glm::vec4(1.0f);
 
     while (window.IsOpen())
     {
@@ -65,7 +70,7 @@ int main()
         program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
 
-        model.Draw(&program);
+        renderer.Render(&model);
     }
 
     en::Log::Info("Ending CGFire");

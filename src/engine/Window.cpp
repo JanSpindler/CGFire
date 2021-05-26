@@ -5,7 +5,7 @@
 #include "engine/gr_include.hpp"
 
 #include "engine/Window.hpp"
-#include "engine/util.hpp"
+#include "engine/Util.hpp"
 
 namespace en
 {
@@ -101,7 +101,10 @@ namespace en
 
     float Window::GetAspectRatio() const
     {
-        return (float) width_ / (float) height_;
+        float aspectRatio = 1.0f;
+        if (height_ != 0)
+            aspectRatio = (float) width_ / (float) height_;
+        return aspectRatio;
     }
 
     bool Window::IsOpen()
