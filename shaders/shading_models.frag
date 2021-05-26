@@ -84,11 +84,8 @@ float orennayarTerm(float lambert, vec3 n, vec3 l) {
     float alpha = max(thetaL, thetaV);
     float beta = min(thetaL, thetaV);
 
-    vec3 V_proj = (n - dot(v, n)*n);
-    V_proj = V_proj / length(V_proj);
-
-    vec3 L_proj = (n - dot(l, n)*n);
-    L_proj = L_proj / length(L_proj);
+    vec3 V_proj = normalize(n - dot(v, n)*n);
+    vec3 L_proj = normalize(n - dot(l, n)*n);
 
     float cosTheta_L_V = cdot(L_proj, V_proj);
     float L = /*cos(thetaL)**/(A + (B*max(0, cosTheta_L_V)*sin(alpha)*tan(beta)));
