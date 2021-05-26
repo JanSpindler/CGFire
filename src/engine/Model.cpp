@@ -43,12 +43,12 @@ namespace en
             return;
 
         // Default Material
-        materials_.insert(std::pair<const aiMaterial*, Material*>(nullptr,
+        /*materials_.insert(std::pair<const aiMaterial*, Material*>(nullptr,
                                                                   new Material(
                                                                           1.0f,
                                                                           glm::vec4(1.0f),
                                                                           glm::vec4(1.0f),
-                                                                          nullptr)));
+                                                                          nullptr)));*/
 
         unsigned int matCount = scene->mNumMaterials;
         Log::Info("Model has " + std::to_string(matCount) + " materials");
@@ -63,38 +63,34 @@ namespace en
             Material* material;
             float shininess;
             if (AI_SUCCESS != aiGetMaterialFloat(aiMat, AI_MATKEY_SHININESS, &shininess))
-                shininess = 0.0f;
-            else if (shininess > 1.0f)
-                shininess /= 256.0f;
+                shininess = 1.0f;
             Log::Info("Shininess " + std::to_string(shininess));
 
             // Diffuse color
             aiColor4D aiDiffuseColor;
-            glm::vec4 diffuseColor;
+            glm::vec3 diffuseColor;
             if (AI_SUCCESS != aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_DIFFUSE, &aiDiffuseColor))
-                diffuseColor = glm::vec4(1.0f);
+                diffuseColor = glm::vec3(1.0f);
             else
-                diffuseColor = glm::vec4(aiDiffuseColor.r, aiDiffuseColor.g, aiDiffuseColor.b, aiDiffuseColor.a);
+                diffuseColor = glm::vec3(aiDiffuseColor.r, aiDiffuseColor.g, aiDiffuseColor.b);
             Log::Info(
                     "Diffuse color (" +
                     std::to_string(diffuseColor.x) +
                     ", " + std::to_string(diffuseColor.y) +
-                    ", " + std::to_string(diffuseColor.z) +
-                    ", " + std::to_string(diffuseColor.w) + ")");
+                    ", " + std::to_string(diffuseColor.z) + ")");
 
             // Specular color
             aiColor4D aiSpecularColor;
-            glm::vec4 specularColor;
+            glm::vec3 specularColor;
             if (AI_SUCCESS != aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_SPECULAR, &aiSpecularColor))
-                specularColor = glm::vec4(1.0f);
+                specularColor = glm::vec3(1.0f);
             else
-                specularColor = glm::vec4(aiSpecularColor.r, aiSpecularColor.g, aiSpecularColor.b, aiSpecularColor.a);
+                specularColor = glm::vec3(aiSpecularColor.r, aiSpecularColor.g, aiSpecularColor.b);
             Log::Info(
                     "Specular color (" +
                     std::to_string(specularColor.x) +
                     ", " + std::to_string(specularColor.y) +
-                    ", " + std::to_string(specularColor.z) +
-                    ", " + std::to_string(specularColor.w) + ")");
+                    ", " + std::to_string(specularColor.z) + ")");
 
             // Diffuse texture
             GLPictureTex* texture = nullptr;

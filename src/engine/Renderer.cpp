@@ -19,7 +19,7 @@ namespace en
     {
         program_->Use();
         program_->SetUniformVec3f("dir_light_dir", dirLight_.dir_);
-        program_->SetUniformVec4f("dir_light_color", dirLight_.color_);
+        program_->SetUniformVec3f("dir_light_color", dirLight_.color_);
         // TODO: set point light uniforms
         model->Draw(program_);
     }

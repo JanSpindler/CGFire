@@ -9,14 +9,13 @@ uniform mat4 view_mat;
 uniform mat4 proj_mat;
 
 out vec3 interp_model_pos;
-out vec3 interp_normal;
+out vec3 interp_model_normal;
 out vec2 interp_uv;
 
 void main()
 {
-    vec4 model_pos_v4 = model_mat * vec4(pos.xyz, 1.0);
-    gl_Position = proj_mat * view_mat * model_pos_v4;
-    interp_model_pos = model_pos_v4.xyz;
-    interp_normal = normal;
+    gl_Position = proj_mat * view_mat * model_mat * vec4(pos, 1.0);
+    interp_model_pos = (model_mat * vec4(pos, 1.0)).xyz;
+    interp_model_normal = (model_mat * vec4(normal, 1.0)).xyz;;
     interp_uv = uv;
 }

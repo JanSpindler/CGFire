@@ -12,7 +12,7 @@ namespace en
     struct DirectionalLight
     {
         glm::vec3 dir_;
-        glm::vec4 color_;
+        glm::vec3 color_;
     };
 
     struct PointLight

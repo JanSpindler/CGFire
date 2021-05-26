@@ -45,15 +45,14 @@ int main()
     glm::mat4 projMat;
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    program.Use();
-    program.SetUniformVec4f("color", color);
-
     en::Model model("backpack/backpack.obj", true);
-    en::Renderer renderer(&program);
 
     en::DirectionalLight dirLight;
-    dirLight.dir_ = glm::normalize(glm::vec3(-0.5f, -1.0f, -0.5f));
-    dirLight.color_ = glm::vec4(1.0f);
+    dirLight.dir_ = glm::normalize(glm::vec3(-1.0, -0.4f, 1.0f));
+    dirLight.color_ = glm::vec3(1.0f);
+
+    en::Renderer renderer(&program);
+    renderer.SetDirectionalLight(dirLight);
 
     while (window.IsOpen())
     {
