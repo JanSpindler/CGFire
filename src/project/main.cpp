@@ -1,6 +1,6 @@
 #include "engine/Window.hpp"
 
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "engine/Util.hpp"
 #include "engine/Camera.hpp"
@@ -19,7 +19,7 @@ int main()
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
     en::Camera cam(
-            glm::vec3(0.0f, 3.0f, -10.0f),
+            glm::vec3(0.0f, 3.0f, -20.0f),
             glm::vec3(0.0f, 0.0f, 1.0f),
             glm::vec3(0.0f, 1.0f, 0.0f),
             window.GetAspectRatio(),
@@ -31,16 +31,19 @@ int main()
     en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram program(vertShader, fragShader);
 
-    glm::mat4 modelMat = glm::scale(glm::identity<glm::mat4>(), glm::vec3(1.0f));
-    modelMat = glm::translate(modelMat, glm::vec3(0.0f, 0.0f, 10.0f));
     glm::mat4 viewMat;
     glm::mat4 projMat;
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    en::Model model("backpack/backpack.obj", true);
+    en::Model backpackModel("backpack/backpack.obj", true);
+    en::RenderObj backpackObj = { &backpackModel };
+
+    en::Model floorModel("cube.obj", true);
+    en::RenderObj floorObj = { &floorModel };
+    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
 
     program.Use();
-    en::DirLight dirLight(glm::vec3(0.3f, -0.4, 1.0f), glm::vec3(1.0f));
+    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
     dirLight.Use(&program);
 
     while (window.IsOpen())
@@ -87,13 +90,14 @@ int main()
         viewMat = cam.GetViewMat();
         projMat = cam.GetProjMat();
 
-        modelMat = glm::rotate(modelMat, deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
-
         program.Use();
-        program.SetUniformMat4("model_mat", false, &modelMat[0][0]);
         program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        model.Draw(&program);
+
+        backpackObj.t_ *= glm::rotate(deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+        backpackObj.Render(&program);
+
+        floorObj.Render(&program);
     }
 
     en::Log::Info("Ending CGFire");

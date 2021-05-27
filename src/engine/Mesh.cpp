@@ -46,7 +46,7 @@ namespace en
     {
     }
 
-    void Mesh::Draw(const GLProgram* program) const
+    void Mesh::Render(const GLProgram* program) const
     {
         material_->Use(program);
         glBindVertexArray(vao_);

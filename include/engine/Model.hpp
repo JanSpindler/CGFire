@@ -11,16 +11,17 @@
 #include <assimp/scene.h>
 #include "Material.hpp"
 #include <unordered_map>
+#include "Renderable.hpp"
 
 namespace en
 {
-    class Model
+    class Model : public Renderable
     {
     public:
         Model(const std::string& path, bool flipUv);
         ~Model();
 
-        void Draw(const GLProgram* program) const;
+        void Render(const GLProgram* program) const override;
 
     private:
         std::vector<Mesh> meshes_;

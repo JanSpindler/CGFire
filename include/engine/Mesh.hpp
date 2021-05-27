@@ -13,16 +13,17 @@
 #include "Vertex.hpp"
 #include "GLTexture.hpp"
 #include "Material.hpp"
+#include "Renderable.hpp"
 
 namespace en
 {
-    class Mesh
+    class Mesh : public Renderable
     {
     public:
         Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material* material);
         ~Mesh();
 
-        void Draw(const GLProgram* program) const;
+        void Render(const GLProgram* program) const override;
 
     private:
         unsigned int vao_;

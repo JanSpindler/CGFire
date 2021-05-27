@@ -32,10 +32,10 @@ namespace en
         // TODO: delete textures and materials
     }
 
-    void Model::Draw(const GLProgram* program) const
+    void Model::Render(const GLProgram* program) const
     {
         for (unsigned int i = 0; i < meshes_.size(); i++)
-            meshes_[i].Draw(program);
+            meshes_[i].Render(program);
     }
 
     void Model::LoadMaterials(const aiScene *scene)
