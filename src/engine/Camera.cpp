@@ -11,8 +11,8 @@ namespace en
     Camera::Camera(glm::vec3 pos, glm::vec3 viewDir, glm::vec3 up, float aspectRatio, float fov, float near, float far)
     {
         pos_ = pos;
-        viewDir_ = viewDir;
-        up_ = up;
+        viewDir_ = glm::normalize(viewDir);
+        up_ = glm::normalize(up);
         aspectRatio_ = aspectRatio;
         fov_ = fov;
         near_ = near;
@@ -41,12 +41,12 @@ namespace en
 
     void Camera::SetViewDir(glm::vec3 viewDir)
     {
-        viewDir_ = viewDir;
+        viewDir_ = glm::normalize(viewDir);
     }
 
     void Camera::SetUp(glm::vec3 up)
     {
-        up_ = up;
+        up_ = glm::normalize(up);
     }
 
     void Camera::SetAspectRatio(float aspectRatio)
@@ -71,11 +71,21 @@ namespace en
 
     void Camera::Move(glm::vec3 movement)
     {
-        pos_ += movement;
+        glm::vec3 frontMove = viewDir_ * movement.z;
+        glm::vec3 leftMove = glm::normalize(glm::cross(viewDir_, up_)) * movement.x;
+        glm::vec3 upMove = up_ * movement.y;
+
+        pos_ += frontMove + leftMove + upMove;
     }
 
     void Camera::RotateViewDir(float phi, float theta)
     {
-        // TODO: implement rotation
+        glm::vec3 phiAxis = up_;
+        glm::mat3 phiMat = glm::rotate(glm::identity<glm::mat4>(), phi, phiAxis);
+
+        glm::vec3 thetaAxis = glm::normalize(glm::cross(viewDir_, up_));
+        glm::mat3 thetaMat = glm::rotate(glm::identity<glm::mat4>(), theta, thetaAxis);
+
+        viewDir_ = glm::normalize(thetaMat * phiMat * viewDir_);
     }
 }

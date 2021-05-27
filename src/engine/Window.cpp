@@ -6,6 +6,7 @@
 
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
+#include "engine/Input.hpp"
 
 namespace en
 {
@@ -20,6 +21,7 @@ namespace en
         handle_ = nullptr;
         width_ = width;
         height_ = height;
+        cursorEnabled_ = true;
 
         // Init GLFW
         Log::Info("Initializing GLFW");
@@ -40,6 +42,7 @@ namespace en
         }
         glfwSetErrorCallback(ErrorCallback);
         glfwMakeContextCurrent(handle_);
+        Input::Init(handle_);
 
         // OpenGL Setup
         gladLoadGL();
@@ -90,6 +93,26 @@ namespace en
 
         Log::Info("Terminating GLFW");
         glfwTerminate();
+    }
+
+    void Window::EnableCursor(bool cursorMode)
+    {
+        if (cursorMode)
+        {
+            if (!cursorEnabled_)
+            {
+                glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                cursorEnabled_ = true;
+            }
+        }
+        else
+        {
+            if (cursorEnabled_)
+            {
+                glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                cursorEnabled_ = false;
+            }
+        }
     }
 
     int Window::GetWidth() const

@@ -10,12 +10,14 @@ uniform vec3 dir_light_dir;
 uniform vec3 dir_light_color;
 
 // Point Lights
-// TODO: implement
+#define POINT_LIGHT_COUNT 32
+uniform vec3 point_light_pos[POINT_LIGHT_COUNT];
+uniform vec3 point_light_color[POINT_LIGHT_COUNT];
 
 // Material
 uniform float shininess;
-uniform vec3 diffuse_color;
-uniform vec3 specular_color;
+uniform vec4 diffuse_color;
+uniform vec4 specular_color;
 uniform bool use_tex;
 uniform sampler2D tex;
 
@@ -25,19 +27,36 @@ const float pi = 3.14159265359;
 // Output
 out vec4 out_color;
 
-void main()
+vec4 get_dir_light_color()
 {
     // Diffuse
-    vec3 diffuse = diffuse_color;
+
+
+    // Specular
+
+
+    return vec4(0.0);
+}
+
+vec4 get_point_light_color()
+{
+    return vec4(0.0f);
+}
+
+void main()
+{
+    vec3 normal = normalize(interp_normal);
+
+    // Diffuse
+    vec4 diffuse = diffuse_color;
     if (use_tex)
-        diffuse = vec3(texture(tex, interp_uv));
-    vec3 norm = normalize(interp_normal);
-    float diff = max(dot(norm, -dir_light_dir), 0.0);
-    diffuse = dir_light_color * (diff * diffuse);
+        diffuse = texture(tex, interp_uv);
+    float diff = max(dot(normal, normalize(-dir_light_dir)), 0.0);
+    diffuse = vec4(dir_light_color, 1.0) * (diff * diffuse);
 
     // Specular
 
 
     // Result
-    out_color = vec4(diffuse, 1.0);
+    out_color = diffuse;
 }

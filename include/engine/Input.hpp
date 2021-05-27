@@ -6,6 +6,9 @@
 #define CGFIRE_INPUT_HPP
 
 #include <glm/glm.hpp>
+#include <unordered_map>
+#include "keycode.hpp"
+#include "mousecode.hpp"
 
 struct GLFWwindow;
 
@@ -15,14 +18,16 @@ namespace en
     {
     public:
         static void Init(GLFWwindow* windowHandle);
+        static void Update();
         static bool IsKeyPressed(int keycode);
         static bool IsMouseButtonPressed(int button);
         static glm::vec2 GetMousePos();
+        static glm::vec2 GetMouseMove();
 
     private:
         static GLFWwindow* windowHandle_;
-
-        static int KeycodeToGLFW(int keycode);
+        static glm::vec2 mousePos_;
+        static glm::vec2 mouseMove_;
     };
 }
 

@@ -22,6 +22,7 @@ namespace en
 
         directory_ = realPath.substr(0, realPath.find_last_of('/'));
 
+        Log::Info("Model has " + std::to_string(scene->mNumMeshes) + " meshes");
         LoadMaterials(scene);
         ProcessNode(scene->mRootNode, scene);
     }
@@ -68,29 +69,31 @@ namespace en
 
             // Diffuse color
             aiColor4D aiDiffuseColor;
-            glm::vec3 diffuseColor;
+            glm::vec4 diffuseColor;
             if (AI_SUCCESS != aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_DIFFUSE, &aiDiffuseColor))
-                diffuseColor = glm::vec3(1.0f);
+                diffuseColor = glm::vec4(1.0f);
             else
-                diffuseColor = glm::vec3(aiDiffuseColor.r, aiDiffuseColor.g, aiDiffuseColor.b);
+                diffuseColor = glm::vec4(aiDiffuseColor.r, aiDiffuseColor.g, aiDiffuseColor.b, aiDiffuseColor.a);
             Log::Info(
                     "Diffuse color (" +
                     std::to_string(diffuseColor.x) +
                     ", " + std::to_string(diffuseColor.y) +
-                    ", " + std::to_string(diffuseColor.z) + ")");
+                    ", " + std::to_string(diffuseColor.z) +
+                    ", " + std::to_string(diffuseColor.w) + ")");
 
             // Specular color
             aiColor4D aiSpecularColor;
-            glm::vec3 specularColor;
+            glm::vec4 specularColor;
             if (AI_SUCCESS != aiGetMaterialColor(aiMat, AI_MATKEY_COLOR_SPECULAR, &aiSpecularColor))
-                specularColor = glm::vec3(1.0f);
+                specularColor = glm::vec4(1.0f);
             else
-                specularColor = glm::vec3(aiSpecularColor.r, aiSpecularColor.g, aiSpecularColor.b);
+                specularColor = glm::vec4(aiSpecularColor.r, aiSpecularColor.g, aiSpecularColor.b, aiSpecularColor.a);
             Log::Info(
                     "Specular color (" +
                     std::to_string(specularColor.x) +
                     ", " + std::to_string(specularColor.y) +
-                    ", " + std::to_string(specularColor.z) + ")");
+                    ", " + std::to_string(specularColor.z) +
+                    ", " + std::to_string(specularColor.w) + ")");
 
             // Diffuse texture
             GLPictureTex* texture = nullptr;

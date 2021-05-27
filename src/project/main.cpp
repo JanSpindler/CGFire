@@ -7,20 +7,12 @@
 #include "engine/GLShader.hpp"
 #include "engine/Model.hpp"
 #include "engine/Light.hpp"
-
-//#include "engine/config.hpp"
-//#include "engine/gr_include.hpp"
-
-struct Vert
-{
-    glm::vec3 pos;
-};
+#include "engine/Input.hpp"
 
 int main()
 {
     en::Log::Info("Initializing CGFire");
 
-    en::Time::Update();
     en::Window window(800, 600, "CGFire");
 
     float fov = glm::radians(60.f);
@@ -47,23 +39,55 @@ int main()
 
     en::Model model("backpack/backpack.obj", true);
 
-    en::DirectionalLight dirLight;
-    dirLight.dir_ = glm::normalize(glm::vec3(-0.3f, -0.4f, 1.0f));
-    dirLight.color_ = glm::vec3(1.0f);
-
     program.Use();
-    program.SetUniformVec3f("dir_light_dir", dirLight.dir_);
-    program.SetUniformVec3f("dir_light_color", dirLight.color_);
+    en::DirLight dirLight(glm::vec3(0.3f, -0.4, 1.0f), glm::vec3(1.0f));
+    dirLight.Use(&program);
 
     while (window.IsOpen())
     {
         window.Update();
+        en::Input::Update();
+        en::Time::Update();
+        float deltaTime = (float)en::Time::GetDeltaTime();
 
+        // Mouse input handling
+        bool mouseRightPressed = en::Input::IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
+        window.EnableCursor(!mouseRightPressed);
+        if (mouseRightPressed)
+        {
+            glm::vec2 mouseMove = 0.005f * -en::Input::GetMouseMove();
+            cam.RotateViewDir(mouseMove.x, mouseMove.y);
+        }
+
+        // Keyboard input handling
+        glm::vec3 camMove(0.0f, 0.0f, 0.0f);
+        float camMoveSpeed = 2.0f * deltaTime;
+        bool frontPressed = en::Input::IsKeyPressed(KEY_W);
+        bool backPressed = en::Input::IsKeyPressed(KEY_S);
+        bool leftPressed = en::Input::IsKeyPressed(KEY_A);
+        bool rightPressed = en::Input::IsKeyPressed(KEY_D);
+        bool upPressed = en::Input::IsKeyPressed(KEY_SPACE);
+        bool downPressed = en::Input::IsKeyPressed(KEY_C);
+        if (frontPressed && !backPressed)
+            camMove.z = camMoveSpeed;
+        else if (backPressed && !frontPressed)
+            camMove.z = -camMoveSpeed;
+        if (rightPressed && !leftPressed)
+            camMove.x = camMoveSpeed;
+        else if (leftPressed  && !rightPressed)
+            camMove.x = -camMoveSpeed;
+        if (upPressed && !downPressed)
+            camMove.y = camMoveSpeed;
+        else if (downPressed && !upPressed)
+            camMove.y = -camMoveSpeed;
+        cam.Move(camMove);
+
+        // Rendering
         cam.SetAspectRatio(window.GetAspectRatio());
         viewMat = cam.GetViewMat();
         projMat = cam.GetProjMat();
 
-        modelMat = glm::rotate(modelMat, (float)(en::Time::GetDeltaTime() * 1.0), glm::vec3(0.0f, 1.0f, 0.0f));
+        modelMat = glm::rotate(modelMat, deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         program.Use();
         program.SetUniformMat4("model_mat", false, &modelMat[0][0]);
