@@ -28,7 +28,7 @@ const float FAR_VALUE = 100.f;
 const float SUN_EARTH_DISTANCE = 5.f;
 const float EARTH_MOON_DISTANCE = 2.f;
 
-glm::mat4 proj_matrix;
+
 std::chrono::time_point<std::chrono::system_clock> start_time;
 
 void resizeCallback(GLFWwindow* window, int width, int height);
@@ -121,5 +121,6 @@ void resizeCallback(GLFWwindow*, int width, int height)
 {
     // set new width and height as viewport size
     glViewport(0, 0, width, height);
-    proj_matrix = glm::perspective(FOV, static_cast<float>(width) / height, NEAR_VALUE, FAR_VALUE);
+    //Error:
+    //proj_matrix = glm::perspective(FOV, static_cast<float>(width) / static_cast<float>(height), NEAR_VALUE, FAR_VALUE);
 }
