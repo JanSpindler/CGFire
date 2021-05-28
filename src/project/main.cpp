@@ -93,10 +93,10 @@ int main()
         program.Use();
         program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        program.SetUniformVec3f("cam_pos", cam.GetPos());
 
         backpackObj.t_ *= glm::rotate(deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
         backpackObj.Render(&program);
-
         floorObj.Render(&program);
     }
 

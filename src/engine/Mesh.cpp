@@ -51,5 +51,6 @@ namespace en
         material_->Use(program);
         glBindVertexArray(vao_);
         glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
     }
 }

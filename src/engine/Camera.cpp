@@ -34,6 +34,11 @@ namespace en
         return glm::perspective(fov_, aspectRatio_, near_, far_);
     }
 
+    glm::vec3 Camera::GetPos() const
+    {
+        return pos_;
+    }
+
     void Camera::SetPos(glm::vec3 pos)
     {
         pos_ = pos;
