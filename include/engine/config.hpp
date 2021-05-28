@@ -7,7 +7,8 @@
 
 #include <string>
 
-#define SHADER_ROOT std::string("shaders")
-#define MODEL_ROOT std::string("models")
+#define SHADER_ROOT std::string("../shaders")
+#define MODEL_ROOT std::string("../models")
+#define DATA_ROOT std::string("../data")
 
 #endif //CGFIRE_CONFIG_HPP

@@ -6,14 +6,22 @@
 
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
+#include "engine/Input.hpp"
 
 namespace en
 {
+    void ErrorCallback(int error, const char* desc)
+    {
+        std::string errorStr = "GLFW Error " + std::to_string(error) + " - " + desc;
+        Log::Error(errorStr.c_str(), false);
+    }
+
     Window::Window(int width, int height, const char* title)
     {
         handle_ = nullptr;
         width_ = width;
         height_ = height;
+        cursorEnabled_ = true;
 
         // Init GLFW
         Log::Info("Initializing GLFW");
@@ -32,7 +40,9 @@ namespace en
         {
             Log::Error("Failed to create GLFW Window", true);
         }
+        glfwSetErrorCallback(ErrorCallback);
         glfwMakeContextCurrent(handle_);
+        Input::Init(handle_);
 
         // OpenGL Setup
         gladLoadGL();
@@ -43,7 +53,13 @@ namespace en
         ClearGLError();
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CCW);
 
         PopGLError(true);
         Log::Info("OpenGL and GLFW have been initialized");
@@ -60,16 +76,14 @@ namespace en
         // Image has just been drawn
 
         // Check for Errors after drawing
-        while(PopGLError(false) != GL_NO_ERROR);
+        while(PopGLError(true) != GL_NO_ERROR);
 
+        glfwPollEvents();
         glfwGetWindowSize(handle_, &width_, &height_);
         glViewport(0, 0, width_, height_);
 
         glfwSwapBuffers(handle_);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glfwPollEvents();
-        ClearGLError();
 
         // Image will be drawn after this function
     }
@@ -84,6 +98,26 @@ namespace en
         glfwTerminate();
     }
 
+    void Window::EnableCursor(bool cursorMode)
+    {
+        if (cursorMode)
+        {
+            if (!cursorEnabled_)
+            {
+                glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                cursorEnabled_ = true;
+            }
+        }
+        else
+        {
+            if (cursorEnabled_)
+            {
+                glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                cursorEnabled_ = false;
+            }
+        }
+    }
+
     int Window::GetWidth() const
     {
         return width_;
@@ -92,6 +126,14 @@ namespace en
     int Window::GetHeight() const
     {
         return height_;
+    }
+
+    float Window::GetAspectRatio() const
+    {
+        float aspectRatio = 1.0f;
+        if (height_ != 0)
+            aspectRatio = (float) width_ / (float) height_;
+        return aspectRatio;
     }
 
     bool Window::IsOpen()

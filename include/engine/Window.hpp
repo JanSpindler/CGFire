@@ -19,14 +19,18 @@ namespace en
         void Update();
         void Destroy();
 
+        void EnableCursor(bool cursorMode);
+
         int GetWidth() const;
         int GetHeight() const;
+        float GetAspectRatio() const;
         bool IsOpen();
 
     private:
         GLFWwindow* handle_;
         int width_;
         int height_;
+        bool cursorEnabled_;
     };
 }
 

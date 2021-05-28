@@ -7,35 +7,31 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <string>
 
-#include "engine/GLBuffer.hpp"
+#include "GLShader.hpp"
+#include "Vertex.hpp"
+#include "GLTexture.hpp"
+#include "Material.hpp"
+#include "Renderable.hpp"
 
 namespace en
 {
-    class Mesh
+    class Mesh : public Renderable
     {
     public:
-        static std::vector<Mesh> LoadScene(const char* filename, bool smooth, glm::vec4 preColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-        Mesh(const char* filename, bool smooth, glm::vec4 preColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material* material);
         ~Mesh();
 
-        void Bind() const;
-        void Release() const;
-        void Delete() const;
+        void Render(const GLProgram* program) const override;
 
     private:
         unsigned int vao_;
-        GLBuffer vbo_ = GLBuffer::INVALID;
-        GLBuffer ibo_ = GLBuffer::INVALID;
-        glm::mat4 transform_;
-        unsigned int vertexCount_;
-        std::vector<glm::vec3> positions_;
-        std::vector<glm::vec3> normals_;
-        std::vector<glm::vec4> colors_;
-        std::vector<glm::uvec3> faces_;
-
-        Mesh();
+        unsigned int vbo_;
+        unsigned int ibo_;
+        std::vector<Vertex> vertices_;
+        std::vector<unsigned int> indices_;
+        const Material* material_;
     };
 }
 
