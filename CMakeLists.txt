@@ -80,13 +80,21 @@ target_link_libraries(engineLibrary frameworkLibrary)
 #man kann weitere Executables mittels set(EXECUTABLES ${EXECUTABLES} <NeueExecutable>) adden:
 
 #die Project-Main
-add_executable(Particle_Test src/Tests/Test_Particle.cpp)
-target_link_libraries(Particle_Test engineLibrary)
-
-
-#die Project-Main
 add_executable(project src/project/main.cpp)
 target_link_libraries(project engineLibrary)
+
+
+file(GLOB TESTS_EXECUTABLES
+        src/Tests/*.cpp)
+
+#folgendes fügt für jede Datei aus TESTS_EXECUTABLES eine Executable hinzu
+# und linkt alle Executables mit der engineLibrary
+foreach(PROJECT_SOURCE_FILE ${TESTS_EXECUTABLES})
+    get_filename_component(SRC_NAME ${PROJECT_SOURCE_FILE} NAME_WE)
+    add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE} )
+    target_link_libraries(${SRC_NAME} engineLibrary)
+endforeach(PROJECT_SOURCE_FILE)
+
 
 
 file(GLOB AUFGABEN_EXECUTABLES

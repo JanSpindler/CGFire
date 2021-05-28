@@ -4,7 +4,7 @@
 
 Quad::Quad()
     : m_glPictureTex(en::GLPictureTex::WrapMode::CLAMP_TO_BORDER, en::GLPictureTex::FilterMode::NEAREST,
-               DATA_ROOT + "CGFire/spark2.png", true){
+               DATA_ROOT + "CGFire/Daco_4065043.png", true){
     glCreateVertexArrays(1, &m_VA);
     glBindVertexArray(m_VA);
 
