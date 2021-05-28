@@ -8,13 +8,16 @@
 #include <glm/glm.hpp>
 #include "engine/GLShader.hpp"
 #include "engine/GLTexture.hpp"
+#include "engine/Renderable.hpp"
 
 namespace en
 {
-    class Quad
+    class Quad : public Renderable
     {
     public:
         Quad();
+
+        void Draw();
 
         void OnRender(glm::mat4& view_proj_matrix, glm::mat4& transform, glm::vec4& color);
 
