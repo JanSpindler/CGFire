@@ -26,11 +26,11 @@ namespace en
 
     void Material::Use(const GLProgram* program) const
     {
-        program->SetUniformF("shininess", shininess_);
-        program->SetUniformVec4f("diffuse_color", diffuseColor_);
-        program->SetUniformVec4f("specular_color", specularColor_);
-        program->SetUniformB("use_tex", tex_ != nullptr);
+        program->SetUniformF("mat_shininess", shininess_);
+        program->SetUniformVec4f("mat_diffuse_color", diffuseColor_);
+        program->SetUniformVec4f("mat_specular_color", specularColor_);
+        program->SetUniformB("mat_use_tex", tex_ != nullptr);
         glActiveTexture(GL_TEXTURE0);
-        program->SetUniformI("tex", 0);
+        program->SetUniformI("mat_tex", 0);
     }
 }
