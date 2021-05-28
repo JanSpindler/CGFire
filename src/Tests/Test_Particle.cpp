@@ -62,6 +62,7 @@ int main(int, char* argv[]) {
     particleProps.Velocity = { 0.0f, 10.0f, 0.0f };
     particleProps.VelocityVariation = { 6.0f, 0.0f, 0.0f };
     particleProps.Position = { -0.6f, -0.6f, 0.0f };
+    particleProps.PositionVariation = { 0.05f, 0.05f, 2.f };
     auto timePassed = std::chrono::steady_clock::now();
     float emitTimer = 0;
 

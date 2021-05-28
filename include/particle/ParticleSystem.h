@@ -10,7 +10,8 @@
 
 struct ParticleProps
 {
-	glm::vec3 Position;
+    glm::vec3 Position;
+    glm::vec3 PositionVariation;
 	glm::vec3 Velocity;
     //for random variable r between -0.5 and 0.5, the velocity will be varied by r * VelocityVariation
 	glm::vec3 VelocityVariation;

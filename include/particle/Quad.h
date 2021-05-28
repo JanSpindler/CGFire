@@ -8,7 +8,7 @@
 #include "util/TextureLoading.h"
 
 #include "framework/shader.hpp"
-
+#include "engine/GLTexture.hpp"
 
 //An OpenGL drawable quad used as a particle
 class Quad {
@@ -18,6 +18,7 @@ class Quad {
     void OnRender(glm::mat4& view_proj_matrix, glm::mat4& transform, glm::vec4& color);
 
     private:
+    en::GLPictureTex m_glPictureTex;
 
     GLuint m_VA = 0;
     GLuint m_Shader;

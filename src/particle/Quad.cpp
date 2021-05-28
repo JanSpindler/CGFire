@@ -2,7 +2,9 @@
 #include "particle/Quad.h"
 
 
-Quad::Quad(){
+Quad::Quad()
+    : m_glPictureTex(en::GLPictureTex::WrapMode::CLAMP_TO_BORDER, en::GLPictureTex::FilterMode::NEAREST,
+               DATA_ROOT + "CGFire/spark2.png", true){
     glCreateVertexArrays(1, &m_VA);
     glBindVertexArray(m_VA);
 
@@ -42,16 +44,16 @@ Quad::Quad(){
     //load texture
     int width, height;
     //TODO: load Funktion soll auch Alpha Channel laden
-    float* data = util::load_texture_data(DATA_ROOT + "CGFire/spark2.png", &width, &height);
+//    float* data = util::load_texture_data(DATA_ROOT + "CGFire/spark2.png", &width, &height);
 
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_ShaderTexture);
-    glTextureStorage2D(m_ShaderTexture, 1, GL_RGBA32F, width, height);
-    glTextureSubImage2D(m_ShaderTexture, 0, 0, 0, width, height, GL_RGBA, GL_FLOAT, data);
-    glBindTextureUnit(0, m_ShaderTexture);
+//    glCreateTextures(GL_TEXTURE_2D, 1, &m_ShaderTexture);
+//    glTextureStorage2D(m_ShaderTexture, 1, GL_RGBA32F, width, height);
+//    glTextureSubImage2D(m_ShaderTexture, 0, 0, 0, width, height, GL_RGBA, GL_FLOAT, data);
+//    glBindTextureUnit(0, m_ShaderTexture);
 
 
 
-    delete [] data;
+//    delete [] data;
 
 }
 
@@ -67,12 +69,13 @@ void Quad::OnRender(glm::mat4& view_proj_matrix, glm::mat4& transform, glm::vec4
     glUniformMatrix4fv(m_ShaderTransform, 1, GL_FALSE, glm::value_ptr(transform));
     glUniform4fv(m_ShaderColor, 1, glm::value_ptr(color));
 
-    glActiveTexture(this->m_ShaderTexture);
-    glBindTexture(GL_TEXTURE_2D, this->m_ShaderTexture);
+    glActiveTexture(GL_TEXTURE0);
+    m_glPictureTex.Bind();
+
+//    glBindTexture(GL_TEXTURE_2D, this->m_ShaderTexture);
     glUniform1i(this->m_ShaderTexture, 0);// Set our "u_Texture" sampler to use Texture Unit 0
 
     glBindVertexArray(m_VA);
-
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     glDisable(GL_BLEND);

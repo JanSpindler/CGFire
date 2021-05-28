@@ -59,7 +59,7 @@ void ParticleSystem::Emit(const ParticleProps& pProps)
 {
 	Particle& p = m_ParticlePool[m_PoolIndex];
     p.Active = true;
-    p.Position = pProps.Position;
+    p.Position = pProps.Position + pProps.PositionVariation * (util::Random::Float() - 0.5f);
     p.Rotation = util::Random::Float() * 2.0f * glm::pi<float>(); //Random rotation
 
 	// Velocity
