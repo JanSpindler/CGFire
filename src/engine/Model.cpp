@@ -13,7 +13,7 @@ namespace en
         flipUv_ = flipUv;
 
         std::string realPath = MODEL_ROOT + "/" + path;
-        Log::Info("Loading Model " + realPath);
+        Log::Info("Loading model " + realPath);
 
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(realPath, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -22,7 +22,7 @@ namespace en
 
         directory_ = realPath.substr(0, realPath.find_last_of('/'));
 
-        Log::Info("Model has " + std::to_string(scene->mNumMeshes) + " meshes");
+        Log::Info("model has " + std::to_string(scene->mNumMeshes) + " meshes");
         LoadMaterials(scene);
         ProcessNode(scene->mRootNode, scene);
     }
@@ -52,7 +52,7 @@ namespace en
                                                                           nullptr)));*/
 
         unsigned int matCount = scene->mNumMaterials;
-        Log::Info("Model has " + std::to_string(matCount) + " materials");
+        Log::Info("model has " + std::to_string(matCount) + " materials");
         for (unsigned int i = 0; i < matCount; i++)
         {
             // TODO: maybe load other texture types later

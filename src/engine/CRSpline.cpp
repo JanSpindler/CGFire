@@ -8,12 +8,14 @@
 
 namespace en
 {
-    CRSpline::CRSpline(const std::vector<glm::vec3> &points, bool loop, unsigned int cachePerPair, float alpha)
+    CRSpline::CRSpline(const std::vector<glm::vec3>& controlPoints, bool loop, unsigned int cachePerPair, float alpha)
     {
+        controlPoints_ = controlPoints;
+
         if (cachePerPair < 1)
             Log::Error("cachePerPair must be >= 1", true);
 
-        unsigned int pointCount = points.size();
+        unsigned int pointCount = controlPoints.size();
         if (pointCount < 2)
             Log::Error("CRSpline should at least contain 2 points", true);
 
@@ -25,13 +27,13 @@ namespace en
         glm::vec3 pal; // point after last point
         if (loop)
         {
-            pbf = points[pointCount - 1];
-            pal = points[0];
+            pbf = controlPoints[pointCount - 1];
+            pal = controlPoints[0];
         }
         else
         {
-            pbf = points[0] - (points[1] - points[0]);
-            pal = points[pointCount - 1] + (points[pointCount - 1] - points[pointCount - 2]);
+            pbf = controlPoints[0] - (controlPoints[1] - controlPoints[0]);
+            pal = controlPoints[pointCount - 1] + (controlPoints[pointCount - 1] - controlPoints[pointCount - 2]);
         }
 
         glm::vec3 point0, point1, point2, point3;
@@ -39,18 +41,18 @@ namespace en
         float dt = 1.0f / (float) cachePerPair;
         for (unsigned int j = 0; j < pairCount; j++)
         {
-            point1 = points[j];
-            point2 = points[j + 1];
+            point1 = controlPoints[j];
+            point2 = controlPoints[j + 1];
 
             if (j == 0)
                 point0 = pbf;
             else
-                point0 = points[j - 1];
+                point0 = controlPoints[j - 1];
 
             if (j == pairCount - 1)
                 point3 = pal;
             else
-                point3 = points[j + 2];
+                point3 = controlPoints[j + 2];
 
             for (unsigned int i = 0; i < cachePerPair; i++)
                 cachedPoints_[index++] = GetPoint(point0, point1, point2, point3, dt * (float)i, alpha);

@@ -90,58 +90,58 @@ namespace en
         glDeleteProgram(handle_);
     }
 
-    void GLProgram::SetUniformF(const char* name, float val) const
+    void GLProgram::SetUniformF(const std::string& name, float val) const
     {
         glUniform1f(GetUniformLoc(name), val);
     }
 
-    void GLProgram::SetUniformI(const char* name, int val) const
+    void GLProgram::SetUniformI(const std::string& name, int val) const
     {
         glUniform1i(GetUniformLoc(name), val);
     }
 
-    void GLProgram::SetUniformUI(const char* name, unsigned int val) const
+    void GLProgram::SetUniformUI(const std::string& name, unsigned int val) const
     {
         glUniform1ui(GetUniformLoc(name), val);
     }
 
-    void GLProgram::SetUniformB(const char* name, bool val) const
+    void GLProgram::SetUniformB(const std::string& name, bool val) const
     {
         glUniform1i(GetUniformLoc(name), static_cast<int>(val));
     }
 
-    void GLProgram::SetUniformVec2f(const char* name, const glm::vec2& val) const
+    void GLProgram::SetUniformVec2f(const std::string& name, const glm::vec2& val) const
     {
         glUniform2f(GetUniformLoc(name), val.x, val.y);
     }
 
-    void GLProgram::SetUniformVec3f(const char* name, const glm::vec3& val) const
+    void GLProgram::SetUniformVec3f(const std::string& name, const glm::vec3& val) const
     {
         glUniform3f(GetUniformLoc(name), val.x, val.y, val.z);
     }
 
-    void GLProgram::SetUniformVec4f(const char* name, const glm::vec4& val) const
+    void GLProgram::SetUniformVec4f(const std::string& name, const glm::vec4& val) const
     {
         glUniform4f(GetUniformLoc(name), val.x, val.y, val.z, val.w);
     }
 
-    void GLProgram::SetUniformMat2(const char* name, bool transpose, const float* data) const
+    void GLProgram::SetUniformMat2(const std::string& name, bool transpose, const float* data) const
     {
         glUniformMatrix2fv(GetUniformLoc(name), 1, transpose, data);
     }
 
-    void GLProgram::SetUniformMat3(const char* name, bool transpose, const float* data) const
+    void GLProgram::SetUniformMat3(const std::string& name, bool transpose, const float* data) const
     {
         glUniformMatrix3fv(GetUniformLoc(name), 1, transpose, data);
     }
 
-    void GLProgram::SetUniformMat4(const char* name, bool transpose, const float* data) const
+    void GLProgram::SetUniformMat4(const std::string& name, bool transpose, const float* data) const
     {
         glUniformMatrix4fv(GetUniformLoc(name), 1, transpose, data);
     }
 
-    int GLProgram::GetUniformLoc(const char *name) const
+    int GLProgram::GetUniformLoc(const std::string& name) const
     {
-        return (int) glGetUniformLocation(handle_, name);
+        return (int) glGetUniformLocation(handle_, name.c_str());
     }
 }

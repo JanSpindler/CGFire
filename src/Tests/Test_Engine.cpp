@@ -46,6 +46,8 @@ int main()
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
     dirLight.Use(&program);
 
+    en::PointLightBatch plBatch({});
+
     while (window.IsOpen())
     {
         window.Update();
@@ -94,6 +96,8 @@ int main()
         program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
         program.SetUniformVec3f("cam_pos", cam.GetPos());
+
+        plBatch.Use(&program);
 
         backpackObj.t_ *= glm::rotate(deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
         backpackObj.Render(&program);

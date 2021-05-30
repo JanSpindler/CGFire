@@ -14,12 +14,13 @@ namespace en
     class CRSpline
     {
     public:
-        CRSpline(const std::vector<glm::vec3>& points, bool loop, unsigned int cachePerPair, float alpha);
+        CRSpline(const std::vector<glm::vec3>& controlPoints, bool loop, unsigned int cachePerPair, float alpha);
 
         glm::vec3 GetPoint(double t);
         glm::vec3 GetPoint(unsigned int i, float t);
 
     private:
+        std::vector<glm::vec3> controlPoints_;
         std::vector<glm::vec3> cachedPoints_;
 
         static float GetT(float t, float alpha, glm::vec3 p0, glm::vec3 p1);

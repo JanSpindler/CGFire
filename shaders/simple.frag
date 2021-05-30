@@ -1,6 +1,6 @@
 #version 330 core
 
-// Input
+// input
 in vec3 interp_pos;
 in vec3 interp_normal;
 in vec2 interp_uv;
@@ -12,9 +12,10 @@ uniform vec3 dir_light_dir;
 uniform vec3 dir_light_color;
 
 // Point Lights
-#define POINT_LIGHT_COUNT 32
-uniform vec3 point_light_pos[POINT_LIGHT_COUNT];
-uniform vec3 point_light_color[POINT_LIGHT_COUNT];
+#define POINT_LIGHT_MAX 1024
+uniform uint point_light_count;
+uniform vec3 point_light_pos[POINT_LIGHT_MAX];
+uniform vec3 point_light_color[POINT_LIGHT_MAX];
 
 // Material
 uniform float mat_shininess;
@@ -29,14 +30,12 @@ const float pi = 3.14159265359;
 // Output
 out vec4 out_color;
 
-void main()
+vec4 get_dir_light_color(vec3 normal)
 {
-    vec3 normal = normalize(interp_normal);
-
     // Diffuse
     vec4 diffuse = mat_diffuse_color;
     if (mat_use_tex)
-        diffuse = texture(mat_tex, interp_uv);
+    diffuse = texture(mat_tex, interp_uv);
     float diff = max(dot(normal, normalize(-dir_light_dir)), 0.0);
     diffuse = vec4(dir_light_color, 1.0) * (diff * diffuse);
 
@@ -45,9 +44,24 @@ void main()
     vec3 reflect_dir = reflect(normalize(dir_light_dir), normal);
     float spec = 1.0;
     if (mat_shininess > 0.0)
-        spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
+    spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
     vec4 specular = vec4(dir_light_color, 1.0) * spec * mat_specular_color;
 
-    // Result
-    out_color = diffuse + specular;
+    return diffuse + specular;
+}
+
+vec4 get_point_light_color(vec3 normal, uint index)
+{
+    return vec4(0.0);
+}
+
+void main()
+{
+    vec3 normal = normalize(interp_normal);
+
+    vec4 result = get_dir_light_color(normal);
+    for (uint i = 0u; i < point_light_count; i++)
+        result += get_point_light_color(normal, i);
+
+    out_color = result;
 }

@@ -74,7 +74,7 @@ main(int, char* argv[]) {
         ImGui::Begin("Shading");
         ImGui::SliderFloat("Light Phi", &light_phi, 0.0f, 2.f * M_PI);
         ImGui::SliderFloat("Light Theta", &light_theta, 0.0f, M_PI);
-        ImGui::Combo("Diffuse Model", &use_oren_nayar, diffuse_models, 2);
+        ImGui::Combo("Diffuse model", &use_oren_nayar, diffuse_models, 2);
         ImGui::SliderFloat("Roughness", &roughness, 0.1f, 1.f);
         ImGui::SliderFloat("Refraction Index", &refraction_index, 0.0f, 1.f);
         ImGui::ColorEdit4("Diffuse Color", &diffuse_color.x);

@@ -176,7 +176,7 @@ CODE
  - When using Dear ImGui, your programming IDE is your friend: follow the declaration of variables, functions and types to find comments about them.
  - Dear ImGui never touches or knows about your GPU state. The only function that knows about GPU is the draw function that you provide.
    Effectively it means you can create widgets at any time in your code, regardless of considerations of being in "update" vs "render"
-   phases of your own application. All rendering informatioe are stored into command-lists that you will retrieve after calling ImGui::Render().
+   phases of your own application. All rendering informatioe are stored into command-lists that you will retrieve after calling ImGui::render().
  - Refer to the bindings and demo applications in the examples/ folder for instruction on how to setup your code.
  - If you are running over a standard OS with a common graphics API, you should be able to use unmodified imgui_impl_*** files from the examples/ folder.
 
@@ -205,8 +205,8 @@ CODE
          // Any application code here
          ImGui::Text("Hello, world!");
 
-         // Render dear imgui into screen
-         ImGui::Render();
+         // render dear imgui into screen
+         ImGui::render();
          ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
          g_pSwapChain->Present(1, 0);
      }
@@ -259,10 +259,10 @@ CODE
         MyGameUpdate(); // may use any ImGui functions, e.g. ImGui::Begin("My window"); ImGui::Text("Hello, world!"); ImGui::End();
         MyGameRender(); // may use any ImGui functions as well!
 
-        // Render imgui, swap buffers
-        // (You want to try calling EndFrame/Render as late as you can, to be able to use imgui in your own game rendering code)
+        // render imgui, swap buffers
+        // (You want to try calling EndFrame/render as late as you can, to be able to use imgui in your own game rendering code)
         ImGui::EndFrame();
-        ImGui::Render();
+        ImGui::render();
         ImDrawData* draw_data = ImGui::GetDrawData();
         MyImGuiRenderFunction(draw_data);
         SwapBuffers();
@@ -308,7 +308,7 @@ CODE
                  ImVec2 pos = draw_data->DisplayPos;
                  MyEngineScissor((int)(pcmd->ClipRect.x - pos.x), (int)(pcmd->ClipRect.y - pos.y), (int)(pcmd->ClipRect.z - pos.x), (int)(pcmd->ClipRect.w - pos.y));
 
-                 // Render 'pcmd->ElemCount/3' indexed triangles.
+                 // render 'pcmd->ElemCount/3' indexed triangles.
                  // By default the indices ImDrawIdx are 16-bits, you can change them to 32-bits in imconfig.h if your engine doesn't support 16-bits indices.
                  MyEngineDrawIndexedTriangles(pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer, vtx_buffer);
              }
@@ -412,7 +412,7 @@ CODE
  - 2018/03/08 (1.60) - changed ImFont::DisplayOffset.y to default to 0 instead of +1. Fixed rounding of Ascent/Descent to match TrueType renderer. If you were adding or subtracting to ImFont::DisplayOffset check if your fonts are correctly aligned vertically.
  - 2018/03/03 (1.60) - renamed ImGuiStyleVar_Count_ to ImGuiStyleVar_COUNT and ImGuiMouseCursor_Count_ to ImGuiMouseCursor_COUNT for consistency with other public enums.
  - 2018/02/18 (1.60) - BeginDragDropSource(): temporarily removed the optional mouse_button=0 parameter because it is not really usable in many situations at the moment.
- - 2018/02/16 (1.60) - obsoleted the io.RenderDrawListsFn callback, you can call your graphics engine render function after ImGui::Render(). Use ImGui::GetDrawData() to retrieve the ImDrawData* to display.
+ - 2018/02/16 (1.60) - obsoleted the io.RenderDrawListsFn callback, you can call your graphics engine render function after ImGui::render(). Use ImGui::GetDrawData() to retrieve the ImDrawData* to display.
  - 2018/02/07 (1.60) - reorganized context handling to be more explicit,
                        - YOU NOW NEED TO CALL ImGui::CreateContext() AT THE BEGINNING OF YOUR APP, AND CALL ImGui::DestroyContext() AT THE END.
                        - removed Shutdown() function, as DestroyContext() serve this purpose.
@@ -647,7 +647,7 @@ CODE
         MyTexture* texture = g_CoffeeTableTexture;
         ImGui::Image((void*)texture, ImVec2(texture->Width, texture->Height));
 
-    The renderer function called after ImGui::Render() will receive that same value that the user code passed:
+    The renderer function called after ImGui::render() will receive that same value that the user code passed:
 
         // Cast ImTextureID / void* stored in the draw command as our texture type
         MyTexture* texture = (MyTexture*)pcmd->TextureId;
@@ -887,7 +887,7 @@ CODE
     The applications in examples/ are doing that.
     Windows: you can use the WM_CHAR or WM_UNICHAR or WM_IME_CHAR message (depending if your app is built using Unicode or MultiByte mode).
     You may also use MultiByteToWideChar() or ToUnicode() to retrieve Unicode codepoints from MultiByte characters or keyboard state.
-    Windows: if your language is relying on an Input Method Editor (IME), you copy the HWND of your window to io.ImeWindowHandle in order for
+    Windows: if your language is relying on an input Method Editor (IME), you copy the HWND of your window to io.ImeWindowHandle in order for
     the default implementation of io.ImeSetInputScreenPosFn() to set your Microsoft IME position correctly.
 
  Q: How can I interact with standard C++ types (such as std::string and std::vector)?
@@ -937,7 +937,7 @@ CODE
       for screen real-estate and precision.
 
  Q: I integrated Dear ImGui in my engine and the text or lines are blurry..
- A: In your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f).
+ A: In your render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f).
     Also make sure your orthographic projection matrix and io.DisplaySize matches your actual framebuffer dimension.
 
  Q: I integrated Dear ImGui in my engine and some elements are clipping or disappearing when I move windows around..
@@ -959,7 +959,7 @@ CODE
  - tip: you can create widgets without a Begin()/End() block, they will go in an implicit window called "Debug".
  - tip: the ImGuiOnceUponAFrame helper will allow run the block of code only once a frame. You can use it to quickly add custom UI in the middle
         of a deep nested inner loop in your code.
- - tip: you can call Render() multiple times (e.g for VR renders).
+ - tip: you can call render() multiple times (e.g for VR renders).
  - tip: call and read the ShowDemoWindow() code in imgui_demo.cpp for more example of how to use ImGui!
 
 */
@@ -1237,7 +1237,7 @@ ImGuiIO::ImGuiIO()
     RenderDrawListsFn = NULL;
 #endif
 
-    // Input (NB: we already have memset zero the entire structure!)
+    // input (NB: we already have memset zero the entire structure!)
     MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
     MousePosPrev = ImVec2(-FLT_MAX, -FLT_MAX);
     MouseDragThreshold = 6.0f;
@@ -2385,7 +2385,7 @@ void ImGui::RenderTextClippedEx(ImDrawList* draw_list, const ImVec2& pos_min, co
     if (align.x > 0.0f) pos.x = ImMax(pos.x, pos.x + (pos_max.x - pos.x - text_size.x) * align.x);
     if (align.y > 0.0f) pos.y = ImMax(pos.y, pos.y + (pos_max.y - pos.y - text_size.y) * align.y);
 
-    // Render
+    // render
     if (need_clipping)
     {
         ImVec4 fine_clip_rect(clip_min->x, clip_min->y, clip_max->x, clip_max->y);
@@ -2412,7 +2412,7 @@ void ImGui::RenderTextClipped(const ImVec2& pos_min, const ImVec2& pos_max, cons
         LogRenderedText(&pos_min, text, text_display_end);
 }
 
-// Render a rectangle shaped with optional rounding and borders
+// render a rectangle shaped with optional rounding and borders
 void ImGui::RenderFrame(ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, bool border, float rounding)
 {
     ImGuiContext& g = *GImGui;
@@ -2438,7 +2438,7 @@ void ImGui::RenderFrameBorder(ImVec2 p_min, ImVec2 p_max, float rounding)
     }
 }
 
-// Render an arrow aimed to be aligned with text (p_min is a position in the same space text would be positioned). To e.g. denote expanded/collapsed state
+// render an arrow aimed to be aligned with text (p_min is a position in the same space text would be positioned). To e.g. denote expanded/collapsed state
 void ImGui::RenderArrow(ImVec2 p_min, ImGuiDir dir, float scale)
 {
     ImGuiContext& g = *GImGui;
@@ -3095,7 +3095,7 @@ ImGuiStyle& ImGui::GetStyle()
     return GImGui->Style;
 }
 
-// Same value as passed to the old io.RenderDrawListsFn function. Valid after Render() and until the next call to NewFrame()
+// Same value as passed to the old io.RenderDrawListsFn function. Valid after render() and until the next call to NewFrame()
 ImDrawData* ImGui::GetDrawData()
 {
     ImGuiContext& g = *GImGui;
@@ -3433,7 +3433,7 @@ void ImGui::NewFrame()
     // (We pass an error message in the assert expression to make it visible to programmers who are not using a debugger, as most assert handlers display their argument)
     IM_ASSERT(g.Initialized);
     IM_ASSERT((g.IO.DeltaTime > 0.0f || g.FrameCount == 0)              && "Need a positive DeltaTime!");
-    IM_ASSERT((g.FrameCount == 0 || g.FrameCountEnded == g.FrameCount)  && "Forgot to call Render() or EndFrame() at the end of the previous frame?");
+    IM_ASSERT((g.FrameCount == 0 || g.FrameCountEnded == g.FrameCount)  && "Forgot to call render() or EndFrame() at the end of the previous frame?");
     IM_ASSERT(g.IO.DisplaySize.x >= 0.0f && g.IO.DisplaySize.y >= 0.0f  && "Invalid DisplaySize value!");
     IM_ASSERT(g.IO.Fonts->Fonts.Size > 0                                && "Font Atlas not built. Did you call io.Fonts->GetTexDataAsRGBA32() / GetTexDataAsAlpha8() ?");
     IM_ASSERT(g.IO.Fonts->Fonts[0]->IsLoaded()                          && "Font Atlas not built. Did you call io.Fonts->GetTexDataAsRGBA32() / GetTexDataAsAlpha8() ?");
@@ -3565,7 +3565,7 @@ void ImGui::NewFrame()
 
     g.MouseCursor = ImGuiMouseCursor_Arrow;
     g.WantCaptureMouseNextFrame = g.WantCaptureKeyboardNextFrame = g.WantTextInputNextFrame = -1;
-    g.PlatformImePos = ImVec2(1.0f, 1.0f); // OS Input Method Editor showing on top-left of our window by default
+    g.PlatformImePos = ImVec2(1.0f, 1.0f); // OS input Method Editor showing on top-left of our window by default
 
     // Mouse wheel scrolling, scale
     UpdateMouseWheel();
@@ -3617,7 +3617,7 @@ void ImGui::NewFrame()
         FocusTopMostWindowUnderOne(NULL, NULL);
 
     // No window should be open at the beginning of the frame.
-    // But in order to allow the user to call NewFrame() multiple times without calling Render(), we are doing an explicit clear.
+    // But in order to allow the user to call NewFrame() multiple times without calling render(), we are doing an explicit clear.
     g.CurrentWindowStack.resize(0);
     g.BeginPopupStack.resize(0);
     ClosePopupsOverWindow(g.NavWindow, false);
@@ -3850,7 +3850,7 @@ void ImGui::PopClipRect()
     window->ClipRect = window->DrawList->_ClipRectStack.back();
 }
 
-// This is normally called by Render(). You may want to call it directly if you want to avoid calling Render() but the gain will be very minimal.
+// This is normally called by render(). You may want to call it directly if you want to avoid calling render() but the gain will be very minimal.
 void ImGui::EndFrame()
 {
     ImGuiContext& g = *GImGui;
@@ -3859,7 +3859,7 @@ void ImGui::EndFrame()
         return;
     IM_ASSERT(g.FrameScopeActive && "Forgot to call ImGui::NewFrame()?");
 
-    // Notify OS when our Input Method Editor cursor has moved (e.g. CJK inputs using Microsoft IME)
+    // Notify OS when our input Method Editor cursor has moved (e.g. CJK inputs using Microsoft IME)
     if (g.IO.ImeSetInputScreenPosFn && (g.PlatformImeLastPos.x == FLT_MAX || ImLengthSqr(g.PlatformImeLastPos - g.PlatformImePos) > 0.0001f))
     {
         g.IO.ImeSetInputScreenPosFn((int)g.PlatformImePos.x, (int)g.PlatformImePos.y);
@@ -3936,7 +3936,7 @@ void ImGui::EndFrame()
     // Unlock font atlas
     g.IO.Fonts->Locked = false;
 
-    // Clear Input data for next frame
+    // Clear input data for next frame
     g.IO.MouseWheel = g.IO.MouseWheelH = 0.0f;
     g.IO.InputQueueCharacters.resize(0);
     memset(g.IO.NavInputs, 0, sizeof(g.IO.NavInputs));
@@ -3983,7 +3983,7 @@ void ImGui::Render()
     g.IO.MetricsRenderVertices = g.DrawData.TotalVtxCount;
     g.IO.MetricsRenderIndices = g.DrawData.TotalIdxCount;
 
-    // (Legacy) Call the Render callback function. The current prefer way is to let the user retrieve GetDrawData() and call the render function themselves.
+    // (Legacy) Call the render callback function. The current prefer way is to let the user retrieve GetDrawData() and call the render function themselves.
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     if (g.DrawData.CmdListsCount > 0 && g.IO.RenderDrawListsFn != NULL)
         g.IO.RenderDrawListsFn(&g.DrawData);
@@ -4991,7 +4991,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
     const ImGuiStyle& style = g.Style;
     IM_ASSERT(name != NULL && name[0] != '\0');     // Window name required
     IM_ASSERT(g.FrameScopeActive);                  // Forgot to call ImGui::NewFrame()
-    IM_ASSERT(g.FrameCountEnded != g.FrameCount);   // Called ImGui::Render() or ImGui::EndFrame() and haven't called ImGui::NewFrame() again yet
+    IM_ASSERT(g.FrameCountEnded != g.FrameCount);   // Called ImGui::render() or ImGui::EndFrame() and haven't called ImGui::NewFrame() again yet
 
     // Find or create
     ImGuiWindow* window = FindWindowByName(name);
@@ -5390,7 +5390,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
             if (window->ScrollbarY)
                 Scrollbar(ImGuiAxis_Y);
 
-            // Render resize grips (after their input handling so we don't have a frame of latency)
+            // render resize grips (after their input handling so we don't have a frame of latency)
             if (!(flags & ImGuiWindowFlags_NoResize))
             {
                 for (int resize_grip_n = 0; resize_grip_n < resize_grip_count; resize_grip_n++)
@@ -9006,7 +9006,7 @@ const ImGuiPayload* ImGui::AcceptDragDropPayload(const char* type, ImGuiDragDrop
         g.DragDropAcceptIdCurrRectSurface = r_surface;
     }
 
-    // Render default drop visuals
+    // render default drop visuals
     payload.Preview = was_accepted_previously;
     flags |= (g.DragDropSourceFlags & ImGuiDragDropFlags_AcceptNoDrawDefaultRect); // Source can also inhibit the preview (useful for external sources that lives for 1 frame)
     if (!(flags & ImGuiDragDropFlags_AcceptNoDrawDefaultRect) && payload.Preview)
@@ -9574,7 +9574,7 @@ static void SetClipboardTextFn_DefaultImpl(void*, const char* text)
 
 static void ImeSetInputScreenPosFn_DefaultImpl(int x, int y)
 {
-    // Notify OS Input Method Editor of text input position
+    // Notify OS input Method Editor of text input position
     if (HWND hwnd = (HWND)GImGui->IO.ImeWindowHandle)
         if (HIMC himc = ::ImmGetContext(hwnd))
         {
@@ -9632,7 +9632,7 @@ void ImGui::ShowMetricsWindow(bool* p_open)
                 return;
             }
 
-            ImDrawList* fg_draw_list = GetForegroundDrawList(window); // Render additional visuals into the top-most draw list
+            ImDrawList* fg_draw_list = GetForegroundDrawList(window); // render additional visuals into the top-most draw list
             if (window && IsItemHovered())
                 fg_draw_list->AddRect(window->Pos, window->Pos + window->Size, IM_COL32(255, 255, 0, 255));
             if (!node_open)
