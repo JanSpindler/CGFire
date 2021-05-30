@@ -3,7 +3,7 @@
 //
 
 #include "engine/gr_include.hpp"
-#include "engine/Material.hpp"
+#include "engine/Render/Material.hpp"
 #include "engine/Util.hpp"
 
 namespace en

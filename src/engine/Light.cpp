@@ -2,7 +2,7 @@
 // Created by JS on 26/05/2021.
 //
 
-#include "engine/Light.hpp"
+#include "engine/Render/Light.hpp"
 
 namespace en
 {

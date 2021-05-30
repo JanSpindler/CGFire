@@ -8,7 +8,7 @@
 #include <stb_image.h>
 #include <glm/gtx/hash.hpp>
 
-#include "engine/Mesh.hpp"
+#include "engine/Model/Mesh.hpp"
 #include "engine/Util.hpp"
 
 namespace en

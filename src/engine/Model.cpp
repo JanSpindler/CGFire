@@ -2,7 +2,7 @@
 // Created by JS on 25/05/2021.
 //
 
-#include "engine/Model.hpp"
+#include "engine/Model/Model.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
 

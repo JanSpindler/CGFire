@@ -4,7 +4,7 @@
 
 #include "engine/gr_include.hpp"
 
-#include "engine/GLShader.hpp"
+#include "engine/Render/GLShader.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
 

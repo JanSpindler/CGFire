@@ -8,7 +8,7 @@
 #include "util/TextureLoading.h"
 
 #include "framework/shader.hpp"
-#include "engine/GLTexture.hpp"
+#include "engine/Render/GLTexture.hpp"
 
 //An OpenGL drawable quad used as a particle
 class Quad {

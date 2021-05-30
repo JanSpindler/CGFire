@@ -4,10 +4,10 @@
 
 #include "engine/Util.hpp"
 #include "engine/Camera.hpp"
-#include "engine/GLShader.hpp"
-#include "engine/Model.hpp"
-#include "engine/Light.hpp"
-#include "engine/Input.hpp"
+#include "engine/Render/GLShader.hpp"
+#include "engine/Model/Model.hpp"
+#include "engine/Render/Light.hpp"
+#include "engine/Input/Input.hpp"
 
 int main()
 {

@@ -5,7 +5,7 @@
 #include "engine/gr_include.hpp"
 //#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include "engine/GLTexture.hpp"
+#include "engine/Render/GLTexture.hpp"
 #include "engine/Util.hpp"
 
 namespace en

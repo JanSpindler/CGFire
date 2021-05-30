@@ -5,9 +5,9 @@
 #ifndef CGFIRE_MATERIAL_HPP
 #define CGFIRE_MATERIAL_HPP
 
-#include "GLTexture.hpp"
+#include "engine/Render/GLTexture.hpp"
 #include <glm/glm.hpp>
-#include "GLShader.hpp"
+#include "engine/Render/GLShader.hpp"
 
 namespace en
 {

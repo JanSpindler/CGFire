@@ -6,7 +6,7 @@
 
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
-#include "engine/Input.hpp"
+#include "engine/Input/Input.hpp"
 
 namespace en
 {

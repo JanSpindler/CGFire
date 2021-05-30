@@ -4,7 +4,7 @@
 
 #include "engine/gr_include.hpp"
 
-#include "engine/Input.hpp"
+#include "engine/Input/Input.hpp"
 
 namespace en
 {

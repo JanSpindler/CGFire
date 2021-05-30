@@ -2,7 +2,7 @@
 // Created by JS on 26/05/2021.
 //
 
-#include "engine/Vertex.hpp"
+#include "engine/Model/Vertex.hpp"
 
 namespace en
 {

@@ -9,9 +9,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include "Material.hpp"
+#include "engine/Render/Material.hpp"
 #include <unordered_map>
-#include "Renderable.hpp"
+#include "engine/Render/Renderable.hpp"
 
 namespace en
 {
