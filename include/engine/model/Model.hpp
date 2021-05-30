@@ -23,8 +23,10 @@ namespace en
 
         void Render(const GLProgram* program) const override;
 
+        const std::vector<Mesh*>& GetMeshes() const;
+
     private:
-        std::vector<Mesh> meshes_;
+        std::vector<Mesh*> meshes_;
         std::string directory_;
         std::unordered_map<const aiMaterial*, Material*> materials_;
         std::unordered_map<std::string, GLPictureTex*> textures_;
@@ -32,7 +34,7 @@ namespace en
 
         void LoadMaterials(const aiScene* scene);
         void ProcessNode(aiNode* node, const aiScene* scene);
-        Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+        Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene);
     };
 }
 

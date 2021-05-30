@@ -29,13 +29,18 @@ namespace en
 
     Model::~Model()
     {
-        // TODO: delete textures and materials
+        // TODO: delete textures and materials + meshes
     }
 
     void Model::Render(const GLProgram* program) const
     {
         for (unsigned int i = 0; i < meshes_.size(); i++)
-            meshes_[i].Render(program);
+            meshes_[i]->Render(program);
+    }
+
+    const std::vector<Mesh*>& Model::GetMeshes() const
+    {
+        return meshes_;
     }
 
     void Model::LoadMaterials(const aiScene *scene)
@@ -140,7 +145,7 @@ namespace en
             ProcessNode(node->mChildren[i], scene);
     }
 
-    Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+    Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
@@ -185,7 +190,7 @@ namespace en
         aiMaterial* aiRef = nullptr;
         if (mesh->mMaterialIndex >= 0)
             aiRef = scene->mMaterials[mesh->mMaterialIndex];
-        Mesh m(vertices, indices, materials_.at(aiRef));
+        Mesh* m = new Mesh(vertices, indices, materials_.at(aiRef));
         return m;
     }
 }

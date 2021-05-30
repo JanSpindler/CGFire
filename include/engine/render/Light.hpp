@@ -30,10 +30,14 @@ namespace en
     class PointLight
     {
     public:
-        PointLight();
+        PointLight(float strength);
 
         virtual glm::vec3 GetPos() const = 0;
         virtual glm::vec3 GetColor() const = 0;
+        float GetStrength() const;
+
+    private:
+        float strength_;
     };
 
     class PointLightBatch

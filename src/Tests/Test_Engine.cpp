@@ -8,6 +8,7 @@
 #include "engine/Model/Model.hpp"
 #include "engine/Render/Light.hpp"
 #include "engine/Input/Input.hpp"
+#include "engine/prefab/SimplePointLight.hpp"
 
 int main()
 {
@@ -40,13 +41,17 @@ int main()
 
     en::Model floorModel("cube.obj", true);
     en::RenderObj floorObj = { &floorModel };
-    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
+    floorObj.t_ = glm::translate(glm::vec3(0.0f, -3.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
 
     program.Use();
-    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
+
+    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
     dirLight.Use(&program);
 
-    en::PointLightBatch plBatch({});
+    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.5f);
+    pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
+    std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
+    en::PointLightBatch plBatch(pointLights);
 
     while (window.IsOpen())
     {
@@ -97,8 +102,10 @@ int main()
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
         program.SetUniformVec3f("cam_pos", cam.GetPos());
 
+        pointLight.t_ = glm::rotate(deltaTime * -0.05f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
         plBatch.Use(&program);
 
+        pointLight.Render(&program);
         backpackObj.t_ *= glm::rotate(deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
         backpackObj.Render(&program);
         floorObj.Render(&program);

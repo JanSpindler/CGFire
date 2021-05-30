@@ -3,6 +3,7 @@
 //
 
 #include "engine/Render/Light.hpp"
+#include "engine/Util.hpp"
 
 namespace en
 {
@@ -28,8 +29,14 @@ namespace en
         color_ = color;
     }
 
-    PointLight::PointLight()
+    PointLight::PointLight(float strength)
     {
+        strength_ = strength;
+    }
+
+    float PointLight::GetStrength() const
+    {
+        return strength_;
     }
 
     PointLightBatch::PointLightBatch(const std::vector<const PointLight*>& pointLights)
@@ -47,6 +54,7 @@ namespace en
             std::string indexStr = std::to_string(i);
             program->SetUniformVec3f("point_light_pos[" + indexStr + "]", pointLight->GetPos());
             program->SetUniformVec3f("point_light_color[" + indexStr + "]", pointLight->GetColor());
+            program->SetUniformF("point_light_strength[" + indexStr + "]", pointLight->GetStrength());
         }
     }
 
