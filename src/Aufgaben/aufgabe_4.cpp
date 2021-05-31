@@ -135,14 +135,14 @@ main(int, char* argv[]) {
 
 
     // load and compile shaders and link program
-    unsigned int vertexShader = compileShader("raytrace_render.vert", GL_VERTEX_SHADER);
-    unsigned int fragmentShader = compileShader("raytrace_render.frag", GL_FRAGMENT_SHADER);
+    unsigned int vertexShader = compileShader("Aufgaben/raytrace_render.vert", GL_VERTEX_SHADER);
+    unsigned int fragmentShader = compileShader("Aufgaben/raytrace_render.frag", GL_FRAGMENT_SHADER);
     unsigned int shaderProgram = linkProgram(vertexShader, fragmentShader);
     // after linking the program the shader objects are no longer needed
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
 
-    objects = loadScene("cornell_box.obj", true);
+    objects = loadScene("Aufgaben/cornell_box.obj", true);
 
     proj_matrix = glm::perspective(FOV, 1.f, NEAR_VALUE, FAR_VALUE);
     // fix view matrix for the cornell box

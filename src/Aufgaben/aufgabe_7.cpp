@@ -91,13 +91,13 @@ main(int, char* argv[]) {
     camera cam(window);
 
     // load and compile shaders and link program
-    unsigned int vertexShaderGeometry = compileShader("deferred_geometry.vert", GL_VERTEX_SHADER);
-    unsigned int fragmentShaderGeometry = compileShader("deferred_geometry.frag", GL_FRAGMENT_SHADER);
+    unsigned int vertexShaderGeometry = compileShader("Aufgaben/deferred_geometry.vert", GL_VERTEX_SHADER);
+    unsigned int fragmentShaderGeometry = compileShader("Aufgaben/deferred_geometry.frag", GL_FRAGMENT_SHADER);
     unsigned int shaderProgramGeometry = linkProgram(vertexShaderGeometry, fragmentShaderGeometry);
     glDeleteShader(fragmentShaderGeometry);
     glDeleteShader(vertexShaderGeometry);
 
-    std::vector<geometry> objects = loadScene("suzanne.obj", true);
+    std::vector<geometry> objects = loadScene("Aufgaben/suzanne.obj", true);
 
     glUseProgram(shaderProgramGeometry);
     int model_mat_loc = glGetUniformLocation(shaderProgramGeometry, "model_mat");
@@ -107,8 +107,8 @@ main(int, char* argv[]) {
     build_framebuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     unsigned int quad = setup_fullscreen_quad();
-    unsigned int vertexShaderCompose = compileShader("deferred_compose.vert", GL_VERTEX_SHADER);
-    unsigned int fragmentShaderCompose = compileShader("deferred_compose.frag", GL_FRAGMENT_SHADER);
+    unsigned int vertexShaderCompose = compileShader("Aufgaben/deferred_compose.vert", GL_VERTEX_SHADER);
+    unsigned int fragmentShaderCompose = compileShader("Aufgaben/deferred_compose.frag", GL_FRAGMENT_SHADER);
     unsigned int shaderProgramCompose = linkProgram(vertexShaderCompose, fragmentShaderCompose);
     glDeleteShader(fragmentShaderCompose);
     glDeleteShader(vertexShaderCompose);

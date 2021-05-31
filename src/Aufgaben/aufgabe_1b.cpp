@@ -18,8 +18,8 @@ main(int, char* argv[]) {
     glfwSetFramebufferSizeCallback(window, resizeCallback);
 
     // load and compile shaders and link program
-    unsigned int vertexShader = compileShader("uebung_1b.vert", GL_VERTEX_SHADER);
-    unsigned int fragmentShader = compileShader("uebung_1b.frag", GL_FRAGMENT_SHADER);
+    unsigned int vertexShader = compileShader("Aufgaben/uebung_1b.vert", GL_VERTEX_SHADER);
+    unsigned int fragmentShader = compileShader("Aufgaben/uebung_1b.frag", GL_FRAGMENT_SHADER);
     unsigned int shaderProgram = linkProgram(vertexShader, fragmentShader);
     // after linking the program the shader objects are no longer needed
     glDeleteShader(fragmentShader);

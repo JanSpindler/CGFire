@@ -23,14 +23,14 @@ main(int, char* argv[]) {
     camera cam(window);
 
     // load and compile shaders and link program
-    unsigned int vertexShader = compileShader("mesh_render.vert", GL_VERTEX_SHADER);
-    unsigned int fragmentShader = compileShader("mesh_render.frag", GL_FRAGMENT_SHADER);
+    unsigned int vertexShader = compileShader("Aufgaben/mesh_render.vert", GL_VERTEX_SHADER);
+    unsigned int fragmentShader = compileShader("Aufgaben/mesh_render.frag", GL_FRAGMENT_SHADER);
     unsigned int shaderProgram = linkProgram(vertexShader, fragmentShader);
     // after linking the program the shader objects are no longer needed
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
 
-    std::vector<geometry> objects = loadScene("buddha.obj", true);
+    std::vector<geometry> objects = loadScene("Aufgaben/buddha.obj", true);
 
     glUseProgram(shaderProgram);
     int model_mat_loc = glGetUniformLocation(shaderProgram, "model_mat");

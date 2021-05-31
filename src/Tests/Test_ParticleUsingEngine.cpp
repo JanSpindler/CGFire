@@ -1,16 +1,7 @@
-//
-//Created by vincent on 25.05.2021.
-// Testet das ParticleSystem
-
-#include <chrono>
-#include <glm/gtx/transform.hpp>
-#include <framework/imgui_util.hpp>
-
-#include "util/OpenGLDebug.h"
-#include "particle/ParticleSystem.h"
-#include "particle/Fire.h"
-
 #include "engine/Window.hpp"
+
+#include <glm/gtx/transform.hpp>
+
 #include "engine/Util.hpp"
 #include "engine/Camera.hpp"
 #include "engine/GLShader.hpp"
@@ -18,40 +9,18 @@
 #include "engine/Light.hpp"
 #include "engine/Input.hpp"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+#include "particle/ParticleSystem.h"
+#include "particle/Fire.h"
 
-
-const int WINDOW_WIDTH =  800;
-const int WINDOW_HEIGHT = 800;
-const float FOV = 45.f;
-const float NEAR_VALUE = 0.1f;
-const float FAR_VALUE = 100.f;
-
-std::chrono::time_point<std::chrono::system_clock> start_time;
-
-void resizeCallback(GLFWwindow* window, int width, int height);
-
-
-int main(int, char* argv[]) {
-    //GLFWwindow* window = initOpenGL(WINDOW_WIDTH, WINDOW_HEIGHT, argv[0]);
-   // glfwSetFramebufferSizeCallback(window, resizeCallback);
-
-
-
-
+int main()
+{
+    en::Log::Info("Initializing CGFire");
 
     en::Window window(800, 600, "CGFire");
-
-    init_imgui(window.GetHandle());
-
-    util::EnableGLDebugging();
 
     float fov = glm::radians(60.f);
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
-
     en::Camera cam(
             glm::vec3(0.0f, 3.0f, -20.0f),
             glm::vec3(0.0f, 0.0f, 1.0f),
@@ -61,15 +30,25 @@ int main(int, char* argv[]) {
             nearPlane,
             farPlane);
 
-    //glEnable(GL_DEPTH_TEST);
+    en::GLShader vertShader("simple.vert", en::GLShader::Type::VERTEX);
+    en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram program(vertShader, fragShader);
+
+    glm::mat4 viewMat;
+    glm::mat4 projMat;
+    glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
 
-    //const auto& view_proj_matrix = cam.GetViewProjMatRef();//am.view_matrix();
-    //auto view_proj_matrix = glm::identity<glm::mat4>();//am.view_matrix();
+    en::Model floorModel("cube.obj", true);
+    en::RenderObj floorObj = { &floorModel };
+    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
+
+    program.Use();
+    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
+    dirLight.Use(&program);
 
 
-    // Particle Test
-
+    //Particle Test
     using namespace particle;
     ParticleSystem particleSystem(100, cam);
 
@@ -79,17 +58,19 @@ int main(int, char* argv[]) {
     sparkTextures.emplace_back(DATA_ROOT + "spark3.png");
 
     FireCreator fireCreator(particleSystem, sparkTextures);
-    fireCreator.createFlame(glm::vec3(0.5f, 0.5f, 0.5f), 5);
-
-    auto timeStart = std::chrono::steady_clock::now();
+    fireCreator.createFlame(glm::vec3(0.f, 0.f, 0.f), 5);
 
     while (window.IsOpen())
     {
         window.Update();
         en::Input::Update();
-
         en::Time::Update();
         float deltaTime = (float)en::Time::GetDeltaTime();
+
+
+        //Particles
+        fireCreator.onUpdate(deltaTime);
+        particleSystem.OnUpdate(deltaTime);
 
 
         // Mouse input handling
@@ -126,36 +107,18 @@ int main(int, char* argv[]) {
 
         // Rendering
         cam.SetAspectRatio(window.GetAspectRatio());
+        viewMat = cam.GetViewMat();
+        projMat = cam.GetProjMat();
 
+        program.Use();
+        program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
+        program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        program.SetUniformVec3f("cam_pos", cam.GetPos());
 
-
-        auto timeEnd = std::chrono::steady_clock::now();
-        //calc difference in seconds
-        float difference = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>
-                (timeEnd - timeStart).count()) / 1000000.f;
-        timeStart = timeEnd;
-
-
-        fireCreator.onUpdate(difference);
-        particleSystem.OnUpdate(difference);
-
-
-
+        floorObj.Render(&program);
         particleSystem.OnRender();
-
-        imgui_render();
-//        glfwSwapBuffers(window);
-//        glfwPollEvents();
     }
-//
-    cleanup_imgui();
-//    glfwTerminate();
-}
 
-void resizeCallback(GLFWwindow*, int width, int height)
-{
-    // set new width and height as viewport size
-    glViewport(0, 0, width, height);
-    //Error:
-    //proj_matrix = glm::perspective(FOV, static_cast<float>(width) / static_cast<float>(height), NEAR_VALUE, FAR_VALUE);
+    en::Log::Info("Ending CGFire");
+    return 0;
 }

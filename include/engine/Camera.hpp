@@ -17,6 +17,7 @@ namespace en
 
         glm::mat4 GetViewMat() const;
         glm::mat4 GetProjMat() const;
+        glm::mat4 GetViewProjMat() const;
 
         glm::vec3 GetPos() const;
 
@@ -32,6 +33,7 @@ namespace en
         void RotateViewDir(float phi, float theta);
 
     private:
+
         glm::vec3 pos_;
         glm::vec3 viewDir_;
         glm::vec3 up_;

@@ -33,6 +33,9 @@ namespace en
     {
         return glm::perspective(fov_, aspectRatio_, near_, far_);
     }
+    glm::mat4 Camera::GetViewProjMat() const{
+        return this->GetProjMat() * this->GetViewMat();;
+    }
 
     glm::vec3 Camera::GetPos() const
     {
@@ -42,6 +45,7 @@ namespace en
     void Camera::SetPos(glm::vec3 pos)
     {
         pos_ = pos;
+
     }
 
     void Camera::SetViewDir(glm::vec3 viewDir)
@@ -57,16 +61,19 @@ namespace en
     void Camera::SetAspectRatio(float aspectRatio)
     {
         aspectRatio_ = aspectRatio;
+
     }
 
     void Camera::SetFov(float fov)
     {
         fov_ = fov;
+
     }
 
     void Camera::SetNear(float near)
     {
         near_ = near;
+
     }
 
     void Camera::SetFar(float far)
@@ -93,4 +100,5 @@ namespace en
 
         viewDir_ = glm::normalize(thetaMat * phiMat * viewDir_);
     }
+
 }

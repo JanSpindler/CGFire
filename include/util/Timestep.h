@@ -6,10 +6,14 @@ namespace util {
 	class TimeStep
 	{
 	public:
-        TimeStep(float time = 0.0f)
+         explicit TimeStep(float time)
 			: m_Time(time)
 		{
 		}
+
+		TimeStep& operator+=(TimeStep ts){
+            m_Time+= ts;
+            return *this; }
 
 		operator float() const { return m_Time; }
 

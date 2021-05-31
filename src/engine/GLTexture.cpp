@@ -17,6 +17,7 @@ namespace en
 
     GLTexture::~GLTexture()
     {
+        glDeleteTextures(1, &handle_);
     }
 
     GLPictureTex::GLPictureTex(WrapMode wrapMode, FilterMode filterMode, const std::string& path, bool flipUv) :

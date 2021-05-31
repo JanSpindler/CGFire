@@ -35,16 +35,16 @@ main(int, char* argv[]) {
     camera cam(window);
 
     // load and compile shaders and link program
-    unsigned int vertexShader = compileShader("mesh_render.vert", GL_VERTEX_SHADER);
-    unsigned int fragmentShader = compileShader("mesh_render.frag", GL_FRAGMENT_SHADER);
+    unsigned int vertexShader = compileShader("Aufgaben/mesh_render.vert", GL_VERTEX_SHADER);
+    unsigned int fragmentShader = compileShader("Aufgaben/mesh_render.frag", GL_FRAGMENT_SHADER);
     unsigned int shaderProgram = linkProgram(vertexShader, fragmentShader);
     // after linking the program the shader objects are no longer needed
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
 
-    geometry sun = loadMesh("sphere.obj", false, glm::vec4(1.f, 0.6f, 0.f, 1.f));
-    geometry earth = loadMesh("sphere.obj", false, glm::vec4(0.f, 0.0f, 1.f, 1.f));
-    geometry moon = loadMesh("sphere.obj", false, glm::vec4(0.5f, 0.5f, 0.5f, 1.f));
+    geometry sun = loadMesh("Aufgaben/sphere.obj", false, glm::vec4(1.f, 0.6f, 0.f, 1.f));
+    geometry earth = loadMesh("Aufgaben/sphere.obj", false, glm::vec4(0.f, 0.0f, 1.f, 1.f));
+    geometry moon = loadMesh("Aufgaben/sphere.obj", false, glm::vec4(0.5f, 0.5f, 0.5f, 1.f));
 
     glUseProgram(shaderProgram);
     int model_mat_loc = glGetUniformLocation(shaderProgram, "model_mat");

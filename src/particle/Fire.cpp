@@ -1,0 +1,85 @@
+//
+//Created by vincent on 28.05.2021.
+//
+
+#include "particle/Fire.h"
+
+
+namespace particle{
+
+    FireCreator::FireCreator(ParticleSystem& particleSystem, const std::vector<std::string>& sparkTextures)
+            : m_ParticleSystem(particleSystem)
+    {
+
+        // load textures
+        for (auto& file : sparkTextures){
+            m_Textures.emplace_back(std::make_shared<en::GLPictureTex>(
+                    en::GLPictureTex::WrapMode::CLAMP_TO_BORDER,
+                    en::GLPictureTex::FilterMode::NEAREST,
+                    file, true));
+        }
+
+        m_ParticleSystem.initializeTextures(m_Textures);
+
+        m_BaseFlameProps.Position = { 0.0f, 0.0f, 0.0f };
+        m_BaseFlameProps.Velocity = { 0.0f, 1.0f, 0.0f };
+        m_BaseFlameProps.VelocityVariation = { 1.0f, 0.0f, 0.0f };
+        m_BaseFlameProps.ColorBegin = { 210 / 255.0f, 200 / 255.0f, 0 / 255.0f, 1.0f };
+        m_BaseFlameProps.ColorEnd = { 250 / 255.0f, 0 / 255.0f, 0 / 255.0f, 0.3f };
+        m_BaseFlameProps.SizeBegin = 100.f;
+        m_BaseFlameProps.SizeVariation = 0.9f;
+        m_BaseFlameProps.SizeEnd = 0.0f;
+        m_BaseFlameProps.LifeTime = 0.25f;
+        m_BaseFlameProps.LifeTimeVariation = 0.06f;
+
+    }
+    void FireCreator::onUpdate(float ts){
+
+        //For all flames emit new particles if the time has come
+        for (auto& flame : m_Flames) {
+            flame->SecondsSinceEmit += ts;
+
+            const float FREQUENCY = 0.1f;
+            if (flame->SecondsSinceEmit > FREQUENCY + FREQUENCY*(util::Random::Float() - 0.5f)) //small random variation of frequency
+            {
+                ParticleProps props = m_BaseFlameProps;
+                for (uint32_t i = 0; i < flame->ParticlesPerEmit; ++i) {
+                    props.Position = flame->Position;
+
+                    //use random texture
+                    uint32_t randTextureID = util::Random::Uint32(0, static_cast<uint32_t>(m_Textures.size()-1));
+                    props.Texture = m_Textures[randTextureID].get();
+
+                    m_ParticleSystem.Emit(props);
+
+                }
+                flame->SecondsSinceEmit = 0;
+            }
+
+        }
+
+
+
+        // UI
+        imgui_new_frame(600, 400);
+        ImGui::Begin("Flame Particle Props");
+        ImGui::SliderFloat3("Position", &m_BaseFlameProps.Position.x, -10, 10);
+        ImGui::SliderFloat3("Velocity", &m_BaseFlameProps.Velocity.x, -10, 10);
+        ImGui::SliderFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, 0, 10);
+        ImGui::ColorEdit4("ColorBegin", &m_BaseFlameProps.ColorBegin.x);
+        ImGui::ColorEdit4("ColorEnd", &m_BaseFlameProps.ColorEnd.x);
+        ImGui::SliderFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0, 100);
+        ImGui::SliderFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0, 10);
+        ImGui::SliderFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0, 10);
+        ImGui::SliderFloat("LifeTime", &m_BaseFlameProps.LifeTime, 0, 10);
+        ImGui::SliderFloat("LifeTimeVariation", &m_BaseFlameProps.LifeTimeVariation, 0, 10);
+        ImGui::End();
+    }
+    void FireCreator::createFlame(const glm::vec3& position, uint32_t particlesPerEmit){
+
+        m_Flames.emplace_back(std::make_shared<Flame>());
+        Flame& flame = *m_Flames.back();
+        flame.Position = position;
+        flame.ParticlesPerEmit = particlesPerEmit;
+    }
+}

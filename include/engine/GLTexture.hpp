@@ -24,6 +24,8 @@ namespace en
     class GLPictureTex : GLTexture
     {
     public:
+        unsigned int getHandle(){ return handle_; }
+
         enum class WrapMode
         {
             REPEAT = 1,

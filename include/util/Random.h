@@ -8,7 +8,14 @@ namespace util {
             static std::mt19937 s_RandomEngine(std::random_device{}());
             static std::uniform_real_distribution<> s_Distribution;
 
-            return s_Distribution(s_RandomEngine);
+            return static_cast<float>(s_Distribution(s_RandomEngine));
+        }
+
+        static uint32_t Uint32(uint32_t minValue, uint32_t maxValue){
+            static std::mt19937 s_RandomEngine(std::random_device{}());
+            static std::uniform_int_distribution<> s_Distribution;
+
+            return minValue + s_Distribution(s_RandomEngine) % (maxValue-minValue + 1);
         }
 
     };

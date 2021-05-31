@@ -5,6 +5,7 @@
 #ifndef CGFIRE_WINDOW_HPP
 #define CGFIRE_WINDOW_HPP
 
+
 struct GLFWwindow;
 
 namespace en
@@ -21,6 +22,8 @@ namespace en
 
         void EnableCursor(bool cursorMode);
 
+
+        GLFWwindow* GetHandle(){ return handle_; }
         int GetWidth() const;
         int GetHeight() const;
         float GetAspectRatio() const;

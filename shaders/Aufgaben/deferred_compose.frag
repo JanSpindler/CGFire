@@ -12,7 +12,7 @@ in vec3 local_light_pos;
 
 out vec4 frag_color;
 
-uniform sampler2D tex;
+uniform sampler2D tex; //enthält normale in ertsen drei Koordinaten und z-Wert der letzten
 uniform mat4 proj_mat;
 
 vec3 phong(vec3 l, vec3 n) {
@@ -28,7 +28,13 @@ vec3 phong(vec3 l, vec3 n) {
 vec3 get_eye_position(float z) {
     // TASK
     // Compute the position in eye space using z and proj_mat
-    float eye_z = 0.0;
+
+
+    float z_ndc = 2 * z - 1;
+    float a = proj_mat[2][2];
+    float b = proj_mat[3][2];
+    float c = proj_mat[2][3];
+    float eye_z = b/(c*z_ndc - a);
     return eye_direction * (-eye_z);
 }
 
@@ -39,8 +45,8 @@ void main()
     // TASK:
     // Read the normal and z value from the G-Buffer.
     // Note how the normal is written to the G-Buffer in the first pass!
-    vec3 normal = vec3(0.0, 0.0, 0.0);
-    float z = 0.0;
+    vec3 normal = tex_value.rgb;
+    float z = tex_value.a;
     vec3 eye_pos = get_eye_position(z);
 
     vec3 color;

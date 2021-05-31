@@ -8,6 +8,8 @@
 #include "engine/Util.hpp"
 #include "engine/Input.hpp"
 
+#include <framework/imgui_util.hpp>
+
 namespace en
 {
     void ErrorCallback(int error, const char* desc)
@@ -29,8 +31,8 @@ namespace en
         {
             Log::Error("Failed to initialize GLFW", true);
         }
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         // Create Window
@@ -63,6 +65,7 @@ namespace en
 
         PopGLError(true);
         Log::Info("OpenGL and GLFW have been initialized");
+
     }
 
     Window::~Window()
@@ -73,6 +76,8 @@ namespace en
 
     void Window::Update()
     {
+
+
         // Image has just been drawn
 
         // Check for Errors after drawing
@@ -82,6 +87,7 @@ namespace en
         glfwGetWindowSize(handle_, &width_, &height_);
         glViewport(0, 0, width_, height_);
 
+
         glfwSwapBuffers(handle_);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -90,6 +96,7 @@ namespace en
 
     void Window::Destroy()
     {
+
         Log::Info("Destroying GLFW Window");
         glfwDestroyWindow(handle_);
         handle_ = nullptr;

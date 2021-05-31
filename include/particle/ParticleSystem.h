@@ -6,53 +6,38 @@
 #include "util/Timestep.h"
 #include "util/Random.h"
 #include "framework/camera.hpp"
-#include "Quad.h"
+#include "particle/ParticleSystemRenderer.h"
+#include "particle/Particle.h"
 
-struct ParticleProps
-{
-    glm::vec3 Position;
-    glm::vec3 PositionVariation;
-	glm::vec3 Velocity;
-    //for random variable r between -0.5 and 0.5, the velocity will be varied by r * VelocityVariation
-	glm::vec3 VelocityVariation;
-	glm::vec4 ColorBegin, ColorEnd;
-	float SizeBegin, SizeEnd;
-    //for random variable r between -0.5 and 0.5, the size will be varied by r * SizeVariation
-	float SizeVariation;
-	float LifeTime = 1.0f;
-	float LifeTimeVariation = 0.f;
-};
+namespace particle {
 
-class ParticleSystem
-{
-public:
-	ParticleSystem();
 
-	void OnUpdate(util::TimeStep ts);
-	void OnRender(glm::mat4& view_proj_matrix);
+    class ParticleSystem {
+    public:
+        explicit ParticleSystem(uint32_t particlePoolSize, const en::Camera& cam);
 
-	//Creates a new particle given the properties
-	void Emit(const ParticleProps& pProps);
-private:
-    static const unsigned int ParticlePoolSize = 3000;
-	struct Particle
-	{
-		glm::vec3 Position;
-		glm::vec3 Velocity;
-		glm::vec4 ColorBegin, ColorEnd;
-		float Rotation = 0.0f;
-		float SizeBegin, SizeEnd;
+        void initializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){
+            m_BatchRenderer.initializeTextures(textures);
+        }
 
-		float LifeTime = 1.0f;
-		float LifeRemaining = 0.0f;
+        void OnUpdate(float ts);
 
-		bool Active = false;
-	};
+        void OnRender();
 
-    //Recycle-Pool of particles
-	std::vector<Particle> m_ParticlePool;
-	uint32_t m_PoolIndex = ParticlePoolSize-1;
+        //Creates a new particle given the properties
+        void Emit(const ParticleProps &pProps);
 
-    // The OpenGL Quad represented by two vertices
-    Quad m_Quad;
-};
+    private:
+        const unsigned int m_ParticlePoolSize;
+
+        //Recycle-Pool of particles
+        std::vector<Particle> m_ParticlePool;
+        uint32_t m_PoolIndex;
+
+        //Renderer
+        ParticleSystemRenderer m_BatchRenderer;
+
+
+
+    };
+}
