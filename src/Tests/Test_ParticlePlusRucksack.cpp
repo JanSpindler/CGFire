@@ -41,13 +41,13 @@ int main()
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
 
-//    en::Model floorModel("cube.obj", true);
-//    en::RenderObj floorObj = { &floorModel };
-//    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
-//
-//    program.Use();
-//    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
-//    dirLight.Use(&program);
+    en::Model floorModel("cube.obj", true);
+    en::RenderObj floorObj = { &floorModel };
+    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
+
+    program.Use();
+    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
+    dirLight.Use(&program);
 
 
     // Particle Test
@@ -102,16 +102,16 @@ int main()
         cam.Move(camMove);
 
 //        // Rendering
-//        cam.SetAspectRatio(window.GetAspectRatio());
-//        viewMat = cam.GetViewMat();
-//        projMat = cam.GetProjMat();
-//
-//        program.Use();
-//        program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
-//        program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
-//        program.SetUniformVec3f("cam_pos", cam.GetPos());
+        cam.SetAspectRatio(window.GetAspectRatio());
+        viewMat = cam.GetViewMat();
+        projMat = cam.GetProjMat();
 
-        //floorObj.Render(&program);
+        program.Use();
+        program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
+        program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        program.SetUniformVec3f("cam_pos", cam.GetPos());
+
+        floorObj.Render(&program);
 
 
         particleSystemFire.OnRender();
