@@ -35,15 +35,24 @@ namespace particle {
         //Needs to be called with all the textures that will be used
         void initializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures);
 
+        //Needs to be called at the start of a new rendering
         void BeginBatch();
+
+        //in between BeginBatch() and EndBatch() call this for each particle to be drawn
         void DrawParticle(const Particle& particle);
+
+        //draws all the particles of the current batch and clears the buffer
         void EndBatch();
     private:
+        //the actual draw and clear method. It is used in EndBatch() and in NextBatch()
         void Flush();
+
+        //in DrawParticle(), once the current batch is full, this is called. It will Flush() and BeginBatch()
         void NextBatch();
 
 
     private:
+        GLint m_MaxTexturesSlots;
         const en::Camera& m_Cam;
 
         GLuint m_MaxQuadCount, m_MaxIndices, m_MaxVertices;
@@ -53,7 +62,7 @@ namespace particle {
 
         std::unordered_map<en::GLPictureTex*, uint8_t> m_MapTextureToSlot;
         std::unordered_map<uint8_t, en::GLPictureTex*> m_MapSlotToTexture;
-        uint8_t m_MaxTextureSlotIDPlusOne = 0;
+        uint8_t m_CurrentMaxTextureSlotIDPlusOne = 0;
 
         GLuint m_VA;
         GLuint m_VB;
@@ -61,6 +70,8 @@ namespace particle {
 
         GLuint m_Shader;
         GLint m_ShaderViewProj;
+        GLint m_ShaderCamUp;
+        GLint m_ShaderCamRight;
         GLint m_ShaderSamplers[32];
 
     };

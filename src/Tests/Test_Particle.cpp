@@ -23,24 +23,12 @@
 #endif
 
 
-const int WINDOW_WIDTH =  800;
-const int WINDOW_HEIGHT = 800;
-const float FOV = 45.f;
-const float NEAR_VALUE = 0.1f;
-const float FAR_VALUE = 100.f;
-
 std::chrono::time_point<std::chrono::system_clock> start_time;
 
 void resizeCallback(GLFWwindow* window, int width, int height);
 
 
 int main(int, char* argv[]) {
-    //GLFWwindow* window = initOpenGL(WINDOW_WIDTH, WINDOW_HEIGHT, argv[0]);
-   // glfwSetFramebufferSizeCallback(window, resizeCallback);
-
-
-
-
 
     en::Window window(800, 600, "CGFire");
 
@@ -61,27 +49,15 @@ int main(int, char* argv[]) {
             nearPlane,
             farPlane);
 
-    //glEnable(GL_DEPTH_TEST);
-
-
-    //const auto& view_proj_matrix = cam.GetViewProjMatRef();//am.view_matrix();
-    //auto view_proj_matrix = glm::identity<glm::mat4>();//am.view_matrix();
-
 
     // Particle Test
-
     using namespace particle;
-    ParticleSystem particleSystem(100, cam);
-
-    std::vector<std::string> sparkTextures;
-    sparkTextures.emplace_back(DATA_ROOT + "spark1.png");
-    sparkTextures.emplace_back(DATA_ROOT + "spark2.png");
-    sparkTextures.emplace_back(DATA_ROOT + "spark3.png");
-
-    FireCreator fireCreator(particleSystem, sparkTextures);
+    ParticleSystem particleSystemFire(10000, cam);
+    FireCreator fireCreator(particleSystemFire);
     fireCreator.createFlame(glm::vec3(0.5f, 0.5f, 0.5f), 5);
 
     auto timeStart = std::chrono::steady_clock::now();
+
 
     while (window.IsOpen())
     {
@@ -137,11 +113,14 @@ int main(int, char* argv[]) {
 
 
         fireCreator.onUpdate(difference);
-        particleSystem.OnUpdate(difference);
+        particleSystemFire.OnUpdate(difference);
 
 
 
-        particleSystem.OnRender();
+        particleSystemFire.OnRender();
+
+
+
 
         imgui_render();
 //        glfwSwapBuffers(window);
@@ -149,7 +128,7 @@ int main(int, char* argv[]) {
     }
 //
     cleanup_imgui();
-//    glfwTerminate();
+    //glfwTerminate();
 }
 
 void resizeCallback(GLFWwindow*, int width, int height)

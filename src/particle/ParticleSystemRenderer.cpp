@@ -2,6 +2,7 @@
 #include "particle/ParticleSystemRenderer.h"
 #include <array>
 #include <engine/Util.hpp>
+#include <util/OpenGLDebug.h>
 
 namespace particle {
 
@@ -55,7 +56,7 @@ namespace particle {
 
         glCreateBuffers(1, &m_IB);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_MaxIndices * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 
         delete[] indices;
 
@@ -66,13 +67,20 @@ namespace particle {
         glDeleteShader(fragmentShader);
         glDeleteShader(vertexShader);
 
-        glUseProgram(m_Shader);
+
         // save uniform locations
         m_ShaderViewProj = glGetUniformLocation(m_Shader, "u_ViewProj");
+        m_ShaderCamUp = glGetUniformLocation(m_Shader, "u_CameraUp");
+        m_ShaderCamUp = glGetUniformLocation(m_Shader, "u_CameraRight");
 
         auto loc = glGetUniformLocation(m_Shader, "u_Textures");
-        for (int i = 0; i < 32; ++i)
+
+        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &m_MaxTexturesSlots);
+
+        for (int i = 0; i < m_MaxTexturesSlots; ++i)
             m_ShaderSamplers[i] = i;
+
+        glUseProgram(m_Shader);
         glUniform1iv(loc, 32, m_ShaderSamplers);
 
     }
@@ -86,9 +94,10 @@ namespace particle {
     void ParticleSystemRenderer::initializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){
         //Create the bidirectional mapping from textures to their IDs in the shader
         for (auto& tex : textures){
-            m_MapSlotToTexture[m_MaxTextureSlotIDPlusOne] = tex.get();
-            m_MapTextureToSlot[tex.get()] = m_MaxTextureSlotIDPlusOne;
-            m_MaxTextureSlotIDPlusOne++;
+            m_MapSlotToTexture[m_CurrentMaxTextureSlotIDPlusOne] = tex.get();
+            m_MapTextureToSlot[tex.get()] = m_CurrentMaxTextureSlotIDPlusOne;
+            m_CurrentMaxTextureSlotIDPlusOne++;
+            assert(m_CurrentMaxTextureSlotIDPlusOne <= m_MaxTexturesSlots);
 
         }
     }
@@ -114,25 +123,27 @@ namespace particle {
 
 
         glEnable(GL_BLEND);
-        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 
         //bind textures
-        for (int i = 0; i < m_MaxTextureSlotIDPlusOne; i++) {
+        for (int i = 0; i < m_CurrentMaxTextureSlotIDPlusOne; i++) {
             glActiveTexture(GL_TEXTURE0 + i);
             m_MapSlotToTexture[i]->Bind();
         }
 
         glUseProgram(m_Shader);
+
         glm::mat4 viewProjMat = m_Cam.GetViewProjMat();
         glUniformMatrix4fv(m_ShaderViewProj, 1, GL_FALSE, &viewProjMat[0][0]);
+
 
 
         glBindVertexArray(m_VA);
         glDrawElements(GL_TRIANGLES, m_QuadIndexCount, GL_UNSIGNED_INT, nullptr);
 
         glDisable(GL_BLEND);
+
     }
     void ParticleSystemRenderer::NextBatch(){
         this->Flush();
@@ -145,22 +156,40 @@ namespace particle {
             NextBatch();
         }
 
-        //float life = particle.LifeRemaining / particle.LifeTime;
-       // glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
-        //float size = glm::lerp(particle.SizeBegin, particle.SizeEnd, life);
+        float life = particle.LifeRemaining / particle.LifeTime;
+        glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
+        float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
+
         uint8_t textureSlot = m_MapTextureToSlot[particle.Texture];
 
-        float size = 1;
-        glm::vec4 color = particle.ColorBegin;
 
-        constexpr glm::vec4 quadVertexPositions[] = {{ -0.5f, -0.5f, 0.0f, 1.0f },
-                                                    {  0.5f, -0.5f, 0.0f, 1.0f },
-                                                    {  0.5f,  0.5f, 0.0f, 1.0f },
-                                                    { -0.5f,  0.5f, 0.0f, 1.0f } };
-        constexpr glm::vec2 texCoords[] = {     { 0.0f, 0.0f },
-                                                { 1.0f, 0.0f },
-                                                { 1.0f, 1.0f },
-                                                { 0.0f, 1.0f } };
+        //calculate the texture position in the sprite sheet
+        auto numSpriteRows = static_cast<uint32_t>(particle.TexCoordAnimFrames.x);
+        auto numSpriteColumns = static_cast<uint32_t>(particle.TexCoordAnimFrames.y);
+        auto numSpriteFrames = static_cast<uint32_t>(numSpriteRows * numSpriteColumns);
+        auto currentFrame = static_cast<uint32_t>(life * numSpriteFrames);
+        auto currentFrameColumn = currentFrame % numSpriteRows;
+        auto currentFrameRow = currentFrame / numSpriteRows;
+        glm::vec2 spriteFrameSize = {1.f / numSpriteColumns, 1.f / numSpriteRows};
+        glm::vec2 spriteFramePos = {currentFrameColumn * spriteFrameSize.x, currentFrameRow * spriteFrameSize.y};
+        glm::vec2 texCoords[] = {     { spriteFramePos.x, spriteFramePos.y },
+                                      { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y },
+                                      { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y + spriteFrameSize.y },
+                                      { spriteFramePos.x, spriteFramePos.y + spriteFrameSize.y } };
+
+
+
+        glm::mat4 viewMatrix = m_Cam.GetViewMat();
+        auto CamRight = glm::vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
+        auto CamUp = glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
+
+        glm::vec4 quadVertexPositions[] = {
+                                            {  -0.5f, -0.5f, 0.0f, 1.0f },
+                                            {  0.5f, -0.5f, 0.0f, 1.0f },
+                                            {  0.5f,  0.5f, 0.0f, 1.0f },
+                                            { -0.5f,  0.5f, 0.0f, 1.0f } };
+
+
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), particle.Position)
                               * glm::scale(glm::mat4(1.0f), { size, size, 1.0f });

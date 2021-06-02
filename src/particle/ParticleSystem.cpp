@@ -3,7 +3,8 @@
 
 namespace particle {
     ParticleSystem::ParticleSystem(uint32_t particlePoolSize,  const en::Camera& cam)
-            : m_ParticlePoolSize(particlePoolSize),
+            : m_Cam(cam),
+            m_ParticlePoolSize(particlePoolSize),
               m_PoolIndex(m_ParticlePoolSize - 1),
               m_BatchRenderer(m_ParticlePoolSize, cam){
         m_ParticlePool.resize(m_ParticlePoolSize);
@@ -17,15 +18,24 @@ namespace particle {
 
             if (particle.LifeRemaining <= 0.0f) {
                 particle.Active = false;
+                particle.CameraDistance = -1.f;
                 continue;
             }
+
 
             particle.LifeRemaining -= ts;
             particle.Position += ts * particle.Velocity;
             particle.Rotation += 0.01f * ts;
 
+            auto dif = particle.Position - m_Cam.GetPos();
+            particle.CameraDistance = glm::dot(dif, dif); //squared distance to camera
+
             //Todo update frames for animated textures
         }
+
+        //Sorts all the particles by their distance to the camera.
+        //Also will sort all inactive particles so make sure the pool is not too big
+        std::sort(m_ParticlePool.begin(), m_ParticlePool.end());
     }
 
     void ParticleSystem::OnRender() {
@@ -70,7 +80,10 @@ namespace particle {
 
         p.Texture = pProps.Texture;
         p.TexCoord = pProps.TexCoord;
-        p.TexCoordFrameSize = pProps.TexCoordFrameSize;
+        p.TexCoordAnimFrames = pProps.TexCoordAnimFrames;
+
+        auto dif = p.Position - m_Cam.GetPos();
+        p.CameraDistance = glm::dot(dif, dif); //squared distance to camera
 
         m_PoolIndex = --m_PoolIndex % m_ParticlePool.size();
     }

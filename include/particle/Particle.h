@@ -21,7 +21,9 @@ namespace particle{
         en::GLPictureTex* Texture = nullptr;
 
         glm::vec2 TexCoord = {0.f, 0.f}; //If you want to use animation you can change the TexCoord for each frame
-        glm::vec2 TexCoordFrameSize = {1.f, 1.f};
+        glm::vec2 TexCoordAnimFrames = {1.f, 1.f}; // rows, columns of the sprite-sheet
+
+        int ParticlesPerEmit = 10; //int because imgui does not support unsigned int
     };
 
     struct Particle {
@@ -37,8 +39,15 @@ namespace particle{
         en::GLPictureTex* Texture = nullptr;
 
         glm::vec2 TexCoord = {0.f, 0.f};
-        glm::vec2 TexCoordFrameSize = {1.f, 1.f};
+        glm::vec2 TexCoordAnimFrames = {1.f, 1.f}; // rows, columns of the sprite-sheet
+
 
         bool Active = false;
+
+        float CameraDistance = -1.0f; // *Squared* distance to the camera. if dead : -1.0f
+        bool operator<(const Particle& that) const {
+            // Sort in reverse order : far particles drawn first.
+            return this->CameraDistance > that.CameraDistance;
+        }
     };
 }

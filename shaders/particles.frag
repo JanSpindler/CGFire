@@ -10,6 +10,5 @@ uniform sampler2D u_Textures[32];
 layout (location = 0) out vec4 o_Color;
 
 void main(){
-	// Output color = color of the texture at the specified UV
-	o_Color = v_Color;// texture( u_Textures[int(v_TexIndex)], v_TexCoord) * v_Color;
+	o_Color = texture2D( u_Textures[int(v_TexIndex)], v_TexCoord) * v_Color;
 }

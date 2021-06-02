@@ -14,6 +14,9 @@ namespace particle {
 
     class ParticleSystem {
     public:
+
+        /**\param particlePoolSize should only approximately be as high as needed,
+         * because each update has O(n) time plus O(nlogn) for sorting, n = particlePoolSize.*/
         explicit ParticleSystem(uint32_t particlePoolSize, const en::Camera& cam);
 
         void initializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){
@@ -29,6 +32,7 @@ namespace particle {
 
     private:
         const unsigned int m_ParticlePoolSize;
+        const en::Camera& m_Cam;
 
         //Recycle-Pool of particles
         std::vector<Particle> m_ParticlePool;

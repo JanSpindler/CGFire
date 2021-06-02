@@ -11,8 +11,7 @@ namespace particle{
 
     class FireCreator{
     public:
-        /** \a sparkTextures are the textures we want to use for the fire spark*/
-        FireCreator(ParticleSystem& particleSystem, const std::vector<std::string>& sparkTextures);
+        FireCreator(ParticleSystem& particleSystem);
 
         void onUpdate(float ts);
 

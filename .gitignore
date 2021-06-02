@@ -8,4 +8,4 @@ out
 cmake-build-*
 cmakesettings.json
 /docs/html/
-/vendor/
+/vendor

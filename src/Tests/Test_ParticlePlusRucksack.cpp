@@ -18,6 +18,8 @@ int main()
 
     en::Window window(800, 600, "CGFire");
 
+    init_imgui(window.GetHandle());
+
     float fov = glm::radians(60.f);
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
@@ -39,26 +41,20 @@ int main()
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
 
-    en::Model floorModel("cube.obj", true);
-    en::RenderObj floorObj = { &floorModel };
-    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
+//    en::Model floorModel("cube.obj", true);
+//    en::RenderObj floorObj = { &floorModel };
+//    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
+//
+//    program.Use();
+//    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
+//    dirLight.Use(&program);
 
-    program.Use();
-    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
-    dirLight.Use(&program);
 
-
-    //Particle Test
+    // Particle Test
     using namespace particle;
-    ParticleSystem particleSystem(100, cam);
-
-    std::vector<std::string> sparkTextures;
-    sparkTextures.emplace_back(DATA_ROOT + "spark1.png");
-    sparkTextures.emplace_back(DATA_ROOT + "spark2.png");
-    sparkTextures.emplace_back(DATA_ROOT + "spark3.png");
-
-    FireCreator fireCreator(particleSystem, sparkTextures);
-    fireCreator.createFlame(glm::vec3(0.f, 0.f, 0.f), 5);
+    ParticleSystem particleSystemFire(10000, cam);
+    FireCreator fireCreator(particleSystemFire);
+    fireCreator.createFlame(glm::vec3(0.5f, 0.5f, 0.5f), 5);
 
     while (window.IsOpen())
     {
@@ -70,7 +66,7 @@ int main()
 
         //Particles
         fireCreator.onUpdate(deltaTime);
-        particleSystem.OnUpdate(deltaTime);
+        particleSystemFire.OnUpdate(deltaTime);
 
 
         // Mouse input handling
@@ -105,18 +101,22 @@ int main()
             camMove.y = -camMoveSpeed;
         cam.Move(camMove);
 
-        // Rendering
-        cam.SetAspectRatio(window.GetAspectRatio());
-        viewMat = cam.GetViewMat();
-        projMat = cam.GetProjMat();
+//        // Rendering
+//        cam.SetAspectRatio(window.GetAspectRatio());
+//        viewMat = cam.GetViewMat();
+//        projMat = cam.GetProjMat();
+//
+//        program.Use();
+//        program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
+//        program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
+//        program.SetUniformVec3f("cam_pos", cam.GetPos());
 
-        program.Use();
-        program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
-        program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        program.SetUniformVec3f("cam_pos", cam.GetPos());
+        //floorObj.Render(&program);
 
-        floorObj.Render(&program);
-        particleSystem.OnRender();
+
+        particleSystemFire.OnRender();
+
+        imgui_render();
     }
 
     en::Log::Info("Ending CGFire");
