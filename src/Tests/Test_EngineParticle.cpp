@@ -69,9 +69,8 @@ int main()
         window.UseViewport();
 
         //Particles
-        fireCreator.onUpdate(deltaTime);
-        particleSystemFire.OnUpdate(deltaTime);
-
+        //fireCreator.onUpdate(deltaTime);
+        //particleSystemFire.OnUpdate(deltaTime);
 
         // Mouse input handling
         bool mouseRightPressed = en::Input::IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
@@ -118,7 +117,7 @@ int main()
         floorObj.Render(&program);
 
 
-        particleSystemFire.OnRender();
+        //particleSystemFire.OnRender();
 
         //imgui_render();
     }

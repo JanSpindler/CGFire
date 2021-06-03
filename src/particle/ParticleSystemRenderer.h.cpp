@@ -15,9 +15,7 @@ namespace particle {
               m_MaxIndices(m_MaxQuadCount*6),
               m_MaxVertices(m_MaxQuadCount*4)
     {
-
         m_QuadData = new Vertex[m_MaxVertices](); //Allocate memory where the vertex data will be written to
-
 
         glCreateVertexArrays(1, &m_VA);
         glBindVertexArray(m_VA);
@@ -28,18 +26,17 @@ namespace particle {
         glBindBuffer(GL_ARRAY_BUFFER, m_VB);
         glBufferData(GL_ARRAY_BUFFER, m_MaxVertices * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
 
-        glEnableVertexArrayAttrib(m_VB, 0);
+        glEnableVertexArrayAttrib(m_VA, 0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, Position)));
 
-        glEnableVertexArrayAttrib(m_VB, 1);
+        glEnableVertexArrayAttrib(m_VA, 1);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, Color)));
 
-        glEnableVertexArrayAttrib(m_VB, 2);
+        glEnableVertexArrayAttrib(m_VA, 2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexCoord)));
 
-        glEnableVertexArrayAttrib(m_VB, 3);
+        glEnableVertexArrayAttrib(m_VA, 3);
         glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexID)));
-
 
         //Set up index buffer which we will never change later
         uint32_t* indices = new uint32_t[m_MaxIndices];
@@ -64,12 +61,11 @@ namespace particle {
         delete[] indices;
 
         // load and compile shaders and link program
-        unsigned int vertexShader = compileShader("particles.vert", GL_VERTEX_SHADER);
-        unsigned int fragmentShader = compileShader("particles.frag", GL_FRAGMENT_SHADER);
+        unsigned int vertexShader = compileShader("CGFire/particles.vert", GL_VERTEX_SHADER);
+        unsigned int fragmentShader = compileShader("CGFire/particles.frag", GL_FRAGMENT_SHADER);
         m_Shader = linkProgram(vertexShader, fragmentShader);
         glDeleteShader(fragmentShader);
         glDeleteShader(vertexShader);
-
 
         // save uniform locations
         m_ShaderViewProj = glGetUniformLocation(m_Shader, "u_ViewProj");

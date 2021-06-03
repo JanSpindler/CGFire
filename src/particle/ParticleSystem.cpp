@@ -3,7 +3,7 @@
 //
 
 #include "particle/ParticleSystem.h"
-
+#include "engine/Util.hpp"
 
 namespace particle {
     ParticleSystem::ParticleSystem(uint32_t particlePoolSize,  const en::Camera& cam)
