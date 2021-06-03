@@ -28,9 +28,8 @@ namespace particle {
             particle.Rotation += 0.01f * ts;
 
             auto dif = particle.Position - m_Cam.GetPos();
-            particle.CameraDistance = glm::dot(dif, dif); //squared distance to camera
+            particle.CameraDistance = glm::dot(dif, dif); //squared distance to camera, used to sort the particles
 
-            //Todo update frames for animated textures
         }
 
         //Sorts all the particles by their distance to the camera.

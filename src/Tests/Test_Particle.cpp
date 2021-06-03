@@ -18,16 +18,6 @@
 #include "engine/Light.hpp"
 #include "engine/Input.hpp"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
-
-std::chrono::time_point<std::chrono::system_clock> start_time;
-
-void resizeCallback(GLFWwindow* window, int width, int height);
-
-
 int main(int, char* argv[]) {
 
     en::Window window(800, 600, "CGFire");
@@ -116,25 +106,10 @@ int main(int, char* argv[]) {
         particleSystemFire.OnUpdate(difference);
 
 
-
         particleSystemFire.OnRender();
 
-
-
-
         imgui_render();
-//        glfwSwapBuffers(window);
-//        glfwPollEvents();
     }
-//
-    cleanup_imgui();
-    //glfwTerminate();
-}
 
-void resizeCallback(GLFWwindow*, int width, int height)
-{
-    // set new width and height as viewport size
-    glViewport(0, 0, width, height);
-    //Error:
-    //proj_matrix = glm::perspective(FOV, static_cast<float>(width) / static_cast<float>(height), NEAR_VALUE, FAR_VALUE);
+    cleanup_imgui();
 }

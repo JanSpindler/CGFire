@@ -40,6 +40,8 @@ int main()
     glm::mat4 projMat;
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
+    en::Model backpackModel("backpack/backpack.obj", true);
+    en::RenderObj backpackObj = { &backpackModel };
 
     en::Model floorModel("cube.obj", true);
     en::RenderObj floorObj = { &floorModel };
@@ -111,6 +113,9 @@ int main()
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
         program.SetUniformVec3f("cam_pos", cam.GetPos());
 
+        glDepthMask(GL_TRUE); //Muss angeschaltet werden weil für Partikel wird es ausgeschaltet
+        backpackObj.t_ *= glm::rotate(deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+        backpackObj.Render(&program);
         floorObj.Render(&program);
 
 

@@ -104,6 +104,15 @@ namespace particle {
     void ParticleSystemRenderer::BeginBatch(){
         m_QuadIndexCount = 0;
         m_QuadDataPtr = m_QuadData;
+
+        //Make sure the vertex Positions of the quad are set to that the particle normal shows to the camera
+        glm::mat4 viewMatrix = m_Cam.GetViewMat();
+        auto CamRight = glm::vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
+        auto CamUp = glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
+        m_CurrentQuadVertexPositions[0] = glm::vec4(-CamRight - CamUp, 1.f);
+        m_CurrentQuadVertexPositions[1] = glm::vec4(CamRight - CamUp, 1.f);
+        m_CurrentQuadVertexPositions[2] = glm::vec4(CamRight + CamUp, 1.f);
+        m_CurrentQuadVertexPositions[3] = glm::vec4(-CamRight + CamUp, 1.f);
     }
 
     void ParticleSystemRenderer::EndBatch(){
@@ -122,6 +131,7 @@ namespace particle {
         glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, m_QuadData);
 
 
+        glDepthMask(GL_FALSE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -144,6 +154,8 @@ namespace particle {
 
         glDisable(GL_BLEND);
 
+        glDepthMask(GL_TRUE);
+
     }
     void ParticleSystemRenderer::NextBatch(){
         this->Flush();
@@ -156,7 +168,7 @@ namespace particle {
             NextBatch();
         }
 
-        float life = particle.LifeRemaining / particle.LifeTime;
+        float life = std::max(particle.LifeRemaining, 0.f) / particle.LifeTime;
         glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
         float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
 
@@ -168,6 +180,7 @@ namespace particle {
         auto numSpriteColumns = static_cast<uint32_t>(particle.TexCoordAnimFrames.y);
         auto numSpriteFrames = static_cast<uint32_t>(numSpriteRows * numSpriteColumns);
         auto currentFrame = static_cast<uint32_t>(life * numSpriteFrames);
+        //std::cout << currentFrame << std::endl;
         auto currentFrameColumn = currentFrame % numSpriteRows;
         auto currentFrameRow = currentFrame / numSpriteRows;
         glm::vec2 spriteFrameSize = {1.f / numSpriteColumns, 1.f / numSpriteRows};
@@ -176,19 +189,7 @@ namespace particle {
                                       { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y },
                                       { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y + spriteFrameSize.y },
                                       { spriteFramePos.x, spriteFramePos.y + spriteFrameSize.y } };
-
-
-
-        glm::mat4 viewMatrix = m_Cam.GetViewMat();
-        auto CamRight = glm::vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
-        auto CamUp = glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
-
-        glm::vec4 quadVertexPositions[] = {
-                                            {  -0.5f, -0.5f, 0.0f, 1.0f },
-                                            {  0.5f, -0.5f, 0.0f, 1.0f },
-                                            {  0.5f,  0.5f, 0.0f, 1.0f },
-                                            { -0.5f,  0.5f, 0.0f, 1.0f } };
-
+        //std::cout << spriteFramePos.x << " " << spriteFramePos.y << std::endl;
 
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), particle.Position)
@@ -196,7 +197,7 @@ namespace particle {
 
         for (size_t i = 0; i < 4; ++i)
         {
-            m_QuadDataPtr->Position = transform * quadVertexPositions[i];
+            m_QuadDataPtr->Position = transform * m_CurrentQuadVertexPositions[i];
             m_QuadDataPtr->Color = color;
             m_QuadDataPtr->TexCoord = texCoords[i];
             m_QuadDataPtr->TexID = textureSlot;

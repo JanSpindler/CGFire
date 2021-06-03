@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/compatibility.hpp>
-#include "util/TextureLoading.h"
+#include "util/TextureLoading ToBeDeleted.h"
 
 #include "framework/shader.hpp"
 #include "engine/GLTexture.hpp"
@@ -63,6 +63,10 @@ namespace particle {
         std::unordered_map<en::GLPictureTex*, uint8_t> m_MapTextureToSlot;
         std::unordered_map<uint8_t, en::GLPictureTex*> m_MapSlotToTexture;
         uint8_t m_CurrentMaxTextureSlotIDPlusOne = 0;
+
+        /***The Quad rotated to fit the current camera setup.
+         * It will be set once every BeginBatch()*/
+        glm::vec4 m_CurrentQuadVertexPositions[4];
 
         GLuint m_VA;
         GLuint m_VB;
