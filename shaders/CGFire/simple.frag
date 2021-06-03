@@ -12,7 +12,7 @@ uniform vec3 dir_light_dir;
 uniform vec3 dir_light_color;
 
 // Point Lights
-#define POINT_LIGHT_MAX 128
+#define POINT_LIGHT_MAX 256u
 uniform uint point_light_count;
 uniform vec3 point_light_pos[POINT_LIGHT_MAX];
 uniform vec3 point_light_color[POINT_LIGHT_MAX];
@@ -33,19 +33,21 @@ out vec4 out_color;
 
 vec4 get_dir_light_color(vec3 normal)
 {
+    vec3 light_dir = normalize(dir_light_dir);
+
     // Diffuse
     vec4 diffuse = mat_diffuse_color;
     if (mat_use_tex)
-    diffuse = texture(mat_tex, interp_uv);
-    float diff = max(dot(normal, normalize(-dir_light_dir)), 0.0);
+        diffuse = texture(mat_tex, interp_uv);
+    float diff = max(dot(normal, -light_dir), 0.0);
     diffuse = vec4(dir_light_color, 1.0) * (diff * diffuse);
 
     // Specular
     vec3 view_dir = normalize(cam_pos - interp_pos);
-    vec3 reflect_dir = reflect(normalize(dir_light_dir), normal);
+    vec3 reflect_dir = reflect(light_dir, normal);
     float spec = 1.0;
     if (mat_shininess > 0.0)
-    spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
+        spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
     vec4 specular = vec4(dir_light_color, 1.0) * spec * mat_specular_color;
 
     return diffuse + specular;
@@ -62,19 +64,23 @@ vec4 get_point_light_color(vec3 normal, uint index)
     // Diffuse
     vec4 diffuse = mat_diffuse_color;
     if (mat_use_tex)
-    diffuse = texture(mat_tex, interp_uv);
+        diffuse = texture(mat_tex, interp_uv);
     float diff = max(dot(normal, light_dir), 0.0);
     diffuse = vec4(light_color, 1.0) * (diff * diffuse);
 
     // Specular
     vec3 view_dir = normalize(cam_pos - interp_pos);
+    float distance = length(light_pos - interp_pos);
+    if (distance == 0.0)
+        distance = 0.01;
     vec3 reflect_dir = reflect(-light_dir, normal);
     float spec = 1.0;
     if (mat_shininess > 0.0)
-    spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
+        spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
     vec4 specular = vec4(light_color, 1.0) * spec * mat_specular_color;
 
-    return light_strength * (diffuse + specular);
+    float real_strength = light_strength / (distance * distance);
+    return real_strength * (diffuse + specular);
 }
 
 void main()
@@ -82,7 +88,13 @@ void main()
     vec3 normal = normalize(interp_normal);
 
     vec4 result = get_dir_light_color(normal);
-    for (uint i = 0u; i < point_light_count; i++)
+
+    uint real_point_light_count;
+    if (point_light_count > POINT_LIGHT_MAX)
+        real_point_light_count = POINT_LIGHT_MAX;
+    else
+        real_point_light_count = point_light_count;
+    for (uint i = 0u; i < real_point_light_count; i++)
         result += get_point_light_color(normal, i);
 
     out_color = result;

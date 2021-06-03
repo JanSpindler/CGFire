@@ -4,10 +4,27 @@
 
 #include "engine/Render/Light.hpp"
 #include "engine/Util.hpp"
+#include <glm/gtx/transform.hpp>
 
 namespace en
 {
-    DirLight::DirLight(glm::vec3 dir, glm::vec3 color)
+    ShadowLight::ShadowLight()
+    {
+        depthMap_ = GLDepthMap();
+    }
+
+    void ShadowLight::BindDepthMap() const
+    {
+        depthMap_.Bind();
+    }
+
+    void ShadowLight::UnbindDepthMap() const
+    {
+        depthMap_.UnbindFramebuffer();
+    }
+
+    DirLight::DirLight(glm::vec3 dir, glm::vec3 color) :
+        ShadowLight()
     {
         dir_ = dir;
         color_ = color;
@@ -29,7 +46,18 @@ namespace en
         color_ = color;
     }
 
-    PointLight::PointLight(float strength)
+    glm::mat4 DirLight::GetShadowViewMat() const
+    {
+        return glm::lookAt(-dir_, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+
+    glm::mat4 DirLight::GetShadowProjMat() const
+    {
+        return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.01f, 1000.0f);
+    }
+
+    PointLight::PointLight(float strength) :
+        ShadowLight()
     {
         strength_ = strength;
     }
@@ -37,6 +65,16 @@ namespace en
     float PointLight::GetStrength() const
     {
         return strength_;
+    }
+
+    glm::mat4 PointLight::GetShadowViewMat() const
+    {
+        return glm::identity<glm::mat4>();
+    }
+
+    glm::mat4 PointLight::GetShadowProjMat() const
+    {
+        return glm::identity<glm::mat4>();
     }
 
     PointLightBatch::PointLightBatch(const std::vector<const PointLight*>& pointLights)

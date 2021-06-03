@@ -18,7 +18,7 @@ int main()
 
     float fov = glm::radians(60.f);
     float nearPlane = 0.1f;
-    float farPlane = 100.0f;
+    float farPlane = 1000.0f;
     en::Camera cam(
             glm::vec3(0.0f, 3.0f, -20.0f),
             glm::vec3(0.0f, 0.0f, 1.0f),
@@ -28,14 +28,17 @@ int main()
             nearPlane,
             farPlane);
 
-    en::GLShader vertShader("simple.vert", en::GLShader::Type::VERTEX);
-    en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram program(vertShader, fragShader);
+    // Simple shader
+    en::GLShader simpleVert("CGFire/simple.vert", en::GLShader::Type::VERTEX);
+    en::GLShader simpleFrag("CGFire/simple.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram simpleProgram(simpleVert, simpleFrag);
+    simpleProgram.Use();
 
     glm::mat4 viewMat;
     glm::mat4 projMat;
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
+    // Models
     en::Model backpackModel("backpack/backpack.obj", true);
     en::RenderObj backpackObj = { &backpackModel };
 
@@ -43,16 +46,22 @@ int main()
     en::RenderObj floorObj = { &floorModel };
     floorObj.t_ = glm::translate(glm::vec3(0.0f, -3.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
 
-    program.Use();
+    // Lights
+    std::vector<const en::ShadowLight*> shadowLights;
 
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
-    dirLight.Use(&program);
+    shadowLights.push_back(&dirLight);
 
-    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.5f);
+    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f);
     pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
     std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
     en::PointLightBatch plBatch(pointLights);
 
+    en::GLShader shadowVert("CGFire/shadow.vert", en::GLShader::Type::VERTEX);
+    en::GLShader shadowFrag("CGFire/shadow.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram shadowProgram(shadowVert, shadowFrag);
+
+    // Main loop
     while (window.IsOpen())
     {
         window.Update();
@@ -92,23 +101,42 @@ int main()
             camMove.y = -camMoveSpeed;
         cam.Move(camMove);
 
-        // Rendering
+        // Shadow rendering
+        shadowProgram.Use();
+        for (const en::ShadowLight* shadowLight : shadowLights)
+        {
+            viewMat = shadowLight->GetShadowViewMat();
+            projMat = shadowLight->GetShadowProjMat();
+            shadowProgram.SetUniformMat4("shadow_view_mat", false, &viewMat[0][0]);
+            shadowProgram.SetUniformMat4("shadow_proj_mat", false, &projMat[0][0]);
+
+            shadowLight->BindDepthMap();
+
+            backpackObj.Render(&shadowProgram);
+            floorObj.Render(&shadowProgram);
+
+            shadowLight->UnbindDepthMap();
+        }
+
+        // Real rendering
+        window.UseViewport();
         cam.SetAspectRatio(window.GetAspectRatio());
         viewMat = cam.GetViewMat();
         projMat = cam.GetProjMat();
 
-        program.Use();
-        program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
-        program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        program.SetUniformVec3f("cam_pos", cam.GetPos());
+        simpleProgram.Use();
+        simpleProgram.SetUniformMat4("view_mat", false, &viewMat[0][0]);
+        simpleProgram.SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        simpleProgram.SetUniformVec3f("cam_pos", cam.GetPos());
 
+        dirLight.Use(&simpleProgram);
         pointLight.t_ = glm::rotate(deltaTime * -0.05f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
-        plBatch.Use(&program);
+        plBatch.Use(&simpleProgram);
 
-        pointLight.Render(&program);
+        pointLight.Render(&simpleProgram);
         backpackObj.t_ *= glm::rotate(deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
-        backpackObj.Render(&program);
-        floorObj.Render(&program);
+        backpackObj.Render(&simpleProgram);
+        floorObj.Render(&simpleProgram);
     }
 
     en::Log::Info("Ending CGFire");

@@ -21,7 +21,7 @@ namespace en
         unsigned int handle_;
     };
 
-    class GLPictureTex : GLTexture
+    class GLPictureTex : public GLTexture
     {
     public:
         enum class WrapMode

@@ -20,6 +20,7 @@ namespace en
         void Destroy();
 
         void EnableCursor(bool cursorMode);
+        void UseViewport() const;
 
         int GetWidth() const;
         int GetHeight() const;

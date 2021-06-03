@@ -42,6 +42,7 @@ namespace en
         }
         glfwSetErrorCallback(ErrorCallback);
         glfwMakeContextCurrent(handle_);
+        glfwSwapInterval(0);
         Input::Init(handle_);
 
         // OpenGL Setup
@@ -74,16 +75,13 @@ namespace en
     void Window::Update()
     {
         // Image has just been drawn
+        glfwSwapBuffers(handle_);
 
         // Check for Errors after drawing
         while(PopGLError(true) != GL_NO_ERROR);
 
         glfwPollEvents();
         glfwGetWindowSize(handle_, &width_, &height_);
-        glViewport(0, 0, width_, height_);
-
-        glfwSwapBuffers(handle_);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Image will be drawn after this function
     }
@@ -116,6 +114,12 @@ namespace en
                 cursorEnabled_ = false;
             }
         }
+    }
+
+    void Window::UseViewport() const
+    {
+        glViewport(0, 0, width_, height_);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     int Window::GetWidth() const

@@ -29,7 +29,14 @@ namespace en
 
     Model::~Model()
     {
-        // TODO: delete textures and materials + meshes
+        for (Mesh* mesh : meshes_)
+            delete mesh;
+
+        for (const std::pair<const aiMaterial*, Material*>& pair : materials_)
+            delete pair.second;
+
+        for (const std::pair<std::string, GLPictureTex*>& pair : textures_)
+            delete pair.second;
     }
 
     void Model::Render(const GLProgram* program) const
