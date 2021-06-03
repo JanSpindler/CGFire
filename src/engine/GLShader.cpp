@@ -12,6 +12,8 @@ namespace en
 {
     GLShader::GLShader(const std::string& filename, Type type)
     {
+        Log::Info("Loading shader code: " + filename);
+
         std::vector<char> code = ReadFileBinary(SHADER_ROOT + "/" + filename.c_str());
         code.push_back(0);
 
@@ -31,8 +33,10 @@ namespace en
         handle_ = glCreateShader(glType);
         const char* c_code = code.data();
         glShaderSource(handle_, 1, &c_code, nullptr);
-        glCompileShader(handle_);
 
+        Log::Info("Compiling shader code");
+
+        glCompileShader(handle_);
         int  success;
         char infoLog[512];
         glGetShaderiv(handle_, GL_COMPILE_STATUS, &success);

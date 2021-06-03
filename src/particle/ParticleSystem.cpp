@@ -1,84 +1,94 @@
+//
+// Created by JS on 03/06/2021.
+//
+
 #include "particle/ParticleSystem.h"
 
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/compatibility.hpp>
+namespace particle {
+    ParticleSystem::ParticleSystem(uint32_t particlePoolSize,  const en::Camera& cam)
+            : m_Cam(cam),
+              m_ParticlePoolSize(particlePoolSize),
+              m_PoolIndex(m_ParticlePoolSize - 1),
+              m_BatchRenderer(m_ParticlePoolSize, cam){
+        m_ParticlePool.resize(m_ParticlePoolSize);
+    }
+
+    void ParticleSystem::OnUpdate(float ts) {
+        //For all particles update the remaining life-time, Position, Rotation...
+        for (auto& particle : m_ParticlePool) {
+            if (!particle.Active)
+                continue;
+
+            if (particle.LifeRemaining <= 0.0f) {
+                particle.Active = false;
+                particle.CameraDistance = -1.f;
+                continue;
+            }
 
 
-ParticleSystem::ParticleSystem()
-{
-	m_ParticlePool.resize(ParticlePoolSize);
-}
+            particle.LifeRemaining -= ts;
+            particle.Position += ts * particle.Velocity;
+            particle.Rotation += 0.01f * ts;
 
-void ParticleSystem::OnUpdate(util::TimeStep ts)
-{
-	for (auto& particle : m_ParticlePool)
-	{
-		if (!particle.Active)
-			continue;
+            auto dif = particle.Position - m_Cam.GetPos();
+            particle.CameraDistance = glm::dot(dif, dif); //squared distance to camera
 
-		if (particle.LifeRemaining <= 0.0f)
-		{
-			particle.Active = false;
-			continue;
-		}
+            //Todo update frames for animated textures
+        }
 
-		particle.LifeRemaining -= ts;
-		particle.Position += particle.Velocity * (float)ts;
-		particle.Rotation += 0.01f * ts;
-	}
-}
+        //Sorts all the particles by their distance to the camera.
+        //Also will sort all inactive particles so make sure the pool is not too big
+        std::sort(m_ParticlePool.begin(), m_ParticlePool.end());
+    }
 
-void ParticleSystem::OnRender(glm::mat4& view_proj_matrix)
-{
-	//draw all alive particles
-	for (auto& particle : m_ParticlePool)
-	{
-		if (!particle.Active)
-			continue;
+    void ParticleSystem::OnRender() {
+
+        m_BatchRenderer.BeginBatch();
+
+        for (size_t i = 0; i < m_ParticlePoolSize; i++){
+            //The renderer will update transform and color of the individual vertices
+            if (m_ParticlePool[i].Active)
+                m_BatchRenderer.DrawParticle(m_ParticlePool[i]);
+        }
+        //Actually draws the particles
+        this->m_BatchRenderer.EndBatch();
+    }
 
 
-        // change quad color and transform
 
-		float life = particle.LifeRemaining / particle.LifeTime;
-		glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
-		//color.a = color.a * life;
+    void ParticleSystem::Emit(const ParticleProps &pProps) {
+        Particle &p = m_ParticlePool[m_PoolIndex];
+        p.Active = true;
 
-		float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
+        p.Position = pProps.Position;
+        p.Position.x += (util::Random::Float() - 0.5f) * pProps.PositionVariation.x;
+        p.Position.y += (util::Random::Float() - 0.5f) * pProps.PositionVariation.y;
+        p.Position.z += (util::Random::Float() - 0.5f) * pProps.PositionVariation.z;
 
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), { particle.Position.x, particle.Position.y, 0 })
-			* glm::rotate(glm::mat4(1.0f), particle.Rotation, { 0.0f, 0.0f, 1.0f })
-			* glm::scale(glm::mat4(1.0f), { size, size, 1 });
+        p.Rotation = util::Random::Float() * 2.0f * glm::pi<float>();
 
-		// draw the squad
-		this->m_Quad.OnRender(view_proj_matrix, transform, color);
-	}
-}
+        p.Velocity = pProps.Velocity;
+        p.Velocity.x += (util::Random::Float() - 0.5f) * pProps.VelocityVariation.x;
+        p.Velocity.y += (util::Random::Float() - 0.5f) * pProps.VelocityVariation.y;
+        p.Velocity.z += (util::Random::Float() - 0.5f) * pProps.VelocityVariation.z;
 
-void ParticleSystem::Emit(const ParticleProps& pProps)
-{
-	Particle& p = m_ParticlePool[m_PoolIndex];
-    p.Active = true;
-    p.Position = pProps.Position + pProps.PositionVariation * (util::Random::Float() - 0.5f);
-    p.Rotation = util::Random::Float() * 2.0f * glm::pi<float>(); //Random rotation
+        p.ColorBegin = pProps.ColorBegin;
+        p.ColorEnd = pProps.ColorEnd;
 
-	// Velocity
-	p.Velocity = pProps.Velocity;
-    p.Velocity.x += pProps.VelocityVariation.x * (util::Random::Float() - 0.5f);
-    p.Velocity.y += pProps.VelocityVariation.y * (util::Random::Float() - 0.5f);
-    p.Velocity.z += 0;//particleProps.VelocityVariation.z * (util::Random::Float() - 0.5f);
+        p.LifeTime = pProps.LifeTime + (util::Random::Float() - 0.5f) * pProps.LifeTimeVariation;
+        p.LifeRemaining = p.LifeTime;
 
-	// Color
-	p.ColorBegin = pProps.ColorBegin;
-    p.ColorEnd = pProps.ColorEnd;
+        p.SizeBegin = pProps.SizeBegin + (util::Random::Float() - 0.5f) * pProps.SizeVariation;
+        p.SizeEnd = pProps.SizeEnd;
 
-	// Lifespan
-	p.LifeTime = pProps.LifeTime + pProps.LifeTimeVariation * (util::Random::Float() - 0.5f);
-    p.LifeRemaining = p.LifeTime;
+        p.Texture = pProps.Texture;
+        p.TexCoord = pProps.TexCoord;
+        p.TexCoordAnimFrames = pProps.TexCoordAnimFrames;
 
-	// size
-	p.SizeBegin = pProps.SizeBegin + pProps.SizeVariation * (util::Random::Float() - 0.5f);
-    p.SizeEnd = pProps.SizeEnd;
+        auto dif = p.Position - m_Cam.GetPos();
+        p.CameraDistance = glm::dot(dif, dif); //squared distance to camera
 
-	m_PoolIndex = --m_PoolIndex % m_ParticlePool.size();
+        m_PoolIndex = --m_PoolIndex % m_ParticlePool.size();
+    }
 }
