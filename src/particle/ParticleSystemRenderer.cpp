@@ -25,16 +25,16 @@ namespace particle {
         glBindBuffer(GL_ARRAY_BUFFER, m_VB);
         glBufferData(GL_ARRAY_BUFFER, m_MaxVertices * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
 
-        glEnableVertexArrayAttrib(m_VB, 0);
+        glEnableVertexArrayAttrib(m_VA, 0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, Position)));
 
-        glEnableVertexArrayAttrib(m_VB, 1);
+        glEnableVertexArrayAttrib(m_VA, 1);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, Color)));
 
-        glEnableVertexArrayAttrib(m_VB, 2);
+        glEnableVertexArrayAttrib(m_VA, 2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexCoord)));
 
-        glEnableVertexArrayAttrib(m_VB, 3);
+        glEnableVertexArrayAttrib(m_VA, 3);
         glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexID)));
 
 
