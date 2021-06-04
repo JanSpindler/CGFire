@@ -2,32 +2,51 @@
 // Created by JS on 26/05/2021.
 //
 
+#include "engine/gr_include.hpp"
 #include "engine/Render/Light.hpp"
 #include "engine/Util.hpp"
 #include <glm/gtx/transform.hpp>
 
+#define SHADOW_TEX_WIDTH 4096
+#define SHADOW_TEX_HEIGHT SHADOW_TEX_WIDTH
+
 namespace en
 {
-    ShadowLight::ShadowLight()
+    GLDepthTex::GLDepthTex(int width, int height) :
+            GLTexture()
     {
-        depthMap_ = GLDepthMap();
+        glBindTexture(GL_TEXTURE_2D, handle_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
-    void ShadowLight::BindDepthMap() const
+    void GLDepthTex::Bind() const
     {
-        depthMap_.Bind();
+        glBindTexture(GL_TEXTURE_2D, handle_);
     }
 
-    void ShadowLight::UnbindDepthMap() const
+    void GLDepthTex::BindToFramebuffer() const
     {
-        depthMap_.UnbindFramebuffer();
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, handle_, 0);
     }
 
     DirLight::DirLight(glm::vec3 dir, glm::vec3 color) :
-        ShadowLight()
+            depthTex_(SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT)
     {
         dir_ = dir;
         color_ = color;
+
+        glGenFramebuffers(1, &shadowFbo_);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo_);
+        depthTex_.BindToFramebuffer();
+        glDrawBuffer(GL_NONE);
+        glDrawBuffer(GL_NONE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void DirLight::Use(const GLProgram *program) const
@@ -46,18 +65,34 @@ namespace en
         color_ = color;
     }
 
-    glm::mat4 DirLight::GetShadowViewMat() const
+    void DirLight::UseShadow(const GLProgram *program)
     {
-        return glm::lookAt(-dir_, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glActiveTexture(GL_TEXTURE0 + 1);
+        depthTex_.Bind();
+        program->SetUniformI("shadow_tex", 1);
     }
 
-    glm::mat4 DirLight::GetShadowProjMat() const
+    glm::mat4 DirLight::GetLightMat() const
     {
-        return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.01f, 1000.0f);
+        glm::mat4 viewMat = glm::lookAt(-dir_, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        float size = 20.0f;
+        glm::mat4 projMat = glm::ortho(-size, size, -size, size, 0.01f, 1000.0f);
+        return projMat * viewMat;
     }
 
-    PointLight::PointLight(float strength) :
-        ShadowLight()
+    void DirLight::BindShadowBuffer() const
+    {
+        glViewport(0, 0, SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo_);
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
+
+    void DirLight::UnbindShadowBuffer() const
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    PointLight::PointLight(float strength)
     {
         strength_ = strength;
     }
@@ -65,16 +100,6 @@ namespace en
     float PointLight::GetStrength() const
     {
         return strength_;
-    }
-
-    glm::mat4 PointLight::GetShadowViewMat() const
-    {
-        return glm::identity<glm::mat4>();
-    }
-
-    glm::mat4 PointLight::GetShadowProjMat() const
-    {
-        return glm::identity<glm::mat4>();
     }
 
     PointLightBatch::PointLightBatch(const std::vector<const PointLight*>& pointLights)

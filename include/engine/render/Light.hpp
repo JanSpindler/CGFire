@@ -8,45 +8,47 @@
 #include <glm/glm.hpp>
 #include "GLShader.hpp"
 #include <vector>
-#include "GLDepthMap.hpp"
+#include "GLTexture.hpp"
 
 namespace en
 {
-    class ShadowLight
+    class GLDepthTex : public GLTexture
     {
     public:
-        ShadowLight();
+        GLDepthTex(int width, int height);
 
-        void BindDepthMap() const;
-        void UnbindDepthMap() const;
-
-        virtual glm::mat4 GetShadowViewMat() const = 0;
-        virtual glm::mat4 GetShadowProjMat() const = 0;
+        void Bind() const override;
+        void BindToFramebuffer() const;
 
     private:
-        GLDepthMap depthMap_;
     };
 
-    class DirLight : public ShadowLight
+    class DirLight
     {
     public:
         DirLight(glm::vec3 dir, glm::vec3 color);
 
+        // Light
         void Use(const GLProgram* program) const;
 
         void SetDir(glm::vec3 dir);
         void SetColor(glm::vec3 color);
 
-        glm::mat4 GetShadowViewMat() const override;
-        glm::mat4 GetShadowProjMat() const override;
+        // Shadow
+        void UseShadow(const GLProgram* program);
+        glm::mat4 GetLightMat() const;
+        void BindShadowBuffer() const;
+        void UnbindShadowBuffer() const;
 
     private:
         glm::vec3 dir_;
         glm::vec3 color_;
+        unsigned int shadowFbo_;
+        GLDepthTex depthTex_;
     };
 
     // Concrete PointLight must provide own pos and color
-    class PointLight : public ShadowLight
+    class PointLight
     {
     public:
         PointLight(float strength);
@@ -54,9 +56,6 @@ namespace en
         virtual glm::vec3 GetPos() const = 0;
         virtual glm::vec3 GetColor() const = 0;
         float GetStrength() const;
-
-        glm::mat4 GetShadowViewMat() const override;
-        glm::mat4 GetShadowProjMat() const override;
 
     private:
         float strength_;

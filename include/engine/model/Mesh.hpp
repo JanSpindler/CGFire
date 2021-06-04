@@ -25,8 +25,6 @@ namespace en
 
         void Render(const GLProgram* program) const override;
 
-        void SetMaterial(const Material* mat);
-
     private:
         unsigned int vao_;
         unsigned int vbo_;

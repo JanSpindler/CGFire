@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 #include <string>
+#include "GLTexture.hpp"
 
 namespace en
 {

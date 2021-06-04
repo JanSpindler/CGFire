@@ -44,13 +44,10 @@ int main()
 
     en::Model floorModel("cube.obj", true);
     en::RenderObj floorObj = { &floorModel };
-    floorObj.t_ = glm::translate(glm::vec3(0.0f, -3.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
+    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
 
     // Lights
-    std::vector<const en::ShadowLight*> shadowLights;
-
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
-    shadowLights.push_back(&dirLight);
 
     en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f);
     pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
@@ -101,22 +98,21 @@ int main()
             camMove.y = -camMoveSpeed;
         cam.Move(camMove);
 
+        // Physics
+        pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
+        backpackObj.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+
         // Shadow rendering
         shadowProgram.Use();
-        for (const en::ShadowLight* shadowLight : shadowLights)
-        {
-            viewMat = shadowLight->GetShadowViewMat();
-            projMat = shadowLight->GetShadowProjMat();
-            shadowProgram.SetUniformMat4("shadow_view_mat", false, &viewMat[0][0]);
-            shadowProgram.SetUniformMat4("shadow_proj_mat", false, &projMat[0][0]);
+        glm::mat4 dirLightMat = dirLight.GetLightMat();
+        shadowProgram.SetUniformMat4("light_mat", false, &dirLightMat[0][0]);
 
-            shadowLight->BindDepthMap();
+        dirLight.BindShadowBuffer();
 
-            backpackObj.Render(&shadowProgram);
-            floorObj.Render(&shadowProgram);
+        backpackObj.Render(&shadowProgram);
+        floorObj.Render(&shadowProgram);
 
-            shadowLight->UnbindDepthMap();
-        }
+        dirLight.UnbindShadowBuffer();
 
         // Real rendering
         window.UseViewport();
@@ -128,13 +124,13 @@ int main()
         simpleProgram.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         simpleProgram.SetUniformMat4("proj_mat", false, &projMat[0][0]);
         simpleProgram.SetUniformVec3f("cam_pos", cam.GetPos());
+        simpleProgram.SetUniformMat4("light_mat", false, &dirLightMat[0][0]);
+        dirLight.UseShadow(&simpleProgram);
 
         dirLight.Use(&simpleProgram);
-        pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
         plBatch.Use(&simpleProgram);
 
         pointLight.Render(&simpleProgram);
-        backpackObj.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         backpackObj.Render(&simpleProgram);
         floorObj.Render(&simpleProgram);
     }
