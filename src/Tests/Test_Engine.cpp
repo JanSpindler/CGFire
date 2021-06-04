@@ -16,19 +16,20 @@ int main()
 
     en::Window window(800, 600, "CGFire");
 
-    float fov = glm::radians(60.f);
-    float nearPlane = 0.1f;
-    float farPlane = 1000.0f;
     en::Camera cam(
             glm::vec3(0.0f, 3.0f, -20.0f),
             glm::vec3(0.0f, 0.0f, 1.0f),
             glm::vec3(0.0f, 1.0f, 0.0f),
             window.GetAspectRatio(),
-            fov,
-            nearPlane,
-            farPlane);
+            glm::radians(60.f),
+            0.01f,
+            1024.0f);
 
-    // Simple shader
+    // Shader
+    en::GLShader shadowVert("CGFire/shadow.vert", en::GLShader::Type::VERTEX);
+    en::GLShader shadowFrag("CGFire/shadow.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram shadowProgram(shadowVert, shadowFrag);
+
     en::GLShader simpleVert("CGFire/simple.vert", en::GLShader::Type::VERTEX);
     en::GLShader simpleFrag("CGFire/simple.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram simpleProgram(simpleVert, simpleFrag);
@@ -44,7 +45,7 @@ int main()
 
     en::Model floorModel("cube.obj", true);
     en::RenderObj floorObj = { &floorModel };
-    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(25.0f, 1.0f, 25.0f));
+    floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(50.0f, 1.0f, 50.0f));
 
     // Lights
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
@@ -52,11 +53,6 @@ int main()
     en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f);
     pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
     std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
-    en::PointLightBatch plBatch(pointLights);
-
-    en::GLShader shadowVert("CGFire/shadow.vert", en::GLShader::Type::VERTEX);
-    en::GLShader shadowFrag("CGFire/shadow.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram shadowProgram(shadowVert, shadowFrag);
 
     // Main loop
     while (window.IsOpen())
@@ -110,9 +106,15 @@ int main()
         dirLight.BindShadowBuffer();
 
         backpackObj.Render(&shadowProgram);
+        pointLight.Render(&shadowProgram);
         floorObj.Render(&shadowProgram);
 
         dirLight.UnbindShadowBuffer();
+
+        for (const en::PointLight* pl : pointLights)
+        {
+            // TODO: shadow cube map
+        }
 
         // Real rendering
         window.UseViewport();
@@ -128,7 +130,16 @@ int main()
         dirLight.UseShadow(&simpleProgram);
 
         dirLight.Use(&simpleProgram);
-        plBatch.Use(&simpleProgram);
+
+        unsigned int pointLightCount = pointLights.size();
+        if (pointLightCount > POINT_LIGHT_MAX)
+        {
+            en::Log::Info("Too many point lights");
+            pointLightCount = POINT_LIGHT_MAX;
+        }
+        simpleProgram.SetUniformUI("point_light_count", pointLightCount);
+        for (unsigned int i = 0; i < pointLightCount; i++)
+            pointLights[i]->Use(&simpleProgram, i);
 
         pointLight.Render(&simpleProgram);
         backpackObj.Render(&simpleProgram);

@@ -13,7 +13,7 @@ uniform vec3 dir_light_dir;
 uniform vec3 dir_light_color;
 
 // Point Lights
-#define POINT_LIGHT_MAX 256u
+#define POINT_LIGHT_MAX 338u
 uniform uint point_light_count;
 uniform vec3 point_light_pos[POINT_LIGHT_MAX];
 uniform vec3 point_light_color[POINT_LIGHT_MAX];
@@ -39,11 +39,16 @@ float is_in_shadow(vec4 light_pos)
 {
     vec3 proj_pos = frag_light_pos.xyz / frag_light_pos.w;
     proj_pos = proj_pos * 0.5 + 0.5;
+
+    if (proj_pos.z > 1.0)
+        return 0.0;
+
     float closest_depth = texture(shadow_tex, proj_pos.xy).r;
     float current_depth = proj_pos.z;
-
     float bias = 0.001;
-    return current_depth - bias > closest_depth ? 1.0 : 0.0;
+    float shadow = current_depth - bias > closest_depth ? 1.0 : 0.0;
+
+    return shadow;
 }
 
 vec4 get_dir_light_color(vec3 normal)

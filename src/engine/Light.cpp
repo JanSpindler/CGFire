@@ -20,8 +20,11 @@ namespace en
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     }
 
     void GLDepthTex::Bind() const
@@ -75,8 +78,8 @@ namespace en
     glm::mat4 DirLight::GetLightMat() const
     {
         glm::mat4 viewMat = glm::lookAt(-dir_, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        float size = 20.0f;
-        glm::mat4 projMat = glm::ortho(-size, size, -size, size, 0.01f, 1000.0f);
+        float size = 32.0f;
+        glm::mat4 projMat = glm::ortho(-size, size, -size, size, 0.01f, 1024.0f);
         return projMat * viewMat;
     }
 
@@ -97,40 +100,16 @@ namespace en
         strength_ = strength;
     }
 
+    void PointLight::Use(const GLProgram *program, unsigned int index) const
+    {
+        std::string indexStr = std::to_string(index);
+        program->SetUniformVec3f("point_light_pos[" + indexStr + "]", GetPos());
+        program->SetUniformVec3f("point_light_color[" + indexStr + "]", GetColor());
+        program->SetUniformF("point_light_strength[" + indexStr + "]", GetStrength());
+    }
+
     float PointLight::GetStrength() const
     {
         return strength_;
-    }
-
-    PointLightBatch::PointLightBatch(const std::vector<const PointLight*>& pointLights)
-    {
-        pointLights_ = pointLights;
-    }
-
-    void PointLightBatch::Use(const GLProgram *program)
-    {
-        unsigned int pointLightCount = pointLights_.size();
-        program->SetUniformUI("point_light_count", pointLightCount);
-        for (unsigned int i = 0; i < pointLightCount; i++)
-        {
-            const PointLight* pointLight = pointLights_[i];
-            std::string indexStr = std::to_string(i);
-            program->SetUniformVec3f("point_light_pos[" + indexStr + "]", pointLight->GetPos());
-            program->SetUniformVec3f("point_light_color[" + indexStr + "]", pointLight->GetColor());
-            program->SetUniformF("point_light_strength[" + indexStr + "]", pointLight->GetStrength());
-        }
-    }
-
-    void PointLightBatch::AddPointLight(const PointLight *pointLight)
-    {
-        if (std::find(pointLights_.begin(), pointLights_.end(), pointLight) != pointLights_.end())
-            pointLights_.push_back(pointLight);
-    }
-
-    void PointLightBatch::RemovePointLight(const PointLight *pointLight)
-    {
-        auto it = std::find(pointLights_.begin(), pointLights_.end(), pointLight);
-        if (it != pointLights_.end())
-            pointLights_.erase(it);
     }
 }

@@ -10,6 +10,8 @@
 #include <vector>
 #include "GLTexture.hpp"
 
+#define POINT_LIGHT_MAX 338
+
 namespace en
 {
     class GLDepthTex : public GLTexture
@@ -53,26 +55,18 @@ namespace en
     public:
         PointLight(float strength);
 
+        void Use(const GLProgram* program, unsigned int index) const;
+
+        // Light
         virtual glm::vec3 GetPos() const = 0;
         virtual glm::vec3 GetColor() const = 0;
         float GetStrength() const;
 
+        // Shadow
+
+
     private:
         float strength_;
-    };
-
-    class PointLightBatch
-    {
-    public:
-        PointLightBatch(const std::vector<const PointLight*>& pointLights);
-
-        void Use(const GLProgram* program);
-
-        void AddPointLight(const PointLight* pointLight);
-        void RemovePointLight(const PointLight* pointLight);
-
-    private:
-        std::vector<const PointLight*> pointLights_;
     };
 }
 
