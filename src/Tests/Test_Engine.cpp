@@ -80,7 +80,7 @@ int main()
 
         // Keyboard input handling
         glm::vec3 camMove(0.0f, 0.0f, 0.0f);
-        float camMoveSpeed = 2.0f * deltaTime;
+        float camMoveSpeed = 20.0f * deltaTime;
         bool frontPressed = en::Input::IsKeyPressed(KEY_W);
         bool backPressed = en::Input::IsKeyPressed(KEY_S);
         bool leftPressed = en::Input::IsKeyPressed(KEY_A);
@@ -130,11 +130,11 @@ int main()
         simpleProgram.SetUniformVec3f("cam_pos", cam.GetPos());
 
         dirLight.Use(&simpleProgram);
-        pointLight.t_ = glm::rotate(deltaTime * -0.05f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
+        pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
         plBatch.Use(&simpleProgram);
 
         pointLight.Render(&simpleProgram);
-        backpackObj.t_ *= glm::rotate(deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+        backpackObj.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         backpackObj.Render(&simpleProgram);
         floorObj.Render(&simpleProgram);
     }

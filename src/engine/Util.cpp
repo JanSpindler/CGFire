@@ -73,7 +73,7 @@ namespace en
         std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
         std::chrono::nanoseconds delta = now - last_;
         last_ = now;
-        deltaTime_ = (double) delta.count() / 100000000.0;
+        deltaTime_ = (double) delta.count() / 1000000000.0;
 
         // TODO: implement fps
     }
