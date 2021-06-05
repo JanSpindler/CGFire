@@ -17,7 +17,8 @@ namespace en
         enum class Type
         {
             VERTEX = 0,
-            FRAGMENT = 1
+            GEOMETRY = 1,
+            FRAGMENT = 2
         };
 
         GLShader(const std::string& filename, Type type);
@@ -33,7 +34,7 @@ namespace en
     class GLProgram
     {
     public:
-        GLProgram(const GLShader& vertShader, const GLShader& fragShader);
+        GLProgram(const GLShader* vertShader, const GLShader* geomShader, const GLShader* fragShader);
         ~GLProgram();
 
         void Use() const;

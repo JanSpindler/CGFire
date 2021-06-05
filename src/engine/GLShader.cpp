@@ -23,6 +23,9 @@ namespace en
             case Type::VERTEX:
                 glType = GL_VERTEX_SHADER;
                 break;
+            case Type::GEOMETRY:
+                glType = GL_GEOMETRY_SHADER;
+                break;
             case Type::FRAGMENT:
                 glType = GL_FRAGMENT_SHADER;
                 break;
@@ -62,11 +65,16 @@ namespace en
         glDeleteShader(handle_);
     }
 
-    GLProgram::GLProgram(const GLShader& vertShader, const GLShader& fragShader)
+    GLProgram::GLProgram(const GLShader* vertShader, const GLShader* geomShader, const GLShader* fragShader)
     {
+        if (vertShader == nullptr || fragShader == nullptr)
+            Log::Error("GLProgram needs at least a vertex and a fragment Shader", true);
+
         handle_ = glCreateProgram();
-        vertShader.AttachTo(handle_);
-        fragShader.AttachTo(handle_);
+        vertShader->AttachTo(handle_);
+        fragShader->AttachTo(handle_);
+        if (geomShader != nullptr)
+            geomShader->AttachTo(handle_);
         glLinkProgram(handle_);
 
         int success;

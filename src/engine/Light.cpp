@@ -15,7 +15,7 @@ namespace en
     DirLight::DirLight(glm::vec3 dir, glm::vec3 color) :
             depthTex_(SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT)
     {
-        dir_ = dir;
+        dir_ = glm::normalize(dir);
         color_ = color;
 
         glGenFramebuffers(1, &shadowFbo_);
@@ -35,7 +35,7 @@ namespace en
 
     void DirLight::SetDir(glm::vec3 dir)
     {
-        dir_ = dir;
+        dir_ = glm::normalize(dir);
     }
 
     void DirLight::SetColor(glm::vec3 color)
@@ -52,9 +52,10 @@ namespace en
 
     glm::mat4 DirLight::GetLightMat() const
     {
-        glm::mat4 viewMat = glm::lookAt(-dir_, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        float maxDepth = 1000.0f;
+        glm::mat4 viewMat = glm::lookAt(-dir_ * maxDepth / 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         float size = 32.0f;
-        glm::mat4 projMat = glm::ortho(-size, size, -size, size, 0.01f, 1024.0f);
+        glm::mat4 projMat = glm::ortho(-size, size, -size, size, 0.01f, maxDepth);
         return projMat * viewMat;
     }
 
@@ -99,14 +100,26 @@ namespace en
 
     void PointLight::UseShadow(const GLProgram* program) const
     {
-        glActiveTexture(GL_TEXTURE0 + 2);
+        glActiveTexture(GL_TEXTURE0 + 1);
         depthCubeMap_.BindTex();
-        program->SetUniformI("shadow_cube_map", 2);
+        program->SetUniformI("shadow_cube_map", 1);
     }
 
-    glm::mat4 PointLight::GetLightMat() const
+    std::vector<glm::mat4> PointLight::GetLightMats() const
     {
-        return glm::identity<glm::mat4>();
+        float aspectRatio = (float) SHADOW_TEX_WIDTH / (float) SHADOW_TEX_HEIGHT;
+        glm::mat4 projMat = glm::perspective(glm::radians(90.0f), aspectRatio, 1.0f, 25.0f);
+        glm::vec3 pos = GetPos();
+
+        std::vector<glm::mat4> lightMats = {
+                projMat * glm::lookAt(pos, pos + glm::vec3( 1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)),
+                projMat * glm::lookAt(pos, pos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0,-1.0, 0.0)),
+                projMat * glm::lookAt(pos, pos + glm::vec3( 0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)),
+                projMat * glm::lookAt(pos, pos + glm::vec3( 0.0,-1.0, 0.0), glm::vec3(0.0, 0.0,-1.0)),
+                projMat * glm::lookAt(pos, pos + glm::vec3( 0.0, 0.0, 1.0), glm::vec3(0.0,-1.0, 0.0)),
+                projMat * glm::lookAt(pos, pos + glm::vec3( 0.0, 0.0,-1.0), glm::vec3(0.0,-1.0, 0.0))
+        };
+        return lightMats;
     }
 
     void PointLight::BindShadowBuffer() const

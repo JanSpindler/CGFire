@@ -53,7 +53,7 @@ namespace en
 
         // Shadow
         void UseShadow(const GLProgram* program) const;
-        glm::mat4 GetLightMat() const;
+        std::vector<glm::mat4> GetLightMats() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
 

@@ -4,7 +4,7 @@
 in vec3 frag_pos;
 in vec3 frag_normal;
 in vec2 frag_uv;
-in vec4 frag_light_pos;
+in vec4 frag_dir_light_pos;
 
 uniform vec3 cam_pos;
 
@@ -37,7 +37,7 @@ out vec4 out_color;
 
 float is_in_shadow(vec4 light_pos)
 {
-    vec3 proj_pos = frag_light_pos.xyz / frag_light_pos.w;
+    vec3 proj_pos = light_pos.xyz / light_pos.w;
     proj_pos = proj_pos * 0.5 + 0.5;
 
     if (proj_pos.z > 1.0)
@@ -107,7 +107,7 @@ void main()
 {
     vec3 normal = normalize(frag_normal);
 
-    vec4 result = (1.0 - is_in_shadow(frag_light_pos)) *  get_dir_light_color(normal);
+    vec4 result = (1.0 - is_in_shadow(frag_dir_light_pos)) *  get_dir_light_color(normal);
 
     uint real_point_light_count;
     if (point_light_count > POINT_LIGHT_MAX)

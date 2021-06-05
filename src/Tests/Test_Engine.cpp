@@ -23,16 +23,21 @@ int main()
             window.GetAspectRatio(),
             glm::radians(60.f),
             0.01f,
-            1024.0f);
+            1000.0f);
 
     // Shader
-    en::GLShader shadowVert("CGFire/shadow.vert", en::GLShader::Type::VERTEX);
-    en::GLShader shadowFrag("CGFire/shadow.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram shadowProgram(shadowVert, shadowFrag);
+    en::GLShader dirShadowVert("CGFire/dir_shadow.vert", en::GLShader::Type::VERTEX);
+    en::GLShader dirShadowFrag("CGFire/dir_shadow.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram dirShadowProgram(&dirShadowVert, nullptr, &dirShadowFrag);
+
+    en::GLShader pointShadowVert("CGFire/point_shadow.vert", en::GLShader::Type::VERTEX);
+    en::GLShader pointShadowGeom("CGFire/point_shadow.geom", en::GLShader::Type::GEOMETRY);
+    en::GLShader pointShadowFrag("CGFire/point_shadow.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram pointShadowProgram(&pointShadowVert, &pointShadowGeom, &pointShadowFrag);
 
     en::GLShader simpleVert("CGFire/simple.vert", en::GLShader::Type::VERTEX);
     en::GLShader simpleFrag("CGFire/simple.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram simpleProgram(simpleVert, simpleFrag);
+    en::GLProgram simpleProgram(&simpleVert, nullptr, &simpleFrag);
     simpleProgram.Use();
 
     glm::mat4 viewMat;
@@ -99,15 +104,15 @@ int main()
         backpackObj.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         // Shadow rendering
-        shadowProgram.Use();
+        dirShadowProgram.Use();
         glm::mat4 dirLightMat = dirLight.GetLightMat();
-        shadowProgram.SetUniformMat4("light_mat", false, &dirLightMat[0][0]);
+        dirShadowProgram.SetUniformMat4("light_mat", false, &dirLightMat[0][0]);
 
         dirLight.BindShadowBuffer();
 
-        backpackObj.Render(&shadowProgram);
-        pointLight.Render(&shadowProgram);
-        floorObj.Render(&shadowProgram);
+        backpackObj.Render(&dirShadowProgram);
+        pointLight.Render(&dirShadowProgram);
+        floorObj.Render(&dirShadowProgram);
 
         dirLight.UnbindShadowBuffer();
 
@@ -116,7 +121,7 @@ int main()
         {
         }*/
 
-        glm::mat4 pDirLightMat = pointLight.GetLightMat();
+        std::vector<glm::mat4> pointLightMats = pointLight.GetLightMats();
 
 
         // Real rendering
@@ -129,7 +134,7 @@ int main()
         simpleProgram.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         simpleProgram.SetUniformMat4("proj_mat", false, &projMat[0][0]);
         simpleProgram.SetUniformVec3f("cam_pos", cam.GetPos());
-        simpleProgram.SetUniformMat4("light_mat", false, &dirLightMat[0][0]);
+        simpleProgram.SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);
         dirLight.UseShadow(&simpleProgram);
 
         dirLight.Use(&simpleProgram);
