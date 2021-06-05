@@ -128,7 +128,7 @@ namespace particle {
         //bind textures
         for (int i = 0; i < m_CurrentMaxTextureSlotIDPlusOne; i++) {
             glActiveTexture(GL_TEXTURE0 + i);
-            m_MapSlotToTexture[i]->Bind();
+            m_MapSlotToTexture[i]->BindTex();
         }
 
         glUseProgram(m_Shader);

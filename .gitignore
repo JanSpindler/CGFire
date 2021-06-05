@@ -8,8 +8,4 @@ out
 cmake-build-*
 cmakesettings.json
 /docs/html/
-/vendor/assimp/
-/vendor/glad/
-/vendor/glfw/
-/vendor/glm/
-/vendor/stb/
+/vendor

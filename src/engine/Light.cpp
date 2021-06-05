@@ -12,31 +12,6 @@
 
 namespace en
 {
-    GLDepthTex::GLDepthTex(int width, int height) :
-            GLTexture()
-    {
-        glBindTexture(GL_TEXTURE_2D, handle_);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-        float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    }
-
-    void GLDepthTex::Bind() const
-    {
-        glBindTexture(GL_TEXTURE_2D, handle_);
-    }
-
-    void GLDepthTex::BindToFramebuffer() const
-    {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, handle_, 0);
-    }
-
     DirLight::DirLight(glm::vec3 dir, glm::vec3 color) :
             depthTex_(SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT)
     {
@@ -68,10 +43,10 @@ namespace en
         color_ = color;
     }
 
-    void DirLight::UseShadow(const GLProgram *program)
+    void DirLight::UseShadow(const GLProgram *program) const
     {
         glActiveTexture(GL_TEXTURE0 + 1);
-        depthTex_.Bind();
+        depthTex_.BindTex();
         program->SetUniformI("shadow_tex", 1);
     }
 
@@ -95,9 +70,18 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    PointLight::PointLight(float strength)
+    PointLight::PointLight(float strength) :
+            depthCubeMap_(SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT)
     {
         strength_ = strength;
+
+        glGenFramebuffers(1, &shadowFbo_);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo_);
+        depthCubeMap_.BindToFramebuffer();
+        glDrawBuffer(GL_NONE);
+        glDrawBuffer(GL_NONE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void PointLight::Use(const GLProgram *program, unsigned int index) const
@@ -111,5 +95,29 @@ namespace en
     float PointLight::GetStrength() const
     {
         return strength_;
+    }
+
+    void PointLight::UseShadow(const GLProgram* program) const
+    {
+        glActiveTexture(GL_TEXTURE0 + 2);
+        depthCubeMap_.BindTex();
+        program->SetUniformI("shadow_cube_map", 2);
+    }
+
+    glm::mat4 PointLight::GetLightMat() const
+    {
+        return glm::identity<glm::mat4>();
+    }
+
+    void PointLight::BindShadowBuffer() const
+    {
+        glViewport(0, 0, SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo_);
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
+
+    void PointLight::UnbindShadowBuffer() const
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }

@@ -14,17 +14,6 @@
 
 namespace en
 {
-    class GLDepthTex : public GLTexture
-    {
-    public:
-        GLDepthTex(int width, int height);
-
-        void Bind() const override;
-        void BindToFramebuffer() const;
-
-    private:
-    };
-
     class DirLight
     {
     public:
@@ -37,7 +26,7 @@ namespace en
         void SetColor(glm::vec3 color);
 
         // Shadow
-        void UseShadow(const GLProgram* program);
+        void UseShadow(const GLProgram* program) const;
         glm::mat4 GetLightMat() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
@@ -63,10 +52,15 @@ namespace en
         float GetStrength() const;
 
         // Shadow
-
+        void UseShadow(const GLProgram* program) const;
+        glm::mat4 GetLightMat() const;
+        void BindShadowBuffer() const;
+        void UnbindShadowBuffer() const;
 
     private:
         float strength_;
+        unsigned int shadowFbo_;
+        GLDepthCubeMap depthCubeMap_;
     };
 }
 

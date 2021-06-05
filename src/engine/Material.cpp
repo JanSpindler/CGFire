@@ -33,7 +33,7 @@ namespace en
         program->SetUniformB("mat_use_tex", tex_ != nullptr);
         glActiveTexture(GL_TEXTURE0);
         if (tex_ != nullptr)
-            tex_->Bind();
+            tex_->BindTex();
         program->SetUniformI("mat_tex", 0);
     }
 }

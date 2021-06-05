@@ -111,10 +111,13 @@ int main()
 
         dirLight.UnbindShadowBuffer();
 
-        for (const en::PointLight* pl : pointLights)
+        // TODO: multiple point lights with shadows
+        /*for (const en::PointLight* pl : pointLights)
         {
-            // TODO: shadow cube map
-        }
+        }*/
+
+        glm::mat4 pDirLightMat = pointLight.GetLightMat();
+
 
         // Real rendering
         window.UseViewport();
