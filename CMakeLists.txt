@@ -72,7 +72,8 @@ target_link_libraries(frameworkLibrary ${VENDOR_LIBRARIES})
 file(GLOB_RECURSE engineSOURCES
         src/engine/*.cpp
         src/particle/*.cpp
-        src/util/*.cpp)
+        src/util/*.cpp
+        src/RiggingAndBlending/*.cpp)
 add_library(engineLibrary STATIC ${engineSOURCES})
 target_link_libraries(engineLibrary frameworkLibrary)
 
