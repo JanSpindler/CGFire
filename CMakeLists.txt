@@ -14,6 +14,7 @@ include_directories(include/)
 option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
+option(BUILD_SHARED_LIBS OFF)
 add_subdirectory(vendor/assimp)
 include_directories(vendor/assimp/include/)
 
@@ -37,7 +38,7 @@ include_directories(vendor/glm)
 
 #ImGui laden
 #ist eine GUI die auch header only ist
-file(GLOB_RECURSE imguiSOURCES vendor/imgui/*.cpp)
+file(GLOB imguiSOURCES vendor/imgui/*.cpp)
 add_library(imGUILibrary STATIC
         ${imguiSOURCES})
 include_directories(vendor/imgui/)
@@ -71,13 +72,12 @@ target_link_libraries(frameworkLibrary ${VENDOR_LIBRARIES})
 file(GLOB_RECURSE engineSOURCES
         src/engine/*.cpp
         src/particle/*.cpp
-        src/util/*.cpp)
+        src/util/*.cpp
+        src/RiggingAndBlending/*.cpp)
 add_library(engineLibrary STATIC ${engineSOURCES})
 target_link_libraries(engineLibrary frameworkLibrary)
 
 
-
-#man kann weitere Executables mittels set(EXECUTABLES ${EXECUTABLES} <NeueExecutable>) adden:
 
 #die Project-Main
 add_executable(project src/project/main.cpp)
@@ -107,6 +107,5 @@ foreach(PROJECT_SOURCE_FILE ${AUFGABEN_EXECUTABLES})
     add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE} )
     target_link_libraries(${SRC_NAME} frameworkLibrary)
 endforeach(PROJECT_SOURCE_FILE)
-
 
 
