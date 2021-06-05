@@ -1,10 +1,14 @@
 //
 // Created by JS on 25/05/2021.
 //
+//Annika added skeletal animation support 29/05/21, based on https://learnopengl.com/Guest-Articles/2020/Skeletal-Animation
+
 
 #include "engine/Model.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
+#include "util/assimptoglmmatrix.h"
+#include <glm/gtx/string_cast.hpp>
 
 namespace en
 {
@@ -139,6 +143,44 @@ namespace en
         for (unsigned int i = 0; i < node->mNumChildren; i++)
             ProcessNode(node->mChildren[i], scene);
     }
+    std::map<std::string, boneinfo> Model::getbonemap() {
+        return bonemap;
+    }
+    int Model::getbonecount() const { return bonecount;}
+    void Model::BoneweightforVertices(std::vector<Vertex>& vertices, aiMesh* mesh){
+        for (int i = 0; i < mesh->mNumBones; i++){
+            std::string bonename = mesh->mBones[i]->mName.C_Str();
+            int id = -1;
+            if(bonemap.find(bonename) == bonemap.end()) {
+                boneinfo newinfo{};
+                newinfo.boneid = bonecount;
+                newinfo.offsetmat = util::AssimptoGLM4x4(mesh->mBones[i]->mOffsetMatrix);
+                bonemap.insert(std::pair<std::string, boneinfo>(bonename, newinfo));
+                id = bonecount;
+                bonecount++;
+                Log::Info("added offsetmatrix to"+bonename+glm::to_string(newinfo.offsetmat));
+            }
+            else{
+                id = bonemap.find(bonename)->second.boneid;
+            }
+            aiVertexWeight* boneweights = mesh->mBones[i]->mWeights;
+            int num = mesh->mBones[i]->mNumWeights;
+            for (int k=0;k<num;k++){
+                assert(boneweights[k].mVertexId<=vertices.size());
+                for (int l = 0; l<MAXBONEINFLUENCE; l++){
+                    if(vertices[boneweights[k].mVertexId].boneids_[l]<=0) {
+                        vertices[boneweights[k].mVertexId].boneids_[l] = id;
+                        vertices[boneweights[k].mVertexId].boneweights_[l] = boneweights[k].mWeight;
+                        //Log::Info("Extracted boneweight" + std::to_string(vertices[boneweights[k].mVertexId].boneweights_[l]));
+                        break;
+                    }
+                }
+            }
+
+
+        }
+
+    }
 
     Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     {
@@ -185,6 +227,7 @@ namespace en
         aiMaterial* aiRef = nullptr;
         if (mesh->mMaterialIndex >= 0)
             aiRef = scene->mMaterials[mesh->mMaterialIndex];
+        if (mesh->HasBones()){BoneweightforVertices(vertices, mesh);}
         Mesh m(vertices, indices, materials_.at(aiRef));
         return m;
     }
