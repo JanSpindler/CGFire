@@ -2,7 +2,6 @@
 //Created by vincent on 25.05.2021.
 // Testet das ParticleSystem
 
-#include <chrono>
 #include <glm/gtx/transform.hpp>
 #include <framework/imgui_util.hpp>
 
@@ -45,8 +44,6 @@ int main(int, char* argv[]) {
     ParticleSystem particleSystemFire(10000, cam);
     FireCreator fireCreator(particleSystemFire);
     fireCreator.createFlame(glm::vec3(0.5f, 0.5f, 0.5f), 5);
-
-    auto timeStart = std::chrono::steady_clock::now();
 
 
     while (window.IsOpen())
@@ -94,16 +91,8 @@ int main(int, char* argv[]) {
         cam.SetAspectRatio(window.GetAspectRatio());
 
 
-
-        auto timeEnd = std::chrono::steady_clock::now();
-        //calc difference in seconds
-        float difference = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>
-                (timeEnd - timeStart).count()) / 1000000.f;
-        timeStart = timeEnd;
-
-
-        fireCreator.onUpdate(difference);
-        particleSystemFire.OnUpdate(difference);
+        fireCreator.onUpdate(deltaTime);
+        particleSystemFire.OnUpdate(deltaTime);
 
 
         particleSystemFire.OnRender();
