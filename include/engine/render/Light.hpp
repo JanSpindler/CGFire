@@ -10,7 +10,7 @@
 #include <vector>
 #include "GLTexture.hpp"
 
-#define POINT_LIGHT_MAX 338
+#define POINT_LIGHT_MAX 24
 
 namespace en
 {
@@ -52,7 +52,7 @@ namespace en
         float GetStrength() const;
 
         // Shadow
-        void UseShadow(const GLProgram* program) const;
+        void UseShadow(const GLProgram* program, unsigned int index) const;
         std::vector<glm::mat4> GetLightMats() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;

@@ -60,6 +60,7 @@ int main()
     std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
 
     // Main loop
+    en::Log::Info("Starting main loop");
     while (window.IsOpen())
     {
         window.Update();
@@ -103,26 +104,39 @@ int main()
         pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
         backpackObj.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        // Shadow rendering
+        // Dir shadow rendering
         dirShadowProgram.Use();
         glm::mat4 dirLightMat = dirLight.GetLightMat();
         dirShadowProgram.SetUniformMat4("light_mat", false, &dirLightMat[0][0]);
 
         dirLight.BindShadowBuffer();
-
         backpackObj.Render(&dirShadowProgram);
         pointLight.Render(&dirShadowProgram);
         floorObj.Render(&dirShadowProgram);
-
         dirLight.UnbindShadowBuffer();
 
-        // TODO: multiple point lights with shadows
-        /*for (const en::PointLight* pl : pointLights)
+        // Point shadow rendering
+        pointShadowProgram.Use();
+        unsigned int pointLightCount = pointLights.size();
+        if (pointLightCount > POINT_LIGHT_MAX)
         {
-        }*/
+            en::Log::Warn("Too many point lights");
+            pointLightCount = POINT_LIGHT_MAX;
+        }
+        for (unsigned int i = 0; i < pointLightCount; i++)
+        {
+            const en::PointLight* currentPointLight = pointLights[i];
+            std::vector<glm::mat4> pointLightMats = currentPointLight->GetLightMats();
+            for (unsigned int j = 0; j < 6; j++)
+                pointShadowProgram.SetUniformMat4("point_light_mats[" + std::to_string(j) + "]", false, &pointLightMats[j][0][0]);
+            pointShadowProgram.SetUniformVec3f("light_pos", currentPointLight->GetPos());
+            //pointShadowProgram.SetUniformF("far_plane", 25.0f); // TODO: pointLight.GetShadowFarPlane();
 
-        std::vector<glm::mat4> pointLightMats = pointLight.GetLightMats();
-
+            currentPointLight->BindShadowBuffer();
+            backpackObj.Render(&pointShadowProgram);
+            floorObj.Render(&pointShadowProgram);
+            currentPointLight->UnbindShadowBuffer();
+        }
 
         // Real rendering
         window.UseViewport();
@@ -134,20 +148,17 @@ int main()
         simpleProgram.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         simpleProgram.SetUniformMat4("proj_mat", false, &projMat[0][0]);
         simpleProgram.SetUniformVec3f("cam_pos", cam.GetPos());
-        simpleProgram.SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);
-        dirLight.UseShadow(&simpleProgram);
 
         dirLight.Use(&simpleProgram);
+        dirLight.UseShadow(&simpleProgram);
+        simpleProgram.SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);
 
-        unsigned int pointLightCount = pointLights.size();
-        if (pointLightCount > POINT_LIGHT_MAX)
-        {
-            en::Log::Info("Too many point lights");
-            pointLightCount = POINT_LIGHT_MAX;
-        }
         simpleProgram.SetUniformUI("point_light_count", pointLightCount);
         for (unsigned int i = 0; i < pointLightCount; i++)
+        {
             pointLights[i]->Use(&simpleProgram, i);
+            pointLights[i]->UseShadow(&simpleProgram, i);
+        }
 
         pointLight.Render(&simpleProgram);
         backpackObj.Render(&simpleProgram);

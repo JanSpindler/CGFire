@@ -11,13 +11,16 @@ uniform vec3 cam_pos;
 // Directional Light
 uniform vec3 dir_light_dir;
 uniform vec3 dir_light_color;
+uniform sampler2D dir_shadow_tex;
 
 // Point Lights
-#define POINT_LIGHT_MAX 338u
+#define POINT_LIGHT_MAX 24u
 uniform uint point_light_count;
 uniform vec3 point_light_pos[POINT_LIGHT_MAX];
 uniform vec3 point_light_color[POINT_LIGHT_MAX];
 uniform float point_light_strength[POINT_LIGHT_MAX];
+uniform samplerCube point_light_shadow_cube0;
+// TODO: more samplerCubes
 
 // Material
 uniform float mat_shininess;
@@ -26,29 +29,15 @@ uniform vec4 mat_specular_color;
 uniform bool mat_use_tex;
 uniform sampler2D mat_tex;
 
-// Shadow
-uniform sampler2D shadow_tex;
-
 // Constants
 const float pi = 3.14159265359;
 
 // Output
 out vec4 out_color;
 
-float is_in_shadow(vec4 light_pos)
+float rand(vec2 co)
 {
-    vec3 proj_pos = light_pos.xyz / light_pos.w;
-    proj_pos = proj_pos * 0.5 + 0.5;
-
-    if (proj_pos.z > 1.0)
-        return 0.0;
-
-    float closest_depth = texture(shadow_tex, proj_pos.xy).r;
-    float current_depth = proj_pos.z;
-    float bias = 0.001;
-    float shadow = current_depth - bias > closest_depth ? 1.0 : 0.0;
-
-    return shadow;
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
 vec4 get_dir_light_color(vec3 normal)
@@ -70,7 +59,23 @@ vec4 get_dir_light_color(vec3 normal)
         spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
     vec4 specular = vec4(dir_light_color, 1.0) * spec * mat_specular_color;
 
-    return diffuse + specular;
+    // Shadow
+    float shadow;
+
+    vec3 proj_pos = frag_dir_light_pos.xyz / frag_dir_light_pos.w;
+    proj_pos = proj_pos * 0.5 + 0.5;
+
+    if (proj_pos.z > 1.0)
+    {
+        shadow = 1.0;
+    }
+    else
+    {
+        float closest_depth = texture(dir_shadow_tex, proj_pos.xy).r;
+        float current_depth = proj_pos.z;
+        shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
+    }
+    return shadow * (diffuse + specular);
 }
 
 vec4 get_point_light_color(vec3 normal, uint index)
@@ -99,22 +104,33 @@ vec4 get_point_light_color(vec3 normal, uint index)
         spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
     vec4 specular = vec4(light_color, 1.0) * spec * mat_specular_color;
 
+    // Shadow
+    vec3 frag_light_pos = frag_pos - light_pos;
+
+    float closest_depth = 1000.0;
+    switch (index)
+    {
+        case 0u:
+            closest_depth = texture(point_light_shadow_cube0, frag_light_pos).r;
+            break;
+        // TODO: implement more cubemaps
+    }
+
+    closest_depth *= 1024.0;
+    float current_depth = length(frag_light_pos);
+    float shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
+
     float real_strength = light_strength / (distance * distance);
-    return real_strength * (diffuse + specular);
+    return shadow * (real_strength * (diffuse + specular));
 }
 
 void main()
 {
     vec3 normal = normalize(frag_normal);
 
-    vec4 result = (1.0 - is_in_shadow(frag_dir_light_pos)) *  get_dir_light_color(normal);
+    vec4 result = get_dir_light_color(normal);
 
-    uint real_point_light_count;
-    if (point_light_count > POINT_LIGHT_MAX)
-        real_point_light_count = POINT_LIGHT_MAX;
-    else
-        real_point_light_count = point_light_count;
-    for (uint i = 0u; i < real_point_light_count; i++)
+    for (uint i = 0u; i < point_light_count; i++)
         result += get_point_light_color(normal, i);
 
     out_color = result;

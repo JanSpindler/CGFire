@@ -7,7 +7,7 @@
 #include "engine/Util.hpp"
 #include <glm/gtx/transform.hpp>
 
-#define SHADOW_TEX_WIDTH 4096
+#define SHADOW_TEX_WIDTH 2048
 #define SHADOW_TEX_HEIGHT SHADOW_TEX_WIDTH
 
 namespace en
@@ -47,7 +47,7 @@ namespace en
     {
         glActiveTexture(GL_TEXTURE0 + 1);
         depthTex_.BindTex();
-        program->SetUniformI("shadow_tex", 1);
+        program->SetUniformI("dir_shadow_tex", 1);
     }
 
     glm::mat4 DirLight::GetLightMat() const
@@ -98,17 +98,18 @@ namespace en
         return strength_;
     }
 
-    void PointLight::UseShadow(const GLProgram* program) const
+    void PointLight::UseShadow(const GLProgram* program, unsigned int index) const
     {
-        glActiveTexture(GL_TEXTURE0 + 1);
+        unsigned int texIndex = 2 + index;
+        glActiveTexture(GL_TEXTURE0 + texIndex);
         depthCubeMap_.BindTex();
-        program->SetUniformI("shadow_cube_map", 1);
+        program->SetUniformI("point_light_shadow_cube" + std::to_string(index), texIndex);
     }
 
     std::vector<glm::mat4> PointLight::GetLightMats() const
     {
         float aspectRatio = (float) SHADOW_TEX_WIDTH / (float) SHADOW_TEX_HEIGHT;
-        glm::mat4 projMat = glm::perspective(glm::radians(90.0f), aspectRatio, 1.0f, 25.0f);
+        glm::mat4 projMat = glm::perspective(glm::radians(90.0f), aspectRatio, 1.0f, 1024.0f);
         glm::vec3 pos = GetPos();
 
         std::vector<glm::mat4> lightMats = {
