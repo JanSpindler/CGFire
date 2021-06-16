@@ -57,7 +57,7 @@ namespace en{
         return glm::translate(glm::mat4(1.0f), glm::mix(position[i].bonevect, position[i+1].bonevect, getscale(animationtime, position[i].timestamp, position[i+1].timestamp)));
     }
     glm::mat4 Bone::interprot(float animationtime) {
-        Log::Info("looking through rotation size" + std::to_string(numrotation));
+        //Log::Info("looking through rotation size" + std::to_string(numrotation));
         if (numrotation == 1) { return glm::toMat4(glm::normalize(rotation[0].bonequat)); }
         int i = -1;
         for(int k = 0; k<numrotation-1; k++){
@@ -70,7 +70,7 @@ namespace en{
         return glm::toMat4(glm::normalize(glm::slerp(rotation[i].bonequat, rotation[i+1].bonequat, getscale(animationtime, rotation[i].timestamp, rotation[i+1].timestamp))));
     }
     glm::mat4 Bone::interpscale(float animationtime) {
-        Log::Info("looking through scale size" + std::to_string(numscale));
+        //Log::Info("looking through scale size" + std::to_string(numscale));
         if (numscale == 1){return glm::scale(glm::mat4(1.0f),scale[0].bonevect);}
         int i = -1;
         for(int k = 0; k<numscale-1; k++){
@@ -79,7 +79,7 @@ namespace en{
                 break;
             }
         }
-        Log::Info("int is"+ std::to_string(i));
+        //Log::Info("int is"+ std::to_string(i));
         assert(i>=0);
         return glm::scale(glm::mat4(1.0f), glm::mix(scale[i].bonevect, scale[i+1].bonevect, getscale(animationtime, scale[i].timestamp, scale[i+1].timestamp)));
     }
