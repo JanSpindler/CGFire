@@ -51,12 +51,12 @@ int main()
 
     // Models
     std::vector<glm::vec3> splinePoints = {
-            { 5.0f, 1.0f, 5.0f },
-            { -5.0f, 1.0f, 5.0f },
-            { -5.0f, 1.0f, -5.0f },
-            { 5.0f, 1.0f, -5.0f }
+            { 5.0f, 10.0f, 5.0f },
+            { -5.0f, 0.0f, 5.0f },
+            { -5.0f, 0.0f, -5.0f },
+            { 5.0f, 0.0f, -5.0f }
     };
-    en::Spline3D spline(splinePoints, true);
+    en::Spline3D spline(splinePoints, true, 40);
     en::Spline3DRenderable splineRenderable(&spline);
     en::RenderObj splineObj(&splineRenderable);
 
