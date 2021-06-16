@@ -9,6 +9,7 @@
 #include "engine/Render/Light.hpp"
 #include "engine/Input/Input.hpp"
 #include "engine/prefab/SimplePointLight.hpp"
+#include "engine/Spline3D.hpp"
 
 int main()
 {
@@ -26,6 +27,10 @@ int main()
             1000.0f);
 
     // Shader
+    en::GLShader fixedColorVert("CGFire/fixed_color.vert", en::GLShader::Type::VERTEX);
+    en::GLShader fixedColorFrag("CGFire/fixed_color.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram fixedColorProgram(&fixedColorVert, nullptr, &fixedColorFrag);
+
     en::GLShader dirShadowVert("CGFire/dir_shadow.vert", en::GLShader::Type::VERTEX);
     en::GLShader dirShadowFrag("CGFire/dir_shadow.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram dirShadowProgram(&dirShadowVert, nullptr, &dirShadowFrag);
@@ -45,11 +50,21 @@ int main()
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
     // Models
+    std::vector<glm::vec3> splinePoints = {
+            { 5.0f, 1.0f, 5.0f },
+            { -5.0f, 1.0f, 5.0f },
+            { -5.0f, 1.0f, -5.0f },
+            { 5.0f, 1.0f, -5.0f }
+    };
+    en::Spline3D spline(splinePoints, true);
+    en::Spline3DRenderable splineRenderable(&spline);
+    en::RenderObj splineObj(&splineRenderable);
+
     en::Model backpackModel("backpack/backpack.obj", true);
-    en::RenderObj backpackObj = { &backpackModel };
+    en::RenderObj backpackObj(&backpackModel);
 
     en::Model floorModel("cube.obj", true);
-    en::RenderObj floorObj = { &floorModel };
+    en::RenderObj floorObj(&floorModel);
     floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(50.0f, 1.0f, 50.0f));
 
     // Lights
@@ -134,6 +149,7 @@ int main()
 
             currentPointLight->BindShadowBuffer();
             backpackObj.Render(&pointShadowProgram);
+            pointLight.Render(&pointShadowProgram); // Can only be done when culling the back face
             floorObj.Render(&pointShadowProgram);
             currentPointLight->UnbindShadowBuffer();
         }
@@ -163,6 +179,12 @@ int main()
         pointLight.Render(&simpleProgram);
         backpackObj.Render(&simpleProgram);
         floorObj.Render(&simpleProgram);
+
+        // Test render spline
+        fixedColorProgram.Use();
+        fixedColorProgram.SetUniformMat4("view_mat", false, &viewMat[0][0]);
+        fixedColorProgram.SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        splineObj.Render(&fixedColorProgram);
     }
 
     en::Log::Info("Ending CGFire");

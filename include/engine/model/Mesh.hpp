@@ -27,8 +27,6 @@ namespace en
 
     private:
         unsigned int vao_;
-        unsigned int vbo_;
-        unsigned int ibo_;
         std::vector<Vertex> vertices_;
         std::vector<unsigned int> indices_;
         const Material* material_;

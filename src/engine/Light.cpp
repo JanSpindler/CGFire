@@ -109,7 +109,7 @@ namespace en
     std::vector<glm::mat4> PointLight::GetLightMats() const
     {
         float aspectRatio = (float) SHADOW_TEX_WIDTH / (float) SHADOW_TEX_HEIGHT;
-        glm::mat4 projMat = glm::perspective(glm::radians(90.0f), aspectRatio, 1.0f, 1024.0f);
+        glm::mat4 projMat = glm::perspective(glm::radians(90.0f), aspectRatio, 0.25f, 1024.0f);
         glm::vec3 pos = GetPos();
 
         std::vector<glm::mat4> lightMats = {
