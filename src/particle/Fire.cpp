@@ -24,7 +24,7 @@ namespace particle{
         }
 
 
-        m_ParticleSystem.initializeTextures(m_Textures);
+        m_ParticleSystem.InitializeTextures(m_Textures);
 
         m_BaseFlameProps.Position = { 0.0f, 0.0f, 0.0f };
         m_BaseFlameProps.PositionVariation = { 1.0f, 0.0f, 1.0f };

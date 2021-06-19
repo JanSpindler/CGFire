@@ -16,8 +16,10 @@ void main()
 
     // TASK:
     // Compute eye_direction (d_eye in the lesson) using half_size_near
-    eye_direction = normalize(vec3(2 * half_size_near.x * interp_uv.x - half_size_near.x,
-                        2 * half_size_near.y * interp_uv.y - half_size_near.y, -1.0));
+    eye_direction = normalize(vec3(
+                        2 * half_size_near.x * interp_uv.x - half_size_near.x,
+                        2 * half_size_near.y * interp_uv.y - half_size_near.y,
+                        -1.0));
 
     local_light_pos = (view_mat * vec4(light_pos, 1.0)).xyz;
 }

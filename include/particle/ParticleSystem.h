@@ -19,8 +19,9 @@ namespace particle {
          * because each update has O(n) time plus O(nlogn) for sorting, n = particlePoolSize.*/
         explicit ParticleSystem(uint32_t particlePoolSize, const en::Camera& cam);
 
-        void initializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){
-            m_BatchRenderer.initializeTextures(textures);
+        //Needs to be called with all the textures that will be used
+        void InitializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){
+            m_BatchRenderer.InitializeTextures(textures);
         }
 
         void OnUpdate(float ts);

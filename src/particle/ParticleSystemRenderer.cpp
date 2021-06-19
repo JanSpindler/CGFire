@@ -91,7 +91,7 @@ namespace particle {
         delete[] m_QuadData;
     }
 
-    void ParticleSystemRenderer::initializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){
+    void ParticleSystemRenderer::InitializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){
         //Create the bidirectional mapping from textures to their IDs in the shader
         for (auto& tex : textures){
             m_MapSlotToTexture[m_CurrentMaxTextureSlotIDPlusOne] = tex.get();

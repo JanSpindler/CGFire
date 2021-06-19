@@ -33,7 +33,7 @@ namespace particle {
         ~ParticleSystemRenderer();
 
         //Needs to be called with all the textures that will be used
-        void initializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures);
+        void InitializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures);
 
         //Needs to be called at the start of a new rendering
         void BeginBatch();
