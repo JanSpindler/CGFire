@@ -16,7 +16,7 @@ namespace en{
         std::vector<glm::mat4> currenttransforms;
         std::vector<glm::mat4> prevtransforms;
         glm::mat4 prevprojviewmodelmat = glm::mat4();
-        void doblur(GLProgram program);
+        void doblur(GLProgram* program);
         motionblur(int width, int height);
         void updatetransforms(std::vector<glm::mat4> newtransforms);
         GLuint color_tex = 0;
@@ -25,6 +25,7 @@ namespace en{
         GLuint motion_tex = 0;
         void addskeletalarrays(GLProgram program);
         void addprevprojviewmodelmat(GLProgram program);
+        void firstpasssetup(int width, int height);
         GLProgram makerenderprog();
         void build_framebuffer(int width, int height);
         unsigned int quad;

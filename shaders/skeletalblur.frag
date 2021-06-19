@@ -29,8 +29,8 @@ uniform sampler2D mat_tex;
 const float pi = 3.14159265359;
 
 // Output
-layout (location = 0) out vec3 fragcolorvec;
-layout (location = 1) out vec2 motionvec;
+layout (location = 0) out vec4 fragcolorvec;
+layout (location = 1) out vec4 motionvec;
 
 void main()
 {
@@ -53,6 +53,8 @@ void main()
 
     // Result
     vec4 out_color = texture(mat_tex, interp_uv);
-    fragcolorvec = out_color.xyz;
-    motionvec = (((nowpos.xy/nowpos.w)*0.5+0.5)-((prevpos.xy/prevpos.w)*0.5+0.5));
+    fragcolorvec= out_color;
+    vec3 a = (nowpos/nowpos.w).xyz;
+    vec3 b = (prevpos/prevpos.w).xyz;
+    motionvec = vec4((a-b).xy,0,1);
 }

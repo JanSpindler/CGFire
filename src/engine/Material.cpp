@@ -1,6 +1,7 @@
 //
 // Created by JS on 26/05/2021.
 //
+//19/06/21 tex_.bind() eingefügt von Nika, sonst laufen multiple renderpasses nicht wenn man bei anderem programm was anderes dran bindet
 
 #include "engine/gr_include.hpp"
 #include "engine/Material.hpp"
@@ -30,6 +31,7 @@ namespace en
         program->SetUniformVec4f("mat_diffuse_color", diffuseColor_);
         program->SetUniformVec4f("mat_specular_color", specularColor_);
         program->SetUniformB("mat_use_tex", tex_ != nullptr);
+        tex_->Bind();
         glActiveTexture(GL_TEXTURE0);
         program->SetUniformI("mat_tex", 0);
     }

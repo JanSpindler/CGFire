@@ -1,20 +1,15 @@
 //
 // Created by Nika on 11/06/2021.
-//uses 16f version of create_texture_rgba16f and setup_fullscreen_quad from aufgabe7
+//uses create_texture_rgba32f and setup_fullscreen_quad as well as a modified version of build_framebuffer from aufgabe7
+//general motionblur technique and motionblur frag shaders based on https://ogldev.org/www/tutorial41/tutorial41.html, https://john-chapman-graphics.blogspot.com/2013/01/per-object-motion-blur.html
 #include "MotionBlur/motionblur.hpp"
 #include "Engine/Util.hpp"
 
 namespace en{
-    unsigned int create_texture_rgb32f(int width, int height) {
+    unsigned int create_texture_rgba32f(int width, int height) {
         unsigned int handle;
         glCreateTextures(GL_TEXTURE_2D, 1, &handle);
-        glTextureStorage2D(handle, 1, GL_RGB32F, width, height);
-        return handle;
-    }
-    unsigned int create_texture_rg32f(int width, int height) {
-        unsigned int handle;
-        glCreateTextures(GL_TEXTURE_2D, 1, &handle);
-        glTextureStorage2D(handle, 1, GL_RG32F, width, height);
+        glTextureStorage2D(handle, 1, GL_RGBA32F, width, height);
         return handle;
     }
     unsigned int setup_fullscreen_quad() {
@@ -69,20 +64,20 @@ namespace en{
             glDeleteTextures(1, &motion_tex);
         }
 
-        color_tex = en::create_texture_rgb32f(width, height);
-        motion_tex = en::create_texture_rg32f(width, height);
+        color_tex = en::create_texture_rgba32f(width, height);
+        motion_tex = en::create_texture_rgba32f(width, height);
 
 
         glCreateRenderbuffers(1, &depth_rbo);
         glNamedRenderbufferStorage(depth_rbo, GL_DEPTH_COMPONENT32, width, height);
-
         glCreateFramebuffers(1, &fbo);
         glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, color_tex, 0);
         glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT1, motion_tex, 0);
+        //glFramebufferTexture2D(fbo, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, color_tex, 0);
         glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_rbo);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        GLenum DrawBuffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-        glDrawBuffers(2, DrawBuffers);
+        GLenum DrawBuffers[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+        glNamedFramebufferDrawBuffers(fbo, 2, DrawBuffers);
         if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             printf("Incomplete FBO!");
             std::terminate();
@@ -106,23 +101,22 @@ namespace en{
         Log::Info("Got renderprog");
         return program;
     }
-    void motionblur::doblur(GLProgram program) {
+    void motionblur::doblur(GLProgram* program) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-        glDisable(GL_DEPTH_TEST);
-        program.Use();
+        program->Use();
         glDisable(GL_DEPTH_TEST);
         glBindVertexArray(quad);
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, color_tex);
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, motion_tex);
-        glBindTextureUnit(1, color_tex);
-        glBindTextureUnit(2, motion_tex);
-        program.SetUniformI("colortex", 0);
-        program.SetUniformI("motiontex", 1);
+        glBindTextureUnit(0, color_tex);
+        glBindTextureUnit(1, motion_tex);
+        program->SetUniformI("colortex", 0);
+        program->SetUniformI("motiontex", 1);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
-        Log::Info("shouldve drawn this");
+        //Log::Info("shouldve drawn this");
+    }
+    void motionblur::firstpasssetup(int width, int height) {
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0,0,width, height);
     }
     void motionblur::addprevprojviewmodelmat(GLProgram program) {
         program.SetUniformMat4("prevPVM", false, glm::value_ptr(prevprojviewmodelmat));

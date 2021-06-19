@@ -78,7 +78,11 @@ int main()
 
     while (window.IsOpen())
     {
-
+        if (glCheckNamedFramebufferStatus(motionblur.fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            printf("Incomplete FBO!");
+            std::terminate();
+        }
+        en::Log::Info(glm::to_string(motionblur.prevprojviewmodelmat));
         window.Update();
         if(width != window.GetWidth()||height!= window.GetHeight()){
             motionblur.build_framebuffer(window.GetWidth(), window.GetHeight());
@@ -87,17 +91,14 @@ int main()
         }
         en::Input::Update();
         en::Time::Update();
-        glBindFramebuffer(GL_FRAMEBUFFER, motionblur.fbo);
-        glEnable(GL_DEPTH_TEST);
+        motionblur.firstpasssetup(window.GetWidth(), window.GetHeight());
         program.Use();
         auto deltaTime = (float)en::Time::GetDeltaTime();
-
         animator.UpdateAnim(deltaTime);
         // Rendering
         cam.SetAspectRatio(window.GetAspectRatio());
         viewMat = cam.GetViewMat();
         projMat = cam.GetProjMat();
-        program.Use();
         program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
         program.SetUniformVec3f("cam_pos", cam.GetPos());
@@ -106,12 +107,11 @@ int main()
         motionblur.updatetransforms(transforms);
         motionblur.addskeletalarrays(program);
         motionblur.addprevprojviewmodelmat(program);
-
+        //vampireObj.t_ *= glm::rotate(deltaTime * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         //en::Log::Info(glm::to_string(motionblur.prevprojviewmodelmat)+"\n"+glm::to_string(motionblur.prevtransforms[0])+"\n"+glm::to_string(motionblur.currenttransforms[0]));
-
         vampireObj.Render(&program);
         //bobObj.Render(&program);
-        motionblur.doblur(renderprog);
+        motionblur.doblur(&renderprog);
         motionblur.prevprojviewmodelmat = projMat*viewMat*vampireObj.t_;
     }
 

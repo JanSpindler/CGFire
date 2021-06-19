@@ -18,5 +18,6 @@ void main(){
     color += texture(colortex, texcoord)*0.2;
     texcoord -= motionvec;
     color += texture(colortex, texcoord)*0.1;
+    texcoord -= motionvec;
     fragcolor = color;
 }
