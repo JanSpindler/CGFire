@@ -6,8 +6,9 @@
 
 namespace particle {
 
-    ParticleSystemRenderer::ParticleSystemRenderer(uint32_t particlePoolSize, const en::Camera& cam)
-    : m_Cam(cam),
+    ParticleSystemRenderer::ParticleSystemRenderer(uint32_t particlePoolSize, const en::Camera& cam, bool additiveBlending)
+    : m_AdditiveBlending(additiveBlending),
+    m_Cam(cam),
     m_MaxQuadCount(particlePoolSize),
     m_MaxIndices(m_MaxQuadCount*6),
     m_MaxVertices(m_MaxQuadCount*4)
@@ -133,7 +134,9 @@ namespace particle {
 
         glDepthMask(GL_FALSE);
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+
+        glBlendFunc(GL_SRC_ALPHA, m_AdditiveBlending ? GL_ONE : GL_ONE_MINUS_SRC_ALPHA);
 
 
         //bind textures
@@ -184,7 +187,7 @@ namespace particle {
         auto currentFrameColumn = currentFrame % numSpriteRows;
         auto currentFrameRow = currentFrame / numSpriteRows;
         glm::vec2 spriteFrameSize = {1.f / numSpriteColumns, 1.f / numSpriteRows};
-        glm::vec2 spriteFramePos = {currentFrameColumn * spriteFrameSize.x, currentFrameRow * spriteFrameSize.y};
+        glm::vec2 spriteFramePos = {(numSpriteColumns-currentFrameColumn-1) * spriteFrameSize.x, currentFrameRow * spriteFrameSize.y};
         glm::vec2 texCoords[] = {     { spriteFramePos.x, spriteFramePos.y },
                                       { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y },
                                       { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y + spriteFrameSize.y },

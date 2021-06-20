@@ -17,7 +17,7 @@ namespace particle {
 
         /**\param particlePoolSize should only approximately be as high as needed,
          * because each update has O(n) time plus O(nlogn) for sorting, n = particlePoolSize.*/
-        explicit ParticleSystem(uint32_t particlePoolSize, const en::Camera& cam);
+        explicit ParticleSystem(uint32_t particlePoolSize, const en::Camera& cam, bool additiveBlending = false);
 
         //Needs to be called with all the textures that will be used
         void InitializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){

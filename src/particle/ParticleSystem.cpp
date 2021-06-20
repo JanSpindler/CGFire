@@ -2,11 +2,11 @@
 
 
 namespace particle {
-    ParticleSystem::ParticleSystem(uint32_t particlePoolSize,  const en::Camera& cam)
+    ParticleSystem::ParticleSystem(uint32_t particlePoolSize,  const en::Camera& cam, bool additiveBlending)
             : m_Cam(cam),
             m_ParticlePoolSize(particlePoolSize),
               m_PoolIndex(m_ParticlePoolSize - 1),
-              m_BatchRenderer(m_ParticlePoolSize, cam){
+              m_BatchRenderer(m_ParticlePoolSize, cam, additiveBlending){
         m_ParticlePool.resize(m_ParticlePoolSize);
     }
 
@@ -24,8 +24,8 @@ namespace particle {
 
 
             particle.LifeRemaining -= ts;
+            particle.Velocity += ts * particle.GravityFactor * glm::vec3(0.f, -9.81f, 0.f);
             particle.Position += ts * particle.Velocity;
-            particle.Rotation += 0.01f * ts;
 
             auto dif = particle.Position - m_Cam.GetPos();
             particle.CameraDistance = glm::dot(dif, dif); //squared distance to camera, used to sort the particles
@@ -61,12 +61,12 @@ namespace particle {
         p.Position.y += (util::Random::Float() - 0.5f) * pProps.PositionVariation.y;
         p.Position.z += (util::Random::Float() - 0.5f) * pProps.PositionVariation.z;
 
-        p.Rotation = util::Random::Float() * 2.0f * glm::pi<float>();
-
         p.Velocity = pProps.Velocity;
         p.Velocity.x += (util::Random::Float() - 0.5f) * pProps.VelocityVariation.x;
         p.Velocity.y += (util::Random::Float() - 0.5f) * pProps.VelocityVariation.y;
         p.Velocity.z += (util::Random::Float() - 0.5f) * pProps.VelocityVariation.z;
+
+        p.GravityFactor = pProps.GravityFactor;
 
         p.ColorBegin = pProps.ColorBegin;
         p.ColorEnd = pProps.ColorEnd;

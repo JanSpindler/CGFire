@@ -6885,7 +6885,7 @@ ENTITY IfcRibPlateProfileProperties
 	RibHeight : OPTIONAL IfcPositiveLengthMeasure;
 	RibWidth : OPTIONAL IfcPositiveLengthMeasure;
 	RibSpacing : OPTIONAL IfcPositiveLengthMeasure;
-	Direction : IfcRibPlateDirectionEnum;
+	StartGradient : IfcRibPlateDirectionEnum;
 END_ENTITY;
 
 ENTITY IfcRightCircularCone

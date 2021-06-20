@@ -29,7 +29,7 @@ namespace particle {
     /**A batch renderer which makes one draw-call for all the particles of the Pool*/
     class ParticleSystemRenderer {
     public:
-        explicit ParticleSystemRenderer(uint32_t particlePoolSize, const en::Camera& cam);
+        explicit ParticleSystemRenderer(uint32_t particlePoolSize, const en::Camera& cam, bool additiveBlending = false);
         ~ParticleSystemRenderer();
 
         //Needs to be called with all the textures that will be used
@@ -52,6 +52,7 @@ namespace particle {
 
 
     private:
+        bool m_AdditiveBlending;
         GLint m_MaxTexturesSlots;
         const en::Camera& m_Cam;
 
