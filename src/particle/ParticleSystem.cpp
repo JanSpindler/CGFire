@@ -5,9 +5,13 @@ namespace particle {
     ParticleSystem::ParticleSystem(uint32_t particlePoolSize,  const en::Camera& cam, bool additiveBlending)
             : m_Cam(cam),
             m_ParticlePoolSize(particlePoolSize),
-              m_PoolIndex(m_ParticlePoolSize - 1),
               m_BatchRenderer(m_ParticlePoolSize, cam, additiveBlending){
         m_ParticlePool.resize(m_ParticlePoolSize);
+        for (size_t i = 0; i < m_ParticlePoolSize-1; ++i){
+            m_ParticlePool[i].NextParticle = &m_ParticlePool[i+1];
+        }
+        m_ParticlePool[m_ParticlePoolSize-1].NextParticle = &m_ParticlePool[0];
+        m_NextUnusedParticle = &m_ParticlePool[0];
     }
 
     void ParticleSystem::OnUpdate(float ts) {
@@ -53,7 +57,9 @@ namespace particle {
 
 
     void ParticleSystem::Emit(const ParticleProps &pProps) {
-        Particle &p = m_ParticlePool[m_PoolIndex];
+        Particle &p = *m_NextUnusedParticle;
+        m_NextUnusedParticle = p.NextParticle;
+
         p.Active = true;
 
         p.Position = pProps.Position;
@@ -84,6 +90,6 @@ namespace particle {
         auto dif = p.Position - m_Cam.GetPos();
         p.CameraDistance = glm::dot(dif, dif); //squared distance to camera
 
-        m_PoolIndex = --m_PoolIndex % m_ParticlePool.size();
+
     }
 }

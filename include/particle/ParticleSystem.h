@@ -37,7 +37,7 @@ namespace particle {
 
         //Recycle-Pool of particles
         std::vector<Particle> m_ParticlePool;
-        uint32_t m_PoolIndex;
+        Particle* m_NextUnusedParticle;
 
         //Renderer
         ParticleSystemRenderer m_BatchRenderer;

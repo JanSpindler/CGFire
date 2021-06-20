@@ -49,5 +49,7 @@ namespace particle{
             // Sort in reverse order : far particles drawn first.
             return this->CameraDistance > that.CameraDistance;
         }
+
+        Particle* NextParticle = nullptr; //used to keep track of unused particles and retrieve them in constant time
     };
 }

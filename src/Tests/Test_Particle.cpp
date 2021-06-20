@@ -75,7 +75,7 @@ int main(int, char* argv[]) {
     ParticleSystem particleSystemWater(10000, cam, false);
     WaterCreator waterCreator(particleSystemWater);
     auto waterJet1 = waterCreator.createWaterJet(glm::vec3(2.f, 0.f, 1.f),
-                                                glm::vec3(10.f, 10.f, 0.f),
+                                                glm::vec3(20.f, 10.f, 0.f),
                                                 60);
 
 
