@@ -10,7 +10,8 @@
 #include <assimp/anim.h>
 #include <glm/gtx/quaternion.hpp>
 #include "bone.hpp"
-#include "engine/Model.hpp"
+#include "engine/model/Model.hpp"
+#include <map>
 
 namespace en{
     struct aiNodeStructure{
