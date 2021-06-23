@@ -170,7 +170,7 @@ std::map<std::string, boneinfo> Model::getbonemap() {
                 bonemap.insert(std::pair<std::string, boneinfo>(bonename, newinfo));
                 id = bonecount;
                 bonecount++;
-                Log::Info("added offsetmatrix to"+bonename+glm::to_string(newinfo.offsetmat));
+                //Log::Info("added offsetmatrix to"+bonename+glm::to_string(newinfo.offsetmat));
             }
             else{
                 id = bonemap.find(bonename)->second.boneid;

@@ -88,7 +88,7 @@ namespace en{
     motionblur::motionblur(int width, int height) {
         build_framebuffer(width, height);
         quad = en::setup_fullscreen_quad();
-        Log::Info("Build done"+std::to_string(quad));
+        //Log::Info("Build done"+std::to_string(quad));
     }
     void motionblur::updatetransforms(std::vector<glm::mat4> newtransforms) {
         prevtransforms = currenttransforms;
@@ -98,7 +98,7 @@ namespace en{
         en::GLShader vertShader("motionblur.vert", en::GLShader::Type::VERTEX);
         en::GLShader fragShader("motionblur.frag", en::GLShader::Type::FRAGMENT);
         en::GLProgram program(&vertShader, nullptr, &fragShader);
-        Log::Info("Got renderprog");
+        //Log::Info("Got renderprog");
         return program;
     }
     void motionblur::doblur(GLProgram* program) {

@@ -82,7 +82,7 @@ int main()
             printf("Incomplete FBO!");
             std::terminate();
         }
-        en::Log::Info(glm::to_string(motionblur.prevprojviewmodelmat));
+        //en::Log::Info(glm::to_string(motionblur.prevprojviewmodelmat));
         window.Update();
         if(width != window.GetWidth()||height!= window.GetHeight()){
             motionblur.build_framebuffer(window.GetWidth(), window.GetHeight());

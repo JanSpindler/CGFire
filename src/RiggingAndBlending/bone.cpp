@@ -15,7 +15,7 @@ namespace en{
         numrotation = channel->mNumRotationKeys;
         numposition = channel->mNumPositionKeys;
         numscale = channel->mNumScalingKeys;
-        Log::Info("Bone"+ name +"has scale size"+ std::to_string(numscale));
+        //Log::Info("Bone"+ name +"has scale size"+ std::to_string(numscale));
         for(int i = 0; i<numposition;i++ ){
             TimeVec newvec{};
             newvec.timestamp = channel->mPositionKeys[i].mTime;
