@@ -2,7 +2,6 @@
 #include "particle/ParticleSystemRenderer.h"
 #include <array>
 #include <engine/Util.hpp>
-#include <util/OpenGLDebug.h>
 
 namespace particle {
 

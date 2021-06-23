@@ -6,7 +6,6 @@
 #include <glm/gtx/transform.hpp>
 #include <framework/imgui_util.hpp>
 
-#include "util/OpenGLDebug.h"
 #include "particle/ParticleSystem.h"
 #include "particle/Fire.h"
 #include "particle/Water.h"
