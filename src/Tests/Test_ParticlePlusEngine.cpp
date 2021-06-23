@@ -4,10 +4,10 @@
 
 #include "engine/Util.hpp"
 #include "engine/Camera.hpp"
-#include "engine/GLShader.hpp"
-#include "engine/Model.hpp"
-#include "engine/Light.hpp"
-#include "engine/Input.hpp"
+#include "engine/render/GLShader.hpp"
+#include "engine/model/Model.hpp"
+#include "engine/render/Light.hpp"
+#include "engine/input/Input.hpp"
 
 #include "particle/ParticleSystem.h"
 #include "particle/Fire.h"
@@ -32,9 +32,9 @@ int main()
             nearPlane,
             farPlane);
 
-    en::GLShader vertShader("simple.vert", en::GLShader::Type::VERTEX);
-    en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram program(vertShader, fragShader);
+    en::GLShader vertShader("CGFire/simple.vert", en::GLShader::Type::VERTEX);
+    en::GLShader fragShader("CGFire/simple.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram program(&vertShader, nullptr, &fragShader);
 
     glm::mat4 viewMat;
     glm::mat4 projMat;
@@ -67,8 +67,8 @@ int main()
 
 
         //Particles
-        fireCreator.onUpdate(deltaTime);
-        particleSystemFire.OnUpdate(deltaTime);
+        //fireCreator.onUpdate(deltaTime);
+        //particleSystemFire.OnUpdate(deltaTime);
 
 
         // Mouse input handling

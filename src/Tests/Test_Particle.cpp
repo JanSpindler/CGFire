@@ -14,10 +14,10 @@
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
 #include "engine/Camera.hpp"
-#include "engine/GLShader.hpp"
-#include "engine/Model.hpp"
-#include "engine/Light.hpp"
-#include "engine/Input.hpp"
+#include "engine/render/GLShader.hpp"
+#include "engine/model/Model.hpp"
+#include "engine/render/Light.hpp"
+#include "engine/input/Input.hpp"
 
 glm::vec3 getCamMovement(float deltaTime){
     glm::vec3 camMove(0.0f, 0.0f, 0.0f);

@@ -48,7 +48,7 @@ int main()
 
     en::GLShader vertShader("sceletal.vert", en::GLShader::Type::VERTEX);
     en::GLShader fragShader("sceletal.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram program(vertShader, fragShader);
+    en::GLProgram program(&vertShader, nullptr, &fragShader);
 
     en::Model vampiremodel("vampire/dancing_vampire.dae", true);
     en::RenderObj vampireObj = { &vampiremodel };

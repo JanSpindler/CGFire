@@ -3,7 +3,7 @@
 // Calls the particle system to create a water
 #pragma once
 
-#include "engine/GLTexture.hpp"
+#include "engine/render/GLTexture.hpp"
 #include "particle/ParticleSystem.h"
 #include <framework/imgui_util.hpp>
 

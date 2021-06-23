@@ -38,7 +38,7 @@ int main()
 
     en::GLShader vertShader("CGFire/simple.vert", en::GLShader::Type::VERTEX);
     en::GLShader fragShader("CGFire/simple.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram program(vertShader, fragShader);
+    en::GLProgram program(&vertShader, nullptr, &fragShader);
 
     glm::mat4 viewMat;
     glm::mat4 projMat;
@@ -69,8 +69,8 @@ int main()
         window.UseViewport();
 
         //Particles
-        //fireCreator.onUpdate(deltaTime);
-        //particleSystemFire.OnUpdate(deltaTime);
+        fireCreator.onUpdate(deltaTime);
+        particleSystemFire.OnUpdate(deltaTime);
 
         // Mouse input handling
         bool mouseRightPressed = en::Input::IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
@@ -117,7 +117,7 @@ int main()
         floorObj.Render(&program);
 
 
-        //particleSystemFire.OnRender();
+        particleSystemFire.OnRender();
 
         //imgui_render();
     }

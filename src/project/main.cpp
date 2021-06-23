@@ -29,7 +29,7 @@ int main()
 
     en::GLShader vertShader("simple.vert", en::GLShader::Type::VERTEX);
     en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram program(vertShader, fragShader);
+    en::GLProgram program(&vertShader, nullptr, &fragShader);
 
     glm::mat4 viewMat;
     glm::mat4 projMat;
