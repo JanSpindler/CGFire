@@ -7,7 +7,6 @@
 #pragma once
 
 #include "framework/common.hpp"
-#include "util/Timestep.h"
 #include "util/Random.h"
 #include "framework/camera.hpp"
 #include "particle/ParticleSystemRenderer.h"

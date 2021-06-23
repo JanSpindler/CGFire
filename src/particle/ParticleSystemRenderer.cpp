@@ -68,8 +68,6 @@ namespace particle {
 
         // save uniform locations
         m_ShaderViewProj = glGetUniformLocation(m_Shader, "u_ViewProj");
-        m_ShaderCamUp = glGetUniformLocation(m_Shader, "u_CameraUp");
-        m_ShaderCamUp = glGetUniformLocation(m_Shader, "u_CameraRight");
 
         auto loc = glGetUniformLocation(m_Shader, "u_Textures");
 
@@ -188,7 +186,6 @@ namespace particle {
                                       { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y },
                                       { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y + spriteFrameSize.y },
                                       { spriteFramePos.x, spriteFramePos.y + spriteFrameSize.y } };
-        //std::cout << spriteFramePos.x << " " << spriteFramePos.y << std::endl;
 
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), particle.Position)

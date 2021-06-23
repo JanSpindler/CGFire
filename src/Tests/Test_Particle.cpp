@@ -2,7 +2,6 @@
 //Created by vincent on 25.05.2021.
 // Testet das ParticleSystem
 
-#include <chrono>
 #include <glm/gtx/transform.hpp>
 #include <framework/imgui_util.hpp>
 
@@ -12,13 +11,19 @@
 
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
-#include "engine/Camera.hpp"
-#include "engine/render/GLShader.hpp"
-#include "engine/model/Model.hpp"
-#include "engine/render/Light.hpp"
 #include "engine/input/Input.hpp"
 
-glm::vec3 getCamMovement(float deltaTime){
+void HandleInput(en::Window& window, en::Camera& cam, float deltaTime){
+    // Mouse input handling
+    bool mouseRightPressed = en::Input::IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
+    window.EnableCursor(!mouseRightPressed);
+    if (mouseRightPressed)
+    {
+        glm::vec2 mouseMove = 0.005f * -en::Input::GetMouseMove();
+        cam.RotateViewDir(mouseMove.x, mouseMove.y);
+    }
+
+    // Keyboard input handling
     glm::vec3 camMove(0.0f, 0.0f, 0.0f);
     float camMoveSpeed = 6.0f * deltaTime;
     bool frontPressed = en::Input::IsKeyPressed(KEY_W);
@@ -40,13 +45,13 @@ glm::vec3 getCamMovement(float deltaTime){
     else if (downPressed && !upPressed)
         camMove.y = -camMoveSpeed;
 
-    return camMove;
+    cam.Move(camMove);
 }
 
 int main(int, char* argv[]) {
     en::Window window(1200, 800, "CGFire");
     init_imgui(window.GetHandle());
-    util::EnableGLDebugging();
+
     en::Camera cam(
             glm::vec3(0.0f, 3.0f, -20.0f),
             glm::vec3(0.0f, 0.0f, 1.0f),
@@ -57,7 +62,7 @@ int main(int, char* argv[]) {
             1000.0f);
 
 
-    // Particle Test
+    // Particles
     using namespace particle;
 
     //Fire
@@ -91,23 +96,8 @@ int main(int, char* argv[]) {
         float deltaTime = (float)en::Time::GetDeltaTime();
 
 
-        // Mouse input handling
-        bool mouseRightPressed = en::Input::IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
-        window.EnableCursor(!mouseRightPressed);
-        if (mouseRightPressed)
-        {
-            glm::vec2 mouseMove = 0.005f * -en::Input::GetMouseMove();
-            cam.RotateViewDir(mouseMove.x, mouseMove.y);
-        }
+        HandleInput(window, cam, deltaTime);
 
-        // Keyboard input handling
-        cam.Move(getCamMovement(deltaTime));
-
-        // Rendering
-        cam.SetAspectRatio(window.GetAspectRatio());
-
-        // Window viewport
-        window.UseViewport();
 
         // UI
         imgui_new_frame(1200, 800);
@@ -125,12 +115,16 @@ int main(int, char* argv[]) {
         ImGui::SliderInt("ParticlesPerSecond", &waterJet1->ParticlesPerSecond, 0, 500);
         ImGui::End();
 
-
+        //Updates
         fireCreator.onUpdate(deltaTime);
         waterCreator.onUpdate(deltaTime);
         particleSystemFire.OnUpdate(deltaTime);
         particleSystemWater.OnUpdate(deltaTime);
 
+        //Rendering
+        cam.SetAspectRatio(window.GetAspectRatio());
+
+        window.UseViewport();
         particleSystemFire.OnRender();
         particleSystemWater.OnRender();
 

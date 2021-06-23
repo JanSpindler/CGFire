@@ -94,6 +94,7 @@ namespace en
 
         Log::Info("Terminating GLFW");
         glfwTerminate();
+
     }
 
     void Window::EnableCursor(bool cursorMode)
