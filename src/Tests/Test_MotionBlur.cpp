@@ -14,10 +14,10 @@
 
 #include "engine/Util.hpp"
 #include "engine/Camera.hpp"
-#include "engine/GLShader.hpp"
-#include "engine/Model.hpp"
-#include "engine/Light.hpp"
-#include "engine/Input.hpp"
+#include "engine/render/GLShader.hpp"
+#include "engine/model/Model.hpp"
+#include "engine/render/Light.hpp"
+#include "engine/input/Input.hpp"
 #include "framework/common.hpp"
 #include "framework/shader.hpp"
 #include "framework/mesh.hpp"
@@ -51,7 +51,7 @@ int main()
 
     en::GLShader vertShader("skeletalblur.vert", en::GLShader::Type::VERTEX);
     en::GLShader fragShader("skeletalblur.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram program(vertShader, fragShader);
+    en::GLProgram program(&vertShader, nullptr, &fragShader);
 
     en::Model vampiremodel("vampire/dancing_vampire.dae", true);
     en::RenderObj vampireObj = { &vampiremodel };
@@ -78,6 +78,7 @@ int main()
 
     while (window.IsOpen())
     {
+        window.UseViewport();
         if (glCheckNamedFramebufferStatus(motionblur.fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             printf("Incomplete FBO!");
             std::terminate();

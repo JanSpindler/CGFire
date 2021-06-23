@@ -97,7 +97,7 @@ namespace en{
     GLProgram motionblur::makerenderprog() {
         en::GLShader vertShader("motionblur.vert", en::GLShader::Type::VERTEX);
         en::GLShader fragShader("motionblur.frag", en::GLShader::Type::FRAGMENT);
-        en::GLProgram program(vertShader, fragShader);
+        en::GLProgram program(&vertShader, nullptr, &fragShader);
         Log::Info("Got renderprog");
         return program;
     }

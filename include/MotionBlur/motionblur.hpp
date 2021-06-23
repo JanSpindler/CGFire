@@ -4,8 +4,8 @@
 
 #ifndef CGFIRE_MOTIONBLUR_HPP
 #define CGFIRE_MOTIONBLUR_HPP
-#include "engine/GLShader.hpp"
-#include "engine/Renderable.hpp"
+#include "engine/render/GLShader.hpp"
+#include "engine/render/Renderable.hpp"
 #include "framework/common.hpp"
 #include "framework/buffer.hpp"
 
