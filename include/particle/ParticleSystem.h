@@ -1,4 +1,8 @@
-// Simples Partikelsystem, von The Cherno übernommen: https://www.youtube.com/watch?v=GK0jHlv3e3w
+//
+//Created by vincent on 29.05.2021.
+//
+// Simple Particlesystem based on the Cherno (https://www.youtube.com/watch?v=GK0jHlv3e3w)
+// and other particle system tutorials
 
 #pragma once
 

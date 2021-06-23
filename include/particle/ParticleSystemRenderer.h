@@ -10,7 +10,7 @@
 #include "util/TextureLoading ToBeDeleted.h"
 
 #include "framework/shader.hpp"
-#include "engine/GLTexture.hpp"
+#include "engine/render/GLTexture.hpp"
 #include "particle/Particle.h"
 
 #include "engine/Camera.hpp"
