@@ -17,66 +17,7 @@ namespace en
         controlPoints_ = controlPoints;
         loop_ = loop;
 
-        const unsigned int controlPointCount = controlPoints.size();
-        const unsigned int pointCount = loop ? (resolution * controlPointCount) + 1 : (resolution * (controlPointCount - 1)) + 1;
-        const float dt = 1.0f / (float) resolution;
-        points_.resize(pointCount);
-
-        // First pair of control points
-        glm::vec3 p1 = controlPoints[0];
-        glm::vec3 p2 = controlPoints[1];
-        glm::vec3 p3 = controlPoints[2];
-        glm::vec3 p0 = loop ? controlPoints[controlPointCount - 1] : p1 - glm::normalize(p2 - p1);
-        for (unsigned int i = 0; i < resolution; i++)
-            points_[i] = CatmullRom(p0, p1, p2, p3, (float) i * dt);
-
-        // Middle pairs of control points
-        unsigned int offset;
-        for (unsigned int j = 1; j < controlPointCount - 2; j++)
-        {
-            offset = j * resolution;
-            p0 = controlPoints[j - 1];
-            p1 = controlPoints[j];
-            p2 = controlPoints[j + 1];
-            p3 = controlPoints[j + 2];
-            for (unsigned int i = 0; i < resolution; i++)
-                points_[offset + i] = CatmullRom(p0, p1, p2, p3, (float) i * dt);
-        }
-
-        // Second last pair of control points
-        offset = (controlPointCount - 2) * resolution;
-        p0 = controlPoints[controlPointCount - 3];
-        p1 = controlPoints[controlPointCount - 2];
-        p2 = controlPoints[controlPointCount - 1];
-        p3 = loop ? controlPoints[0] : p2 + glm::normalize(p2 - p1);
-        for (unsigned int i = 0; i < resolution; i++)
-            points_[offset + i] = CatmullRom(p0, p1, p2, p3 , (float) i * dt);
-
-        if (loop)
-        {
-            // Last pair of control points
-            offset = (controlPointCount - 1) * resolution;
-            p0 = controlPoints[controlPointCount - 2];
-            p1 = controlPoints[controlPointCount - 1];
-            p2 = controlPoints[0];
-            p3 = controlPoints[1];
-            for (unsigned int i = 0; i < resolution; i++)
-                points_[offset + i] = CatmullRom(p0, p1, p2, p3, (float) i * dt);
-        }
-
-        // Include first point twice for complete last segment of last pair
-        points_[offset + resolution] = CatmullRom(p0, p1, p2, p3, 1.0f);
-
-        // Calculate length of spline
-        totalLength_ = 0.0f;
-        unsigned int segmentCount = pointCount - 1;
-        segmentLengths_.resize(segmentCount);
-        for (unsigned int i = 0; i < segmentCount; i++)
-        {
-            float segmentLength = glm::length(points_[i + 1] - points_[i]);
-            segmentLengths_[i] = segmentLength;
-            totalLength_ += segmentLength;
-        }
+        ConstructCatmullRom(resolution);
     }
 
     glm::vec3 Spline3D::GetPoint(unsigned int pointIndex, float t) const
@@ -130,6 +71,75 @@ namespace en
         return totalLength_;
     }
 
+    void Spline3D::ConstructCatmullRom(unsigned int resolution)
+    {
+        const unsigned int controlPointCount = controlPoints_.size();
+        const unsigned int pointCount = loop_ ? (resolution * controlPointCount) + 1 : (resolution * (controlPointCount - 1)) + 1;
+        const float dt = 1.0f / (float) resolution;
+        points_.resize(pointCount);
+
+        // First pair of control points
+        glm::vec3 p1 = controlPoints_[0];
+        glm::vec3 p2 = controlPoints_[1];
+        glm::vec3 p3 = controlPoints_[2];
+        glm::vec3 p0 = loop_ ? controlPoints_[controlPointCount - 1] : p1 - glm::normalize(p2 - p1);
+        for (unsigned int i = 0; i < resolution; i++)
+            points_[i] = CatmullRom(p0, p1, p2, p3, (float) i * dt);
+
+        // Middle pairs of control points
+        unsigned int offset;
+        for (unsigned int j = 1; j < controlPointCount - 2; j++)
+        {
+            offset = j * resolution;
+            p0 = controlPoints_[j - 1];
+            p1 = controlPoints_[j];
+            p2 = controlPoints_[j + 1];
+            p3 = controlPoints_[j + 2];
+            for (unsigned int i = 0; i < resolution; i++)
+                points_[offset + i] = CatmullRom(p0, p1, p2, p3, (float) i * dt);
+        }
+
+        // Second last pair of control points
+        offset = (controlPointCount - 2) * resolution;
+        p0 = controlPoints_[controlPointCount - 3];
+        p1 = controlPoints_[controlPointCount - 2];
+        p2 = controlPoints_[controlPointCount - 1];
+        p3 = loop_ ? controlPoints_[0] : p2 + glm::normalize(p2 - p1);
+        for (unsigned int i = 0; i < resolution; i++)
+            points_[offset + i] = CatmullRom(p0, p1, p2, p3 , (float) i * dt);
+
+        if (loop_)
+        {
+            // Last pair of control points
+            offset = (controlPointCount - 1) * resolution;
+            p0 = controlPoints_[controlPointCount - 2];
+            p1 = controlPoints_[controlPointCount - 1];
+            p2 = controlPoints_[0];
+            p3 = controlPoints_[1];
+            for (unsigned int i = 0; i < resolution; i++)
+                points_[offset + i] = CatmullRom(p0, p1, p2, p3, (float) i * dt);
+        }
+
+        // Include first point twice for complete last segment of last pair
+        points_[offset + resolution] = CatmullRom(p0, p1, p2, p3, 1.0f);
+
+        // Calculate length of spline
+        totalLength_ = 0.0f;
+        unsigned int segmentCount = pointCount - 1;
+        segmentLengths_.resize(segmentCount);
+        for (unsigned int i = 0; i < segmentCount; i++)
+        {
+            float segmentLength = glm::length(points_[i + 1] - points_[i]);
+            segmentLengths_[i] = segmentLength;
+            totalLength_ += segmentLength;
+        }
+    }
+
+    void Spline3D::ConstructNaturalCubic(unsigned int resolution)
+    {
+        // TODO
+    }
+
     glm::vec3 Spline3D::CatmullRom(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t)
     {
         float t2 = t * t;
@@ -139,6 +149,30 @@ namespace en
         glm::vec3 part2 = (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2;
         glm::vec3 part3 = (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3;
         return 0.5f * (part0 + part1 + part2 + part3);
+    }
+
+    // Implementation based on: https://www.youtube.com/watch?v=jWLyzXIEDtg&t=243s
+    std::vector<float> Spline3D::NaturalCubic(const std::vector<float> &x, const std::vector<float> &y)
+    {
+        // n + 1 points are given
+        // point[0] and point[n] are the first and last points with spline moment = 0
+        uint32_t n = x.size() - 1;
+
+        // Calculate h[0] to h[n - 1]
+        std::vector<float> h(n);
+        for (uint32_t i = 0; i < n; i++)
+            h[i] = x[i + 1] - x[i];
+
+        // Calculate g[1] to g[n - 1] // TODO: what is g?
+        std::vector<float> g(n);
+        for (uint32_t i = 1; i < n; i++)
+        {
+            float part0 = (y[i + 1] - y[i]) / h[i];
+            float part1 = (y[i] - y[i - 1]) / h[i - 1];
+            g[i] = 6.0f * (part0 - part1);
+        }
+
+        return std::vector<float>();
     }
 
     Spline3DRenderable::Spline3DRenderable(const Spline3D *spline)

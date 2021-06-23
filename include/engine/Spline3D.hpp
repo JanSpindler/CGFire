@@ -35,7 +35,11 @@ namespace en
         float totalLength_;
         std::vector<float> segmentLengths_;
 
+        void ConstructCatmullRom(unsigned int resolution);
+        void ConstructNaturalCubic(unsigned int resolution);
+
         static glm::vec3 CatmullRom(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t);
+        static std::vector<float> NaturalCubic(const std::vector<float>& x, const std::vector<float>& y);
     };
 
     class Spline3DRenderable : public Renderable
