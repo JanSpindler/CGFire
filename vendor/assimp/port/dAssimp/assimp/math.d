@@ -121,7 +121,7 @@ extern( C ) {
       aiVector3D pos;
 
       /**
-       * StartGradient of the ray.
+       * Direction of the ray.
        */
       aiVector3D dir;
    }

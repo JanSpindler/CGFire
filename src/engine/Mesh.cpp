@@ -9,7 +9,7 @@
 #include <stb_image.h>
 #include <glm/gtx/hash.hpp>
 
-#include "engine/Mesh.hpp"
+#include "engine/Model/Mesh.hpp"
 #include "engine/Util.hpp"
 
 namespace en
@@ -23,12 +23,14 @@ namespace en
         glGenVertexArrays(1, &vao_);
         glBindVertexArray(vao_);
 
-        glGenBuffers(1, &vbo_);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+        unsigned int vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(Vertex), vertices_.data(), GL_STATIC_DRAW);
 
-        glGenBuffers(1, &ibo_);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
+        unsigned int ibo;
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * sizeof(unsigned int), indices_.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);

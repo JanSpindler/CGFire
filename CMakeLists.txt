@@ -108,5 +108,3 @@ foreach(PROJECT_SOURCE_FILE ${AUFGABEN_EXECUTABLES})
     target_link_libraries(${SRC_NAME} frameworkLibrary)
 endforeach(PROJECT_SOURCE_FILE)
 
-
-

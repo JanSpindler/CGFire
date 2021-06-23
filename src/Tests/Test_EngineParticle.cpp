@@ -1,19 +1,28 @@
+//
+// Created by JS on 03/06/2021.
+//
+
 #include "engine/Window.hpp"
 
 #include <glm/gtx/transform.hpp>
 
 #include "engine/Util.hpp"
 #include "engine/Camera.hpp"
-#include "engine/Render/GLShader.hpp"
-#include "engine/Model/Model.hpp"
-#include "engine/Render/Light.hpp"
-#include "engine/Input/Input.hpp"
+#include "engine/render/GLShader.hpp"
+#include "engine/model/Model.hpp"
+#include "engine/render/Light.hpp"
+#include "engine/input/Input.hpp"
+
+#include "particle/ParticleSystem.h"
+#include "particle/Fire.h"
 
 int main()
 {
     en::Log::Info("Initializing CGFire");
 
     en::Window window(800, 600, "CGFire");
+
+    //init_imgui(window.GetHandle());
 
     float fov = glm::radians(60.f);
     float nearPlane = 0.1f;
@@ -27,16 +36,14 @@ int main()
             nearPlane,
             farPlane);
 
-    en::GLShader vertShader("simple.vert", en::GLShader::Type::VERTEX);
-    en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
+    en::GLShader vertShader("CGFire/simple.vert", en::GLShader::Type::VERTEX);
+    en::GLShader fragShader("CGFire/simple.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram program(vertShader, fragShader);
 
     glm::mat4 viewMat;
     glm::mat4 projMat;
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    en::Model backpackModel("backpack/backpack.obj", true);
-    en::RenderObj backpackObj = { &backpackModel };
 
     en::Model floorModel("cube.obj", true);
     en::RenderObj floorObj = { &floorModel };
@@ -46,12 +53,24 @@ int main()
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
     dirLight.Use(&program);
 
+
+    // Particle Test
+    using namespace particle;
+    ParticleSystem particleSystemFire(10000, cam);
+    FireCreator fireCreator(particleSystemFire);
+    fireCreator.createFlame(glm::vec3(0.5f, 0.5f, 0.5f), 5);
+
     while (window.IsOpen())
     {
         window.Update();
         en::Input::Update();
         en::Time::Update();
         float deltaTime = (float)en::Time::GetDeltaTime();
+        window.UseViewport();
+
+        //Particles
+        //fireCreator.onUpdate(deltaTime);
+        //particleSystemFire.OnUpdate(deltaTime);
 
         // Mouse input handling
         bool mouseRightPressed = en::Input::IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
@@ -95,9 +114,12 @@ int main()
         program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
         program.SetUniformVec3f("cam_pos", cam.GetPos());
 
-        backpackObj.t_ *= glm::rotate(deltaTime * 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
-        backpackObj.Render(&program);
         floorObj.Render(&program);
+
+
+        //particleSystemFire.OnRender();
+
+        //imgui_render();
     }
 
     en::Log::Info("Ending CGFire");

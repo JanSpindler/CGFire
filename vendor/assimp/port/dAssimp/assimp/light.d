@@ -117,7 +117,7 @@ extern ( C ) {
       aiVector3D mPosition;
 
       /**
-       * StartGradient of the light source in space. Relative to the transformation
+       * Direction of the light source in space. Relative to the transformation
        * of the node corresponding to the light.
        *
        * The direction is undefined for point lights. The vector may be

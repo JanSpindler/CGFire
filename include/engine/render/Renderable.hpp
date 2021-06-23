@@ -5,7 +5,7 @@
 #ifndef CGFIRE_RENDERABLE_HPP
 #define CGFIRE_RENDERABLE_HPP
 
-#include "GLShader.hpp"
+#include "engine/Render/GLShader.hpp"
 #include <glm/glm.hpp>
 
 namespace en

@@ -15,13 +15,13 @@ namespace en
         GLTexture();
         ~GLTexture();
 
-        virtual void Bind() const = 0;
+        virtual void BindTex() const = 0;
 
     protected:
         unsigned int handle_;
     };
 
-    class GLPictureTex : GLTexture
+    class GLPictureTex : public GLTexture
     {
     public:
         unsigned int getHandle(){ return handle_; }
@@ -44,7 +44,30 @@ namespace en
         GLPictureTex(WrapMode wrapping, FilterMode filterMode, const std::string& path, bool flipUv);
         ~GLPictureTex();
 
-        void Bind() const override;
+        void BindTex() const override;
+    private:
+    };
+
+    class GLDepthTex : public GLTexture
+    {
+    public:
+        GLDepthTex(int width, int height);
+
+        void BindTex() const override;
+        void BindToFramebuffer() const;
+
+    private:
+    };
+
+    class GLDepthCubeMap : public GLTexture
+    {
+    public:
+        GLDepthCubeMap(unsigned int width, unsigned int height);
+
+        void BindTex() const override;
+        void BindToFramebuffer() const;
+
+    private:
     };
 }
 

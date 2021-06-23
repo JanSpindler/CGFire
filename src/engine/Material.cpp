@@ -3,7 +3,7 @@
 //
 
 #include "engine/gr_include.hpp"
-#include "engine/Material.hpp"
+#include "engine/Render/Material.hpp"
 #include "engine/Util.hpp"
 
 namespace en
@@ -29,8 +29,11 @@ namespace en
         program->SetUniformF("mat_shininess", shininess_);
         program->SetUniformVec4f("mat_diffuse_color", diffuseColor_);
         program->SetUniformVec4f("mat_specular_color", specularColor_);
+
         program->SetUniformB("mat_use_tex", tex_ != nullptr);
         glActiveTexture(GL_TEXTURE0);
+        if (tex_ != nullptr)
+            tex_->BindTex();
         program->SetUniformI("mat_tex", 0);
     }
 }

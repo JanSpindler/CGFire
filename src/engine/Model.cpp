@@ -1,14 +1,10 @@
 //
 // Created by JS on 25/05/2021.
 //
-//Annika added skeletal animation support 29/05/21, based on https://learnopengl.com/Guest-Articles/2020/Skeletal-Animation
 
-
-#include "engine/Model.hpp"
+#include "engine/Model/Model.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
-#include "util/assimptoglmmatrix.h"
-#include <glm/gtx/string_cast.hpp>
 
 namespace en
 {
@@ -17,7 +13,7 @@ namespace en
         flipUv_ = flipUv;
 
         std::string realPath = MODEL_ROOT + "/" + path;
-        Log::Info("Loading Model " + realPath);
+        Log::Info("Loading model " + realPath);
 
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(realPath, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -26,20 +22,32 @@ namespace en
 
         directory_ = realPath.substr(0, realPath.find_last_of('/'));
 
-        Log::Info("Model has " + std::to_string(scene->mNumMeshes) + " meshes");
+        Log::Info("model has " + std::to_string(scene->mNumMeshes) + " meshes");
         LoadMaterials(scene);
         ProcessNode(scene->mRootNode, scene);
     }
 
     Model::~Model()
     {
-        // TODO: delete textures and materials
+        for (Mesh* mesh : meshes_)
+            delete mesh;
+
+        for (const std::pair<const aiMaterial*, Material*>& pair : materials_)
+            delete pair.second;
+
+        for (const std::pair<std::string, GLPictureTex*>& pair : textures_)
+            delete pair.second;
     }
 
     void Model::Render(const GLProgram* program) const
     {
         for (unsigned int i = 0; i < meshes_.size(); i++)
-            meshes_[i].Render(program);
+            meshes_[i]->Render(program);
+    }
+
+    const std::vector<Mesh*>& Model::GetMeshes() const
+    {
+        return meshes_;
     }
 
     void Model::LoadMaterials(const aiScene *scene)
@@ -56,7 +64,7 @@ namespace en
                                                                           nullptr)));*/
 
         unsigned int matCount = scene->mNumMaterials;
-        Log::Info("Model has " + std::to_string(matCount) + " materials");
+        Log::Info("model has " + std::to_string(matCount) + " materials");
         for (unsigned int i = 0; i < matCount; i++)
         {
             // TODO: maybe load other texture types later
@@ -143,46 +151,8 @@ namespace en
         for (unsigned int i = 0; i < node->mNumChildren; i++)
             ProcessNode(node->mChildren[i], scene);
     }
-    std::map<std::string, boneinfo> Model::getbonemap() {
-        return bonemap;
-    }
-    int Model::getbonecount() const { return bonecount;}
-    void Model::BoneweightforVertices(std::vector<Vertex>& vertices, aiMesh* mesh){
-        for (int i = 0; i < mesh->mNumBones; i++){
-            std::string bonename = mesh->mBones[i]->mName.C_Str();
-            int id = -1;
-            if(bonemap.find(bonename) == bonemap.end()) {
-                boneinfo newinfo{};
-                newinfo.boneid = bonecount;
-                newinfo.offsetmat = util::AssimptoGLM4x4(mesh->mBones[i]->mOffsetMatrix);
-                bonemap.insert(std::pair<std::string, boneinfo>(bonename, newinfo));
-                id = bonecount;
-                bonecount++;
-                Log::Info("added offsetmatrix to"+bonename+glm::to_string(newinfo.offsetmat));
-            }
-            else{
-                id = bonemap.find(bonename)->second.boneid;
-            }
-            aiVertexWeight* boneweights = mesh->mBones[i]->mWeights;
-            int num = mesh->mBones[i]->mNumWeights;
-            for (int k=0;k<num;k++){
-                assert(boneweights[k].mVertexId<=vertices.size());
-                for (int l = 0; l<MAXBONEINFLUENCE; l++){
-                    if(vertices[boneweights[k].mVertexId].boneids_[l]<=0) {
-                        vertices[boneweights[k].mVertexId].boneids_[l] = id;
-                        vertices[boneweights[k].mVertexId].boneweights_[l] = boneweights[k].mWeight;
-                        //Log::Info("Extracted boneweight" + std::to_string(vertices[boneweights[k].mVertexId].boneweights_[l]));
-                        break;
-                    }
-                }
-            }
 
-
-        }
-
-    }
-
-    Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+    Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
@@ -227,8 +197,7 @@ namespace en
         aiMaterial* aiRef = nullptr;
         if (mesh->mMaterialIndex >= 0)
             aiRef = scene->mMaterials[mesh->mMaterialIndex];
-        if (mesh->HasBones()){BoneweightforVertices(vertices, mesh);}
-        Mesh m(vertices, indices, materials_.at(aiRef));
+        Mesh* m = new Mesh(vertices, indices, materials_.at(aiRef));
         return m;
     }
 }

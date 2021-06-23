@@ -333,7 +333,7 @@ public final class AiLight {
 
 
     /**
-     * StartGradient.
+     * Direction.
      */
     private final Object m_direction;
 

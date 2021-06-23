@@ -21,6 +21,7 @@ namespace en
         void Destroy();
 
         void EnableCursor(bool cursorMode);
+        void UseViewport() const;
 
 
         GLFWwindow* GetHandle(){ return handle_; }

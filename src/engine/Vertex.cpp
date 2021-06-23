@@ -3,7 +3,7 @@
 //
 //Annika added skeletal animation support 29/05/21, based on https://learnopengl.com/Guest-Articles/2020/Skeletal-Animation
 
-#include "engine/Vertex.hpp"
+#include "engine/Model/Vertex.hpp"
 
 namespace en
 {

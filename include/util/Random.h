@@ -17,6 +17,5 @@ namespace util {
 
             return minValue + s_Distribution(s_RandomEngine) % (maxValue-minValue + 1);
         }
-
     };
 }

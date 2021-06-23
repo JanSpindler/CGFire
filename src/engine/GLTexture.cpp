@@ -5,7 +5,7 @@
 #include "engine/gr_include.hpp"
 //#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include "engine/GLTexture.hpp"
+#include "engine/Render/GLTexture.hpp"
 #include "engine/Util.hpp"
 
 namespace en
@@ -95,8 +95,67 @@ namespace en
     {
     }
 
-    void GLPictureTex::Bind() const
+    void GLPictureTex::BindTex() const
     {
         glBindTexture(GL_TEXTURE_2D, handle_);
+    }
+
+    GLDepthTex::GLDepthTex(int width, int height) :
+            GLTexture()
+    {
+        glBindTexture(GL_TEXTURE_2D, handle_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    }
+
+    void GLDepthTex::BindTex() const
+    {
+        glBindTexture(GL_TEXTURE_2D, handle_);
+    }
+
+    void GLDepthTex::BindToFramebuffer() const
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, handle_, 0);
+    }
+
+    GLDepthCubeMap::GLDepthCubeMap(unsigned int width, unsigned int height) :
+        GLTexture()
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
+
+        for (unsigned int i = 0; i < 6; i++)
+            glTexImage2D(
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                    0,
+                    GL_DEPTH_COMPONENT,
+                    (int)width,
+                    (int)height,
+                    0,
+                    GL_DEPTH_COMPONENT,
+                    GL_FLOAT,
+                    nullptr);
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
+
+    void GLDepthCubeMap::BindTex() const
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
+    }
+
+    void GLDepthCubeMap::BindToFramebuffer() const
+    {
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, handle_, 0);
     }
 }

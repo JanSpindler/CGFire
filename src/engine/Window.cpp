@@ -6,9 +6,7 @@
 
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
-#include "engine/Input.hpp"
-
-#include <framework/imgui_util.hpp>
+#include "engine/Input/Input.hpp"
 
 namespace en
 {
@@ -31,8 +29,8 @@ namespace en
         {
             Log::Error("Failed to initialize GLFW", true);
         }
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         // Create Window
@@ -44,6 +42,7 @@ namespace en
         }
         glfwSetErrorCallback(ErrorCallback);
         glfwMakeContextCurrent(handle_);
+        glfwSwapInterval(0);
         Input::Init(handle_);
 
         // OpenGL Setup
@@ -65,7 +64,6 @@ namespace en
 
         PopGLError(true);
         Log::Info("OpenGL and GLFW have been initialized");
-
     }
 
     Window::~Window()
@@ -76,27 +74,20 @@ namespace en
 
     void Window::Update()
     {
-
-
         // Image has just been drawn
+        glfwSwapBuffers(handle_);
 
         // Check for Errors after drawing
         while(PopGLError(true) != GL_NO_ERROR);
 
         glfwPollEvents();
         glfwGetWindowSize(handle_, &width_, &height_);
-        glViewport(0, 0, width_, height_);
-
-
-        glfwSwapBuffers(handle_);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Image will be drawn after this function
     }
 
     void Window::Destroy()
     {
-
         Log::Info("Destroying GLFW Window");
         glfwDestroyWindow(handle_);
         handle_ = nullptr;
@@ -123,6 +114,12 @@ namespace en
                 cursorEnabled_ = false;
             }
         }
+    }
+
+    void Window::UseViewport() const
+    {
+        glViewport(0, 0, width_, height_);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     int Window::GetWidth() const

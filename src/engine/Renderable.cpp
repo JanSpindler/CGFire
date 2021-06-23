@@ -2,7 +2,7 @@
 // Created by JS on 27/05/2021.
 //
 
-#include "engine/Renderable.hpp"
+#include "engine/Render/Renderable.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace en
