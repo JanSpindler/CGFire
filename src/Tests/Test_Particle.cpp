@@ -50,20 +50,16 @@ int main(int, char* argv[]) {
 
     init_imgui(window.GetHandle());
 
-    util::EnableGLDebugging();
-
-    float fov = glm::radians(60.f);
-    float nearPlane = 0.1f;
-    float farPlane = 100.0f;
+    //util::EnableGLDebugging();
 
     en::Camera cam(
             glm::vec3(0.0f, 3.0f, -20.0f),
             glm::vec3(0.0f, 0.0f, 1.0f),
             glm::vec3(0.0f, 1.0f, 0.0f),
             window.GetAspectRatio(),
-            fov,
-            nearPlane,
-            farPlane);
+            glm::radians(60.f),
+            0.01f,
+            1000.0f);
 
 
     // Particle Test
@@ -128,7 +124,6 @@ int main(int, char* argv[]) {
         waterCreator.onUpdate(deltaTime);
         particleSystemFire.OnUpdate(deltaTime);
         particleSystemWater.OnUpdate(deltaTime);
-
 
         particleSystemFire.OnRender();
         particleSystemWater.OnRender();
