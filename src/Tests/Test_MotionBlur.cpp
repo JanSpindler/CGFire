@@ -78,7 +78,6 @@ int main()
 
     while (window.IsOpen())
     {
-        window.UseViewport();
         if (glCheckNamedFramebufferStatus(motionblur.fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             printf("Incomplete FBO!");
             std::terminate();
@@ -108,6 +107,7 @@ int main()
         motionblur.updatetransforms(transforms);
         motionblur.addskeletalarrays(program);
         motionblur.addprevprojviewmodelmat(program);
+        window.UseViewport();
         //vampireObj.t_ *= glm::rotate(deltaTime * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         //en::Log::Info(glm::to_string(motionblur.prevprojviewmodelmat)+"\n"+glm::to_string(motionblur.prevtransforms[0])+"\n"+glm::to_string(motionblur.currenttransforms[0]));
         vampireObj.Render(&program);
