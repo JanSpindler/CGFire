@@ -31,7 +31,9 @@ namespace en
         program->SetUniformVec4f("mat_diffuse_color", diffuseColor_);
         program->SetUniformVec4f("mat_specular_color", specularColor_);
         program->SetUniformB("mat_use_tex", tex_ != nullptr);
-        tex_->Bind();
+        if (tex_){
+            tex_->Bind();
+        }
         glActiveTexture(GL_TEXTURE0);
         program->SetUniformI("mat_tex", 0);
     }
