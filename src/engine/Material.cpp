@@ -2,6 +2,7 @@
 // Created by JS on 26/05/2021.
 //
 //19/06/21 tex_.bind() eingefügt von Nika, sonst laufen multiple renderpasses nicht wenn man bei anderem programm was anderes dran bindet
+//and erased again, since it was added in engine update
 
 #include "engine/gr_include.hpp"
 #include "engine/Render/Material.hpp"
@@ -32,9 +33,6 @@ namespace en
         program->SetUniformVec4f("mat_specular_color", specularColor_);
 
         program->SetUniformB("mat_use_tex", tex_ != nullptr);
-        if (tex_){
-            tex_->Bind();
-        }
         glActiveTexture(GL_TEXTURE0);
         if (tex_ != nullptr)
             tex_->BindTex();
