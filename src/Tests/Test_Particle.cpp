@@ -79,9 +79,12 @@ int main(int, char* argv[]) {
                                                 60);
 
 
+    en::PopGLError(true);
+    en::Log::Info("Hello?");
     while (window.IsOpen())
     {
         window.Update();
+        window.UseViewport();
         en::Input::Update();
 
         en::Time::Update();
@@ -103,6 +106,8 @@ int main(int, char* argv[]) {
         // Rendering
         cam.SetAspectRatio(window.GetAspectRatio());
 
+        // Window viewport
+        window.UseViewport();
 
         // UI
         imgui_new_frame(1200, 800);

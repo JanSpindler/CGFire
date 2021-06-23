@@ -71,6 +71,9 @@ int main()
         en::Time::Update();
         auto deltaTime = (float)en::Time::GetDeltaTime();
 
+        // Use window viewport
+        window.UseViewport();
+
         animator.UpdateAnim(deltaTime);
         // Rendering
         cam.SetAspectRatio(window.GetAspectRatio());

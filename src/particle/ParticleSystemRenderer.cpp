@@ -16,28 +16,26 @@ namespace particle {
 
         m_QuadData = new Vertex[m_MaxVertices](); //Allocate memory where the vertex data will be written to
 
-
-        glCreateVertexArrays(1, &m_VA);
+        glGenVertexArrays(1, &m_VA);
         glBindVertexArray(m_VA);
 
         //Vertex Buffer
-        glCreateBuffers(1, &m_VB);
+        glGenBuffers(1, &m_VB);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_VB);
         glBufferData(GL_ARRAY_BUFFER, m_MaxVertices * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
 
-        glEnableVertexArrayAttrib(m_VA, 0);
+        glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, Position)));
 
-        glEnableVertexArrayAttrib(m_VA, 1);
+        glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, Color)));
 
-        glEnableVertexArrayAttrib(m_VA, 2);
+        glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexCoord)));
 
-        glEnableVertexArrayAttrib(m_VA, 3);
+        glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexID)));
-
 
         //Set up index buffer which we will never change later
         uint32_t* indices = new uint32_t[m_MaxIndices];
@@ -55,7 +53,7 @@ namespace particle {
             offset += 4;
         }
 
-        glCreateBuffers(1, &m_IB);
+        glGenBuffers(1, &m_IB);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_MaxIndices * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 
@@ -83,7 +81,6 @@ namespace particle {
 
         glUseProgram(m_Shader);
         glUniform1iv(loc, 32, m_ShaderSamplers);
-
     }
     ParticleSystemRenderer::~ParticleSystemRenderer() {
         glDeleteBuffers(1, &m_VA);
