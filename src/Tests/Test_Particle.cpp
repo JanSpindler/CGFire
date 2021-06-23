@@ -125,8 +125,6 @@ int main(int, char* argv[]) {
         particleSystemFire.OnUpdate(deltaTime);
         particleSystemWater.OnUpdate(deltaTime);
 
-
-        window.UseViewport();
         particleSystemFire.OnRender();
         particleSystemWater.OnRender();
 
