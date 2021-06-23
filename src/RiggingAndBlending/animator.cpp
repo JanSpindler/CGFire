@@ -21,7 +21,7 @@ namespace en{
         currenttime = 0.0f;
     }
     void Animator::BoneTransform(aiNodeStructure node, glm::mat4 parenttransform) {
-        Log::Info("Transforming Node" + node.name);
+        //Log::Info("Transforming Node" + node.name);
         Bone* bone = current->findbone(node.name);
         glm::mat4 nodetransform = node.transformation;
         //in case model is sideways GlobalInverseTransform = rootnode.transformation may need to be inverted?
@@ -30,7 +30,7 @@ namespace en{
         //    Log::Info("inverted root");
         //}
         if (bone){
-            Log::Info("Found bone" + bone->getbonename());
+            //Log::Info("Found bone" + bone->getbonename());
             bone->PerFrame(currenttime);
             nodetransform = bone->getcurrent();
         }
