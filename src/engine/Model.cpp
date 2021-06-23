@@ -41,8 +41,14 @@ namespace en
 
     void Model::Render(const GLProgram* program) const
     {
-        for (unsigned int i = 0; i < meshes_.size(); i++)
+        for (uint32_t i = 0; i < meshes_.size(); i++)
             meshes_[i]->Render(program);
+    }
+
+    void Model::RenderGeometry(const GLProgram *program) const
+    {
+        for (const Mesh* mesh : meshes_)
+            mesh->RenderGeometry(program);
     }
 
     const std::vector<Mesh*>& Model::GetMeshes() const

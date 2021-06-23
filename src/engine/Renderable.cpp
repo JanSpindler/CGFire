@@ -13,9 +13,20 @@ namespace en
         renderable_ = renderable;
     }
 
-    void RenderObj::Render(const GLProgram *program)
+    void RenderObj::Render(const GLProgram *program) const
+    {
+        SetModelMat(program);
+        renderable_->Render(program);
+    }
+
+    void RenderObj::RenderGeometry(const GLProgram *program)
+    {
+        SetModelMat(program);
+        renderable_->RenderGeometry(program);
+    }
+
+    void RenderObj::SetModelMat(const GLProgram *program) const
     {
         program->SetUniformMat4("model_mat", false, &t_[0][0]);
-        renderable_->Render(program);
     }
 }

@@ -22,6 +22,7 @@ namespace en
         ~Model();
 
         void Render(const GLProgram* program) const override;
+        void RenderGeometry(const GLProgram* program) const override;
 
         const std::vector<Mesh*>& GetMeshes() const;
 

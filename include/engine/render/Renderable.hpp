@@ -14,6 +14,7 @@ namespace en
     {
     public:
         virtual void Render(const GLProgram* program) const = 0;
+        virtual void RenderGeometry(const GLProgram* program) const = 0;
     };
 
     class RenderObj
@@ -23,10 +24,13 @@ namespace en
 
         RenderObj(const Renderable* renderable);
 
-        void Render(const GLProgram* program);
+        void Render(const GLProgram* program) const;
+        void RenderGeometry(const GLProgram* program);
 
     private:
         const Renderable* renderable_;
+
+        void SetModelMat(const GLProgram* program) const;
     };
 }
 

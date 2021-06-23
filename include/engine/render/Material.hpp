@@ -22,6 +22,7 @@ namespace en
         ~Material();
 
         void Use(const GLProgram* program) const;
+        void UseGeometry(const GLProgram* program) const;
 
     private:
         float shininess_;

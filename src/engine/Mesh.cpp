@@ -55,4 +55,12 @@ namespace en
         glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
     }
+
+    void Mesh::RenderGeometry(const GLProgram *program) const
+    {
+        material_->Use(program);
+        glBindVertexArray(vao_);
+        glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    }
 }

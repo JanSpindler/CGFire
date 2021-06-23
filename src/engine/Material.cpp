@@ -36,4 +36,25 @@ namespace en
             tex_->BindTex();
         program->SetUniformI("mat_tex", 0);
     }
+
+    void Material::UseGeometry(const GLProgram *program) const
+    {
+        // Diffuse
+        bool useDiffTex = tex_ != nullptr;
+        program->SetUniformB("use_diffuse_tex", useDiffTex);
+        glActiveTexture(GL_TEXTURE0);
+        if (useDiffTex)
+            tex_->BindTex();
+        program->SetUniformI("diffuse_tex", 0);
+        program->SetUniformVec3f("diffuse_tex", glm::vec3(diffuseColor_));
+
+        // Specular
+        bool useSpecTex = false;//speculatTex_ != nullptr;
+        program->SetUniformB("use_specular_tex", useSpecTex);
+        glActiveTexture(GL_TEXTURE1);
+        if (useSpecTex)
+            //specularTex_->BindTex();
+        program->SetUniformI("specular_tex", 1);
+        program->SetUniformVec3f("specular_tex", glm::vec3(specularColor_));
+    }
 }

@@ -5,6 +5,7 @@
 #include "engine/gr_include.hpp"
 #include "engine/Spline3D.hpp"
 #include "engine/Util.hpp"
+#include <glm/gtx/compatibility.hpp>
 
 namespace en
 {
@@ -17,7 +18,7 @@ namespace en
         loop_ = loop;
 
         const unsigned int controlPointCount = controlPoints.size();
-        const unsigned int pointCount = loop ? resolution * controlPointCount : resolution * (controlPointCount - 1) + 1;
+        const unsigned int pointCount = loop ? (resolution * controlPointCount) + 1 : (resolution * (controlPointCount - 1)) + 1;
         const float dt = 1.0f / (float) resolution;
         points_.resize(pointCount);
 
@@ -62,21 +63,40 @@ namespace en
             for (unsigned int i = 0; i < resolution; i++)
                 points_[offset + i] = CatmullRom(p0, p1, p2, p3, (float) i * dt);
         }
-        else
-        {
-            // Complete last subpair of second last control point pair
-            points_[offset + resolution] = CatmullRom(p0, p1, p2, p3, 1.0f);
-        }
+
+        // Include first point twice for complete last segment of last pair
+        points_[offset + resolution] = CatmullRom(p0, p1, p2, p3, 1.0f);
 
         // Calculate length of spline
-        length_ = 0.0f;
-        for (unsigned int i = 0; i < pointCount - 1; i++)
-            length_ += glm::length(points_[i + 1] - points_[i]);
+        totalLength_ = 0.0f;
+        unsigned int segmentCount = pointCount - 1;
+        segmentLengths_.resize(segmentCount);
+        for (unsigned int i = 0; i < segmentCount; i++)
+        {
+            float segmentLength = glm::length(points_[i + 1] - points_[i]);
+            segmentLengths_[i] = segmentLength;
+            totalLength_ += segmentLength;
+        }
+    }
+
+    glm::vec3 Spline3D::GetPoint(unsigned int pointIndex, float t) const
+    {
+        // TODO: handle t > 1.0 properly
+
+        unsigned int pointCount = points_.size();
+        glm::vec3 p0 = points_[pointIndex % pointCount];
+        glm::vec3 p1 = points_[(pointIndex + 1) % pointCount];
+        return glm::lerp(p0, p1, t);
     }
 
     glm::vec3 Spline3D::GetPoint(float t) const
     {
-        // TODO: implement correctly
+        float length_ = 0.0f;
+        unsigned int i = 0;
+        /*while ()
+        {
+
+        }*/
         return glm::vec3(0.0f);
     }
 
@@ -105,9 +125,9 @@ namespace en
         return loop_;
     }
 
-    float Spline3D::GetLength() const
+    float Spline3D::GetTotalLength() const
     {
-        return length_;
+        return totalLength_;
     }
 
     glm::vec3 Spline3D::CatmullRom(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t)
@@ -160,8 +180,7 @@ namespace en
         // Draw line
         program->SetUniformVec4f("fixed_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         glBindVertexArray(lineVao_);
-        GLenum mode = spline_->IsLooped() ? GL_LINE_LOOP : GL_LINE_STRIP;
-        glDrawArrays(mode, 0, spline_->GetPointCount());
+        glDrawArrays(GL_LINE_STRIP, 0, spline_->GetPointCount());
         glBindVertexArray(0);
 
         // Draw controlPoints
@@ -170,5 +189,10 @@ namespace en
         glBindVertexArray(pointVao_);
         glDrawArrays(GL_POINTS, 0, spline_->GetControlPointCount());
         glBindVertexArray(0);
+    }
+
+    void Spline3DRenderable::RenderGeometry(const GLProgram *program) const
+    {
+        Render(program);
     }
 }
