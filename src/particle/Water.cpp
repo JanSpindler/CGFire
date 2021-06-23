@@ -45,36 +45,37 @@ namespace particle{
 
         //For all flames emit new particles if the time has come
         for (auto& waterJet : m_WaterJets) {
-            waterJet->SecondsSinceEmit += ts;
+            if (waterJet->TurnedOn) {
+                waterJet->SecondsSinceEmit += ts;
 
-            if (waterJet->ParticlesPerSecond > 0) {
-                const float FREQUENCY = 1.f / static_cast<float>(waterJet->ParticlesPerSecond);
-                if (waterJet->SecondsSinceEmit > FREQUENCY) {
-                    uint32_t numParticlesToEmit = static_cast<uint32_t>(waterJet->SecondsSinceEmit / FREQUENCY);
-                    for (size_t i = 0; i < numParticlesToEmit; ++i) {
-                        ParticleProps props = m_BaseWaterJetProps;
+                if (waterJet->ParticlesPerSecond > 0) {
+                    const float FREQUENCY = 1.f / static_cast<float>(waterJet->ParticlesPerSecond);
+                    if (waterJet->SecondsSinceEmit > FREQUENCY) {
+                        uint32_t numParticlesToEmit = static_cast<uint32_t>(waterJet->SecondsSinceEmit / FREQUENCY);
+                        for (size_t i = 0; i < numParticlesToEmit; ++i) {
+                            ParticleProps props = m_BaseWaterJetProps;
 
-                        //Calculate ahead the position and velocity of the particles
-                        // that should have been created in between the update calls
-                        float dTime = i * FREQUENCY;
-                        props.Velocity =
-                                waterJet->StartGradient + dTime * props.GravityFactor * glm::vec3(0.f, -9.81f, 0.f);
-                        //props.VelocityVariation = Velocity
-                        props.Position = waterJet->Position + dTime * props.Velocity;
+                            //Calculate ahead the position and velocity of the particles
+                            // that should have been created in between the update calls
+                            float dTime = i * FREQUENCY;
+                            props.Velocity =
+                                    waterJet->StartGradient + dTime * props.GravityFactor * glm::vec3(0.f, -9.81f, 0.f);
+                            props.Position = waterJet->Position + dTime * props.Velocity;
 
-                        //use random texture
-                        uint32_t randTextureID = util::Random::Uint32(0, static_cast<uint32_t>(m_Textures.size() - 1));
-                        props.Texture = m_Textures[randTextureID].get();
+                            //use random texture
+                            uint32_t randTextureID = util::Random::Uint32(0,
+                                                                          static_cast<uint32_t>(m_Textures.size() - 1));
+                            props.Texture = m_Textures[randTextureID].get();
 
-                        m_ParticleSystem.Emit(props);
+                            m_ParticleSystem.Emit(props);
+                        }
+
+                        waterJet->SecondsSinceEmit -=
+                                numParticlesToEmit * FREQUENCY; // do not set to 0, because save the rest time
                     }
-
-                    waterJet->SecondsSinceEmit -=
-                            numParticlesToEmit * FREQUENCY; // do not set to 0, because save the rest time
                 }
             }
         }
-
 
 
         ImGui::Begin("WaterJet Particle Props");

@@ -45,13 +45,9 @@ glm::vec3 getCamMovement(float deltaTime){
 }
 
 int main(int, char* argv[]) {
-
     en::Window window(1200, 800, "CGFire");
-
     init_imgui(window.GetHandle());
-
-    //util::EnableGLDebugging();
-
+    util::EnableGLDebugging();
     en::Camera cam(
             glm::vec3(0.0f, 3.0f, -20.0f),
             glm::vec3(0.0f, 0.0f, 1.0f),
@@ -64,19 +60,28 @@ int main(int, char* argv[]) {
 
     // Particle Test
     using namespace particle;
+
+    //Fire
     ParticleSystem particleSystemFire(10000, cam, true);
     FireCreator fireCreator(particleSystemFire);
-    auto fire1 = fireCreator.createFlame(glm::vec3(0.5f, 0.5f, 0.5f), 5);
 
+    Flame flame1(glm::vec3(0.5f, 0.5f, 0.5f),
+                 glm::vec3(1.f, 0.f, 1.f),
+                 30.f,
+                 15.f,
+                 10.f,
+                 1.f, 0.2f);
+    fireCreator.startFlame(flame1);
+
+    //TODO Time event für Flammen expiring
+
+    //Water
     ParticleSystem particleSystemWater(10000, cam, false);
     WaterCreator waterCreator(particleSystemWater);
     auto waterJet1 = waterCreator.createWaterJet(glm::vec3(2.f, 0.f, 1.f),
                                                 glm::vec3(20.f, 10.f, 0.f),
                                                 60);
 
-
-    en::PopGLError(true);
-    en::Log::Info("Hello?");
     while (window.IsOpen())
     {
         window.Update();
@@ -108,16 +113,18 @@ int main(int, char* argv[]) {
         // UI
         imgui_new_frame(1200, 800);
         ImGui::Begin("Fire1");
-        ImGui::SliderFloat3("Position", &fire1->Position.x, -10, 10);
-        ImGui::SliderInt("ParticlesPerEmit", &fire1->ParticlesPerEmit, 0, 100);
+        ImGui::SliderFloat3("Position", &flame1.Position.x, -10, 10);
+        ImGui::SliderFloat3("PositionVariation", &flame1.PositionVariation.x, 0, 10);
+        ImGui::SliderInt("ParticlesPerEmit", &flame1.ParticlesPerEmit, 0, 100);
+        ImGui::SliderFloat("ParticleLifeTime", &flame1.ParticleLifeTime, 0, 10);
+        ImGui::SliderFloat("ParticleLifeTimeVariation", &flame1.ParticleLifeTimeVariation, 0, 2);
         ImGui::End();
 
         ImGui::Begin("WaterJet1");
         ImGui::SliderFloat3("Position", &waterJet1->Position.x, -10, 10);
-        ImGui::SliderFloat3("StartGradient", &waterJet1->StartGradient.x, 0, 50);
-        ImGui::SliderInt("ParticlesPerSecond", &waterJet1->ParticlesPerSecond, 0, 1000);
+        ImGui::SliderFloat3("StartGradient", &waterJet1->StartGradient.x, 0, 100);
+        ImGui::SliderInt("ParticlesPerSecond", &waterJet1->ParticlesPerSecond, 0, 500);
         ImGui::End();
-
 
 
         fireCreator.onUpdate(deltaTime);

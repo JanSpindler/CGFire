@@ -26,9 +26,7 @@ namespace particle{
 
         m_ParticleSystem.InitializeTextures(m_Textures);
 
-        m_BaseFlameProps.Position = { 0.0f, 0.0f, 0.0f };
-        m_BaseFlameProps.PositionVariation = { 1.0f, 0.0f, 1.0f };
-        m_BaseFlameProps.Velocity = { 0.0f, 10.0f, 10.0f };
+        m_BaseFlameProps.Velocity = { 0.0f, 10.0f, 0.0f };
         m_BaseFlameProps.VelocityVariation = { 10.0f, 10.0f, 10.0f };
         m_BaseFlameProps.GravityFactor = 0.1f; // we barely want gravity to work on fire
         m_BaseFlameProps.ColorBegin = { 210 / 255.0f, 200 / 255.0f, 0 / 255.0f, 1.0f };
@@ -36,8 +34,6 @@ namespace particle{
         m_BaseFlameProps.SizeBegin = 1.f;
         m_BaseFlameProps.SizeVariation = 0.9f;
         m_BaseFlameProps.SizeEnd = 0.0f;
-        m_BaseFlameProps.LifeTime = 1.f;
-        m_BaseFlameProps.LifeTimeVariation = 0.2f;
         m_BaseFlameProps.TexCoordAnimFrames = {4, 4};
 
     }
@@ -45,30 +41,60 @@ namespace particle{
 
         //For all flames emit new particles if the time has come
         for (auto& flame : m_Flames) {
-            flame->SecondsSinceEmit += ts;
-
-            const float FREQUENCY = 0.1f;
-            if (flame->SecondsSinceEmit > FREQUENCY + FREQUENCY*(util::Random::Float() - 0.5f)) //small random variation of frequency
-            {
-                ParticleProps props = m_BaseFlameProps;
-                for (uint32_t i = 0; i < flame->ParticlesPerEmit; ++i) {
-                    props.Position = flame->Position;
-
-                    //use random texture
-                    uint32_t randTextureID = util::Random::Uint32(0, static_cast<uint32_t>(m_Textures.size()-1));
-                    props.Texture = m_Textures[randTextureID].get();
-
-                    m_ParticleSystem.Emit(props);
-
+            float flameSizeFactor = 1.f; //will be set to less than 1 if the flame is building up or expiring
+            if (flame->BuildingUp){
+                flame->Timer += ts;
+                flameSizeFactor = flame->Timer / flame->BuildUpTime;
+                if (flame->Timer > flame->BuildUpTime) {
+                    flame->BuildingUp = false;
+                    flameSizeFactor = 1.f;
                 }
-                flame->SecondsSinceEmit = 0;
+            }
+            else if (flame->Expiring){
+                flame->Timer += ts;
+                flameSizeFactor = 1.f - (flame->Timer / flame->ExpiringTime);
+                if (flame->Timer > flame->ExpiringTime){
+                    flame->Expired = true;
+                    flameSizeFactor = 1.f;
+                }
+            }
+
+            if (!flame->Expired) {
+                flame->SecondsSinceEmit += ts;
+
+                const float FREQUENCY = 0.1f;
+                if (flame->SecondsSinceEmit >
+                    FREQUENCY + FREQUENCY * (util::Random::Float() - 0.5f)) //small random variation of frequency
+                {
+                    ParticleProps props = m_BaseFlameProps;
+                    props.Position = flame->Position;
+                    props.PositionVariation = flameSizeFactor * flame->PositionVariation;
+                    props.LifeTime = flameSizeFactor * flame->ParticleLifeTime;
+                    props.LifeTimeVariation = flameSizeFactor * flame->ParticleLifeTimeVariation;
+
+                    props.SizeBegin = flameSizeFactor * m_BaseFlameProps.SizeBegin;
+                    props.SizeEnd = flameSizeFactor * m_BaseFlameProps.SizeEnd;
+                    props.SizeVariation = flameSizeFactor * m_BaseFlameProps.SizeVariation;
+
+                    uint32_t numParticlesEmitted = static_cast<uint32_t>(
+                            std::ceil(flameSizeFactor * static_cast<float>(flame->ParticlesPerEmit)));
+                    for (uint32_t i = 0; i < numParticlesEmitted; ++i) {
+                        //use random texture
+                        uint32_t randTextureID = util::Random::Uint32(0, static_cast<uint32_t>(m_Textures.size() - 1));
+                        props.Texture = m_Textures[randTextureID].get();
+
+                        m_ParticleSystem.Emit(props);
+
+                    }
+                    flame->SecondsSinceEmit = 0;
+                }
             }
         }
 
 
+
         // UI
         ImGui::Begin("Flame Particle Props");
-        ImGui::SliderFloat3("PositionVariation", &m_BaseFlameProps.PositionVariation.x, 0, 10);
         ImGui::SliderFloat3("Velocity", &m_BaseFlameProps.Velocity.x, 0, 10);
         ImGui::SliderFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, 0, 10);
         ImGui::SliderFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0, 10);
@@ -77,17 +103,15 @@ namespace particle{
         ImGui::SliderFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0, 100);
         ImGui::SliderFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0, 10);
         ImGui::SliderFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0, 10);
-        ImGui::SliderFloat("LifeTime", &m_BaseFlameProps.LifeTime, 0, 10);
-        ImGui::SliderFloat("LifeTimeVariation", &m_BaseFlameProps.LifeTimeVariation, 0, 10);
         ImGui::End();
     }
-    std::shared_ptr<Flame> FireCreator::createFlame(const glm::vec3& position, int particlesPerEmit){
 
-        m_Flames.emplace_back(std::make_shared<Flame>());
-        Flame& flame = *m_Flames.back();
-        flame.Position = position;
-        flame.ParticlesPerEmit = particlesPerEmit;
 
-        return m_Flames.back();
+    void FireCreator::startFlame(Flame& flame){
+        flame.Expiring = false;
+        flame.Timer = 0.f;
+        flame.Expired = false;
+        flame.BuildingUp = true;
+        m_Flames.emplace_back(&flame);
     }
 }

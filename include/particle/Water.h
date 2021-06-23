@@ -11,10 +11,10 @@ namespace particle{
 
     struct WaterJet{
         glm::vec3 Position;
-        glm::vec3 StartGradient;
+        glm::vec3 StartGradient; // the direction and speed
         float SecondsSinceEmit = 0.f;
         int ParticlesPerSecond = 1;
-
+        bool TurnedOn = true; // if it is turned off, no particles will be emitted
     };
 
     class WaterCreator{
