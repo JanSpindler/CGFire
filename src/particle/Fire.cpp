@@ -93,15 +93,15 @@ namespace particle{
 
         //Remove expired flames
         m_Flames.erase(std::remove_if(m_Flames.begin(), m_Flames.end(),
-                                      [](Flame* f) { return f->Expired; }), m_Flames.end());
+                                      [](std::shared_ptr<Flame> f) { return f->Expired; }), m_Flames.end());
 
 
 
     }
     void FireCreator::onImGuiRender(){
-        ImGui::TextColored(ImVec4(0, 1, 1, 1), "Flame Particle Props");
-        ImGui::SliderFloat3("Velocity", &m_BaseFlameProps.Velocity.x, 0, 10);
-        ImGui::SliderFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, 0, 10);
+        ImGui::TextColored(ImVec4(0, 1, 1, 1), "Flame Particle Props (General)");
+        ImGui::SliderFloat3("Velocity", &m_BaseFlameProps.Velocity.x, -10, 10);
+        ImGui::SliderFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, -10, 10);
         ImGui::SliderFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0, 10);
         ImGui::ColorEdit4("ColorBegin", &m_BaseFlameProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseFlameProps.ColorEnd.x);
@@ -122,11 +122,11 @@ namespace particle{
     }
 
 
-    void FireCreator::startFlame(Flame& flame){
-        flame.Expiring = false;
-        flame.Timer = 0.f;
-        flame.Expired = false;
-        flame.BuildingUp = true;
-        m_Flames.emplace_back(&flame);
+    void FireCreator::startFlame(std::shared_ptr<Flame> flame){
+        flame->Expiring = false;
+        flame->Timer = 0.f;
+        flame->Expired = false;
+        flame->BuildingUp = true;
+        m_Flames.emplace_back(flame);
     }
 }

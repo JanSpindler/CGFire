@@ -80,7 +80,8 @@ target_link_libraries(engineLibrary frameworkLibrary)
 
 
 #die Project-Main
-add_executable(project src/project/main.cpp)
+file(GLOB_RECURSE projectSOURCES src/project/*.cpp)
+add_executable(project ${projectSOURCES})
 target_link_libraries(project engineLibrary)
 
 

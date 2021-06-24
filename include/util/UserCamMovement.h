@@ -1,9 +1,7 @@
 //
 //Created by vincent on 23.06.2021.
 //
-
-#ifndef CGFIRE_USERCAMMOVEMENT_H
-#define CGFIRE_USERCAMMOVEMENT_H
+#pragma once
 
 #include "engine/Window.hpp"
 #include "engine/input/Input.hpp"
@@ -43,5 +41,3 @@ namespace util {
         cam.Move(camMove);
     }
 }
-
-#endif //CGFIRE_USERCAMMOVEMENT_H

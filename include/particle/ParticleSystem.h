@@ -34,6 +34,11 @@ namespace particle {
         //Creates a new particle given the properties
         void Emit(const ParticleProps &pProps);
 
+        //deactivate all particles
+        void clear(){
+            for (auto& p : m_ParticlePool)
+                p.Active = false;
+        }
     private:
         const unsigned int m_ParticlePoolSize;
         const en::Camera& m_Cam;

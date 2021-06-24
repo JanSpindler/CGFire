@@ -98,13 +98,13 @@ namespace particle{
         }
         //Remove expired water jets
         m_WaterJets.erase(std::remove_if(m_WaterJets.begin(), m_WaterJets.end(),
-                                         [](WaterJet* f) { return f->Expired; }), m_WaterJets.end());
+                                         [](std::shared_ptr<WaterJet> f) { return f->Expired; }), m_WaterJets.end());
 
     }
 
     void WaterCreator::onImGuiRender(){
-        ImGui::TextColored(ImVec4(0, 1, 1, 1), "WaterJet Particle Props");
-        ImGui::SliderFloat3("VelocityVariation", &m_BaseWaterJetProps.VelocityVariation.x, 0, 10);
+        ImGui::TextColored(ImVec4(0, 1, 1, 1), "WaterJet Particle Props (General)");
+        ImGui::SliderFloat3("VelocityVariation", &m_BaseWaterJetProps.VelocityVariation.x, -100, 100);
         ImGui::SliderFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor, 0, 10);
         ImGui::ColorEdit4("ColorBegin", &m_BaseWaterJetProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseWaterJetProps.ColorEnd.x);
@@ -115,8 +115,8 @@ namespace particle{
         for (int i = 0; i < m_WaterJets.size(); i++) {
             ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", ("WaterJet" + std::to_string(i)).c_str());
             ImGui::SliderFloat3("Position", &m_WaterJets[i]->Position.x, -10, 10);
-            ImGui::SliderFloat3("PositionVariation", &m_WaterJets[i]->PositionVariation.x, 0, 10);
-            ImGui::SliderFloat3("WaterDirection", &m_WaterJets[i]->WaterDirection.x, 0, 1);
+            ImGui::SliderFloat3("PositionVariation", &m_WaterJets[i]->PositionVariation.x, -10, 10);
+            ImGui::SliderFloat3("WaterDirection", &m_WaterJets[i]->WaterDirection.x, -1, 1);
             ImGui::SliderFloat("Speed", &m_WaterJets[i]->Speed, 0, 300);
             ImGui::SliderFloat("SpeedVariation", &m_WaterJets[i]->SpeedVariationFactor, 0, 1);
             ImGui::SliderInt("ParticlesPerSecond", &m_WaterJets[i]->ParticlesPerSecond, 0, 1000);
@@ -126,11 +126,11 @@ namespace particle{
 
     }
 
-    void WaterCreator::startWaterJet(WaterJet& waterJet){
-        waterJet.Expiring = false;
-        waterJet.Timer = 0.f;
-        waterJet.Expired = false;
-        waterJet.BuildingUp = true;
-        m_WaterJets.emplace_back(&waterJet);
+    void WaterCreator::startWaterJet(std::shared_ptr<WaterJet> waterJet){
+        waterJet->Expiring = false;
+        waterJet->Timer = 0.f;
+        waterJet->Expired = false;
+        waterJet->BuildingUp = true;
+        m_WaterJets.emplace_back(waterJet);
     }
 }

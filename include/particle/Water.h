@@ -36,6 +36,13 @@ namespace particle{
 
         }
 
+        void startExpiring(){
+            if (Timer < BuildUpTime)
+                Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
+            else
+                Timer = 0.f;
+            BuildingUp = false; Expiring = true; }
+
         glm::vec3 Position;
         glm::vec3 PositionVariation;
         glm::vec3 WaterDirection; // the direction of the water coming out of the source
@@ -68,12 +75,17 @@ namespace particle{
         void onImGuiRender();
 
         /** Adds a water jet to the list. Don't destroy WaterJets while WaterCreator is alive!*/
-        void startWaterJet(WaterJet& waterJet);
+        void startWaterJet(std::shared_ptr<WaterJet> waterJet);
+
+        void clear(){
+            m_WaterJets.clear();
+            m_ParticleSystem.clear();
+        }
     private:
         ParticleSystem& m_ParticleSystem;
         std::vector<std::shared_ptr<en::GLPictureTex>> m_Textures; //the variety of textures we use for water
         ParticleProps m_BaseWaterJetProps;
-        std::vector<WaterJet*> m_WaterJets; //references to the water jets
+        std::vector<std::shared_ptr<WaterJet>> m_WaterJets; //references to the water jets
 
     };
 }

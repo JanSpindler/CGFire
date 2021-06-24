@@ -31,7 +31,12 @@ namespace particle{
 
         }
 
-        void startExpiring(){ Timer = 0.f; Expiring = true; }
+        void startExpiring(){
+            if (Timer < BuildUpTime)
+                Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
+            else
+                Timer = 0.f;
+            BuildingUp = false; Expiring = true; }
 
 
         glm::vec3 Position;
@@ -63,16 +68,19 @@ namespace particle{
         void onImGuiRender();
 
         /** Adds a flame the list. Don't destroy Flames while FireCreator is alive!*/
-        void startFlame(Flame& flame);
+        void startFlame(std::shared_ptr<Flame> flame);
 
-
+        void clear(){
+            m_Flames.clear();
+            m_ParticleSystem.clear();
+        }
     private:
 
         ParticleSystem& m_ParticleSystem;
         std::vector<std::shared_ptr<en::GLPictureTex>> m_Textures; //the variety of textures we use for fire
         ParticleProps m_BaseFlameProps;
 
-        std::vector<Flame*> m_Flames; //holds references to the flames
+        std::vector<std::shared_ptr<Flame>> m_Flames; //holds references to the flames
 
 
     };
