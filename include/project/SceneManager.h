@@ -41,7 +41,6 @@ namespace scene {
         void onUpdate(float deltaTime) {
             m_SceneTime += deltaTime;
 
-            std::cout << m_SceneTime << std::endl;
             // Check if any event occurred, if so, delete it from the list (so it will only be called once)
             auto it = m_EventsAndTimes.begin();
             while (it != m_EventsAndTimes.end()){
@@ -57,6 +56,7 @@ namespace scene {
 
         void onImGuiRender() {
             if (ImGui::Begin("RestartButton")) {
+                ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", ("Time:" + std::to_string(m_SceneTime)).c_str());
                 if (ImGui::Button("Restart")){
                     this->restart();
                 }

@@ -59,7 +59,6 @@ int main()
         float deltaTime = (float)en::Time::GetDeltaTime();
         util::HandleUserCamMovement(window, cam, deltaTime);
 
-
         animator.UpdateAnim(deltaTime);
 
         // Rendering
