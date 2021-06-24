@@ -60,8 +60,9 @@ namespace particle{
         FireCreator(ParticleSystem& particleSystem);
 
         void onUpdate(float ts);
+        void onImGuiRender();
 
-        /** Adds a flame the  list. Don't destroy Flames objects while FireCreator is alive!*/
+        /** Adds a flame the list. Don't destroy Flames while FireCreator is alive!*/
         void startFlame(Flame& flame);
 
 
@@ -72,5 +73,7 @@ namespace particle{
         ParticleProps m_BaseFlameProps;
 
         std::vector<Flame*> m_Flames; //holds references to the flames
+
+
     };
 }

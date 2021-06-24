@@ -29,8 +29,8 @@ namespace particle{
         m_BaseFlameProps.Velocity = { 0.0f, 10.0f, 0.0f };
         m_BaseFlameProps.VelocityVariation = { 10.0f, 10.0f, 10.0f };
         m_BaseFlameProps.GravityFactor = 0.1f; // we barely want gravity to work on fire
-        m_BaseFlameProps.ColorBegin = { 210 / 255.0f, 200 / 255.0f, 0 / 255.0f, 1.0f };
-        m_BaseFlameProps.ColorEnd = { 250 / 255.0f, 0 / 255.0f, 0 / 255.0f, 0.3f };
+        m_BaseFlameProps.ColorBegin = { 1.f, 1.f, 1.f, 1.0f };
+        m_BaseFlameProps.ColorEnd = { 1.f, 1.f, 1.f, 0.3f };
         m_BaseFlameProps.SizeBegin = 1.f;
         m_BaseFlameProps.SizeVariation = 0.9f;
         m_BaseFlameProps.SizeEnd = 0.0f;
@@ -91,10 +91,15 @@ namespace particle{
             }
         }
 
+        //Remove expired flames
+        m_Flames.erase(std::remove_if(m_Flames.begin(), m_Flames.end(),
+                                      [](Flame* f) { return f->Expired; }), m_Flames.end());
 
 
-        // UI
-        ImGui::Begin("Flame Particle Props");
+
+    }
+    void FireCreator::onImGuiRender(){
+        ImGui::TextColored(ImVec4(0, 1, 1, 1), "Flame Particle Props");
         ImGui::SliderFloat3("Velocity", &m_BaseFlameProps.Velocity.x, 0, 10);
         ImGui::SliderFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, 0, 10);
         ImGui::SliderFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0, 10);
@@ -103,7 +108,17 @@ namespace particle{
         ImGui::SliderFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0, 100);
         ImGui::SliderFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0, 10);
         ImGui::SliderFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0, 10);
-        ImGui::End();
+
+
+
+        for (int i = 0; i < m_Flames.size(); i++){
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", ("flame" + std::to_string(i)).c_str());
+            ImGui::SliderFloat3("Position", &m_Flames[i]->Position.x, -10, 10);
+            ImGui::SliderFloat3("PositionVariation", &m_Flames[i]->PositionVariation.x, 0, 10);
+            ImGui::SliderInt("ParticlesPerEmit", &m_Flames[i]->ParticlesPerEmit, 0, 100);
+            ImGui::SliderFloat("ParticleLifeTime", &m_Flames[i]->ParticleLifeTime, 0, 10);
+            ImGui::SliderFloat("ParticleLifeTimeVariation", &m_Flames[i]->ParticleLifeTimeVariation, 0, 2);
+        }
     }
 
 

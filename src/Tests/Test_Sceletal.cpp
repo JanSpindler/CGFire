@@ -18,29 +18,21 @@
 #include "engine/model/Model.hpp"
 #include "engine/render/Light.hpp"
 #include "engine/input/Input.hpp"
-#include "framework/common.hpp"
-#include "framework/shader.hpp"
-#include "framework/mesh.hpp"
-#include "framework/camera.hpp"
-#include "framework/raytracer.hpp"
+
+#include "util/UserCamMovement.h"
 
 int main()
 {
-    en::Log::Info("Initializing CGFire");
-
     en::Window window(800, 600, "CGFire");
 
-    float fov = glm::radians(60.f);
-    float nearPlane = 0.1f;
-    float farPlane = 100.0f;
     en::Camera cam(
-            glm::vec3(0.0f, 1.0f, 3.0f),
-            glm::vec3(0.0f, 0.0f, -1.0f),
+            glm::vec3(0.0f, 3.0f, -20.0f),
+            glm::vec3(0.0f, 0.0f, 1.0f),
             glm::vec3(0.0f, 1.0f, 0.0f),
             window.GetAspectRatio(),
-            fov,
-            nearPlane,
-            farPlane);
+            glm::radians(60.f),
+            0.01f,
+            1000.0f);
 
     glm::mat4 projMat;
     glm::mat4 viewMat;
@@ -55,11 +47,6 @@ int main()
     en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
     en::Animator animator(&animation);
 
-    //en::Model bobmodel("boblampmodel/boblampclean.md5mesh", true);
-    //en::RenderObj bobObj = { &bobmodel };
-    //en::Animation animation("boblampmodel/boblampclean.md5anim", &bobmodel);
-    //en::Animator animator(&animation);
-
     program.Use();
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
     dirLight.Use(&program);
@@ -69,14 +56,16 @@ int main()
         window.Update();
         en::Input::Update();
         en::Time::Update();
-        auto deltaTime = (float)en::Time::GetDeltaTime();
+        float deltaTime = (float)en::Time::GetDeltaTime();
+        util::HandleUserCamMovement(window, cam, deltaTime);
 
-        // Use window viewport
-        window.UseViewport();
 
         animator.UpdateAnim(deltaTime);
+
         // Rendering
         cam.SetAspectRatio(window.GetAspectRatio());
+        window.UseViewport();
+
         viewMat = cam.GetViewMat();
         projMat = cam.GetProjMat();
         program.Use();
@@ -87,15 +76,10 @@ int main()
         auto transforms = animator.getfinalbonetransforms();
         for (int i = 0; i < transforms.size(); ++i) {
             program.SetUniformMat4(("finalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(transforms[i]));
-            //en::Log::Info(glm::to_string(transforms[i]));
         };
 
         vampireObj.Render(&program);
-        //bobObj.Render(&program);
-
-
     }
 
-    en::Log::Info("Ending CGFire");
     return 0;
 }
