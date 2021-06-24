@@ -37,14 +37,14 @@ int main(int, char* argv[]) {
     ParticleSystem particleSystemFire(10000, cam, true);
     FireCreator fireCreator(particleSystemFire);
 
-    Flame flame1(glm::vec3(0.5f, 0.5f, 0.5f),
-                 glm::vec3(1.f, 0.f, 1.f),
-                 30.f,
-                 15.f,
-                 10.f,
-                 1.f,
-                 0.2f);
-    fireCreator.startFlame(flame1);
+    fireCreator.startFlame(std::make_shared<Flame>
+            (glm::vec3(0.5f, 0.5f, 0.5f),
+             glm::vec3(1.f, 0.f, 1.f),
+             30,
+             15.f,
+             10.f,
+             1.f,
+             0.2f));
 
     //TODO Time event für Flammen expiring
 
@@ -52,17 +52,17 @@ int main(int, char* argv[]) {
     ParticleSystem particleSystemWater(10000, cam, false);
     WaterCreator waterCreator(particleSystemWater);
 
-    WaterJet waterJet1(glm::vec3(2.f, 0.f, 1.f),
-                       glm::vec3(0.5f, 0.5f, 0.5f),
-                       glm::vec3(1.f, 0.5f, 0.f),
-                       100.f,
-                       0.1f,
-                       500,
-                       10.f,
-                       2.f,
-                       5.f,
-                       0.2f);
-    waterCreator.startWaterJet(waterJet1);
+    waterCreator.startWaterJet(std::make_shared<WaterJet>(
+            glm::vec3(2.f, 0.f, 1.f),
+            glm::vec3(0.5f, 0.5f, 0.5f),
+            glm::vec3(1.f, 0.5f, 0.f),
+            100.f,
+            0.1f,
+            500,
+            10.f,
+            2.f,
+            5.f,
+            0.2f));
 
     while (window.IsOpen())
     {
