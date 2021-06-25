@@ -1,6 +1,6 @@
 //
 //Created by vincent on 24.06.2021.
-//
+// In this file all the event types are defined
 #pragma once
 
 #include <utility>

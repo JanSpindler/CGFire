@@ -47,5 +47,9 @@ namespace scene{
 
 //        this->addEvent(MakeSharedEvent(WaterCreationEvent, (m_WaterCreator, WaterJet1)),
 //                       18.f);
+
+
+        m_EventsAndTimes.sort([](const auto& a, const auto& b) { return a.second < b.second; });
+
     }
 }

@@ -36,9 +36,13 @@ namespace scene {
             m_WaterCreator.clear();
             this->addEvents();
             m_SceneTime = 0.f;
+            m_TimePaused = false;
         }
 
         void onUpdate(float deltaTime) {
+            if (m_TimePaused)
+                return;
+
             m_SceneTime += deltaTime;
 
             // Check if any event occurred, if so, delete it from the list (so it will only be called once)
@@ -50,16 +54,18 @@ namespace scene {
                     it = m_EventsAndTimes.erase(it); //removes the event from the list
                 }
                 else
-                    ++it;
+                    break;
             }
         }
 
         void onImGuiRender() {
-            if (ImGui::Begin("RestartButton")) {
+            if (ImGui::Begin("Menu")) {
                 ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", ("Time:" + std::to_string(m_SceneTime)).c_str());
                 if (ImGui::Button("Restart")){
                     this->restart();
                 }
+                if (ImGui::Button(m_TimePaused ? "Resume" : "Pause"))
+                    m_TimePaused = !m_TimePaused;
                 ImGui::End();
             }
         }
@@ -70,6 +76,7 @@ namespace scene {
         particle::WaterCreator& m_WaterCreator;
 
         float m_SceneTime;
+        bool m_TimePaused;
 
         std::list<std::pair<std::shared_ptr<Event>, float>> m_EventsAndTimes; //List of events with their respective times
 
