@@ -32,11 +32,8 @@ int main(int, char* argv[]) {
             1000.0f);
 
     // Particle Systems
-    using namespace particle;
-
-    //Particle Systems
-    ParticleSystem particleSystemFire(10000, cam, true);
-    ParticleSystem particleSystemWater(10000, cam, false);
+    particle::ParticleSystem particleSystemFire(10000, cam, true);
+    particle::ParticleSystem particleSystemWater(10000, cam, false);
 
     //Create the Scene
     scene::SceneManager Scene(cam, particleSystemFire, particleSystemWater);
@@ -52,7 +49,6 @@ int main(int, char* argv[]) {
 
 
         //Updates
-
         particleSystemFire.OnUpdate(deltaTime);
         particleSystemWater.OnUpdate(deltaTime);
         Scene.onUpdate(deltaTime);
