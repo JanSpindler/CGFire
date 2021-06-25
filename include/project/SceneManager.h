@@ -13,7 +13,7 @@
 #include "engine/Util.hpp"
 #include "engine/input/Input.hpp"
 
-#include "SceneEvents.h"
+#include "SceneEventsTypes.h"
 
 
 namespace scene {
@@ -22,11 +22,11 @@ namespace scene {
     class SceneManager {
     public:
         explicit SceneManager(en::Camera &cam,
-                              particle::FireCreator &fireCreator,
-                              particle::WaterCreator &waterCreator)
+                              particle::ParticleSystem &particleSystemFire,
+                              particle::ParticleSystem &particleSystemWater)
                 : m_Cam(cam),
-                  m_FireCreator(fireCreator),
-                  m_WaterCreator(waterCreator) {
+                  m_FireCreator(particleSystemFire),
+                  m_WaterCreator(particleSystemWater) {
         }
 
 
@@ -44,6 +44,9 @@ namespace scene {
                 return;
 
             m_SceneTime += deltaTime;
+
+            m_FireCreator.onUpdate(deltaTime);
+            m_WaterCreator.onUpdate(deltaTime);
 
             // Check if any event occurred, if so, delete it from the list (so it will only be called once)
             auto it = m_EventsAndTimes.begin();
@@ -68,12 +71,21 @@ namespace scene {
                     m_TimePaused = !m_TimePaused;
                 ImGui::End();
             }
+
+            if (ImGui::Begin("Fire")) {
+                m_FireCreator.onImGuiRender();
+                ImGui::End();
+            }
+            if (ImGui::Begin("Water")) {
+                m_WaterCreator.onImGuiRender();
+                ImGui::End();
+            }
         }
 
     private:
         en::Camera& m_Cam;
-        particle::FireCreator& m_FireCreator;
-        particle::WaterCreator& m_WaterCreator;
+        particle::FireCreator m_FireCreator;
+        particle::WaterCreator m_WaterCreator;
 
         float m_SceneTime;
         bool m_TimePaused;

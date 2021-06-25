@@ -34,16 +34,12 @@ int main(int, char* argv[]) {
     // Particle Systems
     using namespace particle;
 
-    //Fire
+    //Particle Systems
     ParticleSystem particleSystemFire(10000, cam, true);
-    FireCreator fireCreator(particleSystemFire);
-
-    //Water
     ParticleSystem particleSystemWater(10000, cam, false);
-    WaterCreator waterCreator(particleSystemWater);
 
     //Create the Scene
-    scene::SceneManager Scene(cam, fireCreator, waterCreator);
+    scene::SceneManager Scene(cam, particleSystemFire, particleSystemWater);
     Scene.restart();
 
     while (window.IsOpen())
@@ -56,25 +52,15 @@ int main(int, char* argv[]) {
 
 
         //Updates
-        fireCreator.onUpdate(deltaTime);
-        particleSystemFire.OnUpdate(deltaTime);
-        waterCreator.onUpdate(deltaTime);
-        particleSystemWater.OnUpdate(deltaTime);
 
+        particleSystemFire.OnUpdate(deltaTime);
+        particleSystemWater.OnUpdate(deltaTime);
         Scene.onUpdate(deltaTime);
 
         //UI
         bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
         if (renderImGui) {
             imgui_new_frame(600, 400);
-            if (ImGui::Begin("Fire")) {
-                fireCreator.onImGuiRender();
-                ImGui::End();
-            }
-            if (ImGui::Begin("Water")) {
-                waterCreator.onImGuiRender();
-                ImGui::End();
-            }
             Scene.onImGuiRender();
         }
 
