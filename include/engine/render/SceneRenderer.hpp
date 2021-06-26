@@ -11,6 +11,7 @@
 #include "Renderable.hpp"
 #include "Light.hpp"
 #include "GBuffer.hpp"
+#include "../Window.hpp"
 
 namespace en
 {
@@ -18,7 +19,6 @@ namespace en
     {
     public:
         SceneRenderer(
-                const Camera* cam,
                 const GLProgram* geometryProgram,
                 const GLProgram* lightingProgram,
                 const GLProgram* fixedColorProgram,
@@ -27,7 +27,7 @@ namespace en
                 int32_t width,
                 int32_t height);
 
-        void Render() const;
+        void Render(const Window* window, const Camera* cam) const;
         void Resize(int32_t width, int32_t height);
 
         void AddStandardRenderObj(const RenderObj* renderObj);
@@ -43,8 +43,6 @@ namespace en
         void RemovePointLight(const PointLight* pointLight);
 
     private:
-        const Camera* cam_;
-
         const GLProgram* geometryProgram_;
         const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
@@ -57,6 +55,12 @@ namespace en
         std::vector<const PointLight*> pointLights_;
 
         GBuffer gBuffer_;
+        uint32_t fullScreenVao_;
+
+        void RenderDirShadows() const;
+        void RenderPointShadows() const;
+        void RenderToGBuffer(const float* viewMat, const float* projMat) const;
+        void RenderLighting(const Window* window) const;
     };
 }
 

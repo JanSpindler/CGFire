@@ -2,12 +2,20 @@
 // Created by JS on 18/06/2021.
 //
 
+#include "engine/gr_include.hpp"
 #include "engine/render/SceneRenderer.hpp"
+#include "engine/Util.hpp"
 
 namespace en
 {
+    // Helps with constructing the fullScreenVao_
+    struct ScreenVertex
+    {
+        glm::vec3 pos;
+        glm::vec2 uv;
+    };
+
     SceneRenderer::SceneRenderer(
-            const Camera* cam,
             const GLProgram* geometryProgram,
             const GLProgram* lightingProgram,
             const GLProgram* fixedColorProgram,
@@ -15,7 +23,6 @@ namespace en
             const GLProgram* pointShadowProgram,
             int32_t width,
             int32_t height) :
-            cam_(cam),
             geometryProgram_(geometryProgram),
             lightingProgram_(lightingProgram),
             fixedColorProgram_(fixedColorProgram),
@@ -25,25 +32,46 @@ namespace en
             fixedColorRenderObjs_({}),
             gBuffer_(width, height)
     {
+        ScreenVertex vertices[] = {
+                { glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f) },
+                { glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f) },
+                { glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
+                { glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f) }
+        };
+
+        uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
+
+        glGenVertexArrays(1, &fullScreenVao_);
+        glBindVertexArray(fullScreenVao_);
+
+        uint32_t vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(ScreenVertex), vertices, GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ScreenVertex), (void*) offsetof(ScreenVertex, ScreenVertex::pos));
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ScreenVertex), (void*) offsetof(ScreenVertex, ScreenVertex::uv));
+
+        uint32_t ibo;
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        glBindVertexArray(0);
     }
 
-    void SceneRenderer::Render() const
+    void SceneRenderer::Render(const Window* window, const Camera* cam) const
     {
-        glm::mat4 viewMat = cam_->GetViewMat();
-        glm::mat4 projMat = cam_->GetProjMat();
+        glm::mat4 viewMat = cam->GetViewMat();
+        glm::mat4 projMat = cam->GetProjMat();
 
-        // Render shadow textures
-
-        // Render geometric information to g buffer
-        gBuffer_.Bind();
-        geometryProgram_->Use();
-        geometryProgram_->SetUniformMat4("view_mat", false, &viewMat[0][0]);
-        geometryProgram_->SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        for (const RenderObj* renderObj : standardRenderObjs_)
-        {
-        }
-
-        // Use g buffer to render final image with lighting information
+        RenderDirShadows();
+        RenderPointShadows();
+        RenderToGBuffer(&viewMat[0][0], &projMat[0][0]);
+        RenderLighting(window);
     }
 
     void SceneRenderer::Resize(int32_t width, int32_t height)
@@ -121,5 +149,62 @@ namespace en
                 return;
             }
         }
+    }
+
+    void SceneRenderer::RenderDirShadows() const
+    {
+        dirShadowProgram_->Use();
+        glm::mat4 lightMat;
+        for (const DirLight* dirLight : dirLights_)
+        {
+            lightMat = dirLight->GetLightMat();
+            dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
+
+            dirLight->BindShadowBuffer();
+            for (const RenderObj* standardRenderObj : standardRenderObjs_)
+                standardRenderObj->RenderToShadowMap(dirShadowProgram_);
+            dirLight->UnbindShadowBuffer();
+        }
+    }
+
+    void SceneRenderer::RenderPointShadows() const
+    {
+        pointShadowProgram_->Use();
+        std::vector<glm::mat4> lightMats;
+        for (const PointLight* pointLight : pointLights_)
+        {
+            lightMats = pointLight->GetLightMats();
+            for (uint32_t i = 0; i < 6; i++)
+                pointShadowProgram_->SetUniformMat4("light_mats[" + std::to_string(i) + "]", false, &lightMats[i][0][0]);
+            pointShadowProgram_->SetUniformVec3f("light_pos", pointLight->GetPos());
+
+            pointLight->BindShadowBuffer();
+            for (const RenderObj* standardRenderObj : standardRenderObjs_)
+                standardRenderObj->RenderToShadowMap(pointShadowProgram_);
+            pointLight->UnbindShadowBuffer();
+        }
+    }
+
+    void SceneRenderer::RenderToGBuffer(const float* viewMat, const float* projMat) const
+    {
+        gBuffer_.Bind();
+
+        geometryProgram_->Use();
+        geometryProgram_->SetUniformMat4("view_mat", false, viewMat);
+        geometryProgram_->SetUniformMat4("proj_mat", false, projMat);
+        for (const RenderObj* standardRenderObj : standardRenderObjs_)
+            standardRenderObj->RenderToGBuffer(geometryProgram_);
+
+        gBuffer_.Unbind();
+    }
+
+    void SceneRenderer::RenderLighting(const Window* window) const
+    {
+        window->UseViewport();
+        gBuffer_.UseTextures(lightingProgram_);
+
+        glBindVertexArray(fullScreenVao_);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
     }
 }

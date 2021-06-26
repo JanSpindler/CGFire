@@ -52,13 +52,17 @@ namespace en
     public:
         Spline3DRenderable(const Spline3D* spline);
 
-        void Render(const GLProgram* program) const;
-        void RenderGeometry(const GLProgram* program) const;
+        void Render(const GLProgram* program) const override;
+        void RenderToGBuffer(const GLProgram* program) const override;
+        void RenderToShadowMap(const GLProgram* program) const override;
 
     private:
         const Spline3D* spline_;
         unsigned int lineVao_;
         unsigned int pointVao_;
+
+        void RenderLines() const;
+        void RenderPoints() const;
     };
 }
 

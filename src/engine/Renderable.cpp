@@ -19,10 +19,16 @@ namespace en
         renderable_->Render(program);
     }
 
-    void RenderObj::RenderGeometry(const GLProgram *program)
+    void RenderObj::RenderToGBuffer(const GLProgram *program) const
     {
         SetModelMat(program);
-        renderable_->RenderGeometry(program);
+        renderable_->RenderToGBuffer(program);
+    }
+
+    void RenderObj::RenderToShadowMap(const GLProgram *program) const
+    {
+        SetModelMat(program);
+        renderable_->RenderToShadowMap(program);
     }
 
     glm::vec3 RenderObj::GetPos() const

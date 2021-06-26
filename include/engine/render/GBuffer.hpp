@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include "GLTexture.hpp"
+#include "GLShader.hpp"
 
 namespace en
 {
@@ -17,7 +18,8 @@ namespace en
         ~GBuffer();
 
         void Bind() const;
-        void UseTextures() const;
+        void Unbind() const;
+        void UseTextures(const GLProgram* program) const;
 
     private:
         uint32_t fbo_;

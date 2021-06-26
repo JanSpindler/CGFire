@@ -45,11 +45,13 @@ namespace en
         glGenRenderbuffers(1, &depthBuffer_);
         glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer_);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-        glFramebufferRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer_);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer_);
 
         // Check
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             Log::Error("Failed to completely construct g buffer", true);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     };
 
     GBuffer::~GBuffer()
@@ -67,8 +69,23 @@ namespace en
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void GBuffer::UseTextures() const
+    void GBuffer::Unbind() const
     {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 
+    void GBuffer::UseTextures(const GLProgram* program) const
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, posTex_);
+        program->SetUniformI("pos_tex", 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normalTex_);
+        program->SetUniformI("normal_tex", 1);
+
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, colorTex_);
+        program->SetUniformI("color_tex", 2);
     }
 }

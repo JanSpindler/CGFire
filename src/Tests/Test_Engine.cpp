@@ -143,7 +143,7 @@ int main()
             const en::PointLight* currentPointLight = pointLights[i];
             std::vector<glm::mat4> pointLightMats = currentPointLight->GetLightMats();
             for (unsigned int j = 0; j < 6; j++)
-                pointShadowProgram.SetUniformMat4("point_light_mats[" + std::to_string(j) + "]", false, &pointLightMats[j][0][0]);
+                pointShadowProgram.SetUniformMat4("light_mats[" + std::to_string(j) + "]", false, &pointLightMats[j][0][0]);
             pointShadowProgram.SetUniformVec3f("light_pos", currentPointLight->GetPos());
             //pointShadowProgram.SetUniformF("far_plane", 25.0f); // TODO: pointLight.GetShadowFarPlane();
 

@@ -56,9 +56,16 @@ namespace en
         glBindVertexArray(0);
     }
 
-    void Mesh::RenderGeometry(const GLProgram *program) const
+    void Mesh::RenderToGBuffer(const GLProgram *program) const
     {
         material_->Use(program);
+        glBindVertexArray(vao_);
+        glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    }
+
+    void Mesh::RenderToShadowMap(const GLProgram *program) const
+    {
         glBindVertexArray(vao_);
         glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);

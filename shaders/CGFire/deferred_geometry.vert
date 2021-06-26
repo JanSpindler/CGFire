@@ -15,7 +15,7 @@ uniform mat4 proj_mat;
 void main()
 {
     frag_pos = (model_mat * vec4(pos, 1.0)).xyz;
-    frag_normal = transpose(inverse(model_mat)) * normal;
+    frag_normal = mat3(transpose(inverse(model_mat))) * normal;
     frag_uv = uv;
     gl_Position = proj_mat * view_mat * model_mat * vec4(pos, 1.0);
 }

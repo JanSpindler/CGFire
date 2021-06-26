@@ -45,10 +45,16 @@ namespace en
             meshes_[i]->Render(program);
     }
 
-    void Model::RenderGeometry(const GLProgram *program) const
+    void Model::RenderToGBuffer(const GLProgram *program) const
     {
         for (const Mesh* mesh : meshes_)
-            mesh->RenderGeometry(program);
+            mesh->RenderToGBuffer(program);
+    }
+
+    void Model::RenderToShadowMap(const GLProgram* program) const
+    {
+        for (const Mesh* mesh : meshes_)
+            mesh->RenderToShadowMap(program);
     }
 
     const std::vector<Mesh*>& Model::GetMeshes() const

@@ -6,8 +6,6 @@
 #include "engine/Spline3D.hpp"
 #include "engine/Util.hpp"
 
-#include <engine/ext_spline.hpp>
-
 namespace en
 {
     Spline3D::Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type)
@@ -312,22 +310,40 @@ namespace en
 
     void Spline3DRenderable::Render(const GLProgram *program) const
     {
-        // Draw line
         program->SetUniformVec4f("fixed_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        RenderLines();
+
+        program->SetUniformVec4f("fixed_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        RenderPoints();
+    }
+
+    void Spline3DRenderable::RenderToGBuffer(const GLProgram *program) const
+    {
+        program->SetUniformVec4f("fixed_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        RenderLines();
+
+        program->SetUniformVec4f("fixed_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        RenderPoints();
+    }
+
+    void Spline3DRenderable::RenderToShadowMap(const GLProgram *program) const
+    {
+        RenderLines();
+        RenderPoints();
+    }
+
+    void Spline3DRenderable::RenderLines() const
+    {
         glBindVertexArray(lineVao_);
         glDrawArrays(GL_LINE_STRIP, 0, spline_->GetPointCount());
         glBindVertexArray(0);
+    }
 
-        // Draw controlPoints
-        program->SetUniformVec4f("fixed_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    void Spline3DRenderable::RenderPoints() const
+    {
         glPointSize(8.0f);
         glBindVertexArray(pointVao_);
         glDrawArrays(GL_POINTS, 0, spline_->GetControlPointCount());
         glBindVertexArray(0);
-    }
-
-    void Spline3DRenderable::RenderGeometry(const GLProgram *program) const
-    {
-        Render(program);
     }
 }
