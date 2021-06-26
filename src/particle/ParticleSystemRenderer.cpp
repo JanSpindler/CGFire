@@ -73,6 +73,8 @@ namespace particle {
 
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &m_MaxTexturesSlots);
 
+        m_MaxTexturesSlots = std::min(32, m_MaxTexturesSlots);
+
         for (int i = 0; i < m_MaxTexturesSlots; ++i)
             m_ShaderSamplers[i] = i;
 
