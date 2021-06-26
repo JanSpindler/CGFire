@@ -24,6 +24,7 @@ namespace en
         void Render(const GLProgram* program) const override;
         void RenderToGBuffer(const GLProgram* program) const override;
         void RenderToShadowMap(const GLProgram* program) const override;
+        void RenderFixedColor(const GLProgram* program) const override;
 
         const std::vector<Mesh*>& GetMeshes() const;
 

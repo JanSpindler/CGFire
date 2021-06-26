@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 // input
 in vec3 frag_pos;
@@ -19,7 +19,7 @@ uniform uint point_light_count;
 uniform vec3 point_light_pos[POINT_LIGHT_MAX];
 uniform vec3 point_light_color[POINT_LIGHT_MAX];
 uniform float point_light_strength[POINT_LIGHT_MAX];
-uniform samplerCube point_light_shadow_cube0;
+uniform samplerCube point_light_shadow_tex0;
 // TODO: more samplerCubes
 
 // Material
@@ -106,14 +106,12 @@ vec4 get_point_light_color(vec3 normal, uint index)
 
     // Shadow
     vec3 frag_light_pos = frag_pos - light_pos;
-
-    float closest_depth = 1000.0;
+    float closest_depth = 1024.0;
     switch (index)
     {
-        case 0u:
-            closest_depth = texture(point_light_shadow_cube0, frag_light_pos).r;
+        case 0:
+            closest_depth = texture(point_light_shadow_tex0, frag_light_pos).r;
             break;
-        // TODO: implement more cubemaps
     }
 
     closest_depth *= 1024.0;

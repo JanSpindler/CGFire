@@ -36,8 +36,7 @@ namespace en
         void AddFixedColorRenderObj(const RenderObj* renderObj);
         void RemoveFixedColorRenderObj(const RenderObj* renderObj);
 
-        void AddDirLight(const DirLight* dirLight);
-        void RemoveDirLight(const DirLight* dirLight);
+        void SetDirLight(const DirLight* dirLight);
 
         void AddPointLight(const PointLight* pointLight);
         void RemovePointLight(const PointLight* pointLight);
@@ -51,16 +50,17 @@ namespace en
 
         std::vector<const RenderObj*> standardRenderObjs_;
         std::vector<const RenderObj*> fixedColorRenderObjs_;
-        std::vector<const DirLight*> dirLights_;
+        const DirLight* dirLight_;
         std::vector<const PointLight*> pointLights_;
 
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;
 
-        void RenderDirShadows() const;
+        void RenderDirShadow() const;
         void RenderPointShadows() const;
-        void RenderToGBuffer(const float* viewMat, const float* projMat) const;
-        void RenderLighting(const Window* window) const;
+        void RenderDeferredGeometry(const float* viewMat, const float* projMat) const;
+        void RenderDeferredLighting(const Window* window, const Camera* cam) const;
+        void RenderFixedColor(const float* viewMat, const float* projMat) const;
     };
 }
 

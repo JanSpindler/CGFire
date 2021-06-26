@@ -13,9 +13,10 @@ namespace en
     class Renderable
     {
     public:
-        virtual void Render(const GLProgram* program) const = 0;
+        virtual void Render(const GLProgram* program) const = 0; // Deprecated
         virtual void RenderToGBuffer(const GLProgram* program) const = 0;
         virtual void RenderToShadowMap(const GLProgram* program) const = 0;
+        virtual void RenderFixedColor(const GLProgram* program) const = 0;
     };
 
     class RenderObj
@@ -28,6 +29,7 @@ namespace en
         void Render(const GLProgram* program) const;
         void RenderToGBuffer(const GLProgram* program) const;
         void RenderToShadowMap(const GLProgram* program) const;
+        void RenderFixedColor(const GLProgram* program) const;
 
         glm::vec3 GetPos() const;
 

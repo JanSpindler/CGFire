@@ -19,14 +19,19 @@ namespace en
 
         void Bind() const;
         void Unbind() const;
+        void Resize(int32_t width, int32_t height);
         void UseTextures(const GLProgram* program) const;
 
     private:
         uint32_t fbo_;
         uint32_t posTex_;
         uint32_t normalTex_;
-        uint32_t colorTex_;
+        uint32_t diffuseTex_;
+        uint32_t specularTex_;
         uint32_t depthBuffer_;
+
+        int32_t lastWidth;
+        int32_t lastHeight;
     };
 }
 

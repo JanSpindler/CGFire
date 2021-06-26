@@ -31,6 +31,12 @@ namespace en
         renderable_->RenderToShadowMap(program);
     }
 
+    void RenderObj::RenderFixedColor(const GLProgram *program) const
+    {
+        SetModelMat(program);
+        renderable_->RenderFixedColor(program);
+    }
+
     glm::vec3 RenderObj::GetPos() const
     {
         return glm::vec3(t_ * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));

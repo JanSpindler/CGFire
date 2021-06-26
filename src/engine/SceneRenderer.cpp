@@ -5,16 +5,10 @@
 #include "engine/gr_include.hpp"
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Util.hpp"
+#include "engine/config.hpp"
 
 namespace en
 {
-    // Helps with constructing the fullScreenVao_
-    struct ScreenVertex
-    {
-        glm::vec3 pos;
-        glm::vec2 uv;
-    };
-
     SceneRenderer::SceneRenderer(
             const GLProgram* geometryProgram,
             const GLProgram* lightingProgram,
@@ -32,11 +26,11 @@ namespace en
             fixedColorRenderObjs_({}),
             gBuffer_(width, height)
     {
-        ScreenVertex vertices[] = {
-                { glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f) },
-                { glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f) },
-                { glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
-                { glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f) }
+        glm::vec3 vertices[] = {
+                glm::vec3(-1.0f, -1.0f, 0.0f),
+                glm::vec3(1.0f, -1.0f, 0.0f),
+                glm::vec3(1.0f, 1.0f, 0.0f),
+                glm::vec3(-1.0f, 1.0f, 0.0f)
         };
 
         uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
@@ -47,13 +41,10 @@ namespace en
         uint32_t vbo;
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(ScreenVertex), vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ScreenVertex), (void*) offsetof(ScreenVertex, ScreenVertex::pos));
-
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ScreenVertex), (void*) offsetof(ScreenVertex, ScreenVertex::uv));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
 
         uint32_t ibo;
         glGenBuffers(1, &ibo);
@@ -68,15 +59,17 @@ namespace en
         glm::mat4 viewMat = cam->GetViewMat();
         glm::mat4 projMat = cam->GetProjMat();
 
-        RenderDirShadows();
+        RenderDirShadow();
         RenderPointShadows();
-        RenderToGBuffer(&viewMat[0][0], &projMat[0][0]);
-        RenderLighting(window);
+
+        window->UseViewport();
+        RenderDeferredGeometry(&viewMat[0][0], &projMat[0][0]);
+        RenderDeferredLighting(window, cam);
     }
 
     void SceneRenderer::Resize(int32_t width, int32_t height)
     {
-        gBuffer_ = GBuffer(width, height);
+        gBuffer_.Resize(width, height);
     }
 
     void SceneRenderer::AddStandardRenderObj(const RenderObj* renderObj)
@@ -115,22 +108,9 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddDirLight(const DirLight* dirLight)
+    void SceneRenderer::SetDirLight(const DirLight *dirLight)
     {
-        RemoveDirLight(dirLight);
-        dirLights_.push_back(dirLight);
-    }
-
-    void SceneRenderer::RemoveDirLight(const DirLight* dirLight)
-    {
-        for (uint32_t i = 0; i < dirLights_.size(); i++)
-        {
-            if (dirLights_[i] == dirLight)
-            {
-                dirLights_.erase(dirLights_.begin() + i);
-                return;
-            }
-        }
+        dirLight_ = dirLight;
     }
 
     void SceneRenderer::AddPointLight(const PointLight* pointLight)
@@ -151,20 +131,18 @@ namespace en
         }
     }
 
-    void SceneRenderer::RenderDirShadows() const
+    void SceneRenderer::RenderDirShadow() const
     {
         dirShadowProgram_->Use();
-        glm::mat4 lightMat;
-        for (const DirLight* dirLight : dirLights_)
-        {
-            lightMat = dirLight->GetLightMat();
-            dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
+        glm::mat4 lightMat = dirLight_->GetLightMat();
+        dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
 
-            dirLight->BindShadowBuffer();
-            for (const RenderObj* standardRenderObj : standardRenderObjs_)
-                standardRenderObj->RenderToShadowMap(dirShadowProgram_);
-            dirLight->UnbindShadowBuffer();
-        }
+        dirLight_->BindShadowBuffer();
+        for (const RenderObj* renderObj : standardRenderObjs_)
+            renderObj->RenderToShadowMap(dirShadowProgram_);
+        for (const RenderObj* renderObj : fixedColorRenderObjs_)
+            renderObj->RenderToShadowMap(dirShadowProgram_);
+        dirLight_->UnbindShadowBuffer();
     }
 
     void SceneRenderer::RenderPointShadows() const
@@ -179,32 +157,61 @@ namespace en
             pointShadowProgram_->SetUniformVec3f("light_pos", pointLight->GetPos());
 
             pointLight->BindShadowBuffer();
-            for (const RenderObj* standardRenderObj : standardRenderObjs_)
-                standardRenderObj->RenderToShadowMap(pointShadowProgram_);
+            for (const RenderObj* renderObj : standardRenderObjs_)
+                renderObj->RenderToShadowMap(pointShadowProgram_);
+            for (const RenderObj* renderObj : fixedColorRenderObjs_)
+                renderObj->RenderToShadowMap(pointShadowProgram_);
             pointLight->UnbindShadowBuffer();
         }
     }
 
-    void SceneRenderer::RenderToGBuffer(const float* viewMat, const float* projMat) const
+    void SceneRenderer::RenderDeferredGeometry(const float* viewMat, const float* projMat) const
     {
         gBuffer_.Bind();
 
         geometryProgram_->Use();
         geometryProgram_->SetUniformMat4("view_mat", false, viewMat);
         geometryProgram_->SetUniformMat4("proj_mat", false, projMat);
-        for (const RenderObj* standardRenderObj : standardRenderObjs_)
-            standardRenderObj->RenderToGBuffer(geometryProgram_);
+        for (const RenderObj* renderObj : standardRenderObjs_)
+            renderObj->RenderToGBuffer(geometryProgram_);
 
         gBuffer_.Unbind();
     }
 
-    void SceneRenderer::RenderLighting(const Window* window) const
+    void SceneRenderer::RenderDeferredLighting(const Window* window, const Camera* cam) const
     {
-        window->UseViewport();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        lightingProgram_->Use();
+
         gBuffer_.UseTextures(lightingProgram_);
+        lightingProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
+
+        glm::mat4 dirLightMat = dirLight_->GetLightMat();
+        lightingProgram_->SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);
+        dirLight_->Use(lightingProgram_);
+        dirLight_->UseShadow(lightingProgram_);
+
+        const int32_t pointLightCount = std::min((int)pointLights_.size(), 24);
+        lightingProgram_->SetUniformI("point_light_count", pointLightCount);
+        for (uint32_t i = 0; i < pointLightCount; i++)
+        {
+            const PointLight* pointLight = pointLights_[i];
+            pointLight->Use(lightingProgram_, i);
+            pointLight->UseShadow(lightingProgram_, i);
+        }
 
         glBindVertexArray(fullScreenVao_);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
+    }
+
+    void SceneRenderer::RenderFixedColor(const float* viewMat, const float* projMat) const
+    {
+        fixedColorProgram_->Use();
+        fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
+        fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
+        for (const RenderObj* renderObj : fixedColorRenderObjs_)
+            renderObj->RenderFixedColor(fixedColorProgram_);
     }
 }

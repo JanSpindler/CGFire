@@ -15,20 +15,25 @@ namespace en
     {
     public:
         Material(
-                float shininess,
+                const GLPictureTex* diffuseTex,
+                const GLPictureTex* specularTex,
                 glm::vec4 diffuseColor,
                 glm::vec4 specularColor,
-                const GLPictureTex* tex);
+                float shininess
+                );
         ~Material();
 
         void Use(const GLProgram* program) const;
         void UseGeometry(const GLProgram* program) const;
 
+        glm::vec4 GetDiffuseColor() const;
+
     private:
-        float shininess_;
+        const GLPictureTex* diffuseTex_;
+        const GLPictureTex* specularTex_;
         glm::vec4 diffuseColor_;
         glm::vec4 specularColor_;
-        const GLPictureTex* tex_;
+        float shininess_;
     };
 }
 

@@ -8,7 +8,9 @@
 
 namespace en
 {
-    GBuffer::GBuffer(int32_t width, int32_t height)
+    GBuffer::GBuffer(int32_t width, int32_t height) :
+        lastWidth(0),
+        lastHeight(0)
     {
         glGenFramebuffers(1, &fbo_);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
@@ -29,17 +31,30 @@ namespace en
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTex_, 0);
 
-        // Color (3 components diffuse and 1 component specular)
-        glGenTextures(1, &colorTex_);
-        glBindTexture(GL_TEXTURE_2D, colorTex_);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        // Diffuse color
+        glGenTextures(1, &diffuseTex_);
+        glBindTexture(GL_TEXTURE_2D, diffuseTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, colorTex_, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, diffuseTex_, 0);
+
+        // Specular color (3 color + 1 shininess)
+        glGenTextures(1, &specularTex_);
+        glBindTexture(GL_TEXTURE_2D, specularTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, specularTex_, 0);
 
         // Add color attachments to frambuffer
-        uint32_t attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-        glDrawBuffers(3, attachments);
+        std::vector<uint32_t> colorAttachments = {
+                GL_COLOR_ATTACHMENT0,
+                GL_COLOR_ATTACHMENT1,
+                GL_COLOR_ATTACHMENT2,
+                GL_COLOR_ATTACHMENT3
+        };
+        glDrawBuffers(colorAttachments.size(), colorAttachments.data());
 
         // Render depth buffer
         glGenRenderbuffers(1, &depthBuffer_);
@@ -58,7 +73,8 @@ namespace en
     {
         glDeleteTextures(1, &posTex_);
         glDeleteTextures(1, &normalTex_);
-        glDeleteTextures(1, &colorTex_);
+        glDeleteTextures(1, &diffuseTex_);
+        glDeleteTextures(1, &specularTex_);
         glDeleteRenderbuffers(1, &depthBuffer_);
         glDeleteFramebuffers(1, &fbo_);
     }
@@ -74,6 +90,34 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    void GBuffer::Resize(int32_t width, int32_t height)
+    {
+        if (width == 0 || height == 0)
+            return;
+
+        if (width == lastWidth && height == lastHeight)
+            return;
+
+        glBindTexture(GL_TEXTURE_2D, posTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
+
+        glBindTexture(GL_TEXTURE_2D, normalTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
+
+        glBindTexture(GL_TEXTURE_2D, diffuseTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+        glBindTexture(GL_TEXTURE_2D, specularTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+
+        glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer_);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        lastWidth = width;
+        lastHeight = height;
+    }
+
     void GBuffer::UseTextures(const GLProgram* program) const
     {
         glActiveTexture(GL_TEXTURE0);
@@ -85,7 +129,11 @@ namespace en
         program->SetUniformI("normal_tex", 1);
 
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, colorTex_);
-        program->SetUniformI("color_tex", 2);
+        glBindTexture(GL_TEXTURE_2D, diffuseTex_);
+        program->SetUniformI("diffuse_tex", 2);
+
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, specularTex_);
+        program->SetUniformI("specular_tex", 3);
     }
 }

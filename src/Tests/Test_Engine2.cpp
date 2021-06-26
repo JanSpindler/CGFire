@@ -114,11 +114,11 @@ int main()
             &pointShadowProgram,
             800, 600);
 
-    sceneRenderer.AddDirLight(&dirLight);
+    sceneRenderer.SetDirLight(&dirLight);
     sceneRenderer.AddPointLight(&pointLight);
     sceneRenderer.AddStandardRenderObj(&backpackObj);
     sceneRenderer.AddStandardRenderObj(&floorObj);
-    sceneRenderer.AddStandardRenderObj(&pointLight);
+    sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
     // Main loop
     en::Log::Info("Staring main loop");
@@ -129,7 +129,7 @@ int main()
         en::Input::Update();
         en::Time::Update();
         float deltaTime = (float) en::Time::GetDeltaTime();
-        //sceneRenderer.Resize(window.GetWidth(), window.GetHeight()); // TODO: maybe something more performant
+        sceneRenderer.Resize(window.GetWidth(), window.GetHeight()); // TODO: maybe something more performant
 
         HandleInput(&window, &cam, deltaTime);
 
@@ -138,6 +138,7 @@ int main()
         backpackObj.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         // Render
+        cam.SetAspectRatio(window.GetAspectRatio());
         sceneRenderer.Render(&window, &cam);
     }
 

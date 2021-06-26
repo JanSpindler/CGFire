@@ -58,7 +58,7 @@ namespace en
 
     void Mesh::RenderToGBuffer(const GLProgram *program) const
     {
-        material_->Use(program);
+        material_->UseGeometry(program);
         glBindVertexArray(vao_);
         glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
@@ -66,6 +66,14 @@ namespace en
 
     void Mesh::RenderToShadowMap(const GLProgram *program) const
     {
+        glBindVertexArray(vao_);
+        glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    }
+
+    void Mesh::RenderFixedColor(const GLProgram *program) const
+    {
+        program->SetUniformVec4f("fixed_color", material_->GetDiffuseColor());
         glBindVertexArray(vao_);
         glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);

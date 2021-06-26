@@ -332,6 +332,15 @@ namespace en
         RenderPoints();
     }
 
+    void Spline3DRenderable::RenderFixedColor(const GLProgram *program) const
+    {
+        program->SetUniformVec4f("fixed_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        RenderLines();
+
+        program->SetUniformVec4f("fixed_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        RenderPoints();
+    }
+
     void Spline3DRenderable::RenderLines() const
     {
         glBindVertexArray(lineVao_);
