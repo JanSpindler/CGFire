@@ -14,10 +14,10 @@ namespace en
     class Spline3D
     {
     public:
-        Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, unsigned int resolution);
+        static const uint8_t TYPE_CATMULL_ROM = 0;
+        static const uint8_t TYPE_NATURAL_CUBIC = 1;
 
-        glm::vec3 GetPoint(unsigned int pointIndex, float t) const;
-        glm::vec3 GetPoint(float t) const;
+        Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type);
 
         unsigned int GetControlPointCount() const;
         const std::vector<glm::vec3>& GetControlPoints() const;
@@ -35,11 +35,16 @@ namespace en
         float totalLength_;
         std::vector<float> segmentLengths_;
 
-        void ConstructCatmullRom(unsigned int resolution);
-        void ConstructNaturalCubic(unsigned int resolution);
-
+        void ConstructCatmullRom(uint32_t resolution);
         static glm::vec3 CatmullRom(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t);
-        static std::vector<float> NaturalCubic(const std::vector<float>& x, const std::vector<float>& y);
+
+        void ConstructNaturalCubic(uint32_t resolution);
+        static std::vector<float> CalcNaturalCubicMoments(const std::vector<float>& h, const std::vector<float>& y, bool loop);
+        static std::vector<glm::vec4> CalcNaturalCubicCoef(
+                const std::vector<float>& h,
+                const std::vector<float>& y,
+                const std::vector<float>& m);
+        static float NaturalCubic(glm::vec4 coef, float x);
     };
 
     class Spline3DRenderable : public Renderable

@@ -520,7 +520,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                 anim->mPostState = anim->mPreState = aiAnimBehaviour_REPEAT;
                 const int size = (int)in.splineKeys.size();
                 if (!size)  {
-                    // We have no point in the spline. That's bad. Really bad.
+                    // We have no point in the ext_spline. That's bad. Really bad.
                     ASSIMP_LOG_WARN("IRR: Spline animators with no points defined");
 
                     delete anim;
@@ -528,7 +528,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                     break;
                 }
                 else if (size == 1) {
-                    // We have just one point in the spline so we don't need the full calculation
+                    // We have just one point in the ext_spline so we don't need the full calculation
                     anim->mNumPositionKeys = 1;
                     anim->mPositionKeys = new aiVectorKey[anim->mNumPositionKeys];
 
@@ -549,7 +549,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                     const ai_real u = dt - std::floor(dt);
                     const int idx = (int)std::floor(dt) % size;
 
-                    // get the 4 current points to evaluate the spline
+                    // get the 4 current points to evaluate the ext_spline
                     const aiVector3D& p0 = in.splineKeys[ ClampSpline( idx - 1, size ) ].mValue;
                     const aiVector3D& p1 = in.splineKeys[ ClampSpline( idx + 0, size ) ].mValue;
                     const aiVector3D& p2 = in.splineKeys[ ClampSpline( idx + 1, size ) ].mValue;
@@ -564,7 +564,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                     const ai_real h3 = u3 - ai_real( 2.0 ) * u3;
                     const ai_real h4 = u3 - u2;
 
-                    // compute the spline tangents
+                    // compute the ext_spline tangents
                     const aiVector3D t1 = ( p2 - p0 ) * in.tightness;
                     aiVector3D t2 = ( p3 - p1 ) * in.tightness;
 

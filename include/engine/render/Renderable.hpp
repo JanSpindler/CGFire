@@ -27,6 +27,8 @@ namespace en
         void Render(const GLProgram* program) const;
         void RenderGeometry(const GLProgram* program);
 
+        glm::vec3 GetPos() const;
+
     private:
         const Renderable* renderable_;
 

@@ -25,6 +25,11 @@ namespace en
         renderable_->RenderGeometry(program);
     }
 
+    glm::vec3 RenderObj::GetPos() const
+    {
+        return glm::vec3(t_ * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    }
+
     void RenderObj::SetModelMat(const GLProgram *program) const
     {
         program->SetUniformMat4("model_mat", false, &t_[0][0]);

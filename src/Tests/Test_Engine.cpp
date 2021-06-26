@@ -56,7 +56,7 @@ int main()
             { -5.0f, 5.0f, -5.0f },
             { 5.0f, 0.0f, -5.0f }
     };
-    en::Spline3D spline(splinePoints, true, 40);
+    en::Spline3D spline(splinePoints, false, 32, en::Spline3D::TYPE_NATURAL_CUBIC);
     en::Spline3DRenderable splineRenderable(&spline);
     en::RenderObj splineObj(&splineRenderable);
 
@@ -180,7 +180,7 @@ int main()
         backpackObj.Render(&simpleProgram);
         floorObj.Render(&simpleProgram);
 
-        // Test render spline
+        // Test render ext_spline
         fixedColorProgram.Use();
         fixedColorProgram.SetUniformMat4("view_mat", false, &viewMat[0][0]);
         fixedColorProgram.SetUniformMat4("proj_mat", false, &projMat[0][0]);
