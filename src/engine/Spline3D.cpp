@@ -334,6 +334,10 @@ namespace en
         RenderPoints();
     }
 
+    void Spline3DRenderable::RenderSimply(const GLProgram *program) const
+    {
+    }
+
     void Spline3DRenderable::RenderLines() const
     {
         glBindVertexArray(lineVao_);

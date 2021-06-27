@@ -52,6 +52,10 @@ int main()
     en::RenderObj floorObj(&floorModel);
     floorObj.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(50.0f, 1.0f, 50.0f));
 
+    en::Model dragonModel("dragon.obj", false);
+    en::RenderObj dragonObj(&dragonModel);
+    dragonObj.t_ = glm::translate(glm::vec3(0.0f, 0.0f, 20.0f));
+
     // Lights
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
 
@@ -64,12 +68,18 @@ int main()
 
     // Scene
     en::SceneRenderer sceneRenderer(window.GetWidth(), window.GetHeight());
+
     sceneRenderer.SetDirLight(&dirLight);
     sceneRenderer.AddPointLight(&pointLight);
+
     sceneRenderer.AddStandardRenderObj(&backpackObj);
     sceneRenderer.AddStandardRenderObj(&floorObj);
+
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
     sceneRenderer.AddFixedColorRenderObj(&splineObj);
+
+    sceneRenderer.AddReflectiveRenderObjs(&dragonObj);
+
     sceneRenderer.SetSkyboxTex(&skyboxTex);
 
     // Main loop
@@ -88,6 +98,7 @@ int main()
         // Physics
         pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
         backpackObj.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+        dragonObj.t_ = dragonObj.t_ * glm::rotate(deltaTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         // Render
         cam.SetAspectRatio(window.GetAspectRatio());

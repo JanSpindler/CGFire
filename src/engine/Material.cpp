@@ -40,7 +40,7 @@ namespace en
         program->SetUniformI("mat_tex", 0);
     }
 
-    void Material::UseGeometry(const GLProgram *program) const
+    void Material::UseForGBuffer(const GLProgram *program) const
     {
         // Diffuse
         bool useDiffTex = diffuseTex_ != nullptr;
@@ -62,6 +62,18 @@ namespace en
 
         // Shininess
         program->SetUniformF("shininess", shininess_);
+    }
+
+    void Material::UseForSimpleDraw(const GLProgram *program) const
+    {
+        // Only use diffuse information
+        bool useDiffTex = diffuseTex_ != nullptr;
+        program->SetUniformB("use_diffuse_tex", useDiffTex);
+        glActiveTexture(GL_TEXTURE0);
+        if (useDiffTex)
+            diffuseTex_->BindTex();
+        program->SetUniformI("diffuse_tex", 0);
+        program->SetUniformVec3f("diffuse_color", glm::vec3(diffuseColor_));
     }
 
     glm::vec4 Material::GetDiffuseColor() const

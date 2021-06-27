@@ -42,6 +42,8 @@ namespace en
         gBuffer_.CopyDepthBufToDefaultFb();
         RenderFixedColor(viewMatP, projMatP);
 
+        RenderReflectiveObjs(cam->GetPos(), viewMatP, projMatP);
+
         RenderSkybox(skyboxViewMatP, projMatP);
     }
 
@@ -81,6 +83,24 @@ namespace en
             if (fixedColorRenderObjs_[i] == renderObj)
             {
                 fixedColorRenderObjs_.erase(fixedColorRenderObjs_.begin() + i);
+                return;
+            }
+        }
+    }
+
+    void SceneRenderer::AddReflectiveRenderObjs(const RenderObj* renderObj)
+    {
+        RemoveReflectiveRenderObj(renderObj);
+        reflectiveRenderObjs_.push_back(renderObj);
+    }
+
+    void SceneRenderer::RemoveReflectiveRenderObj(const RenderObj* renderObj)
+    {
+        for (uint32_t i = 0; i < reflectiveRenderObjs_.size(); i++)
+        {
+            if (reflectiveRenderObjs_[i] == renderObj)
+            {
+                reflectiveRenderObjs_.erase(reflectiveRenderObjs_.begin() + i);
                 return;
             }
         }
@@ -140,6 +160,10 @@ namespace en
         const GLShader* skyboxVert = GLShader::Load("CGFire/skybox.vert");
         const GLShader* skyboxFrag = GLShader::Load("CGFire/skybox.frag");
         skyboxProgram_ = GLProgram::Load(skyboxVert, nullptr, skyboxFrag);
+
+        const GLShader* reflectiveVert = GLShader::Load("CGFire/reflective.vert");
+        const GLShader* reflectiveFrag = GLShader::Load("CGFire/reflective.frag");
+        reflectiveProgram_ = GLProgram::Load(reflectiveVert, nullptr, reflectiveFrag);
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -244,6 +268,8 @@ namespace en
             renderObj->RenderToShadowMap(dirShadowProgram_);
         for (const RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderToShadowMap(dirShadowProgram_);
+        for (const RenderObj* renderObj : reflectiveRenderObjs_)
+            renderObj->RenderToShadowMap(dirShadowProgram_);
         dirLight_->UnbindShadowBuffer();
     }
 
@@ -262,6 +288,8 @@ namespace en
             for (const RenderObj* renderObj : standardRenderObjs_)
                 renderObj->RenderToShadowMap(pointShadowProgram_);
             for (const RenderObj* renderObj : fixedColorRenderObjs_)
+                renderObj->RenderToShadowMap(pointShadowProgram_);
+            for (const RenderObj* renderObj : reflectiveRenderObjs_)
                 renderObj->RenderToShadowMap(pointShadowProgram_);
             pointLight->UnbindShadowBuffer();
         }
@@ -315,6 +343,31 @@ namespace en
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
         for (const RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderFixedColor(fixedColorProgram_);
+    }
+
+    void SceneRenderer::RenderReflectiveObjs(glm::vec3 camPos, const float *viewMat, const float *projMat) const
+    {
+        /*simpleProgram_->Use();
+
+        for (const RenderObj* renderObj : standardRenderObjs_)
+            renderObj->RenderSimply(simpleProgram_);
+        for (const RenderObj* renderObj : fixedColorRenderObjs_)
+            renderObj->RenderSimply(simpleProgram_);
+        for (const RenderObj* renderObj : reflectiveRenderObjs_)
+            renderObj->RenderSimply(simpleProgram_);*/
+
+        reflectiveProgram_->Use();
+        reflectiveProgram_->SetUniformMat4("view_mat", false, viewMat);
+        reflectiveProgram_->SetUniformMat4("proj_mat", false, projMat);
+        reflectiveProgram_->SetUniformVec3f("cam_pos", camPos);
+
+        for (const RenderObj* renderObj : reflectiveRenderObjs_)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            skyboxTex_->BindTex();
+            reflectiveProgram_->SetUniformI("cube", 0);
+            renderObj->RenderSimply(reflectiveProgram_);
+        }
     }
 
     void SceneRenderer::RenderSkybox(const float *viewMat, const float *projMat) const

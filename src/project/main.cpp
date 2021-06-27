@@ -27,8 +27,8 @@ int main()
             nearPlane,
             farPlane);
 
-    en::GLShader vertShader("simple.vert", en::GLShader::Type::VERTEX);
-    en::GLShader fragShader("simple.frag", en::GLShader::Type::FRAGMENT);
+    en::GLShader vertShader("old.vert", en::GLShader::Type::VERTEX);
+    en::GLShader fragShader("old.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram program(vertShader, fragShader);
 
     glm::mat4 viewMat;

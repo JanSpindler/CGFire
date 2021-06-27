@@ -38,6 +38,13 @@ namespace en
         renderable_->RenderFixedColor(program);
     }
 
+    void RenderObj::RenderSimply(const GLProgram *program) const
+    {
+        SetModelMat(program);
+        SetNormalMat(program);
+        renderable_->RenderSimply(program);
+    }
+
     glm::vec3 RenderObj::GetPos() const
     {
         return glm::vec3(t_ * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));

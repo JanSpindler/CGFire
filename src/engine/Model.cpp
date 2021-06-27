@@ -63,6 +63,12 @@ namespace en
             mesh->RenderFixedColor(program);
     }
 
+    void Model::RenderSimply(const GLProgram *program) const
+    {
+        for (const Mesh* mesh : meshes_)
+            mesh->RenderSimply(program);
+    }
+
     const std::vector<Mesh*>& Model::GetMeshes() const
     {
         return meshes_;

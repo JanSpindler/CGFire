@@ -40,8 +40,8 @@ int main()
     en::GLShader pointShadowFrag("CGFire/point_shadow.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram pointShadowProgram(&pointShadowVert, &pointShadowGeom, &pointShadowFrag);
 
-    en::GLShader simpleVert("CGFire/simple.vert", en::GLShader::Type::VERTEX);
-    en::GLShader simpleFrag("CGFire/simple.frag", en::GLShader::Type::FRAGMENT);
+    en::GLShader simpleVert("CGFire/old.vert", en::GLShader::Type::VERTEX);
+    en::GLShader simpleFrag("CGFire/old.frag", en::GLShader::Type::FRAGMENT);
     en::GLProgram simpleProgram(&simpleVert, nullptr, &simpleFrag);
     simpleProgram.Use();
 

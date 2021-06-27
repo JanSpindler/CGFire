@@ -17,6 +17,7 @@ namespace en
         virtual void RenderToGBuffer(const GLProgram* program) const = 0;
         virtual void RenderToShadowMap(const GLProgram* program) const = 0;
         virtual void RenderFixedColor(const GLProgram* program) const = 0;
+        virtual void RenderSimply(const GLProgram* program) const = 0;
     };
 
     class RenderObj
@@ -30,6 +31,7 @@ namespace en
         void RenderToGBuffer(const GLProgram* program) const;
         void RenderToShadowMap(const GLProgram* program) const;
         void RenderFixedColor(const GLProgram* program) const;
+        void RenderSimply(const GLProgram* program) const;
 
         glm::vec3 GetPos() const;
 

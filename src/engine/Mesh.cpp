@@ -51,29 +51,34 @@ namespace en
     void Mesh::Render(const GLProgram* program) const
     {
         material_->Use(program);
-        glBindVertexArray(vao_);
-        glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(0);
+        GLDrawCall();
     }
 
     void Mesh::RenderToGBuffer(const GLProgram *program) const
     {
-        material_->UseGeometry(program);
-        glBindVertexArray(vao_);
-        glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(0);
+        material_->UseForGBuffer(program);
+        GLDrawCall();
     }
 
     void Mesh::RenderToShadowMap(const GLProgram *program) const
     {
-        glBindVertexArray(vao_);
-        glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(0);
+        GLDrawCall();
     }
 
     void Mesh::RenderFixedColor(const GLProgram *program) const
     {
         program->SetUniformVec4f("fixed_color", material_->GetDiffuseColor());
+        GLDrawCall();
+    }
+
+    void Mesh::RenderSimply(const GLProgram *program) const
+    {
+        material_->UseForSimpleDraw(program);
+        GLDrawCall();
+    }
+
+    void Mesh::GLDrawCall() const
+    {
         glBindVertexArray(vao_);
         glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);

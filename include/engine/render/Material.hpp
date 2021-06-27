@@ -24,7 +24,8 @@ namespace en
         ~Material();
 
         void Use(const GLProgram* program) const;
-        void UseGeometry(const GLProgram* program) const;
+        void UseForGBuffer(const GLProgram* program) const;
+        void UseForSimpleDraw(const GLProgram* program) const;
 
         glm::vec4 GetDiffuseColor() const;
 

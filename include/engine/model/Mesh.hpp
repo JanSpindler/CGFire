@@ -27,12 +27,15 @@ namespace en
         void RenderToGBuffer(const GLProgram* program) const override;
         void RenderToShadowMap(const GLProgram* program) const override;
         void RenderFixedColor(const GLProgram* program) const override;
+        void RenderSimply(const GLProgram* program) const override;
 
     private:
         unsigned int vao_;
         std::vector<Vertex> vertices_;
         std::vector<unsigned int> indices_;
         const Material* material_;
+
+        void GLDrawCall() const;
     };
 }
 

@@ -29,6 +29,9 @@ namespace en
         void AddFixedColorRenderObj(const RenderObj* renderObj);
         void RemoveFixedColorRenderObj(const RenderObj* renderObj);
 
+        void AddReflectiveRenderObjs(const RenderObj* renderObj);
+        void RemoveReflectiveRenderObj(const RenderObj* renderObj);
+
         void SetDirLight(const DirLight* dirLight);
 
         void AddPointLight(const PointLight* pointLight);
@@ -40,12 +43,16 @@ namespace en
         const GLProgram* geometryProgram_;
         const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
+        const GLProgram* simpleProgram_;
         const GLProgram* dirShadowProgram_;
         const GLProgram* pointShadowProgram_;
+        const GLProgram* reflectiveProgram_;
         const GLProgram* skyboxProgram_;
 
         std::vector<const RenderObj*> standardRenderObjs_;
         std::vector<const RenderObj*> fixedColorRenderObjs_;
+        std::vector<const RenderObj*> reflectiveRenderObjs_;
+
         const DirLight* dirLight_;
         std::vector<const PointLight*> pointLights_;
         const GLSkyboxTex* skyboxTex_;
@@ -63,6 +70,7 @@ namespace en
         void RenderDeferredGeometry(const float* viewMat, const float* projMat) const;
         void RenderDeferredLighting(const Window* window, const Camera* cam) const;
         void RenderFixedColor(const float* viewMat, const float* projMat) const;
+        void RenderReflectiveObjs(glm::vec3 camPos, const float* viewMat, const float* projMat) const;
         void RenderSkybox(const float* viewMat, const float* projMat) const;
     };
 }
