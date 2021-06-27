@@ -22,6 +22,7 @@ namespace en
     void RenderObj::RenderToGBuffer(const GLProgram *program) const
     {
         SetModelMat(program);
+        SetNormalMat(program);
         renderable_->RenderToGBuffer(program);
     }
 
@@ -45,5 +46,11 @@ namespace en
     void RenderObj::SetModelMat(const GLProgram *program) const
     {
         program->SetUniformMat4("model_mat", false, &t_[0][0]);
+    }
+
+    void RenderObj::SetNormalMat(const GLProgram* program) const
+    {
+        glm::mat3 normalMat = glm::mat3(glm::transpose(glm::inverse(t_)));
+        program->SetUniformMat3("normal_mat", false, &normalMat[0][0]);
     }
 }

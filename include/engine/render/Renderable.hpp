@@ -37,6 +37,7 @@ namespace en
         const Renderable* renderable_;
 
         void SetModelMat(const GLProgram* program) const;
+        void SetNormalMat(const GLProgram* program) const;
     };
 }
 

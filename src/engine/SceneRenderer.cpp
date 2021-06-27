@@ -14,26 +14,35 @@ namespace en
             fixedColorRenderObjs_({}),
             dirLight_(nullptr),
             pointLights_({}),
+            skyboxTex_(nullptr),
             gBuffer_(width, height)
     {
         LoadPrograms();
         CreateFullScreenVao();
+        CreateSkyboxVao();
     }
 
     void SceneRenderer::Render(const Window* window, const Camera* cam) const
     {
         glm::mat4 viewMat = cam->GetViewMat();
+        glm::mat4 skyboxViewMat = glm::mat4(glm::mat3(viewMat));
         glm::mat4 projMat = cam->GetProjMat();
+
+        float* viewMatP = &viewMat[0][0];
+        float* skyboxViewMatP = &skyboxViewMat[0][0];
+        float* projMatP = &projMat[0][0];
 
         RenderDirShadow();
         RenderPointShadows();
 
         window->UseViewport();
-        RenderDeferredGeometry(&viewMat[0][0], &projMat[0][0]);
+        RenderDeferredGeometry(viewMatP, projMatP);
         RenderDeferredLighting(window, cam);
 
         gBuffer_.CopyDepthBufToDefaultFb();
-        RenderFixedColor(&viewMat[0][0], &projMat[0][0]);
+        RenderFixedColor(viewMatP, projMatP);
+
+        RenderSkybox(skyboxViewMatP, projMatP);
     }
 
     void SceneRenderer::Resize(int32_t width, int32_t height)
@@ -100,6 +109,11 @@ namespace en
         }
     }
 
+    void SceneRenderer::SetSkyboxTex(const GLSkyboxTex *skyboxTex)
+    {
+        skyboxTex_ = skyboxTex;
+    }
+
     void SceneRenderer::LoadPrograms()
     {
         const GLShader* fixedColorVert = GLShader::Load("CGFire/fixed_color.vert");
@@ -122,6 +136,10 @@ namespace en
         const GLShader* lightVert = GLShader::Load("CGFire/deferred_lighting.vert");
         const GLShader* lightFrag = GLShader::Load("CGFire/deferred_lighting.frag");
         lightingProgram_ = GLProgram::Load(lightVert, nullptr, lightFrag);
+
+        const GLShader* skyboxVert = GLShader::Load("CGFire/skybox.vert");
+        const GLShader* skyboxFrag = GLShader::Load("CGFire/skybox.frag");
+        skyboxProgram_ = GLProgram::Load(skyboxVert, nullptr, skyboxFrag);
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -150,6 +168,67 @@ namespace en
         glGenBuffers(1, &ibo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        glBindVertexArray(0);
+    }
+
+    void SceneRenderer::CreateSkyboxVao()
+    {
+        float skyboxVertices[] = {
+                // positions
+                -1.0f,  1.0f, -1.0f,
+                -1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
+
+                -1.0f, -1.0f,  1.0f,
+                -1.0f, -1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f,  1.0f,
+                -1.0f, -1.0f,  1.0f,
+
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+
+                -1.0f, -1.0f,  1.0f,
+                -1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f, -1.0f,  1.0f,
+                -1.0f, -1.0f,  1.0f,
+
+                -1.0f,  1.0f, -1.0f,
+                1.0f,  1.0f, -1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                -1.0f,  1.0f,  1.0f,
+                -1.0f,  1.0f, -1.0f,
+
+                -1.0f, -1.0f, -1.0f,
+                -1.0f, -1.0f,  1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                -1.0f, -1.0f,  1.0f,
+                1.0f, -1.0f,  1.0f
+        };
+
+        glGenVertexArrays(1, &skyboxVao_);
+        glBindVertexArray(skyboxVao_);
+
+        uint32_t vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
         glBindVertexArray(0);
     }
@@ -236,5 +315,27 @@ namespace en
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
         for (const RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderFixedColor(fixedColorProgram_);
+    }
+
+    void SceneRenderer::RenderSkybox(const float *viewMat, const float *projMat) const
+    {
+        if (skyboxTex_ == nullptr)
+            return;
+
+        glDepthFunc(GL_LEQUAL);
+
+        skyboxProgram_->Use();
+        skyboxProgram_->SetUniformMat4("view_mat", false, viewMat);
+        skyboxProgram_->SetUniformMat4("proj_mat", false, projMat);
+
+        glActiveTexture(GL_TEXTURE0);
+        skyboxTex_->BindTex();
+        skyboxProgram_->SetUniformI("skybox_tex", 0);
+
+        glBindVertexArray(skyboxVao_);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+        glDepthFunc(GL_LESS);
     }
 }

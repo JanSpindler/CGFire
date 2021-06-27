@@ -34,29 +34,36 @@ namespace en
         void AddPointLight(const PointLight* pointLight);
         void RemovePointLight(const PointLight* pointLight);
 
+        void SetSkyboxTex(const GLSkyboxTex* skyboxTex);
+
     private:
         const GLProgram* geometryProgram_;
         const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
         const GLProgram* dirShadowProgram_;
         const GLProgram* pointShadowProgram_;
+        const GLProgram* skyboxProgram_;
 
         std::vector<const RenderObj*> standardRenderObjs_;
         std::vector<const RenderObj*> fixedColorRenderObjs_;
         const DirLight* dirLight_;
         std::vector<const PointLight*> pointLights_;
+        const GLSkyboxTex* skyboxTex_;
 
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;
+        uint32_t skyboxVao_;
 
         void LoadPrograms();
         void CreateFullScreenVao();
+        void CreateSkyboxVao();
 
         void RenderDirShadow() const;
         void RenderPointShadows() const;
         void RenderDeferredGeometry(const float* viewMat, const float* projMat) const;
         void RenderDeferredLighting(const Window* window, const Camera* cam) const;
         void RenderFixedColor(const float* viewMat, const float* projMat) const;
+        void RenderSkybox(const float* viewMat, const float* projMat) const;
     };
 }
 

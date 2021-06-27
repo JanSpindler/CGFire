@@ -59,6 +59,9 @@ int main()
     pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
     std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
 
+    // Skybox
+    en::GLSkyboxTex skyboxTex("CGFire/skybox1", ".png", false);
+
     // Scene
     en::SceneRenderer sceneRenderer(window.GetWidth(), window.GetHeight());
     sceneRenderer.SetDirLight(&dirLight);
@@ -67,6 +70,7 @@ int main()
     sceneRenderer.AddStandardRenderObj(&floorObj);
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
     sceneRenderer.AddFixedColorRenderObj(&splineObj);
+    sceneRenderer.SetSkyboxTex(&skyboxTex);
 
     // Main loop
     en::Log::Info("Staring main loop");
