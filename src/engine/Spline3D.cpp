@@ -319,17 +319,10 @@ namespace en
 
     void Spline3DRenderable::RenderToGBuffer(const GLProgram *program) const
     {
-        program->SetUniformVec4f("fixed_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        RenderLines();
-
-        program->SetUniformVec4f("fixed_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        RenderPoints();
     }
 
     void Spline3DRenderable::RenderToShadowMap(const GLProgram *program) const
     {
-        RenderLines();
-        RenderPoints();
     }
 
     void Spline3DRenderable::RenderFixedColor(const GLProgram *program) const

@@ -9,49 +9,15 @@
 
 namespace en
 {
-    SceneRenderer::SceneRenderer(
-            const GLProgram* geometryProgram,
-            const GLProgram* lightingProgram,
-            const GLProgram* fixedColorProgram,
-            const GLProgram* dirShadowProgram,
-            const GLProgram* pointShadowProgram,
-            int32_t width,
-            int32_t height) :
-            geometryProgram_(geometryProgram),
-            lightingProgram_(lightingProgram),
-            fixedColorProgram_(fixedColorProgram),
-            dirShadowProgram_(dirShadowProgram),
-            pointShadowProgram_(pointShadowProgram),
+    SceneRenderer::SceneRenderer(int32_t width, int32_t height) :
             standardRenderObjs_({}),
             fixedColorRenderObjs_({}),
+            dirLight_(nullptr),
+            pointLights_({}),
             gBuffer_(width, height)
     {
-        glm::vec3 vertices[] = {
-                glm::vec3(-1.0f, -1.0f, 0.0f),
-                glm::vec3(1.0f, -1.0f, 0.0f),
-                glm::vec3(1.0f, 1.0f, 0.0f),
-                glm::vec3(-1.0f, 1.0f, 0.0f)
-        };
-
-        uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
-
-        glGenVertexArrays(1, &fullScreenVao_);
-        glBindVertexArray(fullScreenVao_);
-
-        uint32_t vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
-
-        uint32_t ibo;
-        glGenBuffers(1, &ibo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-        glBindVertexArray(0);
+        LoadPrograms();
+        CreateFullScreenVao();
     }
 
     void SceneRenderer::Render(const Window* window, const Camera* cam) const
@@ -65,6 +31,9 @@ namespace en
         window->UseViewport();
         RenderDeferredGeometry(&viewMat[0][0], &projMat[0][0]);
         RenderDeferredLighting(window, cam);
+
+        gBuffer_.CopyDepthBufToDefaultFb();
+        RenderFixedColor(&viewMat[0][0], &projMat[0][0]);
     }
 
     void SceneRenderer::Resize(int32_t width, int32_t height)
@@ -129,6 +98,60 @@ namespace en
                 return;
             }
         }
+    }
+
+    void SceneRenderer::LoadPrograms()
+    {
+        const GLShader* fixedColorVert = GLShader::Load("CGFire/fixed_color.vert");
+        const GLShader* fixedColorFrag = GLShader::Load("CGFire/fixed_color.frag");
+        fixedColorProgram_ = GLProgram::Load(fixedColorVert, nullptr, fixedColorFrag);
+
+        const GLShader* dirShadowVert = GLShader::Load("CGFire/dir_shadow.vert");
+        const GLShader* dirShadowFrag = GLShader::Load("CGFire/dir_shadow.frag");
+        dirShadowProgram_ = GLProgram::Load(dirShadowVert, nullptr, dirShadowFrag);
+
+        const GLShader* pointShadowVert = GLShader::Load("CGFire/point_shadow.vert");
+        const GLShader* pointShadowGeom = GLShader::Load("CGFire/point_shadow.geom");
+        const GLShader* pointShadowFrag = GLShader::Load("CGFire/point_shadow.frag");
+        pointShadowProgram_ = GLProgram::Load(pointShadowVert, pointShadowGeom, pointShadowFrag);
+
+        const GLShader* geomVert = GLShader::Load("CGFire/deferred_geometry.vert");
+        const GLShader* geomFrag = GLShader::Load("CGFire/deferred_geometry.frag");
+        geometryProgram_ = GLProgram::Load(geomVert, nullptr, geomFrag);
+
+        const GLShader* lightVert = GLShader::Load("CGFire/deferred_lighting.vert");
+        const GLShader* lightFrag = GLShader::Load("CGFire/deferred_lighting.frag");
+        lightingProgram_ = GLProgram::Load(lightVert, nullptr, lightFrag);
+    }
+
+    void SceneRenderer::CreateFullScreenVao()
+    {
+        glm::vec3 vertices[] = {
+                glm::vec3(-1.0f, -1.0f, 0.0f),
+                glm::vec3(1.0f, -1.0f, 0.0f),
+                glm::vec3(1.0f, 1.0f, 0.0f),
+                glm::vec3(-1.0f, 1.0f, 0.0f)
+        };
+
+        uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
+
+        glGenVertexArrays(1, &fullScreenVao_);
+        glBindVertexArray(fullScreenVao_);
+
+        uint32_t vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
+
+        uint32_t ibo;
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        glBindVertexArray(0);
     }
 
     void SceneRenderer::RenderDirShadow() const

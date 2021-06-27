@@ -3,35 +3,60 @@
 //
 
 #include "engine/gr_include.hpp"
-
 #include "engine/Render/GLShader.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
 
 namespace en
 {
-    GLShader::GLShader(const std::string& filename, Type type)
+    std::unordered_map<std::string, GLShader*> GLShader::instances_ = {};
+
+    const GLShader* GLShader::Load(const std::string &filename)
+    {
+        GLShader* shader;
+        if (instances_.find(filename) == instances_.end())
+            instances_[filename] = new GLShader(filename);
+        return instances_[filename];
+    }
+
+    void GLShader::Delete(const GLShader* shader)
+    {
+        GLShader* storedShader;
+        for (std::unordered_map<std::string, GLShader*>::const_iterator i = instances_.begin(); i != instances_.end(); i++)
+        {
+            storedShader = i->second;
+            if (storedShader == shader)
+            {
+                delete storedShader;
+                instances_.erase(i);
+                return;
+            }
+        }
+    }
+
+    void GLShader::DeleteAll()
+    {
+        for (std::unordered_map<std::string, GLShader*>::const_iterator i = instances_.begin(); i != instances_.end(); i++)
+            delete i->second;
+        instances_.clear();
+    }
+
+    GLShader::GLShader(const std::string& filename)
     {
         Log::Info("Loading shader code: " + filename);
 
         std::vector<char> code = ReadFileBinary(SHADER_ROOT + "/" + filename.c_str());
         code.push_back(0);
 
-        unsigned int glType;
-        switch (type)
-        {
-            case Type::VERTEX:
-                glType = GL_VERTEX_SHADER;
-                break;
-            case Type::GEOMETRY:
-                glType = GL_GEOMETRY_SHADER;
-                break;
-            case Type::FRAGMENT:
-                glType = GL_FRAGMENT_SHADER;
-                break;
-            default:
-                Log::Error("Unknown Shader type", true);
-        }
+        uint32_t glType = 0;
+        if (filename.find(".vert") != std::string::npos)
+            glType = GL_VERTEX_SHADER;
+        else if (filename.find(".geom") != std::string::npos)
+            glType = GL_GEOMETRY_SHADER;
+        else if (filename.find(".frag") != std::string::npos)
+            glType = GL_FRAGMENT_SHADER;
+        else
+            Log::Error("Failed to find corresponding GL Shader Type", true);
 
         handle_ = glCreateShader(glType);
         const char* c_code = code.data();
@@ -53,6 +78,7 @@ namespace en
 
     GLShader::~GLShader()
     {
+        Delete();
     }
 
     void GLShader::AttachTo(unsigned int program) const
@@ -60,9 +86,41 @@ namespace en
         glAttachShader(program, handle_);
     }
 
-    void GLShader::Delete() const
+    void GLShader::Delete()
     {
         glDeleteShader(handle_);
+    }
+
+    std::unordered_map<GLProgram::ShaderStages, GLProgram*> GLProgram::instances_ = {};
+
+    const GLProgram* GLProgram::Load(const GLShader *vert, const GLShader *geom, const GLShader *frag)
+    {
+        ShaderStages stages = { vert, geom, frag };
+        if (instances_.find(stages) == instances_.end())
+            instances_[stages] = new GLProgram(vert, geom, frag);
+        return instances_[stages];
+    }
+
+    void GLProgram::Delete(const GLProgram* program)
+    {
+        GLProgram* storedProgram;
+        for (std::unordered_map<ShaderStages, GLProgram*>::const_iterator i = instances_.begin(); i != instances_.end(); i++)
+        {
+            storedProgram = i->second;
+            if (storedProgram == program)
+            {
+                delete storedProgram;
+                instances_.erase(i);
+                return;
+            }
+        }
+    }
+
+    void GLProgram::DeleteAll()
+    {
+        for (std::unordered_map<ShaderStages, GLProgram*>::const_iterator i = instances_.begin(); i != instances_.end(); i++)
+            delete i->second;
+        instances_.clear();
     }
 
     GLProgram::GLProgram(const GLShader* vertShader, const GLShader* geomShader, const GLShader* fragShader)
@@ -90,6 +148,7 @@ namespace en
 
     GLProgram::~GLProgram()
     {
+        Delete();
     }
 
     void GLProgram::Use() const

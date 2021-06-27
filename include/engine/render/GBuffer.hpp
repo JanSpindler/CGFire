@@ -21,6 +21,7 @@ namespace en
         void Unbind() const;
         void Resize(int32_t width, int32_t height);
         void UseTextures(const GLProgram* program) const;
+        void CopyDepthBufToDefaultFb() const;
 
     private:
         uint32_t fbo_;
@@ -30,8 +31,8 @@ namespace en
         uint32_t specularTex_;
         uint32_t depthBuffer_;
 
-        int32_t lastWidth;
-        int32_t lastHeight;
+        int32_t width_;
+        int32_t height_;
     };
 }
 

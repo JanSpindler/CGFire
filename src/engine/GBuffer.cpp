@@ -9,8 +9,8 @@
 namespace en
 {
     GBuffer::GBuffer(int32_t width, int32_t height) :
-        lastWidth(0),
-        lastHeight(0)
+        width_(0),
+        height_(0)
     {
         glGenFramebuffers(1, &fbo_);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
@@ -95,7 +95,7 @@ namespace en
         if (width == 0 || height == 0)
             return;
 
-        if (width == lastWidth && height == lastHeight)
+        if (width == width_ && height == height_)
             return;
 
         glBindTexture(GL_TEXTURE_2D, posTex_);
@@ -114,8 +114,8 @@ namespace en
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-        lastWidth = width;
-        lastHeight = height;
+        width_ = width;
+        height_ = height;
     }
 
     void GBuffer::UseTextures(const GLProgram* program) const
@@ -135,5 +135,13 @@ namespace en
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, specularTex_);
         program->SetUniformI("specular_tex", 3);
+    }
+
+    void GBuffer::CopyDepthBufToDefaultFb() const
+    {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, width_, height_, 0, 0, width_, height_, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }

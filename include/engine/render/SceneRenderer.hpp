@@ -18,14 +18,7 @@ namespace en
     class SceneRenderer
     {
     public:
-        SceneRenderer(
-                const GLProgram* geometryProgram,
-                const GLProgram* lightingProgram,
-                const GLProgram* fixedColorProgram,
-                const GLProgram* dirShadowProgram,
-                const GLProgram* pointShadowProgram,
-                int32_t width,
-                int32_t height);
+        SceneRenderer(int32_t width, int32_t height);
 
         void Render(const Window* window, const Camera* cam) const;
         void Resize(int32_t width, int32_t height);
@@ -55,6 +48,9 @@ namespace en
 
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;
+
+        void LoadPrograms();
+        void CreateFullScreenVao();
 
         void RenderDirShadow() const;
         void RenderPointShadows() const;
