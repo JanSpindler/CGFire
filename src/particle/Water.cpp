@@ -26,6 +26,7 @@ namespace particle{
 
         m_ParticleSystem.InitializeTextures(m_Textures);
 
+        m_BaseWaterJetProps.VelocityVariation = {0.f, 0.f, 0.f};
         m_BaseWaterJetProps.GravityFactor = 10.f;
         m_BaseWaterJetProps.ColorBegin = { 255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f };
         m_BaseWaterJetProps.ColorEnd = { 255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f };
@@ -104,17 +105,16 @@ namespace particle{
 
     void WaterCreator::onImGuiRender(){
         ImGui::TextColored(ImVec4(0, 1, 1, 1), "WaterJet Particle Props (General)");
-        ImGui::SliderFloat3("VelocityVariation", &m_BaseWaterJetProps.VelocityVariation.x, -100, 100);
         ImGui::SliderFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor, 0, 10);
         ImGui::ColorEdit4("ColorBegin", &m_BaseWaterJetProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseWaterJetProps.ColorEnd.x);
-        ImGui::SliderFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin, 0, 100);
+        ImGui::SliderFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin, 0, 10);
         ImGui::SliderFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation, 0, 10);
         ImGui::SliderFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0, 10);
 
         for (int i = 0; i < m_WaterJets.size(); i++) {
             ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", ("WaterJet" + std::to_string(i)).c_str());
-            ImGui::SliderFloat3("Position", &m_WaterJets[i]->Position.x, -10, 10);
+            ImGui::SliderFloat3("Position", &m_WaterJets[i]->Position.x, -50, 50);
             ImGui::SliderFloat3("PositionVariation", &m_WaterJets[i]->PositionVariation.x, -10, 10);
             ImGui::SliderFloat3("WaterDirection", &m_WaterJets[i]->WaterDirection.x, -1, 1);
             ImGui::SliderFloat("Speed", &m_WaterJets[i]->Speed, 0, 300);

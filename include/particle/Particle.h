@@ -5,6 +5,8 @@
 #pragma once
 
 
+#include <engine/Spline3D.hpp>
+
 namespace particle{
     struct ParticleProps {
         glm::vec3 Position;
@@ -23,7 +25,9 @@ namespace particle{
 
         glm::vec2 TexCoord = {0.f, 0.f}; //If you want to use animation, you can change the TexCoord for each frame
         glm::vec2 TexCoordAnimFrames = {1.f, 1.f}; // rows, columns of the sprite-sheet
+        bool TexLooped = false;
 
+        en::Spline3D* Spline = nullptr;
     };
 
     struct Particle {
@@ -40,7 +44,7 @@ namespace particle{
 
         glm::vec2 TexCoord = {0.f, 0.f};
         glm::vec2 TexCoordAnimFrames = {1.f, 1.f}; // rows, columns of the sprite-sheet
-
+        bool TexLooped = false;
 
         bool Active = false;
 
@@ -51,5 +55,7 @@ namespace particle{
         }
 
         Particle* NextParticle = nullptr; //used to keep track of unused particles and retrieve them in constant time
+
+        en::Spline3D* Spline = nullptr;
     };
 }

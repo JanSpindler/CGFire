@@ -49,8 +49,8 @@ int main(int, char* argv[]) {
 
 
         //Updates
-        particleSystemFire.OnUpdate(deltaTime);
         particleSystemWater.OnUpdate(deltaTime);
+        particleSystemFire.OnUpdate(deltaTime);
         Scene.onUpdate(deltaTime);
 
         //UI

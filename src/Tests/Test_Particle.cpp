@@ -8,6 +8,7 @@
 #include "particle/ParticleSystem.h"
 #include "particle/Fire.h"
 #include "particle/Water.h"
+#include "particle/Smoke.h"
 
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
@@ -38,15 +39,35 @@ int main(int, char* argv[]) {
     FireCreator fireCreator(particleSystemFire);
 
     fireCreator.startFlame(std::make_shared<Flame>
-            (glm::vec3(0.5f, 0.5f, 0.5f),
+            (glm::vec3(0.f, 0.f, 0.f),
              glm::vec3(1.f, 0.f, 1.f),
              30,
-             15.f,
+             5.f,
              10.f,
              1.f,
              0.2f));
 
-    //TODO Time event für Flammen expiring
+    ParticleSystem particleSystemSmoke(10000, cam, false);
+    SmokeCreator smokeCreator(particleSystemSmoke);
+
+    en::GLShader fixedColorVert("CGFire/fixed_color.vert", en::GLShader::Type::VERTEX);
+    en::GLShader fixedColorFrag("CGFire/fixed_color.frag", en::GLShader::Type::FRAGMENT);
+    en::GLProgram fixedColorProgram(&fixedColorVert, nullptr, &fixedColorFrag);
+    std::vector<glm::vec3> splinePoints = {
+            { 0.0f, 2.0f, 0.0f },
+            { 5.0f, 5.0f, 0.0f },
+            { 10.0f, 10.0f, -5.0f },
+            { 35.0f, 30.0f, -15.0f }
+    };
+    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40);
+    en::Spline3DRenderable splineRenderable(spline.get());
+    en::RenderObj splineObj(&splineRenderable);
+
+    smokeCreator.startSmokeStream(std::make_shared<SmokeStream>
+                                   (spline,
+                                    glm::vec3(0.5f, 0.5f, 0.5f),
+                                    glm::vec3(1.f, 0.f, 1.f),
+                                    30.f));
 
     //Water
     ParticleSystem particleSystemWater(10000, cam, false);
@@ -78,6 +99,8 @@ int main(int, char* argv[]) {
         particleSystemFire.OnUpdate(deltaTime);
         waterCreator.onUpdate(deltaTime);
         particleSystemWater.OnUpdate(deltaTime);
+        smokeCreator.onUpdate(deltaTime);
+        particleSystemSmoke.OnUpdate(deltaTime);
 
 
         //UI
@@ -92,17 +115,32 @@ int main(int, char* argv[]) {
                 waterCreator.onImGuiRender();
                 ImGui::End();
             }
+            if (ImGui::Begin("Smoke")) {
+                smokeCreator.onImGuiRender();
+                ImGui::End();
+            }
         }
 
         //Rendering
         cam.SetAspectRatio(window.GetAspectRatio());
 
         window.UseViewport();
-        particleSystemFire.OnRender();
         particleSystemWater.OnRender();
+
+        particleSystemSmoke.OnRender();
+        particleSystemFire.OnRender();
 
         if (renderImGui)
             imgui_render();
+
+        auto viewMat = cam.GetViewMat();
+        auto projMat = cam.GetProjMat();
+
+        // Test render spline
+        fixedColorProgram.Use();
+        fixedColorProgram.SetUniformMat4("view_mat", false, &viewMat[0][0]);
+        fixedColorProgram.SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        splineObj.Render(&fixedColorProgram);
     }
 
     cleanup_imgui();

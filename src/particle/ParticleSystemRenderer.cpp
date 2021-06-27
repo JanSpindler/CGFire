@@ -2,6 +2,7 @@
 #include "particle/ParticleSystemRenderer.h"
 #include <array>
 #include <engine/Util.hpp>
+#include <util/Random.h>
 
 namespace particle {
 
@@ -131,7 +132,6 @@ namespace particle {
         glDepthMask(GL_FALSE);
         glEnable(GL_BLEND);
 
-
         glBlendFunc(GL_SRC_ALPHA, m_AdditiveBlending ? GL_ONE : GL_ONE_MINUS_SRC_ALPHA);
 
 
@@ -167,7 +167,15 @@ namespace particle {
             NextBatch();
         }
 
-        float life = std::max(particle.LifeRemaining, 0.f) / particle.LifeTime;
+        float life;
+        if (!particle.TexLooped) //Fire
+            life = std::max(particle.LifeRemaining, 0.f) / particle.LifeTime;
+        else if (particle.Spline == nullptr) //Water //TODO make water looped
+            life = std::max(particle.LifeRemaining - std::floor(particle.LifeRemaining), 0.f) ;
+        else //Smoke
+            life = 1.f - particle.LifeTime; // in ParticleSystem we saved the parameter t of the spline in LifeTime
+
+
         glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
         float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
 
@@ -191,7 +199,7 @@ namespace particle {
 
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), particle.Position)
-                              * glm::scale(glm::mat4(1.0f), { size, size, 1.0f });
+                              * glm::scale(glm::mat4(1.0f), { size, size, size });
 
         for (size_t i = 0; i < 4; ++i)
         {

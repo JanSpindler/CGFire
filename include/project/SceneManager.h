@@ -34,6 +34,7 @@ namespace scene {
         void restart() {
             m_FireCreator.clear();
             m_WaterCreator.clear();
+            this->m_EventsAndTimes.clear();
             this->addEvents();
             m_SceneTime = 0.f;
             m_TimePaused = false;

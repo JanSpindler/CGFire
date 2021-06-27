@@ -49,7 +49,7 @@ namespace scene{
 //                       18.f);
 
 
-        m_EventsAndTimes.sort([](const auto& a, const auto& b) { return a.second < b.second; });
 
+        m_EventsAndTimes.sort([](const auto& a, const auto& b) { return a.second < b.second; });
     }
 }
