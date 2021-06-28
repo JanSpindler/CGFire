@@ -8,6 +8,7 @@
 #include "particle/ParticleSystem.h"
 #include "particle/Fire.h"
 #include "particle/Water.h"
+#include "particle/Smoke.h"
 
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
@@ -32,11 +33,13 @@ int main(int, char* argv[]) {
             1000.0f);
 
     // Particle Systems
-    particle::ParticleSystem particleSystemFire(10000, cam, true);
-    particle::ParticleSystem particleSystemWater(10000, cam, false);
+
+    particle::ParticleSystem particleSystemWater(3000, cam, false);
+    particle::ParticleSystem particleSystemSmoke(4000, cam, false);
+    particle::ParticleSystem particleSystemFire(3000, cam, true);
 
     //Create the Scene
-    scene::SceneManager Scene(cam, particleSystemFire, particleSystemWater);
+    scene::SceneManager Scene(cam, particleSystemWater, particleSystemSmoke, particleSystemFire);
     Scene.restart();
 
     while (window.IsOpen())
@@ -50,6 +53,7 @@ int main(int, char* argv[]) {
 
         //Updates
         particleSystemWater.OnUpdate(deltaTime);
+        particleSystemSmoke.OnUpdate(deltaTime);
         particleSystemFire.OnUpdate(deltaTime);
         Scene.onUpdate(deltaTime);
 
@@ -64,8 +68,9 @@ int main(int, char* argv[]) {
         cam.SetAspectRatio(window.GetAspectRatio());
 
         window.UseViewport();
-        particleSystemFire.OnRender();
         particleSystemWater.OnRender();
+        particleSystemSmoke.OnRender();
+        particleSystemFire.OnRender();
 
         if (renderImGui)
             imgui_render();

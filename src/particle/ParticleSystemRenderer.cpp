@@ -190,7 +190,7 @@ namespace particle {
         if (!particle.TexLooped) //water,fire
             currentFrame = static_cast<uint32_t>(life * numSpriteFrames);
         else{//smoke
-            currentFrame = (particle.LifeRemaining - static_cast<uint32_t>(particle.LifeRemaining)) * numSpriteFrames;
+            currentFrame = (0.1f*particle.LifeRemaining - static_cast<uint32_t>(0.1f*particle.LifeRemaining)) * numSpriteFrames;
         }
         //std::cout << currentFrame << std::endl;
         auto currentFrameColumn = currentFrame % numSpriteRows;

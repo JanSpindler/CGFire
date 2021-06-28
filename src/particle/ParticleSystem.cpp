@@ -26,6 +26,7 @@ namespace particle {
                 if (particle.LifeRemaining <= 0.0f) { //this case only happens
                     particle.Active = false;
                     particle.CameraDistance = -1.f;
+                    m_ActiveParticleCount--;
                     continue;
                 }
                 particle.Velocity += ts * particle.GravityFactor * glm::vec3(0.f, -9.81f, 0.f);
@@ -40,6 +41,8 @@ namespace particle {
                 if (t > 1.f){
                     particle.Active = false;
                     particle.CameraDistance = -1.f;
+                    particle.Spline = nullptr;
+                    m_ActiveParticleCount--;
                     continue;
                 }
 
@@ -81,6 +84,9 @@ namespace particle {
     void ParticleSystem::Emit(const ParticleProps &pProps) {
         Particle &p = *m_NextUnusedParticle;
         m_NextUnusedParticle = p.NextParticle;
+
+        if (!p.Active)
+            m_ActiveParticleCount++;
 
         p.Active = true;
 

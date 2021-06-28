@@ -35,7 +35,7 @@ int main(int, char* argv[]) {
     using namespace particle;
 
     //Fire
-    ParticleSystem particleSystemFire(10000, cam, true);
+    ParticleSystem particleSystemFire(3000, cam, true);
     FireCreator fireCreator(particleSystemFire);
 
     fireCreator.startFlame(std::make_shared<Flame>
@@ -47,7 +47,7 @@ int main(int, char* argv[]) {
              1.f,
              0.2f));
 
-    ParticleSystem particleSystemSmoke(10000, cam, false);
+    ParticleSystem particleSystemSmoke(4000, cam, false);
     SmokeCreator smokeCreator(particleSystemSmoke);
 
     en::GLShader fixedColorVert("CGFire/fixed_color.vert", en::GLShader::Type::VERTEX);
@@ -66,11 +66,10 @@ int main(int, char* argv[]) {
     smokeCreator.startSmokeStream(std::make_shared<SmokeStream>
                                    (spline,
                                     glm::vec3(0.5f, 0.5f, 0.5f),
-                                    glm::vec3(1.f, 0.f, 1.f),
-                                    30.f));
+                                    glm::vec3(1.f, 0.f, 1.f)));
 
     //Water
-    ParticleSystem particleSystemWater(10000, cam, false);
+    ParticleSystem particleSystemWater(3000, cam, false);
     WaterCreator waterCreator(particleSystemWater);
 
     waterCreator.startWaterJet(std::make_shared<WaterJet>(
