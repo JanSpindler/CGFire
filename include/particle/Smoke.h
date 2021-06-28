@@ -20,7 +20,7 @@ namespace particle{
                 std::shared_ptr<en::Spline3D> spline,
                 const glm::vec3& position,
                 const glm::vec3& positionVariation = glm::vec3(1.f, 0.f, 1.f),
-                int particlesPerSecond = 30,
+                int particlesPerSecond = 14,
                 float speed = 4.f,
                 float speedVariation = 2.f,
                 float buildUpTime = 10.f,

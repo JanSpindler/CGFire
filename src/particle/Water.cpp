@@ -109,7 +109,7 @@ namespace particle{
         ImGui::ColorEdit4("ColorBegin", &m_BaseWaterJetProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseWaterJetProps.ColorEnd.x);
         ImGui::SliderFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin, 0, 10);
-        ImGui::SliderFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation, 0, 10);
+        ImGui::SliderFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation, 0, m_BaseWaterJetProps.SizeBegin);
         ImGui::SliderFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0, 10);
 
         for (int i = 0; i < m_WaterJets.size(); i++) {
@@ -121,7 +121,7 @@ namespace particle{
             ImGui::SliderFloat("SpeedVariation", &m_WaterJets[i]->SpeedVariationFactor, 0, 1);
             ImGui::SliderInt("ParticlesPerSecond", &m_WaterJets[i]->ParticlesPerSecond, 0, 1000);
             ImGui::SliderFloat("ParticleLifeTime", &m_WaterJets[i]->ParticleLifeTime, 0, 10);
-            ImGui::SliderFloat("ParticleLifeTimeVariation", &m_WaterJets[i]->ParticleLifeTimeVariation, 0, 2);
+            ImGui::SliderFloat("ParticleLifeTimeVariation", &m_WaterJets[i]->ParticleLifeTimeVariation, 0, m_WaterJets[i]->ParticleLifeTime);
         }
 
     }

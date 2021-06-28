@@ -107,7 +107,7 @@ namespace particle{
         ImGui::ColorEdit4("ColorBegin", &m_BaseFlameProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseFlameProps.ColorEnd.x);
         ImGui::SliderFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0, 5);
-        ImGui::SliderFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0, 5);
+        ImGui::SliderFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0, m_BaseFlameProps.SizeBegin);
         ImGui::SliderFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0, 5);
 
 
@@ -118,7 +118,7 @@ namespace particle{
             ImGui::SliderFloat3("PositionVariation", &m_Flames[i]->PositionVariation.x, 0, 10);
             ImGui::SliderInt("ParticlesPerEmit", &m_Flames[i]->ParticlesPerEmit, 0, 100);
             ImGui::SliderFloat("ParticleLifeTime", &m_Flames[i]->ParticleLifeTime, 0, 30);
-            ImGui::SliderFloat("ParticleLifeTimeVariation", &m_Flames[i]->ParticleLifeTimeVariation, 0, 10);
+            ImGui::SliderFloat("ParticleLifeTimeVariation", &m_Flames[i]->ParticleLifeTimeVariation, 0, m_Flames[i]->ParticleLifeTime);
         }
     }
 

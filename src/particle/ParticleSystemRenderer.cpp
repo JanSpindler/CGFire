@@ -186,7 +186,12 @@ namespace particle {
         auto numSpriteRows = static_cast<uint32_t>(particle.TexCoordAnimFrames.x);
         auto numSpriteColumns = static_cast<uint32_t>(particle.TexCoordAnimFrames.y);
         auto numSpriteFrames = static_cast<uint32_t>(numSpriteRows * numSpriteColumns);
-        auto currentFrame = static_cast<uint32_t>(life * numSpriteFrames);
+        uint32_t currentFrame;
+        if (!particle.TexLooped) //water,fire
+            currentFrame = static_cast<uint32_t>(life * numSpriteFrames);
+        else{//smoke
+            currentFrame = (particle.LifeRemaining - static_cast<uint32_t>(particle.LifeRemaining)) * numSpriteFrames;
+        }
         //std::cout << currentFrame << std::endl;
         auto currentFrameColumn = currentFrame % numSpriteRows;
         auto currentFrameRow = currentFrame / numSpriteRows;
