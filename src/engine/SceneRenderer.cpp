@@ -6,6 +6,7 @@
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
+#include <glm/gtx/transform.hpp>
 
 namespace en
 {
@@ -14,6 +15,7 @@ namespace en
             fixedColorRenderObjs_({}),
             dirLight_(nullptr),
             pointLights_({}),
+            reflectiveMaps_({}),
             skyboxTex_(nullptr),
             gBuffer_(width, height)
     {
@@ -34,6 +36,7 @@ namespace en
 
         RenderDirShadow();
         RenderPointShadows();
+        RenderReflectiveMaps();
 
         window->UseViewport();
         RenderDeferredGeometry(viewMatP, projMatP);
@@ -41,8 +44,8 @@ namespace en
 
         gBuffer_.CopyDepthBufToDefaultFb();
         RenderFixedColor(viewMatP, projMatP);
-
-        RenderReflectiveObjs(cam->GetPos(), viewMatP, projMatP);
+        RenderSplines(viewMatP, projMatP);
+        RenderReflectiveObj(cam->GetPos(), viewMatP, projMatP);
 
         RenderSkybox(skyboxViewMatP, projMatP);
     }
@@ -88,10 +91,29 @@ namespace en
         }
     }
 
+    void SceneRenderer::AddSplineRenderObj(const RenderObj* renderObj)
+    {
+        RemoveSplineRenderObj(renderObj);
+        splineRenderObjs_.push_back(renderObj);
+    }
+
+    void SceneRenderer::RemoveSplineRenderObj(const RenderObj* renderObj)
+    {
+        for (uint32_t i = 0; i < splineRenderObjs_.size(); i++)
+        {
+            if (splineRenderObjs_[i] == renderObj)
+            {
+                splineRenderObjs_.erase(splineRenderObjs_.begin() + i);
+                return;
+            }
+        }
+    }
+
     void SceneRenderer::AddReflectiveRenderObjs(const RenderObj* renderObj)
     {
         RemoveReflectiveRenderObj(renderObj);
         reflectiveRenderObjs_.push_back(renderObj);
+        reflectiveMaps_.push_back(ReflectiveMap(256));
     }
 
     void SceneRenderer::RemoveReflectiveRenderObj(const RenderObj* renderObj)
@@ -101,6 +123,7 @@ namespace en
             if (reflectiveRenderObjs_[i] == renderObj)
             {
                 reflectiveRenderObjs_.erase(reflectiveRenderObjs_.begin() + i);
+                reflectiveMaps_.erase(reflectiveMaps_.begin() + i);
                 return;
             }
         }
@@ -164,6 +187,10 @@ namespace en
         const GLShader* reflectiveVert = GLShader::Load("CGFire/reflective.vert");
         const GLShader* reflectiveFrag = GLShader::Load("CGFire/reflective.frag");
         reflectiveProgram_ = GLProgram::Load(reflectiveVert, nullptr, reflectiveFrag);
+
+        const GLShader* toEnvMapVert = GLShader::Load("CGFire/to_env_map.vert");
+        const GLShader* toEnvMapFrag = GLShader::Load("CGFire/to_env_map.frag");
+        toEnvMapProgram_ = GLProgram::Load(toEnvMapVert, nullptr, toEnvMapFrag);
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -265,11 +292,11 @@ namespace en
 
         dirLight_->BindShadowBuffer();
         for (const RenderObj* renderObj : standardRenderObjs_)
-            renderObj->RenderToShadowMap(dirShadowProgram_);
+            renderObj->RenderPosOnly(dirShadowProgram_);
         for (const RenderObj* renderObj : fixedColorRenderObjs_)
-            renderObj->RenderToShadowMap(dirShadowProgram_);
+            renderObj->RenderPosOnly(dirShadowProgram_);
         for (const RenderObj* renderObj : reflectiveRenderObjs_)
-            renderObj->RenderToShadowMap(dirShadowProgram_);
+            renderObj->RenderPosOnly(dirShadowProgram_);
         dirLight_->UnbindShadowBuffer();
     }
 
@@ -286,11 +313,11 @@ namespace en
 
             pointLight->BindShadowBuffer();
             for (const RenderObj* renderObj : standardRenderObjs_)
-                renderObj->RenderToShadowMap(pointShadowProgram_);
+                renderObj->RenderPosOnly(pointShadowProgram_);
             for (const RenderObj* renderObj : fixedColorRenderObjs_)
-                renderObj->RenderToShadowMap(pointShadowProgram_);
+                renderObj->RenderPosOnly(pointShadowProgram_);
             for (const RenderObj* renderObj : reflectiveRenderObjs_)
-                renderObj->RenderToShadowMap(pointShadowProgram_);
+                renderObj->RenderPosOnly(pointShadowProgram_);
             pointLight->UnbindShadowBuffer();
         }
     }
@@ -303,7 +330,7 @@ namespace en
         geometryProgram_->SetUniformMat4("view_mat", false, viewMat);
         geometryProgram_->SetUniformMat4("proj_mat", false, projMat);
         for (const RenderObj* renderObj : standardRenderObjs_)
-            renderObj->RenderToGBuffer(geometryProgram_);
+            renderObj->RenderAll(geometryProgram_);
 
         gBuffer_.Unbind();
     }
@@ -342,31 +369,79 @@ namespace en
         fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
         for (const RenderObj* renderObj : fixedColorRenderObjs_)
-            renderObj->RenderFixedColor(fixedColorProgram_);
+            renderObj->RenderDiffuse(fixedColorProgram_);
     }
 
-    void SceneRenderer::RenderReflectiveObjs(glm::vec3 camPos, const float *viewMat, const float *projMat) const
+    void SceneRenderer::RenderSplines(const float *viewMat, const float *projMat) const
     {
-        /*simpleProgram_->Use();
+        fixedColorProgram_->Use();
+        fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
+        fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
+        for (const RenderObj* renderObj : splineRenderObjs_)
+            renderObj->RenderDiffuse(fixedColorProgram_);
+    }
 
-        for (const RenderObj* renderObj : standardRenderObjs_)
-            renderObj->RenderSimply(simpleProgram_);
-        for (const RenderObj* renderObj : fixedColorRenderObjs_)
-            renderObj->RenderSimply(simpleProgram_);
-        for (const RenderObj* renderObj : reflectiveRenderObjs_)
-            renderObj->RenderSimply(simpleProgram_);*/
-
-        reflectiveProgram_->Use();
-        reflectiveProgram_->SetUniformMat4("view_mat", false, viewMat);
-        reflectiveProgram_->SetUniformMat4("proj_mat", false, projMat);
-        reflectiveProgram_->SetUniformVec3f("cam_pos", camPos);
-
-        for (const RenderObj* renderObj : reflectiveRenderObjs_)
+    void SceneRenderer::RenderReflectiveMaps() const
+    {
+        for (uint32_t i = 0; i < reflectiveMaps_.size(); i++)
         {
+            const ReflectiveMap& reflectiveMap = reflectiveMaps_[i];
+            const RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
+
+            uint32_t size = reflectiveMap.GetSize();
+            glm::mat4 projMat = reflectiveMap.GetProjMat();
+            std::vector<glm::mat4> viewMats = reflectiveMap.GetViewMats(reflectiveRenderObj->GetPos());
+            float* projMatP = &projMat[0][0];
+
+            reflectiveMap.BindFbo();
+            glViewport(0, 0, size, size);
+
+            reflectiveMap.BindCubeMap();
+
+            toEnvMapProgram_->Use();
+            toEnvMapProgram_->SetUniformMat4("proj_mat", false, projMatP);
+            toEnvMapProgram_->SetUniformVec3f("obj_pos", reflectiveRenderObj->GetPos());
+            for (uint32_t face = 0; face < 6; face++)
+            {
+                float* viewMatP = &viewMats[face][0][0];
+                toEnvMapProgram_->SetUniformMat4("view_mat", false, viewMatP);
+
+                reflectiveMap.BindCubeMapFace(face);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                for (const RenderObj* renderObj : standardRenderObjs_)
+                    renderObj->RenderDiffuse(toEnvMapProgram_);
+                for (const RenderObj* renderObj : fixedColorRenderObjs_)
+                    renderObj->RenderDiffuse(toEnvMapProgram_);
+                for (const RenderObj* renderObj : reflectiveRenderObjs_)
+                {
+                    if (renderObj != reflectiveRenderObj)
+                        renderObj->RenderDiffuse(toEnvMapProgram_);
+                }
+                for (const RenderObj* renderObj : splineRenderObjs_)
+                    renderObj->RenderDiffuse(toEnvMapProgram_);
+            }
+
+            reflectiveMap.UnbindFbo();
+        }
+    }
+
+    void SceneRenderer::RenderReflectiveObj(glm::vec3 camPos, const float *viewMat, const float *projMat) const
+    {
+        for (uint32_t i = 0; i < reflectiveRenderObjs_.size(); i++)
+        {
+            const RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
+            const ReflectiveMap& reflectiveMap = reflectiveMaps_[i];
+
+            reflectiveProgram_->Use();
+            reflectiveProgram_->SetUniformMat4("view_mat", false, viewMat);
+            reflectiveProgram_->SetUniformMat4("proj_mat", false, projMat);
+            reflectiveProgram_->SetUniformVec3f("cam_pos", camPos);
+
             glActiveTexture(GL_TEXTURE0);
-            skyboxTex_->BindTex();
-            reflectiveProgram_->SetUniformI("cube", 0);
-            renderObj->RenderSimply(reflectiveProgram_);
+            reflectiveMap.BindCubeMap();
+            reflectiveProgram_->SetUniformI("skybox_tex", 0);
+            reflectiveRenderObj->RenderDiffuse(reflectiveProgram_);
         }
     }
 

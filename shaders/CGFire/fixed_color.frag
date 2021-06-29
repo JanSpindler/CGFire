@@ -1,10 +1,10 @@
-#version 330
+#version 450 core
 
-uniform vec4 fixed_color;
+uniform vec4 diffuse_color;
 
 out vec4 out_color;
 
 void main()
 {
-    out_color = fixed_color;
+    out_color = diffuse_color;
 }

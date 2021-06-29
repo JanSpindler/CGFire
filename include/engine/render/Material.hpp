@@ -23,9 +23,8 @@ namespace en
                 );
         ~Material();
 
-        void Use(const GLProgram* program) const;
-        void UseForGBuffer(const GLProgram* program) const;
-        void UseForSimpleDraw(const GLProgram* program) const;
+        void UseDiffuse(const GLProgram* program, uint32_t diffTexUnit) const;
+        void UseAll(const GLProgram* program, uint32_t diffTexUnit, uint32_t specTexUnit) const;
 
         glm::vec4 GetDiffuseColor() const;
 

@@ -13,11 +13,9 @@ namespace en
     class Renderable
     {
     public:
-        virtual void Render(const GLProgram* program) const = 0; // Deprecated
-        virtual void RenderToGBuffer(const GLProgram* program) const = 0;
-        virtual void RenderToShadowMap(const GLProgram* program) const = 0;
-        virtual void RenderFixedColor(const GLProgram* program) const = 0;
-        virtual void RenderSimply(const GLProgram* program) const = 0;
+        virtual void RenderPosOnly(const GLProgram* program) const = 0;
+        virtual void RenderDiffuse(const GLProgram* program) const = 0;
+        virtual void RenderAll(const GLProgram* program) const = 0;
     };
 
     class RenderObj
@@ -27,19 +25,16 @@ namespace en
 
         RenderObj(const Renderable* renderable);
 
-        void Render(const GLProgram* program) const;
-        void RenderToGBuffer(const GLProgram* program) const;
-        void RenderToShadowMap(const GLProgram* program) const;
-        void RenderFixedColor(const GLProgram* program) const;
-        void RenderSimply(const GLProgram* program) const;
+        void RenderPosOnly(const GLProgram* program) const;
+        void RenderDiffuse(const GLProgram* program) const;
+        void RenderAll(const GLProgram* program) const;
 
         glm::vec3 GetPos() const;
 
     private:
         const Renderable* renderable_;
 
-        void SetModelMat(const GLProgram* program) const;
-        void SetNormalMat(const GLProgram* program) const;
+        void SetMatrices(const GLProgram* program) const;
     };
 }
 

@@ -308,34 +308,24 @@ namespace en
         glBindVertexArray(0);
     }
 
-    void Spline3DRenderable::Render(const GLProgram *program) const
+    void Spline3DRenderable::RenderPosOnly(const GLProgram *program) const
     {
-        program->SetUniformVec4f("fixed_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        RenderLines();
+        // This call is used for shadow mapping
+        // Point shadow mapping used Triangled in the Geometry Shader
+        // Therefore method must not draw any non Triangle primitives
+    }
 
-        program->SetUniformVec4f("fixed_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    void Spline3DRenderable::RenderDiffuse(const GLProgram *program) const
+    {
+        program->SetUniformVec4f("diffuse_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        RenderLines();
+        program->SetUniformVec4f("diffuse_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
         RenderPoints();
     }
 
-    void Spline3DRenderable::RenderToGBuffer(const GLProgram *program) const
+    void Spline3DRenderable::RenderAll(const GLProgram *program) const
     {
-    }
-
-    void Spline3DRenderable::RenderToShadowMap(const GLProgram *program) const
-    {
-    }
-
-    void Spline3DRenderable::RenderFixedColor(const GLProgram *program) const
-    {
-        program->SetUniformVec4f("fixed_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        RenderLines();
-
-        program->SetUniformVec4f("fixed_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        RenderPoints();
-    }
-
-    void Spline3DRenderable::RenderSimply(const GLProgram *program) const
-    {
+        RenderDiffuse(program);
     }
 
     void Spline3DRenderable::RenderLines() const

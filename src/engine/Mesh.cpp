@@ -48,32 +48,20 @@ namespace en
     {
     }
 
-    void Mesh::Render(const GLProgram* program) const
-    {
-        material_->Use(program);
-        GLDrawCall();
-    }
-
-    void Mesh::RenderToGBuffer(const GLProgram *program) const
-    {
-        material_->UseForGBuffer(program);
-        GLDrawCall();
-    }
-
-    void Mesh::RenderToShadowMap(const GLProgram *program) const
+    void Mesh::RenderPosOnly(const GLProgram *program) const
     {
         GLDrawCall();
     }
 
-    void Mesh::RenderFixedColor(const GLProgram *program) const
+    void Mesh::RenderDiffuse(const GLProgram *program) const
     {
-        program->SetUniformVec4f("fixed_color", material_->GetDiffuseColor());
+        material_->UseDiffuse(program, 0);
         GLDrawCall();
     }
 
-    void Mesh::RenderSimply(const GLProgram *program) const
+    void Mesh::RenderAll(const GLProgram *program) const
     {
-        material_->UseForSimpleDraw(program);
+        material_->UseAll(program, 0, 1);
         GLDrawCall();
     }
 

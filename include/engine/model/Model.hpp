@@ -21,11 +21,9 @@ namespace en
         Model(const std::string& path, bool flipUv);
         ~Model();
 
-        void Render(const GLProgram* program) const override;
-        void RenderToGBuffer(const GLProgram* program) const override;
-        void RenderToShadowMap(const GLProgram* program) const override;
-        void RenderFixedColor(const GLProgram* program) const override;
-        void RenderSimply(const GLProgram* program) const override;
+        void RenderPosOnly(const GLProgram* program) const override;
+        void RenderDiffuse(const GLProgram* program) const override;
+        void RenderAll(const GLProgram* program) const override;
 
         const std::vector<Mesh*>& GetMeshes() const;
 

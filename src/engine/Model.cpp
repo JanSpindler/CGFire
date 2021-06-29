@@ -39,34 +39,22 @@ namespace en
             delete pair.second;
     }
 
-    void Model::Render(const GLProgram* program) const
-    {
-        for (uint32_t i = 0; i < meshes_.size(); i++)
-            meshes_[i]->Render(program);
-    }
-
-    void Model::RenderToGBuffer(const GLProgram *program) const
+    void Model::RenderPosOnly(const GLProgram *program) const
     {
         for (const Mesh* mesh : meshes_)
-            mesh->RenderToGBuffer(program);
+            mesh->RenderPosOnly(program);
     }
 
-    void Model::RenderToShadowMap(const GLProgram* program) const
+    void Model::RenderDiffuse(const GLProgram *program) const
     {
         for (const Mesh* mesh : meshes_)
-            mesh->RenderToShadowMap(program);
+            mesh->RenderDiffuse(program);
     }
 
-    void Model::RenderFixedColor(const GLProgram *program) const
+    void Model::RenderAll(const GLProgram *program) const
     {
         for (const Mesh* mesh : meshes_)
-            mesh->RenderFixedColor(program);
-    }
-
-    void Model::RenderSimply(const GLProgram *program) const
-    {
-        for (const Mesh* mesh : meshes_)
-            mesh->RenderSimply(program);
+            mesh->RenderAll(program);
     }
 
     const std::vector<Mesh*>& Model::GetMeshes() const

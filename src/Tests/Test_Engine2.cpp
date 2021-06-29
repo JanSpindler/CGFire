@@ -56,6 +56,10 @@ int main()
     en::RenderObj dragonObj(&dragonModel);
     dragonObj.t_ = glm::translate(glm::vec3(0.0f, 0.0f, 20.0f));
 
+    en::Model reflectModel("hd_sphere.obj", false);
+    en::RenderObj reflectObj(&reflectModel);
+    reflectObj.t_ = glm::translate(glm::vec3(0.0f, 0.0, -8.0f));
+
     // Lights
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
 
@@ -67,6 +71,8 @@ int main()
     en::GLSkyboxTex skyboxTex("CGFire/skybox1", ".png", false);
 
     // Scene
+    en::Log::Info("Creating SceneRenderer");
+
     en::SceneRenderer sceneRenderer(window.GetWidth(), window.GetHeight());
 
     sceneRenderer.SetDirLight(&dirLight);
@@ -74,11 +80,13 @@ int main()
 
     sceneRenderer.AddStandardRenderObj(&backpackObj);
     sceneRenderer.AddStandardRenderObj(&floorObj);
+    sceneRenderer.AddStandardRenderObj(&dragonObj);
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
-    sceneRenderer.AddFixedColorRenderObj(&splineObj);
 
-    sceneRenderer.AddReflectiveRenderObjs(&dragonObj);
+    sceneRenderer.AddReflectiveRenderObjs(&reflectObj);
+
+    sceneRenderer.AddSplineRenderObj(&splineObj);
 
     sceneRenderer.SetSkyboxTex(&skyboxTex);
 
@@ -99,6 +107,7 @@ int main()
         pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
         backpackObj.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         dragonObj.t_ = dragonObj.t_ * glm::rotate(deltaTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+        reflectObj.t_ = glm::rotate(deltaTime * 0.4f, glm::vec3(0.0f, 1.0f, 0.0f)) * reflectObj.t_;
 
         // Render
         cam.SetAspectRatio(window.GetAspectRatio());

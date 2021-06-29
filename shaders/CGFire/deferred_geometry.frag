@@ -6,11 +6,11 @@ in vec2 frag_uv;
 
 uniform bool use_diffuse_tex;
 uniform sampler2D diffuse_tex;
-uniform vec3 diffuse_color;
+uniform vec4 diffuse_color;
 
 uniform bool use_specular_tex;
 uniform sampler2D specular_tex;
-uniform vec3 specular_color;
+uniform vec4 specular_color;
 
 uniform float shininess;
 
@@ -28,12 +28,12 @@ void main()
     if (use_diffuse_tex)
         out_diffuse = texture(diffuse_tex, frag_uv).rgb;
     else
-        out_diffuse = diffuse_color;
+        out_diffuse = vec3(diffuse_color);
 
     if (use_specular_tex)
         out_specular.rgb = texture(specular_tex, frag_uv).rgb;
     else
-        out_specular.rgb = specular_color;
+        out_specular.rgb = vec3(specular_color);
 
     out_specular.a = shininess;
 }

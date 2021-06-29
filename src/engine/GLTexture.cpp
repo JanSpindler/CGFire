@@ -136,8 +136,8 @@ namespace en
                     GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                     0,
                     GL_DEPTH_COMPONENT,
-                    (int)width,
-                    (int)height,
+                    width,
+                    height,
                     0,
                     GL_DEPTH_COMPONENT,
                     GL_FLOAT,
@@ -160,7 +160,8 @@ namespace en
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, handle_, 0);
     }
 
-    GLSkyboxTex::GLSkyboxTex(const std::string& dirPath, const std::string& fileExtension, bool flipUv)
+    GLSkyboxTex::GLSkyboxTex(const std::string& dirPath, const std::string& fileExtension, bool flipUv) :
+        GLTexture()
     {
         std::vector<std::string> subFiles = {
                 "/right",
@@ -171,7 +172,6 @@ namespace en
                 "/back"
         };
 
-        glGenTextures(1, &handle_);
         glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
 
         stbi_set_flip_vertically_on_load(flipUv);
