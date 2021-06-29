@@ -308,6 +308,11 @@ namespace en
         glBindVertexArray(0);
     }
 
+    void Spline3DRenderable::Render(const GLProgram *program) const // Deprecated
+    {
+        // TODO:
+    }
+
     void Spline3DRenderable::RenderPosOnly(const GLProgram *program) const
     {
         // This call is used for shadow mapping

@@ -23,6 +23,7 @@ namespace en
         Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material* material);
         ~Mesh();
 
+        void Render(const GLProgram* program) const override; // Deprecated
         void RenderPosOnly(const GLProgram* program) const override;
         void RenderDiffuse(const GLProgram* program) const override;
         void RenderAll(const GLProgram* program) const override;

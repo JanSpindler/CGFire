@@ -50,16 +50,16 @@ int main(int, char* argv[]) {
     ParticleSystem particleSystemSmoke(4000, cam, false);
     SmokeCreator smokeCreator(particleSystemSmoke);
 
-    en::GLShader fixedColorVert("CGFire/fixed_color.vert", en::GLShader::Type::VERTEX);
-    en::GLShader fixedColorFrag("CGFire/fixed_color.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram fixedColorProgram(&fixedColorVert, nullptr, &fixedColorFrag);
+    const en::GLShader* fixedColorVert = en::GLShader::Load("CGFire/fixed_color.vert");
+    const en::GLShader* fixedColorFrag = en::GLShader::Load("CGFire/fixed_color.frag");
+    const en::GLProgram* fixedColorProgram = en::GLProgram::Load(fixedColorVert, nullptr, fixedColorFrag);
     std::vector<glm::vec3> splinePoints = {
             { 0.0f, 2.0f, 0.0f },
             { 5.0f, 5.0f, 0.0f },
             { 10.0f, 10.0f, -5.0f },
             { 35.0f, 30.0f, -15.0f }
     };
-    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40);
+    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_NATURAL_CUBIC);
     en::Spline3DRenderable splineRenderable(spline.get());
     en::RenderObj splineObj(&splineRenderable);
 
@@ -136,10 +136,10 @@ int main(int, char* argv[]) {
         auto projMat = cam.GetProjMat();
 
         // Test render spline
-        fixedColorProgram.Use();
-        fixedColorProgram.SetUniformMat4("view_mat", false, &viewMat[0][0]);
-        fixedColorProgram.SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        splineObj.Render(&fixedColorProgram);
+        fixedColorProgram->Use();
+        fixedColorProgram->SetUniformMat4("view_mat", false, &viewMat[0][0]);
+        fixedColorProgram->SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        splineObj.Render(fixedColorProgram);
     }
 
     cleanup_imgui();

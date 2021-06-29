@@ -58,7 +58,7 @@ namespace scene{
                 { 10.0f, 10.0f, -5.0f },
                 { 35.0f, 30.0f, -15.0f }
         };
-        std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40);
+        std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_NATURAL_CUBIC);
         auto SmokeStream1 = std::make_shared<SmokeStream>
                                               (spline,
                                                glm::vec3(0.5f, 0.5f, 0.5f),

@@ -31,6 +31,12 @@ namespace en
         renderable_->RenderAll(program);
     }
 
+    void RenderObj::Render(const GLProgram *program) const // Deprecated
+    {
+        SetMatrices(program);
+        renderable_->Render(program);
+    }
+
     glm::vec3 RenderObj::GetPos() const
     {
         return glm::vec3(t_ * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));

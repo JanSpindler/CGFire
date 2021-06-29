@@ -52,6 +52,7 @@ namespace en
     public:
         Spline3DRenderable(const Spline3D* spline);
 
+        void Render(const GLProgram* program) const override; // Deprecated
         void RenderPosOnly(const GLProgram* program) const override;
         void RenderDiffuse(const GLProgram* program) const override;
         void RenderAll(const GLProgram* program) const override;

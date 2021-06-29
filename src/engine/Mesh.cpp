@@ -55,6 +55,12 @@ namespace en
     {
     }
 
+    void Mesh::Render(const GLProgram *program) const // Deprecated
+    {
+        material_->UseAll(program, 0, 1);
+        GLDrawCall();
+    }
+
     void Mesh::RenderPosOnly(const GLProgram *program) const
     {
         GLDrawCall();

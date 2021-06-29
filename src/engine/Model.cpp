@@ -42,6 +42,12 @@ namespace en
             delete pair.second;
     }
 
+    void Model::Render(const GLProgram *program) const // Deprecated
+    {
+        for (const Mesh* mesh : meshes_)
+            mesh->Render(program);
+    }
+
     void Model::RenderPosOnly(const GLProgram *program) const
     {
         for (const Mesh* mesh : meshes_)

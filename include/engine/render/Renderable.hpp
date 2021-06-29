@@ -16,6 +16,8 @@ namespace en
         virtual void RenderPosOnly(const GLProgram* program) const = 0;
         virtual void RenderDiffuse(const GLProgram* program) const = 0;
         virtual void RenderAll(const GLProgram* program) const = 0;
+
+        virtual void Render(const GLProgram* program) const = 0; // Deprecated
     };
 
     class RenderObj
@@ -28,6 +30,8 @@ namespace en
         void RenderPosOnly(const GLProgram* program) const;
         void RenderDiffuse(const GLProgram* program) const;
         void RenderAll(const GLProgram* program) const;
+
+        void Render(const GLProgram* program) const; // Deprecated
 
         glm::vec3 GetPos() const;
 

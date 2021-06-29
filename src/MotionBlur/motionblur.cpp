@@ -39,12 +39,12 @@ namespace en{
         return VAO;
     }
 
-    void motionblur::addskeletalarrays(GLProgram program) {
+    void motionblur::addskeletalarrays(const GLProgram* program) {
         assert(prevtransforms.size()==currenttransforms.size());
         for (int i = 0; i < currenttransforms.size(); ++i) {
-            program.SetUniformMat4(("finalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(currenttransforms[i]));
+            program->SetUniformMat4(("finalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(currenttransforms[i]));
             //en::Log::Info(glm::to_string(transforms[i]));
-            program.SetUniformMat4(("prevfinalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(prevtransforms[i]));
+            program->SetUniformMat4(("prevfinalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(prevtransforms[i]));
             //en::Log::Info(glm::to_string(transforms[i]));
         };
     }
@@ -94,14 +94,14 @@ namespace en{
         prevtransforms = currenttransforms;
         currenttransforms = newtransforms;
     }
-    GLProgram motionblur::makerenderprog() {
-        en::GLShader vertShader("motionblur.vert", en::GLShader::Type::VERTEX);
-        en::GLShader fragShader("motionblur.frag", en::GLShader::Type::FRAGMENT);
-        en::GLProgram program(&vertShader, nullptr, &fragShader);
+    const GLProgram* motionblur::makerenderprog() {
+        const en::GLShader* vertShader = GLShader::Load("motionblur.vert");
+        const en::GLShader* fragShader = GLShader::Load("motionblur.frag");
+        const en::GLProgram* program = GLProgram::Load(vertShader, nullptr, fragShader);
         //Log::Info("Got renderprog");
         return program;
     }
-    void motionblur::doblur(GLProgram* program) {
+    void motionblur::doblur(const GLProgram* program) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         program->Use();
         glDisable(GL_DEPTH_TEST);
@@ -118,7 +118,7 @@ namespace en{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0,0,width, height);
     }
-    void motionblur::addprevprojviewmodelmat(GLProgram program) {
-        program.SetUniformMat4("prevPVM", false, glm::value_ptr(prevprojviewmodelmat));
+    void motionblur::addprevprojviewmodelmat(const GLProgram* program) {
+        program->SetUniformMat4("prevPVM", false, glm::value_ptr(prevprojviewmodelmat));
     }
 }

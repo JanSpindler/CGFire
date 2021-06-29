@@ -37,7 +37,7 @@ namespace particle {
                 particle.LifeRemaining += ts; //so LifeRemaining here means Life Time Lived
 
                 //in Velocity.x is the speed of the smoke particle
-                float t = (particle.Velocity.x * particle.LifeRemaining) / particle.Spline->GetLength();
+                float t = (particle.Velocity.x * particle.LifeRemaining) / particle.Spline->GetTotalLength();
                 if (t > 1.f){
                     particle.Active = false;
                     particle.CameraDistance = -1.f;
