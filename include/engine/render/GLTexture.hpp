@@ -6,6 +6,7 @@
 #define CGFIRE_TEXTURE_H
 
 #include <string>
+#include <vector>
 
 namespace en
 {
@@ -18,7 +19,7 @@ namespace en
         virtual void BindTex() const = 0;
 
     protected:
-        unsigned int handle_;
+        uint32_t handle_;
     };
 
     class GLPictureTex : public GLTexture
@@ -66,6 +67,16 @@ namespace en
 
         void BindTex() const override;
         void BindToFramebuffer() const;
+
+    private:
+    };
+
+    class GLSkyboxTex : public GLTexture
+    {
+    public:
+        GLSkyboxTex(const std::string& dirPath, const std::string& fileExtension, bool flipUv);
+
+        void BindTex() const override;
 
     private:
     };

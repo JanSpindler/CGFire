@@ -55,11 +55,27 @@ namespace en
     {
     }
 
-    void Mesh::Render(const GLProgram* program) const
+    void Mesh::RenderPosOnly(const GLProgram *program) const
     {
-        material_->Use(program);
+        GLDrawCall();
+    }
+
+    void Mesh::RenderDiffuse(const GLProgram *program) const
+    {
+        material_->UseDiffuse(program, 0);
+        GLDrawCall();
+    }
+
+    void Mesh::RenderAll(const GLProgram *program) const
+    {
+        material_->UseAll(program, 0, 1);
+        GLDrawCall();
+    }
+
+    void Mesh::GLDrawCall() const
+    {
         glBindVertexArray(vao_);
-        glDrawElements(GL_TRIANGLES, (GLsizei)indices_.size(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
     }
 }

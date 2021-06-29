@@ -7,6 +7,7 @@
 #include <stb_image.h>
 #include "engine/Render/GLTexture.hpp"
 #include "engine/Util.hpp"
+#include "engine/config.hpp"
 
 namespace en
 {
@@ -135,8 +136,8 @@ namespace en
                     GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                     0,
                     GL_DEPTH_COMPONENT,
-                    (int)width,
-                    (int)height,
+                    width,
+                    height,
                     0,
                     GL_DEPTH_COMPONENT,
                     GL_FLOAT,
@@ -157,5 +158,44 @@ namespace en
     void GLDepthCubeMap::BindToFramebuffer() const
     {
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, handle_, 0);
+    }
+
+    GLSkyboxTex::GLSkyboxTex(const std::string& dirPath, const std::string& fileExtension, bool flipUv) :
+        GLTexture()
+    {
+        std::vector<std::string> subFiles = {
+                "/right",
+                "/left",
+                "/top",
+                "/bottom",
+                "/front",
+                "/back"
+        };
+
+        glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
+
+        stbi_set_flip_vertically_on_load(flipUv);
+
+        int32_t width, height, channelCount;
+        uint8_t* data;
+        std::string totalFileName;
+        for (uint32_t i = 0; i < 6; i++)
+        {
+            totalFileName = DATA_ROOT + dirPath + subFiles[i] + fileExtension;
+            data = stbi_load(totalFileName.c_str(), &width, &height, &channelCount, 0);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
+
+    void GLSkyboxTex::BindTex() const
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
     }
 }

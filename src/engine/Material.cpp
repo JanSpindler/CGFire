@@ -11,31 +11,67 @@
 namespace en
 {
     Material::Material(
-            float shininess,
+            const GLPictureTex* diffuseTex,
+            const GLPictureTex* specularTex,
             glm::vec4 diffuseColor,
             glm::vec4 specularColor,
-            const GLPictureTex* tex)
+            float shininess
+            ) :
+            diffuseTex_(diffuseTex),
+            specularTex_(specularTex),
+            diffuseColor_(diffuseColor),
+            specularColor_(specularColor),
+            shininess_(shininess)
     {
-        shininess_ = shininess;
-        diffuseColor_ = diffuseColor;
-        specularColor_ = specularColor;
-        tex_ = tex;
     }
 
     Material::~Material()
     {
     }
 
-    void Material::Use(const GLProgram* program) const
+    void Material::UseDiffuse(const GLProgram *program, uint32_t diffTexUnit) const
     {
-        program->SetUniformF("mat_shininess", shininess_);
-        program->SetUniformVec4f("mat_diffuse_color", diffuseColor_);
-        program->SetUniformVec4f("mat_specular_color", specularColor_);
+        bool useDiffTex = diffuseTex_ != nullptr;
+        program->SetUniformB("use_diffuse_tex", useDiffTex);
 
-        program->SetUniformB("mat_use_tex", tex_ != nullptr);
-        glActiveTexture(GL_TEXTURE0);
-        if (tex_ != nullptr)
-            tex_->BindTex();
-        program->SetUniformI("mat_tex", 0);
+        glActiveTexture(GL_TEXTURE0 + diffTexUnit);
+        if (useDiffTex)
+            diffuseTex_->BindTex();
+        program->SetUniformI("diffuse_tex", diffTexUnit);
+
+        program->SetUniformVec4f("diffuse_color", diffuseColor_);
+    }
+
+    void Material::UseAll(const GLProgram *program, uint32_t diffTexUnit, uint32_t specTexUnit) const
+    {
+        // Diffuse
+        bool useDiffTex = diffuseTex_ != nullptr;
+        program->SetUniformB("use_diffuse_tex", useDiffTex);
+
+        glActiveTexture(GL_TEXTURE0 + diffTexUnit);
+        if (useDiffTex)
+            diffuseTex_->BindTex();
+        program->SetUniformI("diffuse_tex", diffTexUnit);
+
+        program->SetUniformVec4f("diffuse_color", diffuseColor_);
+
+        // Specular
+        bool useSpecTex = specularTex_ != nullptr;
+        program->SetUniformB("use_specular_tex", useSpecTex);
+
+        glActiveTexture(GL_TEXTURE0 + specTexUnit);
+        if (useSpecTex)
+            specularTex_->BindTex();
+        program->SetUniformI("specular_tex", specTexUnit);
+
+        program->SetUniformVec4f("specular_color", specularColor_);
+
+        // Shininess
+        program->SetUniformF("shininess", shininess_);
+    }
+
+    glm::vec4 Material::GetDiffuseColor() const
+    {
+        return diffuseColor_;
     }
 }

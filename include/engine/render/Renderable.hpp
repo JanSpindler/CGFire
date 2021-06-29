@@ -13,7 +13,9 @@ namespace en
     class Renderable
     {
     public:
-        virtual void Render(const GLProgram* program) const = 0;
+        virtual void RenderPosOnly(const GLProgram* program) const = 0;
+        virtual void RenderDiffuse(const GLProgram* program) const = 0;
+        virtual void RenderAll(const GLProgram* program) const = 0;
     };
 
     class RenderObj
@@ -23,10 +25,16 @@ namespace en
 
         RenderObj(const Renderable* renderable);
 
-        void Render(const GLProgram* program);
+        void RenderPosOnly(const GLProgram* program) const;
+        void RenderDiffuse(const GLProgram* program) const;
+        void RenderAll(const GLProgram* program) const;
+
+        glm::vec3 GetPos() const;
 
     private:
         const Renderable* renderable_;
+
+        void SetMatrices(const GLProgram* program) const;
     };
 }
 

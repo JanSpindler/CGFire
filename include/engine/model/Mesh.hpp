@@ -23,13 +23,17 @@ namespace en
         Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material* material);
         ~Mesh();
 
-        void Render(const GLProgram* program) const override;
+        void RenderPosOnly(const GLProgram* program) const override;
+        void RenderDiffuse(const GLProgram* program) const override;
+        void RenderAll(const GLProgram* program) const override;
 
     private:
         unsigned int vao_;
         std::vector<Vertex> vertices_;
         std::vector<unsigned int> indices_;
         const Material* material_;
+
+        void GLDrawCall() const;
     };
 }
 

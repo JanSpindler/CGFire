@@ -42,10 +42,22 @@ namespace en
             delete pair.second;
     }
 
-    void Model::Render(const GLProgram* program) const
+    void Model::RenderPosOnly(const GLProgram *program) const
     {
-        for (unsigned int i = 0; i < meshes_.size(); i++)
-            meshes_[i]->Render(program);
+        for (const Mesh* mesh : meshes_)
+            mesh->RenderPosOnly(program);
+    }
+
+    void Model::RenderDiffuse(const GLProgram *program) const
+    {
+        for (const Mesh* mesh : meshes_)
+            mesh->RenderDiffuse(program);
+    }
+
+    void Model::RenderAll(const GLProgram *program) const
+    {
+        for (const Mesh* mesh : meshes_)
+            mesh->RenderAll(program);
     }
 
     const std::vector<Mesh*>& Model::GetMeshes() const
@@ -58,14 +70,6 @@ namespace en
         if (!scene->HasMaterials())
             return;
 
-        // Default Material
-        /*materials_.insert(std::pair<const aiMaterial*, Material*>(nullptr,
-                                                                  new Material(
-                                                                          1.0f,
-                                                                          glm::vec4(1.0f),
-                                                                          glm::vec4(1.0f),
-                                                                          nullptr)));*/
-
         unsigned int matCount = scene->mNumMaterials;
         Log::Info("model has " + std::to_string(matCount) + " materials");
         for (unsigned int i = 0; i < matCount; i++)
@@ -73,7 +77,9 @@ namespace en
             // TODO: maybe load other texture types later
             aiMaterial* aiMat = scene->mMaterials[i];
             int diffuseTexCount = aiMat->GetTextureCount(aiTextureType_DIFFUSE);
+            int specularTexCount = aiMat->GetTextureCount(aiTextureType_SPECULAR);
             Log::Info("Material " + std::to_string(i) + " has " + std::to_string(diffuseTexCount) + " diffuse textures. Only loading first");
+            Log::Info("Material " + std::to_string(i) + " has " + std::to_string(specularTexCount) + " specular textures. Only loading first");
 
             // Shininess
             Material* material;
@@ -111,7 +117,7 @@ namespace en
                     ", " + std::to_string(specularColor.w) + ")");
 
             // Diffuse texture
-            GLPictureTex* texture = nullptr;
+            GLPictureTex* diffuseTex = nullptr;
             if (diffuseTexCount > 0)
             {
                 // TODO: maybe enable multiple textures later
@@ -120,21 +126,44 @@ namespace en
                 std::string filePath = directory_ + "/" + fileName.C_Str();
                 if (textures_.find(filePath) == textures_.end())
                 {
-                    texture = new GLPictureTex(
+                    diffuseTex = new GLPictureTex(
                             GLPictureTex::WrapMode::CLAMP_TO_EDGE,
                             GLPictureTex::FilterMode::LINEAR,
                             filePath,
                             flipUv_);
-                    textures_.insert(std::pair<std::string, GLPictureTex*>(filePath, texture));
+                    textures_.insert(std::pair<std::string, GLPictureTex*>(filePath, diffuseTex));
                 }
                 else
                 {
-                    texture = textures_.at(filePath);
+                    diffuseTex = textures_.at(filePath);
+                }
+            }
+
+            // Specular texture
+            GLPictureTex* specularTex = nullptr;
+            if (specularTexCount > 0)
+            {
+                // TODO: maybe enable multiple textures later
+                aiString fileName;
+                aiMat->GetTexture(aiTextureType_SPECULAR, 0, &fileName);
+                std::string filePath = directory_ + "/" + fileName.C_Str();
+                if (textures_.find(filePath) == textures_.end())
+                {
+                    specularTex = new GLPictureTex(
+                            GLPictureTex::WrapMode::CLAMP_TO_EDGE,
+                            GLPictureTex::FilterMode::LINEAR,
+                            filePath,
+                            flipUv_);
+                    textures_.insert(std::pair<std::string, GLPictureTex*>(filePath, specularTex));
+                }
+                else
+                {
+                    specularTex = textures_.at(filePath);
                 }
             }
 
             // New material
-            material = new Material(shininess, diffuseColor, specularColor, texture);
+            material = new Material(diffuseTex, specularTex, diffuseColor, specularColor, shininess);
             materials_.insert(std::pair<const aiMaterial*, Material*>(aiMat, material));
         }
     }
