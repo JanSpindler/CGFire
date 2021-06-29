@@ -61,7 +61,6 @@ int main(int, char* argv[]) {
     };
     std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_NATURAL_CUBIC);
     en::Spline3DRenderable splineRenderable(spline.get());
-    en::RenderObj splineObj(&splineRenderable);
 
     smokeCreator.startSmokeStream(std::make_shared<SmokeStream>
                                    (spline,
@@ -124,8 +123,8 @@ int main(int, char* argv[]) {
         cam.SetAspectRatio(window.GetAspectRatio());
 
         window.UseViewport();
-        particleSystemWater.OnRender();
 
+        particleSystemWater.OnRender();
         particleSystemSmoke.OnRender();
         particleSystemFire.OnRender();
 
@@ -139,7 +138,7 @@ int main(int, char* argv[]) {
         fixedColorProgram->Use();
         fixedColorProgram->SetUniformMat4("view_mat", false, &viewMat[0][0]);
         fixedColorProgram->SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        splineObj.Render(fixedColorProgram);
+        splineRenderable.Render(fixedColorProgram);
     }
 
     cleanup_imgui();

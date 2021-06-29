@@ -64,8 +64,8 @@ namespace en
             throw std::runtime_error("Closing Application due to Error");
     }
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> Time::last_ = std::chrono::high_resolution_clock::now();
-    double Time::deltaTime_ = 0.0f;
+    std::chrono::time_point<std::chrono::high_resolution_clock> Time::last_= std::chrono::high_resolution_clock::now();
+    double Time::deltaTime_ = 0.0;
     int Time::fps_ = 0;
 
     void Time::Update()

@@ -2,39 +2,34 @@
 // Created by JS on 27/05/2021.
 //
 
-#include "engine/Render/Renderable.hpp"
+#include "engine/render/Renderable.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace en
 {
-    RenderObj::RenderObj(const Renderable *renderable)
+    RenderObj::RenderObj()
     {
         t_ = glm::identity<glm::mat4>();
-        renderable_ = renderable;
     }
 
     void RenderObj::RenderPosOnly(const GLProgram *program) const
     {
         SetMatrices(program);
-        renderable_->RenderPosOnly(program);
     }
 
     void RenderObj::RenderDiffuse(const GLProgram *program) const
     {
         SetMatrices(program);
-        renderable_->RenderDiffuse(program);
     }
 
     void RenderObj::RenderAll(const GLProgram *program) const
     {
         SetMatrices(program);
-        renderable_->RenderAll(program);
     }
 
     void RenderObj::Render(const GLProgram *program) const // Deprecated
     {
         SetMatrices(program);
-        renderable_->Render(program);
     }
 
     glm::vec3 RenderObj::GetPos() const

@@ -22,7 +22,7 @@ namespace en
         glm::mat4 offsetmat;
     };
 
-    class Model : public Renderable
+    class Model : public RenderObj
     {
     public:
         Model(const std::string& path, bool flipUv);

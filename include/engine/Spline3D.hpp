@@ -47,15 +47,15 @@ namespace en
         static float NaturalCubic(glm::vec4 coef, float x);
     };
 
-    class Spline3DRenderable : public Renderable
+    class Spline3DRenderable : public RenderObj
     {
     public:
         Spline3DRenderable(const Spline3D* spline);
 
-        void Render(const GLProgram* program) const override; // Deprecated
-        void RenderPosOnly(const GLProgram* program) const override;
-        void RenderDiffuse(const GLProgram* program) const override;
-        void RenderAll(const GLProgram* program) const override;
+        void Render(const GLProgram* program) const; // Deprecated
+        void RenderPosOnly(const GLProgram* program) const;
+        void RenderDiffuse(const GLProgram* program) const;
+        void RenderAll(const GLProgram* program) const;
 
     private:
         const Spline3D* spline_;

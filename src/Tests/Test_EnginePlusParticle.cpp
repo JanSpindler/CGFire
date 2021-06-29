@@ -12,6 +12,12 @@
 #include "engine/input/Input.hpp"
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Spline3D.hpp"
+#include <framework/imgui_util.hpp>
+
+#include "particle/ParticleSystem.h"
+#include "particle/Fire.h"
+#include "particle/Water.h"
+#include "particle/Smoke.h"
 
 void DeleteRemainingResources()
 {
@@ -24,6 +30,7 @@ int main()
     en::Log::Info("Initializing CGFire");
 
     en::Window window(800, 600, "CGFire");
+    init_imgui(window.GetHandle());
 
     en::Camera cam(
             glm::vec3(0.0f, 3.0f, -20.0f),
@@ -85,7 +92,58 @@ int main()
 
     sceneRenderer.SetSkyboxTex(&skyboxTex);
 
+// Particles
+    using namespace particle;
 
+    //Fire
+    ParticleSystem particleSystemFire(3000, cam, true);
+    FireCreator fireCreator(particleSystemFire);
+
+    fireCreator.startFlame(std::make_shared<Flame>
+                                   (glm::vec3(0.f, 0.f, 0.f),
+                                    glm::vec3(1.f, 0.f, 1.f),
+                                    30,
+                                    5.f,
+                                    10.f,
+                                    1.f,
+                                    0.2f));
+
+    ParticleSystem particleSystemSmoke(4000, cam, false);
+    SmokeCreator smokeCreator(particleSystemSmoke);
+
+    const en::GLShader* fixedColorVert = en::GLShader::Load("CGFire/fixed_color.vert");
+    const en::GLShader* fixedColorFrag = en::GLShader::Load("CGFire/fixed_color.frag");
+    const en::GLProgram* fixedColorProgram = en::GLProgram::Load(fixedColorVert, nullptr, fixedColorFrag);
+    std::vector<glm::vec3> splinePoints2 = {
+            { 0.0f, 2.0f, 0.0f },
+            { 5.0f, 5.0f, 0.0f },
+            { 10.0f, 10.0f, -5.0f },
+            { 35.0f, 30.0f, -15.0f }
+    };
+    std::shared_ptr<en::Spline3D> spline2 = std::make_shared<en::Spline3D>(splinePoints2, false, 40, en::Spline3D::TYPE_NATURAL_CUBIC);
+    en::Spline3DRenderable splineRenderable2(spline2.get());
+    sceneRenderer.AddSplineRenderObj(&splineRenderable2);
+
+    smokeCreator.startSmokeStream(std::make_shared<SmokeStream>
+                                          (spline2,
+                                           glm::vec3(0.5f, 0.5f, 0.5f),
+                                           glm::vec3(1.f, 0.f, 1.f)));
+
+    //Water
+    ParticleSystem particleSystemWater(3000, cam, false);
+    WaterCreator waterCreator(particleSystemWater);
+
+    waterCreator.startWaterJet(std::make_shared<WaterJet>(
+            glm::vec3(2.f, 0.f, 1.f),
+            glm::vec3(0.5f, 0.5f, 0.5f),
+            glm::vec3(1.f, 0.5f, 0.f),
+            100.f,
+            0.1f,
+            500,
+            10.f,
+            2.f,
+            5.f,
+            0.2f));
 
     // Main loop
     en::Log::Info("Staring main loop");
@@ -100,6 +158,17 @@ int main()
 
         en::Input::HandleUserCamInput(&window, &cam, deltaTime);
 
+
+        //Updates
+        fireCreator.onUpdate(deltaTime);
+        particleSystemFire.OnUpdate(deltaTime);
+        waterCreator.onUpdate(deltaTime);
+        particleSystemWater.OnUpdate(deltaTime);
+        smokeCreator.onUpdate(deltaTime);
+        particleSystemSmoke.OnUpdate(deltaTime);
+
+
+
         // Physics
         pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
         backpackModel.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -109,9 +178,37 @@ int main()
         // Render
         cam.SetAspectRatio(window.GetAspectRatio());
         sceneRenderer.Render(&window, &cam);
+
+        //UI
+        bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
+        if (renderImGui) {
+            imgui_new_frame(600, 400);
+            if (ImGui::Begin("Fire")) {
+                fireCreator.onImGuiRender();
+                ImGui::End();
+            }
+            if (ImGui::Begin("Water")) {
+                waterCreator.onImGuiRender();
+                ImGui::End();
+            }
+            if (ImGui::Begin("Smoke")) {
+                smokeCreator.onImGuiRender();
+                ImGui::End();
+            }
+        }
+
+        particleSystemWater.OnRender();
+        particleSystemSmoke.OnRender();
+        particleSystemFire.OnRender();
+
+        if (renderImGui)
+            imgui_render();
     }
 
     DeleteRemainingResources();
 
+
+    cleanup_imgui();
+    exit(0); //ImGui Bug sorgt sonst für Fehler
     return 0;
 }

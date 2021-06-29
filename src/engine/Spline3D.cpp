@@ -315,6 +315,7 @@ namespace en
 
     void Spline3DRenderable::RenderPosOnly(const GLProgram *program) const
     {
+        RenderObj::RenderPosOnly(program);
         // This call is used for shadow mapping
         // Point shadow mapping used Triangled in the Geometry Shader
         // Therefore method must not draw any non Triangle primitives
@@ -322,6 +323,7 @@ namespace en
 
     void Spline3DRenderable::RenderDiffuse(const GLProgram *program) const
     {
+        RenderObj::RenderDiffuse(program);
         program->SetUniformVec4f("diffuse_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         RenderLines();
         program->SetUniformVec4f("diffuse_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -330,6 +332,7 @@ namespace en
 
     void Spline3DRenderable::RenderAll(const GLProgram *program) const
     {
+        RenderObj::RenderAll(program);
         RenderDiffuse(program);
     }
 

@@ -43,7 +43,6 @@ int main()
     const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
     en::Model vampiremodel("vampire/dancing_vampire.dae", true);
-    en::RenderObj vampireObj = { &vampiremodel };
     en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
     en::Animator animator(&animation);
 
@@ -77,7 +76,7 @@ int main()
             program->SetUniformMat4(("finalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(transforms[i]));
         };
 
-        vampireObj.Render(program);
+        vampiremodel.Render(program);
     }
 
     return 0;

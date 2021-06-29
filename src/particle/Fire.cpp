@@ -34,7 +34,7 @@ namespace particle{
         m_BaseFlameProps.ColorEnd = { 1.f, 1.f, 1.f, 0.3f };
         m_BaseFlameProps.SizeBegin = 1.f;
         m_BaseFlameProps.SizeVariation = 0.9f;
-        m_BaseFlameProps.SizeEnd = 0.0f;
+        m_BaseFlameProps.SizeEnd = 0.8f;
         m_BaseFlameProps.TexCoordAnimFrames = {4, 4};
 
     }

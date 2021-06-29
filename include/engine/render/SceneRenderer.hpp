@@ -33,7 +33,7 @@ namespace en
         void AddSplineRenderObj(const RenderObj* renderObj);
         void RemoveSplineRenderObj(const RenderObj* renderObj);
 
-        void AddReflectiveRenderObjs(const RenderObj* renderObj);
+        void AddReflectiveRenderObj(const RenderObj* renderObj);
         void RemoveReflectiveRenderObj(const RenderObj* renderObj);
 
         void SetDirLight(const DirLight* dirLight);
@@ -43,6 +43,8 @@ namespace en
 
         void SetSkyboxTex(const GLSkyboxTex* skyboxTex);
 
+        /**Removes all the objects, i.e. clears the vector lists (but not the DirLight or Skybox)*/
+        void RemoveAllObjects();
     private:
         const GLProgram* geometryProgram_;
         const GLProgram* lightingProgram_;

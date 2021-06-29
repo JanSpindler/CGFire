@@ -44,24 +44,28 @@ namespace en
 
     void Model::Render(const GLProgram *program) const // Deprecated
     {
+        RenderObj::Render(program);
         for (const Mesh* mesh : meshes_)
             mesh->Render(program);
     }
 
     void Model::RenderPosOnly(const GLProgram *program) const
     {
+        RenderObj::RenderPosOnly(program);
         for (const Mesh* mesh : meshes_)
             mesh->RenderPosOnly(program);
     }
 
     void Model::RenderDiffuse(const GLProgram *program) const
     {
+        RenderObj::RenderDiffuse(program);
         for (const Mesh* mesh : meshes_)
             mesh->RenderDiffuse(program);
     }
 
     void Model::RenderAll(const GLProgram *program) const
     {
+        RenderObj::RenderAll(program);
         for (const Mesh* mesh : meshes_)
             mesh->RenderAll(program);
     }

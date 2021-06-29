@@ -47,7 +47,6 @@ int main()
     const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
     en::Model vampiremodel("vampire/dancing_vampire.dae", true);
-    en::RenderObj vampireObj = { &vampiremodel };
     en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
     en::Animator animator(&animation);
 
@@ -57,7 +56,7 @@ int main()
     const en::GLProgram* renderprog = motionblur.makerenderprog();
     animator.UpdateAnim(0.0f);
     motionblur.currenttransforms = animator.getfinalbonetransforms();
-    motionblur.prevprojviewmodelmat =  projMat*viewMat*vampireObj.t_;
+    motionblur.prevprojviewmodelmat =  projMat*viewMat*vampiremodel.t_;
 
     program->Use();
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
@@ -106,10 +105,10 @@ int main()
 
         //vampireObj.t_ *= glm::rotate(deltaTime * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         //en::Log::Info(glm::to_string(motionblur.prevprojviewmodelmat)+"\n"+glm::to_string(motionblur.prevtransforms[0])+"\n"+glm::to_string(motionblur.currenttransforms[0]));
-        vampireObj.Render(program);
+        vampiremodel.Render(program);
 
         motionblur.doblur(renderprog);
-        motionblur.prevprojviewmodelmat = projMat*viewMat*vampireObj.t_;
+        motionblur.prevprojviewmodelmat = projMat*viewMat*vampiremodel.t_;
     }
 
     en::Log::Info("Ending CGFire");

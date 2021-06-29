@@ -109,7 +109,7 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddReflectiveRenderObjs(const RenderObj* renderObj)
+    void SceneRenderer::AddReflectiveRenderObj(const RenderObj* renderObj)
     {
         RemoveReflectiveRenderObj(renderObj);
         reflectiveRenderObjs_.push_back(renderObj);
@@ -155,6 +155,15 @@ namespace en
     void SceneRenderer::SetSkyboxTex(const GLSkyboxTex *skyboxTex)
     {
         skyboxTex_ = skyboxTex;
+    }
+
+    void SceneRenderer::RemoveAllObjects(){
+        standardRenderObjs_.clear();
+        fixedColorRenderObjs_.clear();
+        splineRenderObjs_.clear();
+        reflectiveRenderObjs_.clear();
+        reflectiveMaps_.clear();
+        pointLights_.clear();
     }
 
     void SceneRenderer::LoadPrograms()
