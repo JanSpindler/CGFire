@@ -52,10 +52,10 @@ namespace en
     public:
         Spline3DRenderable(const Spline3D* spline);
 
-        void Render(const GLProgram* program) const; // Deprecated
-        void RenderPosOnly(const GLProgram* program) const;
-        void RenderDiffuse(const GLProgram* program) const;
-        void RenderAll(const GLProgram* program) const;
+        void Render(const GLProgram* program); // Deprecated
+        void RenderPosOnly(const GLProgram* program);
+        void RenderDiffuse(const GLProgram* program);
+        void RenderAll(const GLProgram* program);
 
     private:
         const Spline3D* spline_;

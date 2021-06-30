@@ -11,7 +11,8 @@
 
 namespace en
 {
-    Model::Model(const std::string& path, bool flipUv)
+    Model::Model(const std::string& path, bool flipUv, const std::string& name)
+    : RenderObj(name)
     {
         flipUv_ = flipUv;
 
@@ -42,31 +43,31 @@ namespace en
             delete pair.second;
     }
 
-    void Model::Render(const GLProgram *program) const // Deprecated
+    void Model::Render(const GLProgram *program) // Deprecated
     {
         RenderObj::Render(program);
-        for (const Mesh* mesh : meshes_)
+        for (Mesh* mesh : meshes_)
             mesh->Render(program);
     }
 
-    void Model::RenderPosOnly(const GLProgram *program) const
+    void Model::RenderPosOnly(const GLProgram *program)
     {
         RenderObj::RenderPosOnly(program);
-        for (const Mesh* mesh : meshes_)
+        for (Mesh* mesh : meshes_)
             mesh->RenderPosOnly(program);
     }
 
-    void Model::RenderDiffuse(const GLProgram *program) const
+    void Model::RenderDiffuse(const GLProgram *program)
     {
         RenderObj::RenderDiffuse(program);
-        for (const Mesh* mesh : meshes_)
+        for (Mesh* mesh : meshes_)
             mesh->RenderDiffuse(program);
     }
 
-    void Model::RenderAll(const GLProgram *program) const
+    void Model::RenderAll(const GLProgram *program)
     {
         RenderObj::RenderAll(program);
-        for (const Mesh* mesh : meshes_)
+        for (Mesh* mesh : meshes_)
             mesh->RenderAll(program);
     }
 

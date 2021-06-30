@@ -55,24 +55,24 @@ namespace en
     {
     }
 
-    void Mesh::Render(const GLProgram *program) const // Deprecated
+    void Mesh::Render(const GLProgram *program) // Deprecated
     {
         material_->UseAll(program, 0, 1);
         GLDrawCall();
     }
 
-    void Mesh::RenderPosOnly(const GLProgram *program) const
+    void Mesh::RenderPosOnly(const GLProgram *program)
     {
         GLDrawCall();
     }
 
-    void Mesh::RenderDiffuse(const GLProgram *program) const
+    void Mesh::RenderDiffuse(const GLProgram *program)
     {
         material_->UseDiffuse(program, 0);
         GLDrawCall();
     }
 
-    void Mesh::RenderAll(const GLProgram *program) const
+    void Mesh::RenderAll(const GLProgram *program)
     {
         material_->UseAll(program, 0, 1);
         GLDrawCall();

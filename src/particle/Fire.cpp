@@ -100,30 +100,30 @@ namespace particle{
 
     }
     void FireCreator::onImGuiRender(){
-        if (ImGui::Begin("Fire")) {
-            ImGui::TextColored(ImVec4(0, 1, 1, 1), "Flame Particle Props (General)");
-            ImGui::TextColored(ImVec4(1, 1, 1, 1),
-                               "%s", ("#Particles: " + std::to_string(m_ParticleSystem.getActiveParticleCount())).c_str());
-            ImGui::SliderFloat3("Velocity", &m_BaseFlameProps.Velocity.x, -10, 10);
-            ImGui::SliderFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, -10, 10);
-            ImGui::SliderFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0, 1);
-            ImGui::ColorEdit4("ColorBegin", &m_BaseFlameProps.ColorBegin.x);
-            ImGui::ColorEdit4("ColorEnd", &m_BaseFlameProps.ColorEnd.x);
-            ImGui::SliderFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0, 5);
-            ImGui::SliderFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0, m_BaseFlameProps.SizeBegin);
-            ImGui::SliderFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0, 5);
+        ImGui::Begin("Fire");
+        ImGui::TextColored(ImVec4(0, 1, 1, 1), "Flame Particle Props (General)");
+        ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
+        ImGui::InputFloat3("Velocity", &m_BaseFlameProps.Velocity.x);
+        ImGui::InputFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x);
+        ImGui::InputFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0, 1);
+        ImGui::ColorEdit4("ColorBegin", &m_BaseFlameProps.ColorBegin.x);
+        ImGui::ColorEdit4("ColorEnd", &m_BaseFlameProps.ColorEnd.x);
+        ImGui::InputFloat("SizeBegin", &m_BaseFlameProps.SizeBegin);
+        ImGui::InputFloat("SizeVariation", &m_BaseFlameProps.SizeVariation);
+        ImGui::InputFloat("SizeEnd", &m_BaseFlameProps.SizeEnd);
 
 
-            for (int i = 0; i < m_Flames.size(); i++){
-                ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", ("flame" + std::to_string(i)).c_str());
-                ImGui::SliderFloat3("Position", &m_Flames[i]->Position.x, -50, 50);
-                ImGui::SliderFloat3("PositionVariation", &m_Flames[i]->PositionVariation.x, 0, 10);
-                ImGui::SliderInt("ParticlesPerEmit", &m_Flames[i]->ParticlesPerEmit, 0, 100);
-                ImGui::SliderFloat("ParticleLifeTime", &m_Flames[i]->ParticleLifeTime, 0, 30);
-                ImGui::SliderFloat("ParticleLifeTimeVariation", &m_Flames[i]->ParticleLifeTimeVariation, 0, m_Flames[i]->ParticleLifeTime);
-            }
-            ImGui::End();
+        for (int i = 0; i < m_Flames.size(); i++){
+            ImGui::PushID(("Flame" + std::to_string(i)).c_str());
+            ImGui::TextColored(ImVec4(1, 1, 1, 1), "flame %d", i);
+            ImGui::InputFloat3("Position", &m_Flames[i]->Position.x);
+            ImGui::InputFloat3("PositionVariation", &m_Flames[i]->PositionVariation.x);
+            ImGui::InputInt("ParticlesPerEmit", &m_Flames[i]->ParticlesPerEmit);
+            ImGui::InputFloat("ParticleLifeTime", &m_Flames[i]->ParticleLifeTime);
+            ImGui::InputFloat("ParticleLifeTimeVariation", &m_Flames[i]->ParticleLifeTimeVariation);
+            ImGui::PopID();
         }
+        ImGui::End();
     }
 
 

@@ -8,6 +8,8 @@
 #include "engine/config.hpp"
 #include <glm/gtx/transform.hpp>
 
+#include <framework/imgui_util.hpp>
+
 namespace en
 {
     SceneRenderer::SceneRenderer(int32_t width, int32_t height) :
@@ -55,7 +57,7 @@ namespace en
         gBuffer_.Resize(width, height);
     }
 
-    void SceneRenderer::AddStandardRenderObj(const RenderObj* renderObj)
+    void SceneRenderer::AddStandardRenderObj(RenderObj* renderObj)
     {
         RemoveStandardRenderObj(renderObj);
         standardRenderObjs_.push_back(renderObj);
@@ -73,7 +75,7 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddFixedColorRenderObj(const RenderObj* renderObj)
+    void SceneRenderer::AddFixedColorRenderObj(RenderObj* renderObj)
     {
         RemoveFixedColorRenderObj(renderObj);
         fixedColorRenderObjs_.push_back(renderObj);
@@ -91,7 +93,7 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddSplineRenderObj(const RenderObj* renderObj)
+    void SceneRenderer::AddSplineRenderObj(RenderObj* renderObj)
     {
         RemoveSplineRenderObj(renderObj);
         splineRenderObjs_.push_back(renderObj);
@@ -109,7 +111,7 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddReflectiveRenderObj(const RenderObj* renderObj)
+    void SceneRenderer::AddReflectiveRenderObj(RenderObj* renderObj)
     {
         RemoveReflectiveRenderObj(renderObj);
         reflectiveRenderObjs_.push_back(renderObj);
@@ -164,6 +166,52 @@ namespace en
         reflectiveRenderObjs_.clear();
         reflectiveMaps_.clear();
         pointLights_.clear();
+    }
+
+    void SceneRenderer::onImGuiRender(){
+        ImGui::Begin("Objects");
+        ImGui::TextColored(ImVec4(1, 1, 1, 1), "DirLight");
+
+        for (int i = 0; i < standardRenderObjs_.size(); i++) {
+            ImGui::PushID(("standard" + std::to_string(i)).c_str());
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "standard %s %d", standardRenderObjs_[i]->GetName().c_str(), i);
+            ImGui::InputFloat3("Position", &standardRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat("RotationAngle", &standardRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
+            ImGui::InputFloat3("RotationAxisVector", &standardRenderObjs_[i]->RotationAxis.x);
+            ImGui::InputFloat3("Scaling", &standardRenderObjs_[i]->Scaling.x);
+            ImGui::PopID();
+        }
+
+        for (int i = 0; i < fixedColorRenderObjs_.size(); i++) {
+            ImGui::PushID(("fixedCol" + std::to_string(i)).c_str());
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "fixedCol %s %d", fixedColorRenderObjs_[i]->GetName().c_str(), i);
+            ImGui::InputFloat3("Position", &fixedColorRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat("RotationAngle", &fixedColorRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
+            ImGui::InputFloat3("RotationAxisVector", &fixedColorRenderObjs_[i]->RotationAxis.x);
+            ImGui::InputFloat3("Scaling", &fixedColorRenderObjs_[i]->Scaling.x);
+            ImGui::PopID();
+        }
+
+        for (int i = 0; i < splineRenderObjs_.size(); i++) {
+            ImGui::PushID(("spline" + std::to_string(i)).c_str());
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "spline %s %d", splineRenderObjs_[i]->GetName().c_str(), i);
+            ImGui::InputFloat3("Position", &splineRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat("RotationAngle", &splineRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
+            ImGui::InputFloat3("RotationAxisVector", &splineRenderObjs_[i]->RotationAxis.x);
+            ImGui::InputFloat3("Scaling", &splineRenderObjs_[i]->Scaling.x);
+            ImGui::PopID();
+        }
+
+        for (int i = 0; i < reflectiveRenderObjs_.size(); i++) {
+            ImGui::PushID(("reflective" + std::to_string(i)).c_str());
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "reflective %s %d", reflectiveRenderObjs_[i]->GetName().c_str(), i);
+            ImGui::InputFloat3("Position", &reflectiveRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat("RotationAngle", &reflectiveRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
+            ImGui::InputFloat3("RotationAxisVector", &reflectiveRenderObjs_[i]->RotationAxis.x);
+            ImGui::InputFloat3("Scaling", &reflectiveRenderObjs_[i]->Scaling.x);
+            ImGui::PopID();
+        }
+        ImGui::End();
     }
 
     void SceneRenderer::LoadPrograms()
@@ -300,11 +348,11 @@ namespace en
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
 
         dirLight_->BindShadowBuffer();
-        for (const RenderObj* renderObj : standardRenderObjs_)
+        for (RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
-        for (const RenderObj* renderObj : fixedColorRenderObjs_)
+        for (RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
-        for (const RenderObj* renderObj : reflectiveRenderObjs_)
+        for (RenderObj* renderObj : reflectiveRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
         dirLight_->UnbindShadowBuffer();
     }
@@ -321,11 +369,11 @@ namespace en
             pointShadowProgram_->SetUniformVec3f("light_pos", pointLight->GetPos());
 
             pointLight->BindShadowBuffer();
-            for (const RenderObj* renderObj : standardRenderObjs_)
+            for (RenderObj* renderObj : standardRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
-            for (const RenderObj* renderObj : fixedColorRenderObjs_)
+            for (RenderObj* renderObj : fixedColorRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
-            for (const RenderObj* renderObj : reflectiveRenderObjs_)
+            for (RenderObj* renderObj : reflectiveRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
             pointLight->UnbindShadowBuffer();
         }
@@ -338,7 +386,7 @@ namespace en
         geometryProgram_->Use();
         geometryProgram_->SetUniformMat4("view_mat", false, viewMat);
         geometryProgram_->SetUniformMat4("proj_mat", false, projMat);
-        for (const RenderObj* renderObj : standardRenderObjs_)
+        for (RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderAll(geometryProgram_);
 
         gBuffer_.Unbind();
@@ -377,7 +425,7 @@ namespace en
         fixedColorProgram_->Use();
         fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
-        for (const RenderObj* renderObj : fixedColorRenderObjs_)
+        for (RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderDiffuse(fixedColorProgram_);
     }
 
@@ -386,7 +434,7 @@ namespace en
         fixedColorProgram_->Use();
         fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
-        for (const RenderObj* renderObj : splineRenderObjs_)
+        for (RenderObj* renderObj : splineRenderObjs_)
             renderObj->RenderDiffuse(fixedColorProgram_);
     }
 
@@ -395,7 +443,7 @@ namespace en
         for (uint32_t i = 0; i < reflectiveMaps_.size(); i++)
         {
             const ReflectiveMap& reflectiveMap = reflectiveMaps_[i];
-            const RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
+            RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
 
             uint32_t size = reflectiveMap.GetSize();
             glm::mat4 projMat = reflectiveMap.GetProjMat();
@@ -418,16 +466,16 @@ namespace en
                 reflectiveMap.BindCubeMapFace(face);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                for (const RenderObj* renderObj : standardRenderObjs_)
+                for (RenderObj* renderObj : standardRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
-                for (const RenderObj* renderObj : fixedColorRenderObjs_)
+                for (RenderObj* renderObj : fixedColorRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
-                for (const RenderObj* renderObj : reflectiveRenderObjs_)
+                for (RenderObj* renderObj : reflectiveRenderObjs_)
                 {
                     if (renderObj != reflectiveRenderObj)
                         renderObj->RenderDiffuse(toEnvMapProgram_);
                 }
-                for (const RenderObj* renderObj : splineRenderObjs_)
+                for (RenderObj* renderObj : splineRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
             }
 
@@ -439,7 +487,7 @@ namespace en
     {
         for (uint32_t i = 0; i < reflectiveRenderObjs_.size(); i++)
         {
-            const RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
+            RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
             const ReflectiveMap& reflectiveMap = reflectiveMaps_[i];
 
             reflectiveProgram_->Use();

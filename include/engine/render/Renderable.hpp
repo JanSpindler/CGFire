@@ -13,31 +13,40 @@ namespace en
     class Renderable
     {
     public:
-        virtual void RenderPosOnly(const GLProgram* program) const = 0;
-        virtual void RenderDiffuse(const GLProgram* program) const = 0;
-        virtual void RenderAll(const GLProgram* program) const = 0;
+        virtual void RenderPosOnly(const GLProgram* program) = 0;
+        virtual void RenderDiffuse(const GLProgram* program) = 0;
+        virtual void RenderAll(const GLProgram* program) = 0;
 
-        virtual void Render(const GLProgram* program) const = 0; // Deprecated
+        virtual void Render(const GLProgram* program) = 0; // Deprecated
     };
 
     class RenderObj : public Renderable
     {
     public:
+        glm::vec3 Position = glm::vec3(0.f, 0.f, 0.f);
+        float RotationAngle = 0.f;
+        glm::vec3 RotationAxis = glm::vec3(0.f, 1.f, 0.f);
+        glm::vec3 Scaling = glm::vec3(1.f, 1.f, 1.f);
+
+        const glm::mat4& GetTransform() { return t_; }
+
+        RenderObj(const std::string& name = "noname");
+
+        void RenderPosOnly(const GLProgram* program) override;
+        void RenderDiffuse(const GLProgram* program) override;
+        void RenderAll(const GLProgram* program) override;
+
+        void Render(const GLProgram* program) override; // Deprecated
+
+        virtual glm::vec3 GetPos();
+
+        const std::string& GetName(){ return name_; }
+    private:
         glm::mat4 t_;
 
-        RenderObj();
-
-        void RenderPosOnly(const GLProgram* program) const override;
-        void RenderDiffuse(const GLProgram* program) const override;
-        void RenderAll(const GLProgram* program) const override;
-
-        void Render(const GLProgram* program) const override; // Deprecated
-
-        virtual glm::vec3 GetPos() const;
-
-    private:
-
-        void SetMatrices(const GLProgram* program) const;
+        void SetMatrices(const GLProgram* program);
+    protected:
+        std::string name_;
     };
 }
 

@@ -23,10 +23,10 @@ namespace en
         Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const Material* material);
         ~Mesh();
 
-        void Render(const GLProgram* program) const override; // Deprecated
-        void RenderPosOnly(const GLProgram* program) const override;
-        void RenderDiffuse(const GLProgram* program) const override;
-        void RenderAll(const GLProgram* program) const override;
+        void Render(const GLProgram* program) override; // Deprecated
+        void RenderPosOnly(const GLProgram* program) override;
+        void RenderDiffuse(const GLProgram* program) override;
+        void RenderAll(const GLProgram* program) override;
 
     private:
         unsigned int vao_;

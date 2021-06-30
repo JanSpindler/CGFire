@@ -62,5 +62,5 @@ int main(int, char* argv[]) {
     }
 
     cleanup_imgui();
-    exit(0); //ImGui Bug sorgt sonst für Fehler
+    return 0;
 }

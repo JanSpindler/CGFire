@@ -104,31 +104,30 @@ namespace particle{
     }
 
     void WaterCreator::onImGuiRender(){
-        if (ImGui::Begin("Water")) {
-            ImGui::TextColored(ImVec4(0, 1, 1, 1), "WaterJet Particle Props (General)");
-            ImGui::TextColored(ImVec4(1, 1, 1, 1),
-                               "%s", ("#Particles: " + std::to_string(m_ParticleSystem.getActiveParticleCount())).c_str());
-            ImGui::SliderFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor, 0, 10);
-            ImGui::ColorEdit4("ColorBegin", &m_BaseWaterJetProps.ColorBegin.x);
-            ImGui::ColorEdit4("ColorEnd", &m_BaseWaterJetProps.ColorEnd.x);
-            ImGui::SliderFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin, 0, 10);
-            ImGui::SliderFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation, 0, m_BaseWaterJetProps.SizeBegin);
-            ImGui::SliderFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0, 10);
+        ImGui::Begin("Water");
+        ImGui::TextColored(ImVec4(0, 1, 1, 1), "WaterJet Particle Props (General)");
+        ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
+        ImGui::InputFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor);
+        ImGui::ColorEdit4("ColorBegin", &m_BaseWaterJetProps.ColorBegin.x);
+        ImGui::ColorEdit4("ColorEnd", &m_BaseWaterJetProps.ColorEnd.x);
+        ImGui::InputFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin);
+        ImGui::InputFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation);
+        ImGui::InputFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd);
 
-            for (int i = 0; i < m_WaterJets.size(); i++) {
-                ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", ("WaterJet" + std::to_string(i)).c_str());
-                ImGui::SliderFloat3("Position", &m_WaterJets[i]->Position.x, -50, 50);
-                ImGui::SliderFloat3("PositionVariation", &m_WaterJets[i]->PositionVariation.x, -10, 10);
-                ImGui::SliderFloat3("WaterDirection", &m_WaterJets[i]->WaterDirection.x, -1, 1);
-                ImGui::SliderFloat("Speed", &m_WaterJets[i]->Speed, 0, 300);
-                ImGui::SliderFloat("SpeedVariation", &m_WaterJets[i]->SpeedVariationFactor, 0, 1);
-                ImGui::SliderInt("ParticlesPerSecond", &m_WaterJets[i]->ParticlesPerSecond, 0, 1000);
-                ImGui::SliderFloat("ParticleLifeTime", &m_WaterJets[i]->ParticleLifeTime, 0, 10);
-                ImGui::SliderFloat("ParticleLifeTimeVariation", &m_WaterJets[i]->ParticleLifeTimeVariation, 0, m_WaterJets[i]->ParticleLifeTime);
-            }
-            ImGui::End();
+        for (int i = 0; i < m_WaterJets.size(); i++) {
+            ImGui::PushID(("WaterJet" + std::to_string(i)).c_str());
+            ImGui::TextColored(ImVec4(1, 1, 1, 1), "WaterJet %d", i);
+            ImGui::InputFloat3("Position", &m_WaterJets[i]->Position.x);
+            ImGui::InputFloat3("PositionVariation", &m_WaterJets[i]->PositionVariation.x);
+            ImGui::InputFloat3("WaterDirection", &m_WaterJets[i]->WaterDirection.x);
+            ImGui::InputFloat("Speed", &m_WaterJets[i]->Speed);
+            ImGui::InputFloat("SpeedVariation", &m_WaterJets[i]->SpeedVariationFactor);
+            ImGui::InputInt("ParticlesPerSecond", &m_WaterJets[i]->ParticlesPerSecond);
+            ImGui::InputFloat("ParticleLifeTime", &m_WaterJets[i]->ParticleLifeTime);
+            ImGui::InputFloat("ParticleLifeTimeVariation", &m_WaterJets[i]->ParticleLifeTimeVariation);
+            ImGui::PopID();
         }
-
+        ImGui::End();
     }
 
     void WaterCreator::startWaterJet(std::shared_ptr<WaterJet> waterJet){

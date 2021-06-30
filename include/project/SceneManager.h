@@ -96,18 +96,17 @@ namespace scene {
         }
 
         void onImGuiRender() {
-            if (ImGui::Begin("Menu")) {
-                ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", ("Time:" + std::to_string(m_SceneTime)).c_str());
-                if (ImGui::Button("Restart")){
-                    this->restart();
-                }
-                if (ImGui::Button(m_TimePaused ? "Resume" : "Pause"))
-                    m_TimePaused = !m_TimePaused;
-
-
-                ImGui::End();
+            ImGui::Begin("Menu");
+            ImGui::TextColored(ImVec4(0, 1, 0, 1), "Time: %f", m_SceneTime);
+            if (ImGui::Button("Restart")){
+                this->restart();
             }
+            if (ImGui::Button(m_TimePaused ? "Resume" : "Pause"))
+                m_TimePaused = !m_TimePaused;
+            ImGui::End();
 
+
+            m_SceneRenderer.onImGuiRender();
             m_WaterCreator.onImGuiRender();
             m_SmokeCreator.onImGuiRender();
             m_FireCreator.onImGuiRender();

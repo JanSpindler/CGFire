@@ -13,6 +13,11 @@
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Spline3D.hpp"
 
+#include <framework/imgui_util.hpp>
+#include <GLFW/glfw3.h>
+
+
+
 void DeleteRemainingResources()
 {
     en::GLShader::DeleteAll();
@@ -24,6 +29,7 @@ int main()
     en::Log::Info("Initializing CGFire");
 
     en::Window window(800, 600, "CGFire");
+    init_imgui(window.GetHandle());
 
     en::Camera cam(
             glm::vec3(0.0f, 3.0f, -20.0f),
@@ -44,22 +50,23 @@ int main()
     en::Spline3D spline(splinePoints, false, 32, en::Spline3D::TYPE_NATURAL_CUBIC);
     en::Spline3DRenderable splineRenderable(&spline);
 
-    en::Model backpackModel("backpack/backpack.obj", true);
+    en::Model backpackModel("backpack/backpack.obj", true, "backpack");
 
-    en::Model floorModel("cube.obj", true);
-    floorModel.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(50.0f, 1.0f, 50.0f));
+    en::Model floorModel("cube.obj", true, "floor");
+    floorModel.Position = glm::vec3(0.0f, -5.0f, 0.0f);
+    floorModel.Scaling = glm::vec3(50.0f, 1.0f, 50.0f);
 
-    en::Model dragonModel("dragon.obj", false);
-    dragonModel.t_ = glm::translate(glm::vec3(0.0f, 0.0f, 20.0f));
+    en::Model dragonModel("dragon.obj", false, "dragon");
+    dragonModel.Position =glm::vec3(0.0f, 0.0f, 20.0f);
 
-    en::Model reflectModel("hd_sphere.obj", false);
-    reflectModel.t_ = glm::translate(glm::vec3(0.0f, 0.0, -8.0f));
+    en::Model reflectModel("hd_sphere.obj", false, "reflect sphere");
+    reflectModel.Position = glm::vec3(0.0f, 0.0, -8.0f);
 
     // Lights
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
 
-    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f);
-    pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
+    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f, "Simple Point Light");
+    pointLight.Position = glm::vec3(0.0f, 10.0f, 15.0f);
     std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
 
     // Skybox
@@ -101,17 +108,27 @@ int main()
         en::Input::HandleUserCamInput(&window, &cam, deltaTime);
 
         // Physics
-        pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
-        backpackModel.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-        dragonModel.t_ = dragonModel.t_ * glm::rotate(deltaTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
-        reflectModel.t_ = glm::rotate(deltaTime * 0.4f, glm::vec3(0.0f, 1.0f, 0.0f)) * reflectModel.t_;
+        pointLight.RotationAngle += deltaTime * -0.5f;
+        backpackModel.RotationAngle += deltaTime * 1.0f;
+        dragonModel.RotationAngle += deltaTime * 0.2f;
+        reflectModel.RotationAngle += deltaTime * 0.4f;
+
+        //UI
+        bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
+        if (renderImGui) {
+            imgui_new_frame(600, 400);
+            sceneRenderer.onImGuiRender();
+        }
 
         // Render
         cam.SetAspectRatio(window.GetAspectRatio());
         sceneRenderer.Render(&window, &cam);
+
+        if (renderImGui)
+            imgui_render();
     }
 
     DeleteRemainingResources();
-
+    cleanup_imgui();
     return 0;
 }

@@ -46,7 +46,7 @@ int main()
     const en::GLShader* fragShader = en::GLShader::Load("skeletalblur.frag");
     const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
-    en::Model vampiremodel("vampire/dancing_vampire.dae", true);
+    en::Model vampiremodel("vampire/dancing_vampire.dae", true, "vampire");
     en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
     en::Animator animator(&animation);
 
@@ -56,7 +56,7 @@ int main()
     const en::GLProgram* renderprog = motionblur.makerenderprog();
     animator.UpdateAnim(0.0f);
     motionblur.currenttransforms = animator.getfinalbonetransforms();
-    motionblur.prevprojviewmodelmat =  projMat*viewMat*vampiremodel.t_;
+    motionblur.prevprojviewmodelmat =  projMat*viewMat*vampiremodel.GetTransform();
 
     program->Use();
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
@@ -108,7 +108,7 @@ int main()
         vampiremodel.Render(program);
 
         motionblur.doblur(renderprog);
-        motionblur.prevprojviewmodelmat = projMat*viewMat*vampiremodel.t_;
+        motionblur.prevprojviewmodelmat = projMat*viewMat*vampiremodel.GetTransform();
     }
 
     en::Log::Info("Ending CGFire");

@@ -105,18 +105,9 @@ int main(int, char* argv[]) {
         bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
         if (renderImGui) {
             imgui_new_frame(600, 400);
-            if (ImGui::Begin("Fire")) {
-                fireCreator.onImGuiRender();
-                ImGui::End();
-            }
-            if (ImGui::Begin("Water")) {
-                waterCreator.onImGuiRender();
-                ImGui::End();
-            }
-            if (ImGui::Begin("Smoke")) {
-                smokeCreator.onImGuiRender();
-                ImGui::End();
-            }
+            fireCreator.onImGuiRender();
+            waterCreator.onImGuiRender();
+            smokeCreator.onImGuiRender();
         }
 
         //Rendering
@@ -142,5 +133,5 @@ int main(int, char* argv[]) {
     }
 
     cleanup_imgui();
-    exit(0); //ImGui Bug sorgt sonst für Fehler
+    return 0;
 }

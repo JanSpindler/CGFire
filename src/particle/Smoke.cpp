@@ -97,27 +97,27 @@ namespace particle{
 
     }
     void SmokeCreator::onImGuiRender(){
-        if (ImGui::Begin("Smoke")) {
-            ImGui::TextColored(ImVec4(0, 1, 1, 1), "Smoke Particle Props (General)");
-            ImGui::TextColored(ImVec4(1, 1, 1, 1),
-                               "%s", ("#Particles: " + std::to_string(m_ParticleSystem.getActiveParticleCount())).c_str());
-            ImGui::ColorEdit4("ColorBegin", &m_BaseSmokeProps.ColorBegin.x);
-            ImGui::ColorEdit4("ColorEnd", &m_BaseSmokeProps.ColorEnd.x);
-            ImGui::SliderFloat("SizeBegin", &m_BaseSmokeProps.SizeBegin, 0, 15);
-            ImGui::SliderFloat("SizeVariation", &m_BaseSmokeProps.SizeVariation, 0, m_BaseSmokeProps.SizeBegin);
-            ImGui::SliderFloat("SizeEnd", &m_BaseSmokeProps.SizeEnd, 0, 15);
+        ImGui::Begin("Smoke");
+        ImGui::TextColored(ImVec4(0, 1, 1, 1), "Smoke Particle Props (General)");
+        ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
+        ImGui::ColorEdit4("ColorBegin", &m_BaseSmokeProps.ColorBegin.x);
+        ImGui::ColorEdit4("ColorEnd", &m_BaseSmokeProps.ColorEnd.x);
+        ImGui::InputFloat("SizeBegin", &m_BaseSmokeProps.SizeBegin);
+        ImGui::InputFloat("SizeVariation", &m_BaseSmokeProps.SizeVariation);
+        ImGui::InputFloat("SizeEnd", &m_BaseSmokeProps.SizeEnd);
 
 
-            for (int i = 0; i < m_SmokeStreams.size(); i++) {
-                ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", ("smoke" + std::to_string(i)).c_str());
-                ImGui::SliderFloat3("Position", &m_SmokeStreams[i]->Position.x, -50, 50);
-                ImGui::SliderFloat3("PositionVariation", &m_SmokeStreams[i]->PositionVariation.x, 0, 10);
-                ImGui::SliderFloat("Speed", &m_SmokeStreams[i]->Speed, 2, 50);
-                ImGui::SliderFloat("SpeedVariation", &m_SmokeStreams[i]->SpeedVariation, 0, m_SmokeStreams[i]->Speed);
-                ImGui::SliderInt("ParticlesPerSecond", &m_SmokeStreams[i]->ParticlesPerSecond, 0, 150);
-            }
-            ImGui::End();
+        for (int i = 0; i < m_SmokeStreams.size(); i++) {
+            ImGui::PushID(("SmokeStream" + std::to_string(i)).c_str());
+            ImGui::TextColored(ImVec4(1, 1, 1, 1), "smoke %d", i);
+            ImGui::InputFloat3("Position", &m_SmokeStreams[i]->Position.x);
+            ImGui::InputFloat3("PositionVariation", &m_SmokeStreams[i]->PositionVariation.x);
+            ImGui::InputFloat("Speed", &m_SmokeStreams[i]->Speed);
+            ImGui::InputFloat("SpeedVariation", &m_SmokeStreams[i]->SpeedVariation);
+            ImGui::InputInt("ParticlesPerSecond", &m_SmokeStreams[i]->ParticlesPerSecond);
+            ImGui::PopID();
         }
+        ImGui::End();
     }
 
 

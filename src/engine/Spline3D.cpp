@@ -308,12 +308,12 @@ namespace en
         glBindVertexArray(0);
     }
 
-    void Spline3DRenderable::Render(const GLProgram *program) const // Deprecated
+    void Spline3DRenderable::Render(const GLProgram *program) // Deprecated
     {
         // TODO:
     }
 
-    void Spline3DRenderable::RenderPosOnly(const GLProgram *program) const
+    void Spline3DRenderable::RenderPosOnly(const GLProgram *program)
     {
         RenderObj::RenderPosOnly(program);
         // This call is used for shadow mapping
@@ -321,7 +321,7 @@ namespace en
         // Therefore method must not draw any non Triangle primitives
     }
 
-    void Spline3DRenderable::RenderDiffuse(const GLProgram *program) const
+    void Spline3DRenderable::RenderDiffuse(const GLProgram *program)
     {
         RenderObj::RenderDiffuse(program);
         program->SetUniformVec4f("diffuse_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -330,7 +330,7 @@ namespace en
         RenderPoints();
     }
 
-    void Spline3DRenderable::RenderAll(const GLProgram *program) const
+    void Spline3DRenderable::RenderAll(const GLProgram *program)
     {
         RenderObj::RenderAll(program);
         RenderDiffuse(program);
