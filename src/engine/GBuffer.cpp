@@ -117,6 +117,15 @@ namespace en
         width_ = width;
         height_ = height;
     }
+    void GBuffer::UseTexturesSSAO(const GLProgram *program) const{
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, posTex_);
+        program->SetUniformI("pos_tex", 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normalTex_);
+        program->SetUniformI("normal_tex", 1);
+    }
 
     void GBuffer::UseTextures(const GLProgram* program) const
     {

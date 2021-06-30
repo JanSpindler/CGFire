@@ -85,7 +85,6 @@ file(GLOB_RECURSE projectSOURCES src/project/*.cpp)
 add_executable(project ${projectSOURCES})
 target_link_libraries(project engineLibrary)
 
-
 file(GLOB TESTS_EXECUTABLES
         src/Tests/*.cpp)
 

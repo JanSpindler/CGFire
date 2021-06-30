@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include "engine/render/GLShader.hpp"
 #include "engine/render/Renderable.hpp"
+#include "engine/render/GBuffer.hpp"
 #ifndef CGFIRE_SSAO_H
 #define CGFIRE_SSAO_H
 #define kernelsize 64
@@ -19,9 +20,9 @@ namespace en {
         ssao(int width, int height);
         void makessaofbo(int width, int height);
         void makeblurfbo(int width, int height);
-        void dossao(GLProgram* ssaoprog, GLProgram* blurprog);
-        GLProgram makessaoprogram();
-        GLProgram makeblurprogram();
+        void dossao(const GLProgram* ssaoprog,const GLProgram* blurprog, GBuffer buffer, glm::mat4 ProjMat);
+        const GLProgram* makessaoprogram();
+        const GLProgram* makeblurprogram();
         std::vector<glm::vec3> kernel;
         std::vector<glm::vec3> noise;
         unsigned int noisetex=0;

@@ -114,17 +114,17 @@ namespace en{
 
         return VAO;
     }
-    GLProgram ssao::makessaoprogram() {
-        en::GLShader vertShader("ssao.vert", en::GLShader::Type::VERTEX);
-        en::GLShader fragShader("ssao.frag", en::GLShader::Type::FRAGMENT);
-        en::GLProgram program(&vertShader, nullptr, &fragShader);
-        return program;
+    const GLProgram* ssao::makessaoprogram() {
+        const en::GLShader* vertShader = GLShader::Load("ssao.vert");
+        const en::GLShader* fragShader= GLShader::Load("ssao.frag");
+        //en::GLProgram program(&vertShader, nullptr, &fragShader);
+        return GLProgram::Load(vertShader, nullptr, fragShader);
     }
-    GLProgram ssao::makeblurprogram() {
-        en::GLShader vertShader("ssao.vert", en::GLShader::Type::VERTEX);
-        en::GLShader fragShader("ssaoblur.frag", en::GLShader::Type::FRAGMENT);
-        en::GLProgram program(&vertShader, nullptr, &fragShader);
-        return program;
+    const GLProgram* ssao::makeblurprogram() {
+       const en::GLShader* vertShader= GLShader::Load("ssao.vert");
+       const  en::GLShader* fragShader= GLShader::Load("ssaoblur.frag");
+        //en::GLProgram program(&vertShader, nullptr, &fragShader);
+        return GLProgram::Load(vertShader, nullptr, fragShader);
     }
     ssao::ssao(int width, int height) {
         makekernels();
@@ -133,5 +133,29 @@ namespace en{
         makessaofbo(width, height);
         makeblurfbo(width, height);
         quad = setup_fullscreen_quad();
+    }
+    void ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, GBuffer buffer, glm::mat4 ProjMat) {
+        //ssaopass
+        glClear(GL_COLOR_BUFFER_BIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, ssaofbo);
+        ssaoprog->Use();
+        glBindVertexArray(quad);
+        buffer.UseTexturesSSAO(ssaoprog);
+        glBindTextureUnit(2, noisetex);
+        ssaoprog->SetUniformI("noisetex", 2);
+        ssaoprog->SetUniformMat4("projmat", false, &ProjMat[0][0]);
+        for (int i = 0; i < kernelsize; ++i) {
+            assert(kernelsize==ssao::kernel.size());
+            ssaoprog->SetUniformVec3f("kernel[" + std::to_string(i) + "]", ssao::kernel[i]);
+        };
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
+        //ssaoblurpass
+        glClear(GL_COLOR_BUFFER_BIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, blurfbo);
+        blurprog->Use();
+        glBindVertexArray(quad);
+        glBindTextureUnit(0, ssaotex);
+        ssaoprog->SetUniformI("ssaores", 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
     }
 }

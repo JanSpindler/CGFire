@@ -30,8 +30,8 @@ int main()
     en::Window window(800, 600, "CGFire");
 
     en::Camera cam(
-            glm::vec3(0.0f, 3.0f, -20.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f),
+            glm::vec3(0.0f,0.0f, 5.0f),
+            glm::vec3(0.0f, 0.0f, -1.0f),
             glm::vec3(0.0f, 1.0f, 0.0f),
             window.GetAspectRatio(),
             glm::radians(60.f),
