@@ -9,7 +9,7 @@
 
 namespace particle{
 
-    struct WaterJet{
+    class WaterJet{
         friend class WaterCreator;
     public:
         explicit WaterJet(const glm::vec3& position,
@@ -49,7 +49,7 @@ namespace particle{
         float Speed;
         float SpeedVariationFactor; //percentage-range of varying speed
 
-        int ParticlesPerSecond = 30;
+        int ParticlesPerSecond;
         float ParticleLifeTime;
         float ParticleLifeTimeVariation;
 

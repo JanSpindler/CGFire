@@ -11,7 +11,7 @@
 
 namespace en
 {
-    class SimplePointLight : public PointLight, public RenderObj
+    class SimplePointLight : public PointLight, public Model
     {
     public:
         SimplePointLight(glm::vec3 color, float strength);

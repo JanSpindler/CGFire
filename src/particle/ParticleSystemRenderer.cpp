@@ -2,6 +2,7 @@
 #include "particle/ParticleSystemRenderer.h"
 #include <array>
 #include <engine/Util.hpp>
+#include <util/Random.h>
 
 namespace particle {
 
@@ -31,10 +32,16 @@ namespace particle {
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, Color)));
 
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexCoord)));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexCoord1)));
 
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexID)));
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexCoord2)));
+
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, HowMuchOfTexCoord1)));
+
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (offsetof(Vertex, TexID)));
 
         //Set up index buffer which we will never change later
         uint32_t* indices = new uint32_t[m_MaxIndices];
@@ -131,7 +138,6 @@ namespace particle {
         glDepthMask(GL_FALSE);
         glEnable(GL_BLEND);
 
-
         glBlendFunc(GL_SRC_ALPHA, m_AdditiveBlending ? GL_ONE : GL_ONE_MINUS_SRC_ALPHA);
 
 
@@ -167,7 +173,15 @@ namespace particle {
             NextBatch();
         }
 
-        float life = std::max(particle.LifeRemaining, 0.f) / particle.LifeTime;
+        float life;
+        if (!particle.TexLooped) //Fire
+            life = std::max(particle.LifeRemaining, 0.f) / particle.LifeTime;
+        else if (particle.Spline == nullptr) //Water //TODO make water looped
+            life = std::max(particle.LifeRemaining - std::floor(particle.LifeRemaining), 0.f) ;
+        else //Smoke
+            life = 1.f - particle.LifeTime; // in ParticleSystem we saved the parameter t of the spline in LifeTime
+
+
         glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
         float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
 
@@ -178,26 +192,57 @@ namespace particle {
         auto numSpriteRows = static_cast<uint32_t>(particle.TexCoordAnimFrames.x);
         auto numSpriteColumns = static_cast<uint32_t>(particle.TexCoordAnimFrames.y);
         auto numSpriteFrames = static_cast<uint32_t>(numSpriteRows * numSpriteColumns);
-        auto currentFrame = static_cast<uint32_t>(life * numSpriteFrames);
-        //std::cout << currentFrame << std::endl;
+
+        float howMuchOfTexCoord1;
+
+        uint32_t currentFrame;
+        if (!particle.TexLooped) { //water,fire
+            float currentFrameFloat = life * numSpriteFrames;
+            currentFrame = static_cast<uint32_t>(currentFrameFloat);
+            howMuchOfTexCoord1 = currentFrameFloat - currentFrame;
+        }
+        else{//smoke
+            float currentFrameFloat = (0.1f*particle.LifeRemaining - static_cast<uint32_t>(0.1f*particle.LifeRemaining)) * numSpriteFrames;
+            currentFrame = static_cast<uint32_t>(currentFrameFloat);
+            howMuchOfTexCoord1 = currentFrameFloat - currentFrame;
+
+        }
+
+        uint32_t nextFrame = std::min(currentFrame + 1, numSpriteFrames - 1); //used for smooth blending between frames
+
+        //current frame
         auto currentFrameColumn = currentFrame % numSpriteRows;
         auto currentFrameRow = currentFrame / numSpriteRows;
         glm::vec2 spriteFrameSize = {1.f / numSpriteColumns, 1.f / numSpriteRows};
-        glm::vec2 spriteFramePos = {(numSpriteColumns-currentFrameColumn-1) * spriteFrameSize.x, currentFrameRow * spriteFrameSize.y};
-        glm::vec2 texCoords[] = {     { spriteFramePos.x, spriteFramePos.y },
-                                      { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y },
-                                      { spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y + spriteFrameSize.y },
-                                      { spriteFramePos.x, spriteFramePos.y + spriteFrameSize.y } };
+        glm::vec2 spriteFramePos = {(numSpriteColumns - currentFrameColumn - 1) * spriteFrameSize.x,
+                                    currentFrameRow * spriteFrameSize.y};
+        glm::vec2 texCoords1[] = {{spriteFramePos.x,                     spriteFramePos.y},
+                                  {spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y},
+                                  {spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y + spriteFrameSize.y},
+                                  {spriteFramePos.x,                     spriteFramePos.y + spriteFrameSize.y}};
+
+        //next frame
+        auto nextFrameColumn = nextFrame % numSpriteRows;
+        auto nextFrameRow = nextFrame / numSpriteRows;
+        spriteFrameSize = {1.f / numSpriteColumns, 1.f / numSpriteRows};
+        spriteFramePos = {(numSpriteColumns - nextFrameColumn - 1) * spriteFrameSize.x,
+                          nextFrameRow * spriteFrameSize.y};
+        glm::vec2 texCoords2[] = {{spriteFramePos.x,                     spriteFramePos.y},
+                                  {spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y},
+                                  {spriteFramePos.x + spriteFrameSize.x, spriteFramePos.y + spriteFrameSize.y},
+                                  {spriteFramePos.x,                     spriteFramePos.y + spriteFrameSize.y}};
 
 
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), particle.Position)
-                              * glm::scale(glm::mat4(1.0f), { size, size, 1.0f });
+                              * glm::scale(glm::mat4(1.0f), { size, size, size });
 
         for (size_t i = 0; i < 4; ++i)
         {
             m_QuadDataPtr->Position = transform * m_CurrentQuadVertexPositions[i];
             m_QuadDataPtr->Color = color;
-            m_QuadDataPtr->TexCoord = texCoords[i];
+            m_QuadDataPtr->TexCoord1 = texCoords1[i];
+            m_QuadDataPtr->TexCoord2 = texCoords2[i];
+            m_QuadDataPtr->HowMuchOfTexCoord1 = howMuchOfTexCoord1;
             m_QuadDataPtr->TexID = textureSlot;
             m_QuadDataPtr++;
         }

@@ -7,7 +7,7 @@
 namespace en
 {
     SimplePointLight::SimplePointLight(glm::vec3 color, float strength) :
-            RenderObj(new Model("sphere.obj", true)),
+            Model("sphere.obj", true),
             PointLight(strength)
     {
         color_ = color;

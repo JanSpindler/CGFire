@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include "keycode.hpp"
 #include "mousecode.hpp"
+#include "../Window.hpp"
+#include "../Camera.hpp"
 
 struct GLFWwindow;
 
@@ -23,6 +25,8 @@ namespace en
         static bool IsMouseButtonPressed(int button);
         static glm::vec2 GetMousePos();
         static glm::vec2 GetMouseMove();
+
+        static void HandleUserCamInput(Window* window, Camera* cam, float deltaTime);
 
     private:
         static GLFWwindow* windowHandle_;

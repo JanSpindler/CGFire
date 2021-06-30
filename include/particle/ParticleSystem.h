@@ -39,6 +39,8 @@ namespace particle {
             for (auto& p : m_ParticlePool)
                 p.Active = false;
         }
+
+        uint32_t getActiveParticleCount() const { return m_ActiveParticleCount; }
     private:
         const unsigned int m_ParticlePoolSize;
         const en::Camera& m_Cam;
@@ -46,6 +48,8 @@ namespace particle {
         //Recycle-Pool of particles
         std::vector<Particle> m_ParticlePool;
         Particle* m_NextUnusedParticle;
+
+        uint32_t m_ActiveParticleCount = 0;
 
         //Renderer
         ParticleSystemRenderer m_BatchRenderer;

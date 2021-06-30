@@ -22,13 +22,17 @@ namespace en
         glm::mat4 offsetmat;
     };
 
-    class Model : public Renderable
+    class Model : public RenderObj
     {
     public:
         Model(const std::string& path, bool flipUv);
         ~Model();
 
         void Render(const GLProgram* program) const override;
+        void RenderPosOnly(const GLProgram* program) const override;
+        void RenderDiffuse(const GLProgram* program) const override;
+        void RenderAll(const GLProgram* program) const override;
+
         std::map<std::string, boneinfo> getbonemap();
         int getbonecount() const;
         const std::vector<Mesh*>& GetMeshes() const;

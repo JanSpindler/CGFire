@@ -6,11 +6,12 @@
 #include "engine/render/GLTexture.hpp"
 #include "particle/ParticleSystem.h"
 #include <framework/imgui_util.hpp>
+#include "engine/render/Light.hpp"
 
 namespace particle{
 
     /*A flame of fire can be placed in the scene with individual properties.*/
-    struct Flame{
+    class Flame : public en::PointLight{
         friend class FireCreator;
     public:
         explicit Flame(const glm::vec3& position,
@@ -20,7 +21,8 @@ namespace particle{
               float expiringTime = 5.f,
               float particleLifeTime = 1.f,
               float particleLifeTimeVariation = 0.2f)
-        : Position(position),
+        : PointLight(1.f),
+          Position(position),
           PositionVariation(positionVariation),
         ParticlesPerEmit(particlesPerEmit),
           BuildUpTime(buildUpTime),
@@ -44,6 +46,16 @@ namespace particle{
         int ParticlesPerEmit;
         float ParticleLifeTime;
         float ParticleLifeTimeVariation;
+
+
+        //PointLight abstract methods
+
+        glm::vec3 GetPos() const override{
+            return Position;
+        }
+        glm::vec3 GetColor() const override {
+            return glm::vec3(1.f, 1.f, 1.f);
+        }
 
     private:
         const float BuildUpTime; //the amount of time the fire takes to come to its peak

@@ -13,20 +13,31 @@ namespace en
     class Renderable
     {
     public:
-        virtual void Render(const GLProgram* program) const = 0;
+        virtual void RenderPosOnly(const GLProgram* program) const = 0;
+        virtual void RenderDiffuse(const GLProgram* program) const = 0;
+        virtual void RenderAll(const GLProgram* program) const = 0;
+
+        virtual void Render(const GLProgram* program) const = 0; // Deprecated
     };
 
-    class RenderObj
+    class RenderObj : public Renderable
     {
     public:
         glm::mat4 t_;
 
-        RenderObj(const Renderable* renderable);
+        RenderObj();
 
-        void Render(const GLProgram* program);
+        void RenderPosOnly(const GLProgram* program) const override;
+        void RenderDiffuse(const GLProgram* program) const override;
+        void RenderAll(const GLProgram* program) const override;
+
+        void Render(const GLProgram* program) const override; // Deprecated
+
+        virtual glm::vec3 GetPos() const;
 
     private:
-        const Renderable* renderable_;
+
+        void SetMatrices(const GLProgram* program) const;
     };
 }
 

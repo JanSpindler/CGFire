@@ -45,9 +45,9 @@ namespace en
 
     void DirLight::UseShadow(const GLProgram *program) const
     {
-        glActiveTexture(GL_TEXTURE0 + 1);
+        glActiveTexture(GL_TEXTURE4);
         depthTex_.BindTex();
-        program->SetUniformI("dir_shadow_tex", 1);
+        program->SetUniformI("dir_shadow_tex", 4);
     }
 
     glm::mat4 DirLight::GetLightMat() const
@@ -100,10 +100,10 @@ namespace en
 
     void PointLight::UseShadow(const GLProgram* program, unsigned int index) const
     {
-        unsigned int texIndex = 2 + index;
+        int32_t texIndex = 5 + index;
         glActiveTexture(GL_TEXTURE0 + texIndex);
         depthCubeMap_.BindTex();
-        program->SetUniformI("point_light_shadow_cube" + std::to_string(index), texIndex);
+        program->SetUniformI("point_light_shadow_tex" + std::to_string(index), texIndex);
     }
 
     std::vector<glm::mat4> PointLight::GetLightMats() const

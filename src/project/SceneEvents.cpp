@@ -4,12 +4,15 @@
 #include "project/SceneManager.h"
 
 namespace scene{
+
     //Here, add all of the events with their respective event time
     void SceneManager::addEvents(){
         using namespace particle;
 #define MakeSharedEvent(x, y) std::static_pointer_cast<Event>(std::make_shared<x>y) //macro to simplify making of an event
 
-        std::shared_ptr<Flame> Flame1 = std::make_shared<Flame>(
+
+        /********************FIRE*/
+        auto Flame1 = std::make_shared<Flame>(
                 glm::vec3(0.5f, 0.5f, 0.5f),
                 glm::vec3(1.f, 0.f, 1.f),
                 30,
@@ -18,16 +21,16 @@ namespace scene{
                 0.2f);
 
 
-        this->addEvent(MakeSharedEvent(FireCreationEvent, (m_FireCreator, Flame1)),
+        this->addEvent(MakeSharedEvent(FireCreationEvent, (m_SceneRenderer, m_FireCreator, Flame1)),
                        5.f);
 
-        this->addEvent(MakeSharedEvent(FireExpiringEvent, (Flame1)),
+        this->addEvent(MakeSharedEvent(FireExpiringEvent, (m_SceneRenderer, Flame1)),
                        20.f);
 
-//        this->addEvent(MakeSharedEvent(FireCreationEvent, (m_FireCreator, Flame1)),
-//                       12.f);
 
-        std::shared_ptr<WaterJet> WaterJet1 = std::make_shared<WaterJet>(
+        /********************WATER*/
+
+        auto WaterJet1 = std::make_shared<WaterJet>(
                 glm::vec3(2.f, 0.f, 1.f),
                 glm::vec3(0.5f, 0.5f, 0.5f),
                 glm::vec3(1.f, 0.5f, 0.f),
@@ -45,11 +48,81 @@ namespace scene{
         this->addEvent(MakeSharedEvent(WaterExpiringEvent, (WaterJet1)),
                        20.f);
 
-//        this->addEvent(MakeSharedEvent(WaterCreationEvent, (m_WaterCreator, WaterJet1)),
-//                       18.f);
+
+        /********************SMOKE*/
+
+        std::vector<glm::vec3> splinePoints = {
+                { 0.0f, 2.0f, 0.0f },
+                { 5.0f, 5.0f, 0.0f },
+                { 10.0f, 10.0f, -5.0f },
+                { 35.0f, 30.0f, -15.0f }
+        };
+        auto spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_NATURAL_CUBIC);
+        auto SmokeStream1 = std::make_shared<SmokeStream>
+                                              (spline,
+                                               glm::vec3(0.5f, 0.5f, 0.5f),
+                                               glm::vec3(1.f, 0.f, 1.f));
+
+        this->addEvent(MakeSharedEvent(SmokeCreationEvent, (m_SmokeCreator, SmokeStream1)),
+                       6.f);
+
+        this->addEvent(MakeSharedEvent(SmokeExpiringEvent, (SmokeStream1)),
+                       25.f);
 
 
-        m_EventsAndTimes.sort([](const auto& a, const auto& b) { return a.second < b.second; });
+        /******************MODELS*/
+
+
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelBackpack, RenderObjType::Standard)),
+                       0.f);
+
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFloor, RenderObjType::Standard)),
+                       0.f);
+
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelDragon, RenderObjType::Standard)),
+                       0.f);
+
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ReflectModel, RenderObjType::Reflective)),
+                       0.f);
+
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_CamSplineRenderable, RenderObjType::Spline)),
+                       0.f);
+
+
+    }
+
+
+    void SceneManager::initObjects(){
+
+
+        m_SkyboxTex = std::make_shared<en::GLSkyboxTex>("CGFire/skybox1", ".png", false);
+        m_SceneRenderer.SetSkyboxTex(m_SkyboxTex.get());
+
+        m_DirLight = std::make_shared<en::DirLight>(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
+        m_SceneRenderer.SetDirLight(m_DirLight.get());
+
+        m_ModelBackpack = std::make_shared<en::Model>("backpack/backpack.obj", true);
+        m_ModelBackpack->t_ = glm::translate(glm::vec3(5.0f, 0.0f, 20.0f));
+
+        m_ModelFloor = std::make_shared<en::Model>("cube.obj", true);
+        m_ModelFloor->t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f))
+                * glm::scale(glm::vec3(50.0f, 1.0f, 50.0f));
+
+        m_ModelDragon = std::make_shared<en::Model>("dragon.obj", false);
+        m_ModelDragon->t_ = glm::translate(glm::vec3(0.0f, 0.0f, 20.0f));
+
+        m_ReflectModel = std::make_shared<en::Model>("hd_sphere.obj", false);
+        m_ReflectModel->t_ = glm::translate(glm::vec3(0.0f, 0.0, -8.0f));
+
+
+        std::vector<glm::vec3> splinePoints = {
+                { 5.0f, 10.0f, 5.0f },
+                { -5.0f, 0.0f, 5.0f },
+                { -5.0f, 5.0f, -5.0f },
+                { 5.0f, 0.0f, -5.0f }
+        };
+        m_CamSpline = std::make_shared<en::Spline3D>(splinePoints, false, 32, en::Spline3D::TYPE_NATURAL_CUBIC);
+        m_CamSplineRenderable = std::make_shared<en::Spline3DRenderable>(m_CamSpline.get());
 
     }
 }

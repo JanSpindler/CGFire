@@ -38,18 +38,17 @@ int main()
     glm::mat4 viewMat;
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    en::GLShader vertShader("sceletal.vert", en::GLShader::Type::VERTEX);
-    en::GLShader fragShader("sceletal.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram program(&vertShader, nullptr, &fragShader);
+    const en::GLShader* vertShader = en::GLShader::Load("sceletal.vert");
+    const en::GLShader* fragShader = en::GLShader::Load("sceletal.frag");
+    const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
     en::Model vampiremodel("vampire/dancing_vampire.dae", true);
-    en::RenderObj vampireObj = { &vampiremodel };
     en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
     en::Animator animator(&animation);
 
-    program.Use();
+    program->Use();
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
-    dirLight.Use(&program);
+    dirLight.Use(program);
 
     while (window.IsOpen())
     {
@@ -67,17 +66,17 @@ int main()
 
         viewMat = cam.GetViewMat();
         projMat = cam.GetProjMat();
-        program.Use();
-        program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
-        program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        program.SetUniformVec3f("cam_pos", cam.GetPos());
+        program->Use();
+        program->SetUniformMat4("view_mat", false, &viewMat[0][0]);
+        program->SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        program->SetUniformVec3f("cam_pos", cam.GetPos());
 
         auto transforms = animator.getfinalbonetransforms();
         for (int i = 0; i < transforms.size(); ++i) {
-            program.SetUniformMat4(("finalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(transforms[i]));
+            program->SetUniformMat4(("finalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(transforms[i]));
         };
 
-        vampireObj.Render(&program);
+        vampiremodel.Render(program);
     }
 
     return 0;

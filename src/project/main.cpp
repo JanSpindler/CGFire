@@ -5,10 +5,6 @@
 #include <glm/gtx/transform.hpp>
 #include <framework/imgui_util.hpp>
 
-#include "particle/ParticleSystem.h"
-#include "particle/Fire.h"
-#include "particle/Water.h"
-
 #include "engine/Window.hpp"
 #include "engine/Util.hpp"
 #include "engine/input/Input.hpp"
@@ -31,12 +27,10 @@ int main(int, char* argv[]) {
             0.01f,
             1000.0f);
 
-    // Particle Systems
-    particle::ParticleSystem particleSystemFire(10000, cam, true);
-    particle::ParticleSystem particleSystemWater(10000, cam, false);
+
 
     //Create the Scene
-    scene::SceneManager Scene(cam, particleSystemFire, particleSystemWater);
+    scene::SceneManager Scene(cam, window);
     Scene.restart();
 
     while (window.IsOpen())
@@ -49,8 +43,6 @@ int main(int, char* argv[]) {
 
 
         //Updates
-        particleSystemFire.OnUpdate(deltaTime);
-        particleSystemWater.OnUpdate(deltaTime);
         Scene.onUpdate(deltaTime);
 
         //UI
@@ -62,10 +54,8 @@ int main(int, char* argv[]) {
 
         //Rendering
         cam.SetAspectRatio(window.GetAspectRatio());
-
         window.UseViewport();
-        particleSystemFire.OnRender();
-        particleSystemWater.OnRender();
+        Scene.OnRender();
 
         if (renderImGui)
             imgui_render();

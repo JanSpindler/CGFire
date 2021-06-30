@@ -42,26 +42,25 @@ int main()
     glm::mat4 viewMat;
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    en::GLShader vertShader("skeletalblur.vert", en::GLShader::Type::VERTEX);
-    en::GLShader fragShader("skeletalblur.frag", en::GLShader::Type::FRAGMENT);
-    en::GLProgram program(&vertShader, nullptr, &fragShader);
+    const en::GLShader* vertShader = en::GLShader::Load("skeletalblur.vert");
+    const en::GLShader* fragShader = en::GLShader::Load("skeletalblur.frag");
+    const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
     en::Model vampiremodel("vampire/dancing_vampire.dae", true);
-    en::RenderObj vampireObj = { &vampiremodel };
     en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
     en::Animator animator(&animation);
 
     en::motionblur motionblur(window.GetWidth(), window.GetHeight());
     int width = window.GetWidth();
     int height = window.GetHeight();
-    en::GLProgram renderprog = motionblur.makerenderprog();
+    const en::GLProgram* renderprog = motionblur.makerenderprog();
     animator.UpdateAnim(0.0f);
     motionblur.currenttransforms = animator.getfinalbonetransforms();
-    motionblur.prevprojviewmodelmat =  projMat*viewMat*vampireObj.t_;
+    motionblur.prevprojviewmodelmat =  projMat*viewMat*vampiremodel.t_;
 
-    program.Use();
+    program->Use();
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(1.0f));
-    dirLight.Use(&program);
+    dirLight.Use(program);
 
     while (window.IsOpen())
     {
@@ -93,10 +92,10 @@ int main()
 
         viewMat = cam.GetViewMat();
         projMat = cam.GetProjMat();
-        program.Use();
-        program.SetUniformMat4("view_mat", false, &viewMat[0][0]);
-        program.SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        program.SetUniformVec3f("cam_pos", cam.GetPos());
+        program->Use();
+        program->SetUniformMat4("view_mat", false, &viewMat[0][0]);
+        program->SetUniformMat4("proj_mat", false, &projMat[0][0]);
+        program->SetUniformVec3f("cam_pos", cam.GetPos());
 
         auto transforms = animator.getfinalbonetransforms();
 
@@ -106,10 +105,10 @@ int main()
 
         //vampireObj.t_ *= glm::rotate(deltaTime * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         //en::Log::Info(glm::to_string(motionblur.prevprojviewmodelmat)+"\n"+glm::to_string(motionblur.prevtransforms[0])+"\n"+glm::to_string(motionblur.currenttransforms[0]));
-        vampireObj.Render(&program);
+        vampiremodel.Render(program);
 
-        motionblur.doblur(&renderprog);
-        motionblur.prevprojviewmodelmat = projMat*viewMat*vampireObj.t_;
+        motionblur.doblur(renderprog);
+        motionblur.prevprojviewmodelmat = projMat*viewMat*vampiremodel.t_;
     }
 
     en::Log::Info("Ending CGFire");
