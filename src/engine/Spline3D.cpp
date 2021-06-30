@@ -22,6 +22,16 @@ namespace en
                 ConstructNaturalCubic(resolution);
                 break;
         }
+
+        totalLength_ = 0.0f;
+        unsigned int segmentCount = points_.size() - 1;
+        segmentLengths_.resize(segmentCount);
+        for (unsigned int i = 0; i < segmentCount; i++)
+        {
+            float segmentLength = glm::length(points_[i + 1] - points_[i]);
+            segmentLengths_[i] = segmentLength;
+            totalLength_ += segmentLength;
+        }
     }
 
     unsigned int Spline3D::GetControlPointCount() const
@@ -108,17 +118,6 @@ namespace en
 
         // Include first point twice for complete last segment of last pair
         points_[offset + resolution] = CatmullRom(p0, p1, p2, p3, 1.0f);
-
-        // Calculate length of ext_spline
-        totalLength_ = 0.0f;
-        unsigned int segmentCount = pointCount - 1;
-        segmentLengths_.resize(segmentCount);
-        for (unsigned int i = 0; i < segmentCount; i++)
-        {
-            float segmentLength = glm::length(points_[i + 1] - points_[i]);
-            segmentLengths_[i] = segmentLength;
-            totalLength_ += segmentLength;
-        }
     }
 
     glm::vec3 Spline3D::CatmullRom(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t)
@@ -316,9 +315,6 @@ namespace en
     void Spline3DRenderable::RenderPosOnly(const GLProgram *program) const
     {
         RenderObj::RenderPosOnly(program);
-        // This call is used for shadow mapping
-        // Point shadow mapping used Triangled in the Geometry Shader
-        // Therefore method must not draw any non Triangle primitives
     }
 
     void Spline3DRenderable::RenderDiffuse(const GLProgram *program) const

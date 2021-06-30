@@ -13,6 +13,7 @@
 #include "GBuffer.hpp"
 #include "../Window.hpp"
 #include "ReflectiveMap.hpp"
+#include "Mirror.hpp"
 
 namespace en
 {
@@ -33,8 +34,11 @@ namespace en
         void AddSplineRenderObj(const RenderObj* renderObj);
         void RemoveSplineRenderObj(const RenderObj* renderObj);
 
-        void AddReflectiveRenderObj(const RenderObj* renderObj);
+        void AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane);
         void RemoveReflectiveRenderObj(const RenderObj* renderObj);
+
+        void AddMirrorRenderObj(const RenderObj* renderObj, glm::vec3 normal);
+        void RemoveMirrorRenderObj(const RenderObj* renderObj);
 
         void SetDirLight(const DirLight* dirLight);
 
@@ -59,8 +63,10 @@ namespace en
         std::vector<const RenderObj*> fixedColorRenderObjs_;
         std::vector<const RenderObj*> splineRenderObjs_;
         std::vector<const RenderObj*> reflectiveRenderObjs_;
+        std::vector<const RenderObj*> mirrorRenderObjs_;
 
         std::vector<ReflectiveMap> reflectiveMaps_;
+        std::vector<Mirror> mirrors_;
 
         const DirLight* dirLight_;
         std::vector<const PointLight*> pointLights_;
@@ -82,6 +88,8 @@ namespace en
         void RenderSplines(const float* viewMat, const float* projMat) const;
         void RenderReflectiveMaps() const;
         void RenderReflectiveObj(glm::vec3 camPos, const float* viewMat, const float* projMat) const;
+        void RenderMirrorReflections(const Camera* cam) const;
+        void RenderMirrorObjs(const float* viewMat, const float* projMat) const;
         void RenderSkybox(const float* viewMat, const float* projMat) const;
     };
 }

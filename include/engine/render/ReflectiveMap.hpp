@@ -13,7 +13,7 @@ namespace en
     class ReflectiveMap
     {
     public:
-        ReflectiveMap(uint32_t size);
+        ReflectiveMap(uint32_t size, float nearPlane);
         ~ReflectiveMap();
 
         void BindFbo() const;
@@ -32,6 +32,8 @@ namespace en
         uint32_t depthBuffer_;
 
         uint32_t size_;
+
+        glm::mat4 projMat_;
     };
 }
 

@@ -16,6 +16,8 @@ namespace en
             dirLight_(nullptr),
             pointLights_({}),
             reflectiveMaps_({}),
+            mirrorRenderObjs_({}),
+            mirrors_({}),
             skyboxTex_(nullptr),
             gBuffer_(width, height)
     {
@@ -109,11 +111,11 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddReflectiveRenderObj(const RenderObj* renderObj)
+    void SceneRenderer::AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane)
     {
         RemoveReflectiveRenderObj(renderObj);
         reflectiveRenderObjs_.push_back(renderObj);
-        reflectiveMaps_.push_back(ReflectiveMap(256));
+        reflectiveMaps_.push_back(ReflectiveMap(256, nearPlane));
     }
 
     void SceneRenderer::RemoveReflectiveRenderObj(const RenderObj* renderObj)
@@ -124,6 +126,26 @@ namespace en
             {
                 reflectiveRenderObjs_.erase(reflectiveRenderObjs_.begin() + i);
                 reflectiveMaps_.erase(reflectiveMaps_.begin() + i);
+                return;
+            }
+        }
+    }
+
+    void SceneRenderer::AddMirrorRenderObj(const RenderObj *renderObj, glm::vec3 normal)
+    {
+        RemoveMirrorRenderObj(renderObj);
+        mirrorRenderObjs_.push_back(renderObj);
+        mirrors_.push_back(Mirror(renderObj, normal, 512));
+    }
+
+    void SceneRenderer::RemoveMirrorRenderObj(const RenderObj *renderObj)
+    {
+        for (uint32_t i = 0; i < mirrorRenderObjs_.size(); i++)
+        {
+            if (mirrorRenderObjs_[i] == renderObj)
+            {
+                mirrorRenderObjs_.erase(mirrorRenderObjs_.begin() + i);
+                mirrors_.erase(mirrors_.begin() + i);
                 return;
             }
         }
@@ -306,6 +328,8 @@ namespace en
             renderObj->RenderPosOnly(dirShadowProgram_);
         for (const RenderObj* renderObj : reflectiveRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
+        for (const RenderObj* renderObj : mirrorRenderObjs_)
+            renderObj->RenderPosOnly(dirShadowProgram_);
         dirLight_->UnbindShadowBuffer();
     }
 
@@ -326,6 +350,8 @@ namespace en
             for (const RenderObj* renderObj : fixedColorRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
             for (const RenderObj* renderObj : reflectiveRenderObjs_)
+                renderObj->RenderPosOnly(pointShadowProgram_);
+            for (const RenderObj* renderObj : mirrorRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
             pointLight->UnbindShadowBuffer();
         }
@@ -397,36 +423,45 @@ namespace en
             const ReflectiveMap& reflectiveMap = reflectiveMaps_[i];
             const RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
 
+            // Calculate matrices
             uint32_t size = reflectiveMap.GetSize();
             glm::mat4 projMat = reflectiveMap.GetProjMat();
             std::vector<glm::mat4> viewMats = reflectiveMap.GetViewMats(reflectiveRenderObj->GetPos());
+            std::vector<glm::mat4> skyboxViewMats = reflectiveMap.GetViewMats(glm::vec3(0.0f));
             float* projMatP = &projMat[0][0];
 
+            // Bind framebuffer
             reflectiveMap.BindFbo();
             glViewport(0, 0, size, size);
 
-            reflectiveMap.BindCubeMap();
-
-            toEnvMapProgram_->Use();
-            toEnvMapProgram_->SetUniformMat4("proj_mat", false, projMatP);
-            toEnvMapProgram_->SetUniformVec3f("obj_pos", reflectiveRenderObj->GetPos());
+            // Draw all 6 faces one by one // TODO: optimize with geometry shader later
             for (uint32_t face = 0; face < 6; face++)
             {
-                float* viewMatP = &viewMats[face][0][0];
-                toEnvMapProgram_->SetUniformMat4("view_mat", false, viewMatP);
-
+                // Bind and clear buffers
+                reflectiveMap.BindCubeMap(); // Cube map need to be bound for every face because RenderSkybox binds skybox cube map
                 reflectiveMap.BindCubeMapFace(face);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+                // Render skybox
+                RenderSkybox(&skyboxViewMats[face][0][0], projMatP);
+
+                // Render all reflected objects
+                toEnvMapProgram_->Use();
+                toEnvMapProgram_->SetUniformMat4("proj_mat", false, projMatP);
+                toEnvMapProgram_->SetUniformVec3f("obj_pos", reflectiveRenderObj->GetPos());
+                toEnvMapProgram_->SetUniformMat4("view_mat", false, &viewMats[face][0][0]);
                 for (const RenderObj* renderObj : standardRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
                 for (const RenderObj* renderObj : fixedColorRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
                 for (const RenderObj* renderObj : reflectiveRenderObjs_)
                 {
+                    // Dont reflect the reflecting object
                     if (renderObj != reflectiveRenderObj)
                         renderObj->RenderDiffuse(toEnvMapProgram_);
                 }
+                for (const RenderObj* renderObj : mirrorRenderObjs_)
+                    renderObj->RenderDiffuse(toEnvMapProgram_);
                 for (const RenderObj* renderObj : splineRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
             }
@@ -451,6 +486,26 @@ namespace en
             reflectiveMap.BindCubeMap();
             reflectiveProgram_->SetUniformI("skybox_tex", 0);
             reflectiveRenderObj->RenderDiffuse(reflectiveProgram_);
+        }
+    }
+
+    void SceneRenderer::RenderMirrorReflections(const Camera *cam) const
+    {
+        for (uint32_t i = 0; i < mirrorRenderObjs_.size(); i++)
+        {
+            const RenderObj* mirrorRenderObj = mirrorRenderObjs_[i];
+            const Mirror& mirror = mirrors_[i];
+        }
+    }
+
+    void SceneRenderer::RenderMirrorObjs(const float *viewMat, const float *projMat) const
+    {
+        for (uint32_t i = 0; i < mirrorRenderObjs_.size(); i++)
+        {
+            const RenderObj* mirrorRenderObj = mirrorRenderObjs_[i];
+            const Mirror& mirror = mirrors_[i];
+
+
         }
     }
 

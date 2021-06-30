@@ -112,7 +112,8 @@ void main()
     float shininess = specular_tex_val.a;
 
     // Lighting
-    vec3 result = get_dir_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess);
+    vec3 result = 0.1 * diffuse_color; // Ambient
+    result += get_dir_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess);
     for (int i = 0; i < point_light_count; i++)
         result += get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, i);
 

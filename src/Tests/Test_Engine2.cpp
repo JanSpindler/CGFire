@@ -55,6 +55,9 @@ int main()
     en::Model reflectModel("hd_sphere.obj", false);
     reflectModel.t_ = glm::translate(glm::vec3(0.0f, 0.0, -8.0f));
 
+    en::Model mirrorModel("cube.obj", false);
+    mirrorModel.t_ = glm::translate(glm::vec3(30.0f, 0.0f, 0.0f)) * glm::scale(glm::vec3(0.1f, 5.0f, 5.0f));
+
     // Lights
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
 
@@ -79,13 +82,13 @@ int main()
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
-    sceneRenderer.AddReflectiveRenderObj(&reflectModel);
+    sceneRenderer.AddReflectiveRenderObj(&reflectModel, 2.0f);
+
+    sceneRenderer.AddMirrorRenderObj(&mirrorModel, glm::vec3(-1.0f, 0.0f, 0.0f));
 
     sceneRenderer.AddSplineRenderObj(&splineRenderable);
 
     sceneRenderer.SetSkyboxTex(&skyboxTex);
-
-
 
     // Main loop
     en::Log::Info("Staring main loop");
