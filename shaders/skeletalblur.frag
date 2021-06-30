@@ -51,9 +51,10 @@ void main()
     spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
     vec4 specular = vec4(dir_light_color, 1.0) * spec * mat_specular_color;
 
+    vec4 ambient = 0.3 * texture(mat_tex, interp_uv);
     // Result
     vec4 out_color = texture(mat_tex, interp_uv);
-    fragcolorvec= out_color;
+    fragcolorvec= (ambient+1)*(diffuse+specular)* out_color;
     vec3 a = (nowpos/nowpos.w).xyz;
     vec3 b = (prevpos/prevpos.w).xyz;
     motionvec = vec4((a-b).xy,0,1);

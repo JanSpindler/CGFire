@@ -35,8 +35,9 @@ void main()
 
     // Diffuse
     vec4 diffuse = mat_diffuse_color;
-    if (mat_use_tex)
-    vec4 diffuse = texture(mat_tex, interp_uv);
+    if (mat_use_tex){
+        vec4 diffuse = texture(mat_tex, interp_uv);
+    }
     float diff = max(dot(normal, normalize(-dir_light_dir)), 0.0);
     diffuse = vec4(dir_light_color, 1.0) * (diff * diffuse);
 
@@ -48,6 +49,7 @@ void main()
     spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
     vec4 specular = vec4(dir_light_color, 1.0) * spec * mat_specular_color;
 
+    vec4 ambient = 0.3 * texture(mat_tex, interp_uv);
     // Result
-    out_color = texture(mat_tex, interp_uv);
+    out_color = (ambient+1) * (diffuse+specular)* texture(mat_tex, interp_uv);
 }

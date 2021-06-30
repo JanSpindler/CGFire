@@ -73,7 +73,7 @@ int main()
 
         animator.UpdateAnim(deltaTime);
 
-//        if (glCheckNamedFramebufferStatus(motionblur.fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+//        if (glCheckNamedFramebufferStatus(motionblur.ssaofbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 //            printf("Incomplete FBO!");
 //            std::terminate();
 //        }
