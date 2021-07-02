@@ -62,7 +62,7 @@ vec3 get_dir_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specula
         float current_depth = proj_pos.z;
         shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
     }
-    return shadow * (diffuse_result + specular_result + ambient);
+    return shadow * (diffuse_result + specular_result)+ambient;
 }
 
 vec3 get_point_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specular_color, float shininess, int index, float ambientocclusion)
@@ -106,7 +106,7 @@ vec3 get_point_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specu
     float shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
 
     float real_strength = light_strength / (distance * distance);
-    return shadow * (real_strength * (diffuse_result + specular_result + ambient));
+    return shadow * (real_strength * (diffuse_result + specular_result))+ambient;
 }
 
 void main()
