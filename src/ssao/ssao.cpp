@@ -143,7 +143,7 @@ namespace en{
         quad = setup_fullscreen_quad();
         //std::cout << glGetError() << std::endl;
     }
-    void ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, GBuffer buffer, glm::mat4 ProjMat) const {
+    void ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, const GBuffer* buffer, glm::mat4 ProjMat) const {
         //ssaopass
         //std::cout << glGetError() << std::endl;
         if (glCheckNamedFramebufferStatus(ssaofbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -158,7 +158,7 @@ namespace en{
         glBindFramebuffer(GL_FRAMEBUFFER, ssaofbo);
         ssaoprog->Use();
         glBindVertexArray(quad);
-        buffer.UseTexturesSSAO(ssaoprog);
+        buffer->UseTexturesSSAO(ssaoprog);
         //std::cout << glGetError() << std::endl;
         glBindTextureUnit(2, noisetex);
         ssaoprog->SetUniformI("noisetex", 2);
@@ -168,6 +168,7 @@ namespace en{
             ssaoprog->SetUniformVec3f("kernel[" + std::to_string(i) + "]", ssao::kernel[i]);
         };
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         //ssaoblurpass
         glClear(GL_COLOR_BUFFER_BIT);
         glBindFramebuffer(GL_FRAMEBUFFER, blurfbo);
@@ -178,6 +179,7 @@ namespace en{
         ssaoprog->SetUniformI("ssaores", 0);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         en::Log::Info("in ssaoprog");
        // std::cout << glGetError() << std::endl;
     }

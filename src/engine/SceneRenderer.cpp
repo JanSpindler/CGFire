@@ -42,7 +42,7 @@ namespace en
 
         window->UseViewport();
         RenderDeferredGeometry(viewMatP, projMatP);
-        ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, gBuffer_, projMat);
+        ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, projMat);
         RenderDeferredLighting(window, cam);
         std::cout << glGetError() << std::endl;
         gBuffer_.CopyDepthBufToDefaultFb();

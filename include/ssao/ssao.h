@@ -21,7 +21,7 @@ namespace en {
         void makessaofbo(int width, int height);
         void makeblurfbo(int width, int height);
         void usessaotex(const GLProgram* program) const;
-        void dossao(const GLProgram* ssaoprog,const GLProgram* blurprog, GBuffer buffer, glm::mat4 ProjMat) const;
+        void dossao(const GLProgram* ssaoprog,const GLProgram* blurprog, const GBuffer* buffer, glm::mat4 ProjMat) const;
         const GLProgram* makessaoprogram();
         const GLProgram* makeblurprogram();
         std::vector<glm::vec3> kernel;
