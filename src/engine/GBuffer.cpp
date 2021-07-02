@@ -5,6 +5,7 @@
 #include "engine/gr_include.hpp"
 #include "engine/render/GBuffer.hpp"
 #include "engine/Util.hpp"
+#include <iostream>
 
 namespace en
 {
@@ -125,6 +126,7 @@ namespace en
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, normalTex_);
         program->SetUniformI("normal_tex", 1);
+        //std::cout << glGetError() << std::endl;
     }
 
     void GBuffer::UseTextures(const GLProgram* program) const

@@ -5,9 +5,10 @@
 //based on https://learnopengl.com/Advanced-Lighting/SSAO, https://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html
 #include <cmath>
 #include "ssao/ssao.h"
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+//#include <GLFW/glfw3.h>
 #include "framework/buffer.hpp"
+#include "engine/Util.hpp"
 
 
 namespace en{
@@ -42,11 +43,13 @@ namespace en{
             glDeleteTextures(1, &noisetex);
         }
         glCreateTextures(GL_TEXTURE_2D, 1, &noisetex);
-        glTexImage2D(noisetex, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &noise);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &noise[0]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        en::Log::Info("in makenoisetexture:");
+        //std::cout << glGetError() << std::endl;
     }
     void ssao::makeblurfbo(int width, int height) {
         if (blurfbo) {
@@ -56,7 +59,7 @@ namespace en{
             glDeleteTextures(1, &blurtex);
         }
         glCreateTextures(GL_TEXTURE_2D, 1, &blurtex);
-        glTextureStorage2D(blurtex, 1, GL_R, width, height);
+        glTextureStorage2D(blurtex, 1, GL_R32F, width, height);
         glCreateFramebuffers(1, &blurfbo);
         glNamedFramebufferTexture(blurfbo, GL_COLOR_ATTACHMENT0, blurtex, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, blurfbo);
@@ -76,7 +79,7 @@ namespace en{
             glDeleteTextures(1, &ssaotex);
         }
         glCreateTextures(GL_TEXTURE_2D, 1, &ssaotex);
-        glTextureStorage2D(ssaotex, 1, GL_R, width, height);
+        glTextureStorage2D(ssaotex, 1, GL_R32F, width, height);
         glCreateFramebuffers(1, &ssaofbo);
         glNamedFramebufferTexture(ssaofbo, GL_COLOR_ATTACHMENT0, ssaotex, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, ssaofbo);
@@ -118,13 +121,18 @@ namespace en{
         const en::GLShader* vertShader = GLShader::Load("ssao.vert");
         const en::GLShader* fragShader= GLShader::Load("ssao.frag");
         //en::GLProgram program(&vertShader, nullptr, &fragShader);
+        en::Log::Info("in ssaoprog");
+        //std::cout << glGetError() << std::endl;
         return GLProgram::Load(vertShader, nullptr, fragShader);
     }
     const GLProgram* ssao::makeblurprogram() {
        const en::GLShader* vertShader= GLShader::Load("ssao.vert");
        const  en::GLShader* fragShader= GLShader::Load("ssaoblur.frag");
         //en::GLProgram program(&vertShader, nullptr, &fragShader);
+        en::Log::Info("in ssaoblurprog");
+        //std::cout << glGetError() << std::endl;
         return GLProgram::Load(vertShader, nullptr, fragShader);
+        std::cout << glGetError() << std::endl;
     }
     ssao::ssao(int width, int height) {
         makekernels();
@@ -133,14 +141,25 @@ namespace en{
         makessaofbo(width, height);
         makeblurfbo(width, height);
         quad = setup_fullscreen_quad();
+        //std::cout << glGetError() << std::endl;
     }
-    void ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, GBuffer buffer, glm::mat4 ProjMat) {
+    void ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, GBuffer buffer, glm::mat4 ProjMat) const {
         //ssaopass
+        //std::cout << glGetError() << std::endl;
+        if (glCheckNamedFramebufferStatus(ssaofbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            printf("Incomplete FBO!");
+            std::terminate();
+        }
+        if (glCheckNamedFramebufferStatus(blurfbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            printf("Incomplete FBO!");
+            std::terminate();
+        }
         glClear(GL_COLOR_BUFFER_BIT);
         glBindFramebuffer(GL_FRAMEBUFFER, ssaofbo);
         ssaoprog->Use();
         glBindVertexArray(quad);
         buffer.UseTexturesSSAO(ssaoprog);
+        //std::cout << glGetError() << std::endl;
         glBindTextureUnit(2, noisetex);
         ssaoprog->SetUniformI("noisetex", 2);
         ssaoprog->SetUniformMat4("projmat", false, &ProjMat[0][0]);
@@ -152,10 +171,18 @@ namespace en{
         //ssaoblurpass
         glClear(GL_COLOR_BUFFER_BIT);
         glBindFramebuffer(GL_FRAMEBUFFER, blurfbo);
+        //std::cout << glGetError() << std::endl;
         blurprog->Use();
         glBindVertexArray(quad);
         glBindTextureUnit(0, ssaotex);
         ssaoprog->SetUniformI("ssaores", 0);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        en::Log::Info("in ssaoprog");
+       // std::cout << glGetError() << std::endl;
+    }
+    void ssao::usessaotex(const GLProgram *program) const {
+        glBindTextureUnit(5, blurtex);
+        program->SetUniformI("ssao", 5);
     }
 }

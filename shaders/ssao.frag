@@ -20,15 +20,15 @@ out float occlusion;
 void main (){
     vec3 pos = texture(pos_tex, TexCoord0).xyz;
     vec3 norm = texture(normal_tex, TexCoord0).xyz;
-    vec3 noise = texture(noisetex, TexCoord0*scale);
+    vec3 noise = texture(noisetex, TexCoord0*scale).xyz;
 
     vec3 tangent = normalize(noise-norm*dot(noise,norm));
-    vec3 bitanget = cross(tangent, normal_tex);
-    mat3 tbn = mat3(tangent, bitangent, normal_tex);
+    vec3 bitangent = cross(tangent, norm);
+    mat3 tbn = mat3(tangent, bitangent, norm);
 
     float occ = 0.0f;
     for (int i = 0; i<kernelsize; i++){
-        vec3 samplepos = pos + tbn*kernel[kernelsize]*radius;
+        vec3 samplepos = pos + tbn*kernel[i]*radius;
         vec4 projpos = (projmat*vec4(samplepos, 1.0f));
         vec3 screenpos = (projpos.xyz/projpos.w)*0.5f+0.5f;
         float depth = texture(pos_tex, screenpos.xy).z;

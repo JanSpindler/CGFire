@@ -6,7 +6,7 @@
 #include <glm/vec3.hpp>
 #include <glm/glm.hpp>
 #include "util/Random.h"
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 #include "engine/render/GLShader.hpp"
 #include "engine/render/Renderable.hpp"
 #include "engine/render/GBuffer.hpp"
@@ -20,7 +20,8 @@ namespace en {
         ssao(int width, int height);
         void makessaofbo(int width, int height);
         void makeblurfbo(int width, int height);
-        void dossao(const GLProgram* ssaoprog,const GLProgram* blurprog, GBuffer buffer, glm::mat4 ProjMat);
+        void usessaotex(const GLProgram* program) const;
+        void dossao(const GLProgram* ssaoprog,const GLProgram* blurprog, GBuffer buffer, glm::mat4 ProjMat) const;
         const GLProgram* makessaoprogram();
         const GLProgram* makeblurprogram();
         std::vector<glm::vec3> kernel;

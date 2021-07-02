@@ -7,7 +7,7 @@ uniform sampler2D ssaores;
 out float blurredocc;
 
 void main(){
-    vec2 texelsize = vec2(texturesize(ssaores,0));
+    vec2 texelsize = vec2(textureSize(ssaores,0));
     float result = 0.0f;
     for (int x = -2; x<2;x++){
         for (int y = -2; y<2;y++){
