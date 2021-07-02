@@ -24,7 +24,6 @@ namespace en
         LoadPrograms();
         CreateFullScreenVao();
         CreateSkyboxVao();
-        //std::cout << glGetError() << std::endl;
     }
 
     void SceneRenderer::Render(const Window* window, const Camera* cam) const
@@ -44,9 +43,7 @@ namespace en
         RenderDeferredGeometry(viewMatP, projMatP);
         ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, projMat);
         RenderDeferredLighting(window, cam);
-        std::cout << glGetError() << std::endl;
         gBuffer_.CopyDepthBufToDefaultFb();
-        std::cout << glGetError() << std::endl;
         RenderFixedColor(viewMatP, projMatP);
         RenderSplines(viewMatP, projMatP);
         RenderReflectiveObj(cam->GetPos(), viewMatP, projMatP);
@@ -307,17 +304,17 @@ namespace en
         dirShadowProgram_->Use();
         glm::mat4 lightMat = dirLight_->GetLightMat();
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
-        std::cout << glGetError() << std::endl;
+        //std::cout << glGetError() << std::endl;
         dirLight_->BindShadowBuffer();
-        std::cout << glGetError() << std::endl;
-        std::cout << glGetError() << std::endl;
+       // std::cout << glGetError() << std::endl;
+        //std::cout << glGetError() << std::endl;
         for (const RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
         for (const RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
         for (const RenderObj* renderObj : reflectiveRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
-        std::cout << glGetError() << std::endl;
+        //std::cout << glGetError() << std::endl;
         dirLight_->UnbindShadowBuffer();
     }
 
@@ -361,9 +358,7 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         lightingProgram_->Use();
-        std::cout << glGetError() << std::endl;
         gBuffer_.UseTextures(lightingProgram_);
-        std::cout << glGetError() << std::endl;
         lightingProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
         glm::mat4 dirLightMat = dirLight_->GetLightMat();
         lightingProgram_->SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);

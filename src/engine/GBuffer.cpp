@@ -126,14 +126,12 @@ namespace en
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, normalTex_);
         program->SetUniformI("normal_tex", 1);
-        //std::cout << glGetError() << std::endl;
     }
 
     void GBuffer::UseTextures(const GLProgram* program) const
     {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, posTex_);
-        std::cout << glGetError() << std::endl;
         program->SetUniformI("pos_tex", 0);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, normalTex_);
