@@ -36,7 +36,7 @@ namespace en
         void AddReflectiveRenderObj(RenderObj* renderObj);
         void RemoveReflectiveRenderObj(const RenderObj* renderObj);
 
-        void SetDirLight(const DirLight* dirLight);
+        void SetDirLight(DirLight* dirLight);
 
         void AddPointLight(const PointLight* pointLight);
         void RemovePointLight(const PointLight* pointLight);
@@ -46,7 +46,7 @@ namespace en
         /**Removes all the objects, i.e. clears the vector lists (but not the DirLight or Skybox)*/
         void RemoveAllObjects();
 
-        void onImGuiRender();
+        void OnImGuiRender();
     private:
         const GLProgram* geometryProgram_;
         const GLProgram* lightingProgram_;
@@ -64,7 +64,7 @@ namespace en
 
         std::vector<ReflectiveMap> reflectiveMaps_;
 
-        const DirLight* dirLight_;
+        DirLight* dirLight_;
         std::vector<const PointLight*> pointLights_;
         const GLSkyboxTex* skyboxTex_;
 

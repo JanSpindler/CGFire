@@ -117,7 +117,7 @@ int main()
         bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
         if (renderImGui) {
             imgui_new_frame(600, 400);
-            sceneRenderer.onImGuiRender();
+            sceneRenderer.OnImGuiRender();
         }
 
         // Render

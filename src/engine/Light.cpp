@@ -6,6 +6,7 @@
 #include "engine/Render/Light.hpp"
 #include "engine/Util.hpp"
 #include <glm/gtx/transform.hpp>
+#include <framework/imgui_util.hpp>
 
 #define SHADOW_TEX_WIDTH 2048
 #define SHADOW_TEX_HEIGHT SHADOW_TEX_WIDTH
@@ -71,6 +72,12 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    void DirLight::OnImGuiRender(){
+        ImGui::TextColored(ImVec4(1, 1, 1, 1), "DirLight");
+        ImGui::InputFloat3("Direction", &dir_.x);
+        SetDir(dir_);
+    }
+
     PointLight::PointLight(float strength) :
             depthCubeMap_(SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT)
     {
@@ -134,4 +141,6 @@ namespace en
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+
+
 }

@@ -18,13 +18,13 @@ namespace util {
 
         // Keyboard input handling
         glm::vec3 camMove(0.0f, 0.0f, 0.0f);
-        float camMoveSpeed = 35.0f * deltaTime;
+        float camMoveSpeed = 60.0f * deltaTime;
         bool frontPressed = en::Input::IsKeyPressed(KEY_W);
         bool backPressed = en::Input::IsKeyPressed(KEY_S);
         bool leftPressed = en::Input::IsKeyPressed(KEY_A);
         bool rightPressed = en::Input::IsKeyPressed(KEY_D);
         bool upPressed = en::Input::IsKeyPressed(KEY_SPACE);
-        bool downPressed = en::Input::IsKeyPressed(KEY_C);
+        bool downPressed = en::Input::IsKeyPressed(KEY_C) || en::Input::IsKeyPressed(KEY_LEFT_CONTROL);
         if (frontPressed && !backPressed)
             camMove.z = camMoveSpeed;
         else if (backPressed && !frontPressed)

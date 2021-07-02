@@ -31,6 +31,7 @@ namespace en
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
 
+        void OnImGuiRender();
     private:
         glm::vec3 dir_;
         glm::vec3 color_;

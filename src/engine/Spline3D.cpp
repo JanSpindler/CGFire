@@ -54,6 +54,7 @@ namespace en
         return totalLength_;
     }
 
+
     void Spline3D::ConstructCatmullRom(uint32_t resolution)
     {
         if (controlPoints_.size() < 4)

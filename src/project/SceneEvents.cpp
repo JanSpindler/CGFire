@@ -72,14 +72,16 @@ namespace scene{
 
         /******************MODELS*/
 
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_DummyPositionFinder, RenderObjType::Standard)),
+                       0.f);
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelBackpack, RenderObjType::Standard)),
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelHouse, RenderObjType::Standard)),
                        0.f);
 
         this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFloor, RenderObjType::Standard)),
                        0.f);
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelDragon, RenderObjType::Standard)),
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFireman, RenderObjType::Standard)),
                        0.f);
 
         this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ReflectModel, RenderObjType::Reflective)),
@@ -101,15 +103,18 @@ namespace scene{
         m_DirLight = std::make_shared<en::DirLight>(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
         m_SceneRenderer.SetDirLight(m_DirLight.get());
 
-        m_ModelBackpack = std::make_shared<en::Model>("backpack/backpack.obj", true, "backpack");
-        m_ModelBackpack->Position = glm::vec3(5.0f, 0.0f, 20.0f);
+        m_DummyPositionFinder = std::make_shared<en::Model>("cube.obj", true, "Position Dummy");
+        m_DummyPositionFinder->Position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+        m_ModelHouse = std::make_shared<en::Model>("scene/house/Edificio.obj", true, "House");
+        m_ModelHouse->Position = glm::vec3(20.0f, 0.0f, 20.0f);
 
         m_ModelFloor = std::make_shared<en::Model>("cube.obj", true, "floor");
-        m_ModelFloor->Position = glm::vec3(0.0f, -5.0f, 0.0f);
-        m_ModelFloor->Scaling = glm::vec3(50.0f, 1.0f, 50.0f);
+        m_ModelFloor->Position = glm::vec3(0.0f, -2.0f, 0.0f);
+        m_ModelFloor->Scaling = glm::vec3(10000.0f, 1.0f, 10000.0f);
 
-        m_ModelDragon = std::make_shared<en::Model>("dragon.obj", false, "dragon");
-        m_ModelDragon->Position = glm::vec3(0.0f, 0.0f, 20.0f);
+        m_ModelFireman = std::make_shared<en::Model>("dragon.obj", false, "fireman");
+        m_ModelFireman->Position = glm::vec3(0.0f, 0.0f, 20.0f);
 
         m_ReflectModel = std::make_shared<en::Model>("hd_sphere.obj", false, "ReflectSphere");
         m_ReflectModel->Position = glm::vec3(0.0f, 0.0, -8.0f);

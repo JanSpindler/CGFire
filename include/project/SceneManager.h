@@ -106,7 +106,7 @@ namespace scene {
             ImGui::End();
 
 
-            m_SceneRenderer.onImGuiRender();
+            m_SceneRenderer.OnImGuiRender();
             m_WaterCreator.onImGuiRender();
             m_SmokeCreator.onImGuiRender();
             m_FireCreator.onImGuiRender();
@@ -155,10 +155,11 @@ namespace scene {
         std::shared_ptr<en::DirLight> m_DirLight;
         std::shared_ptr<en::GLSkyboxTex> m_SkyboxTex;
 
+        std::shared_ptr<en::Model> m_DummyPositionFinder;
 
-        std::shared_ptr<en::Model> m_ModelBackpack;
+        std::shared_ptr<en::Model> m_ModelHouse;
         std::shared_ptr<en::Model> m_ModelFloor;
-        std::shared_ptr<en::Model> m_ModelDragon;
+        std::shared_ptr<en::Model> m_ModelFireman;
         std::shared_ptr<en::Model> m_ReflectModel;
 
         std::shared_ptr<en::Spline3D> m_CamSpline;

@@ -131,7 +131,7 @@ namespace en
         }
     }
 
-    void SceneRenderer::SetDirLight(const DirLight *dirLight)
+    void SceneRenderer::SetDirLight(DirLight *dirLight)
     {
         dirLight_ = dirLight;
     }
@@ -168,9 +168,10 @@ namespace en
         pointLights_.clear();
     }
 
-    void SceneRenderer::onImGuiRender(){
+    void SceneRenderer::OnImGuiRender(){
         ImGui::Begin("Objects");
-        ImGui::TextColored(ImVec4(1, 1, 1, 1), "DirLight");
+        dirLight_->OnImGuiRender();
+
 
         for (int i = 0; i < standardRenderObjs_.size(); i++) {
             ImGui::PushID(("standard" + std::to_string(i)).c_str());
