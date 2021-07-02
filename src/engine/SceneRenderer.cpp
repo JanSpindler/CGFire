@@ -304,17 +304,17 @@ namespace en
         dirShadowProgram_->Use();
         glm::mat4 lightMat = dirLight_->GetLightMat();
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
-        //std::cout << glGetError() << std::endl;
+        std::cout << glGetError() << std::endl;
         dirLight_->BindShadowBuffer();
-       // std::cout << glGetError() << std::endl;
-        //std::cout << glGetError() << std::endl;
+        std::cout << glGetError() << std::endl;
+        std::cout << glGetError() << std::endl;
         for (const RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
         for (const RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
         for (const RenderObj* renderObj : reflectiveRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
-        //std::cout << glGetError() << std::endl;
+        std::cout << glGetError() << std::endl;
         dirLight_->UnbindShadowBuffer();
     }
 

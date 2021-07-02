@@ -23,7 +23,7 @@ void main (){
     vec3 noise = texture(noisetex, TexCoord0*scale).xyz;
 
     vec3 tangent = normalize(noise-norm*dot(noise,norm));
-    vec3 bitangent = cross(tangent, norm);
+    vec3 bitangent = cross(norm, tangent);
     mat3 tbn = mat3(tangent, bitangent, norm);
 
     float occ = 0.0f;
@@ -33,14 +33,14 @@ void main (){
         vec3 screenpos = (projpos.xyz/projpos.w)*0.5f+0.5f;
         float depth = texture(pos_tex, screenpos.xy).z;
         float rangecheck = 0.0f;
-        if ((pos.z-depth)<radius){
-            rangecheck = 1.0f;
-        }
+        //if ((pos.z-depth)<radius){
+        //    rangecheck = 1.0f;
+        //}
+        rangecheck = smoothstep(0.0f, 1.0f, radius/abs(pos.z-depth));
         if (depth <= (samplepos.z+bias)){
             occ+=1.0f*rangecheck;
         }
     }
     occ = 1.0f - occ/kernelsize;
     occlusion = occ;
-    occlusion = pow(occlusion,4);
 }
