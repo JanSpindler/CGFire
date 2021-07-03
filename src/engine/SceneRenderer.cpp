@@ -8,6 +8,7 @@
 #include "engine/config.hpp"
 #include <glm/gtx/transform.hpp>
 #include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 namespace en
 {
@@ -38,10 +39,10 @@ namespace en
         RenderDirShadow();
         RenderPointShadows();
         RenderReflectiveMaps();
-
+        //printf("%s",glm::to_string(viewMat).c_str());
         window->UseViewport();
         RenderDeferredGeometry(viewMatP, projMatP);
-        ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, projMat);
+        ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, cam);
         RenderDeferredLighting(window, cam);
         gBuffer_.CopyDepthBufToDefaultFb();
         RenderFixedColor(viewMatP, projMatP);
@@ -305,7 +306,7 @@ namespace en
         glm::mat4 lightMat = dirLight_->GetLightMat();
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
         std::cout << glGetError() << std::endl;
-        dirLight_->BindShadowBuffer();
+        dirLight_->BindShadowBuffer();//
         std::cout << glGetError() << std::endl;
         std::cout << glGetError() << std::endl;
         for (const RenderObj* renderObj : standardRenderObjs_)

@@ -11,7 +11,9 @@ uniform sampler2D normal_tex;
 uniform sampler2D noisetex;
 
 uniform vec3 kernel[kernelsize];
-uniform mat4 projmat;
+uniform mat4 viewprojmat;
+uniform vec3 camdir;
+uniform vec3 campos;
 
 const vec2 scale = vec2(800.0f/4.0f, 600.0f/4.0f);
 
@@ -20,27 +22,25 @@ out float occlusion;
 void main (){
     vec3 pos = texture(pos_tex, TexCoord0).xyz;
     vec3 norm = texture(normal_tex, TexCoord0).xyz;
-    vec3 noise = texture(noisetex, TexCoord0*scale).xyz;
+    vec3 noise = texture(noisetex, TexCoord0).xyz;
 
-    vec3 tangent = normalize(noise-norm*dot(noise,norm));
-    vec3 bitangent = cross(norm, tangent);
-    mat3 tbn = mat3(tangent, bitangent, norm);
-
+    //vec3 tangent = normalize(noise-norm*dot(noise,norm));
+    //vec3 bitangent = cross(norm, tangent);
+    //mat3 tbn = mat3(tangent, bitangent, norm);
     float occ = 0.0f;
     for (int i = 0; i<kernelsize; i++){
-        vec3 samplepos = pos + tbn*kernel[i]*radius;
-        vec4 projpos = (projmat*vec4(samplepos, 1.0f));
-        vec3 screenpos = (projpos.xyz/projpos.w)*0.5f+0.5f;
-        float depth = texture(pos_tex, screenpos.xy).z;
-        float rangecheck = 0.0f;
-        //if ((pos.z-depth)<radius){
-        //    rangecheck = 1.0f;
-        //}
-        rangecheck = smoothstep(0.0f, 1.0f, radius/abs(pos.z-depth));
-        if (depth <= (samplepos.z+bias)){
+        //samplepos = pos + tbn*kernel[i]*radius;
+        vec3 samplepos = pos + kernel[i]*radius;
+        float samplez = dot(samplepos-campos, camdir);
+        vec4 projpos = (viewprojmat*vec4(samplepos, 1.0f));
+        projpos.xy/=projpos.w;
+        vec2 screenpos = projpos.xy*0.5f+0.5f;
+        float depth = dot(camdir, texture(pos_tex, screenpos.xy).xyz-campos);
+        float rangecheck = smoothstep(0.0f, 1.0f, radius/abs(samplez-depth));
+        if(depth>=(samplez+bias)){
             occ+=1.0f*rangecheck;
         }
     }
-    occ = 1.0f - occ/kernelsize;
-    occlusion = occ;
+    occlusion = 1.0f - occ/float(kernelsize);
+    occlusion = pow(occlusion, 2);
 }

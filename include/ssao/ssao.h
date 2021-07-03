@@ -10,9 +10,10 @@
 #include "engine/render/GLShader.hpp"
 #include "engine/render/Renderable.hpp"
 #include "engine/render/GBuffer.hpp"
+#include "engine/Camera.hpp"
 #ifndef CGFIRE_SSAO_H
 #define CGFIRE_SSAO_H
-#define kernelsize 64
+#define kernelsize 64.0f
 
 namespace en {
     class ssao {
@@ -21,7 +22,7 @@ namespace en {
         void makessaofbo(int width, int height);
         void makeblurfbo(int width, int height);
         void usessaotex(const GLProgram* program) const;
-        void dossao(const GLProgram* ssaoprog,const GLProgram* blurprog, const GBuffer* buffer, glm::mat4 ProjMat) const;
+        void dossao(const GLProgram* ssaoprog,const GLProgram* blurprog, const GBuffer* buffer, const Camera* cam) const;
         const GLProgram* makessaoprogram();
         const GLProgram* makeblurprogram();
         std::vector<glm::vec3> kernel;

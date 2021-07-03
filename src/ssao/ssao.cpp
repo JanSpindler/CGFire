@@ -9,6 +9,7 @@
 //#include <GLFW/glfw3.h>
 #include "framework/buffer.hpp"
 #include "engine/Util.hpp"
+#include "engine/Camera.hpp"
 #include <glm/gtx/string_cast.hpp>
 
 
@@ -16,23 +17,22 @@ namespace en{
     void ssao::makekernels() {
         for (int i=0; i<kernelsize; i++){
             glm::vec3 currentkernel (
-                    float() *2-1,
-                    float()*2-1,
-                    float()
+                    util::Random::Float() *2-1,
+                    util::Random::Float()*2-1,
+                    util::Random::Float()*2-1
                     );
             currentkernel = glm::normalize(currentkernel);
-            currentkernel *= float();
-            float scale = float(i)/float(kernelsize);
-            scale = 0.1f + (1.0f-0.1f)*(scale*scale);
-            currentkernel *= scale;
+            currentkernel *= util::Random::Float();
+            float scale = (float)i/kernelsize;
+            currentkernel *= 0.1f + (0.9f)*(scale*scale);
             ssao::kernel.push_back(currentkernel);
         }
     }
     void ssao::makenoise() {
         for (int i=0; i<16; i++){
             glm::vec3 newnoise (
-                    float()*2-1,
-                    float()*2-1,
+                    util::Random::Float()*2-1,
+                    util::Random::Float()*2-1,
                     0.0f
                     );
             newnoise = glm::normalize(newnoise);
@@ -43,8 +43,9 @@ namespace en{
         if (noisetex){
             glDeleteTextures(1, &noisetex);
         }
+        printf("%s", glm::to_string(noise[0]).c_str());
         glCreateTextures(GL_TEXTURE_2D, 1, &noisetex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &noise[0]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, glm::value_ptr(noise[0]));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -139,7 +140,7 @@ namespace en{
         makeblurfbo(width, height);
         quad = setup_fullscreen_quad();
     }
-    void ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, const GBuffer* buffer, glm::mat4 ProjMat) const {
+    void ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, const GBuffer* buffer, const Camera* cam) const {
         //ssaopass
         if (glCheckNamedFramebufferStatus(ssaofbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             printf("Incomplete FBO!");
@@ -156,11 +157,12 @@ namespace en{
         buffer->UseTexturesSSAO(ssaoprog);
         glBindTextureUnit(2, noisetex);
         ssaoprog->SetUniformI("noisetex", 2);
-        ssaoprog->SetUniformMat4("projmat", false, &ProjMat[0][0]);
+        ssaoprog->SetUniformMat4("viewprojmat", false, glm::value_ptr(cam->GetViewProjMat()));
+        ssaoprog->SetUniformVec3f("campos", cam->GetPos());
+        ssaoprog->SetUniformVec3f("camdir", cam->GetViewDir());
         for (int i = 0; i < kernelsize; ++i) {
             assert(kernelsize==ssao::kernel.size());
             ssaoprog->SetUniformVec3f("kernel[" + std::to_string(i) + "]", ssao::kernel[i]);
-            en::Log::Info(glm::to_string(kernel[i]));
         };
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
