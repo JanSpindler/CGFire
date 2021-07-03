@@ -35,7 +35,7 @@ loadScene(const char* filename, bool smooth) {
     } else {
         process |= aiProcess_GenNormals;
     }
-    const aiScene* scene = importer.ReadFile(SHADER_ROOT + "../models/" + filename, process);
+    const aiScene* scene = importer.ReadFile(/*SHADER_ROOT + "../models/" +*/ filename, process);
     if (scene == nullptr) return {};
 
     std::vector<glm::vec4> colors;

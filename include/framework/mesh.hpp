@@ -2,7 +2,8 @@
 
 #include <vector>
 
-#include "common.hpp"
+//#include "common.hpp"
+#include <glm/glm.hpp>
 
 struct geometry {
     void bind();
