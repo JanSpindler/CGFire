@@ -55,7 +55,7 @@ namespace en
     {
         float maxDepth = 1000.0f;
         glm::mat4 viewMat = glm::lookAt(-dir_ * maxDepth / 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        float size = 32.0f;
+        float size = 128.0f;
         glm::mat4 projMat = glm::ortho(-size, size, -size, size, 0.01f, maxDepth);
         return projMat * viewMat;
     }
