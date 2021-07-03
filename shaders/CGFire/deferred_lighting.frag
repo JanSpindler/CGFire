@@ -12,6 +12,8 @@ uniform vec3 cam_pos;
 uniform vec3 dir_light_dir;
 uniform vec3 dir_light_color;
 uniform sampler2D dir_shadow_tex;
+uniform sampler2D dir_shadow_esm_tex;
+uniform bool dir_use_esm;
 uniform mat4 dir_light_mat;
 
 #define POINT_LIGHT_MAX 24
@@ -21,7 +23,39 @@ uniform vec3 point_light_color[POINT_LIGHT_MAX];
 uniform float point_light_strength[POINT_LIGHT_MAX];
 uniform samplerCube point_light_shadow_tex0;
 
+const float pi = 3.14159265359;
+const float c = 80.0;
+
 out vec4 out_color;
+
+float get_dir_shadow(vec3 pos)
+{
+    vec4 dir_light_pos = dir_light_mat * vec4(pos, 1.0);
+    vec3 proj_pos = dir_light_pos.xyz / dir_light_pos.w;
+    proj_pos = proj_pos * 0.5 + 0.5;
+
+    if (dir_use_esm)
+    {
+        float d = proj_pos.z;
+        float exp_z = texture(dir_shadow_esm_tex, proj_pos.xy).r;
+        float exp_d = exp(-c * d);
+        float result = exp_d * exp_z;
+        return clamp(result, 0.0, 1.0);
+    }
+    else
+    {
+        if (proj_pos.z > 1.0)
+        {
+            return 1.0;
+        }
+        else
+        {
+            float closest_depth = texture(dir_shadow_tex, proj_pos.xy).r;
+            float current_depth = proj_pos.z;
+            return current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
+        }
+    }
+}
 
 vec3 get_dir_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specular_color, float shininess)
 {
@@ -40,23 +74,7 @@ vec3 get_dir_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specula
     vec3 specular_result = dir_light_color * spec * specular_color;
 
     // Shadow
-    float shadow;
-
-    vec4 dir_light_pos = dir_light_mat * vec4(pos, 1.0);
-
-    vec3 proj_pos = dir_light_pos.xyz / dir_light_pos.w;
-    proj_pos = proj_pos * 0.5 + 0.5;
-
-    if (proj_pos.z > 1.0)
-    {
-        shadow = 1.0;
-    }
-    else
-    {
-        float closest_depth = texture(dir_shadow_tex, proj_pos.xy).r;
-        float current_depth = proj_pos.z;
-        shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
-    }
+    float shadow = get_dir_shadow(pos);
     return shadow * (diffuse_result + specular_result);
 }
 
@@ -118,4 +136,6 @@ void main()
         result += get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, i);
 
     out_color = vec4(result, 1.0);
+
+    //out_color = vec4(vec3(get_dir_shadow(frag_pos)), 1.0);
 }

@@ -12,19 +12,40 @@
 
 namespace en
 {
-    DirLight::DirLight(glm::vec3 dir, glm::vec3 color) :
-            depthTex_(SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT)
+    DirLight::DirLight(glm::vec3 dir, glm::vec3 color, uint32_t width, uint32_t height) :
+            depthTex_(width, height),
+            width_(width),
+            height_(height)
     {
         dir_ = glm::normalize(dir);
         color_ = color;
 
         glGenFramebuffers(1, &shadowFbo_);
-
         glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo_);
+
+        glGenTextures(1, &esmTex_);
+        glBindTexture(GL_TEXTURE_2D, esmTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width_, height_, 0, GL_RED, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, esmTex_, 0);
+
+        std::vector<uint32_t> drawBuffers = { GL_COLOR_ATTACHMENT0 };
+        glDrawBuffers(drawBuffers.size(), drawBuffers.data());
+
         depthTex_.BindToFramebuffer();
-        glDrawBuffer(GL_NONE);
-        glDrawBuffer(GL_NONE);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // This texture is used as buffer
+        glGenTextures(1, &esmTmpTex_);
+        glBindTexture(GL_TEXTURE_2D, esmTmpTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width_, height_, 0, GL_RED, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     void DirLight::Use(const GLProgram *program) const
@@ -43,6 +64,16 @@ namespace en
         color_ = color;
     }
 
+    uint32_t DirLight::GetWidth() const
+    {
+        return width_;
+    }
+
+    uint32_t DirLight::GetHeight() const
+    {
+        return height_;
+    }
+
     void DirLight::UseShadow(const GLProgram *program) const
     {
         glActiveTexture(GL_TEXTURE4);
@@ -54,21 +85,44 @@ namespace en
     {
         float maxDepth = 1000.0f;
         glm::mat4 viewMat = glm::lookAt(-dir_ * maxDepth / 2.0f, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        float size = 32.0f;
+        float size = 128.0f;
         glm::mat4 projMat = glm::ortho(-size, size, -size, size, 0.01f, maxDepth);
         return projMat * viewMat;
     }
 
     void DirLight::BindShadowBuffer() const
     {
-        glViewport(0, 0, SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT);
+        glViewport(0, 0, width_, height_);
         glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo_);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     }
 
     void DirLight::UnbindShadowBuffer() const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void DirLight::BindEsmTex() const
+    {
+        glBindTexture(GL_TEXTURE_2D, esmTex_);
+    }
+
+    void DirLight::PrepareGauss5(const GLProgram *gauss5Program, uint32_t fboSize) const
+    {
+        // Copy esm texture
+        glBindTexture(GL_TEXTURE_2D, esmTmpTex_);
+        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width_, height_);
+
+        // Setup program
+        gauss5Program->Use();
+        gauss5Program->SetUniformF("pixel_size", 1.0f / (float)fboSize);
+        glActiveTexture(GL_TEXTURE0);
+        gauss5Program->SetUniformI("tex", 0);
+    }
+
+    void DirLight::EndGauss5() const
+    {
+        // Insert esm texture
     }
 
     PointLight::PointLight(float strength) :
@@ -100,7 +154,7 @@ namespace en
 
     void PointLight::UseShadow(const GLProgram* program, unsigned int index) const
     {
-        int32_t texIndex = 5 + index;
+        int32_t texIndex = 10 + index;
         glActiveTexture(GL_TEXTURE0 + texIndex);
         depthCubeMap_.BindTex();
         program->SetUniformI("point_light_shadow_tex" + std::to_string(index), texIndex);
@@ -133,5 +187,10 @@ namespace en
     void PointLight::UnbindShadowBuffer() const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    uint32_t PointLight::GetCubeMapHandle() const
+    {
+        return depthCubeMap_.GetHandle();
     }
 }

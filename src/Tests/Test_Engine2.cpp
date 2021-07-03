@@ -13,6 +13,9 @@
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Spline3D.hpp"
 
+#define SHADOW_TEX_WIDTH 2048
+#define SHADOW_TEX_HEIGHT SHADOW_TEX_WIDTH
+
 void DeleteRemainingResources()
 {
     en::GLShader::DeleteAll();
@@ -47,7 +50,7 @@ int main()
     en::Model backpackModel("backpack/backpack.obj", true);
 
     en::Model floorModel("cube.obj", true);
-    floorModel.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(50.0f, 1.0f, 50.0f));
+    floorModel.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(256.0f, 1.0f, 256.0f));
 
     en::Model dragonModel("dragon.obj", false);
     dragonModel.t_ = glm::translate(glm::vec3(0.0f, 0.0f, 20.0f));
@@ -55,11 +58,15 @@ int main()
     en::Model reflectModel("hd_sphere.obj", false);
     reflectModel.t_ = glm::translate(glm::vec3(0.0f, 0.0, -8.0f));
 
-    en::Model mirrorModel("cube.obj", false);
-    mirrorModel.t_ = glm::translate(glm::vec3(30.0f, 0.0f, 0.0f)) * glm::scale(glm::vec3(0.1f, 5.0f, 5.0f));
+    en::Model testModel("cube.obj", false);
+    testModel.t_ = glm::translate(glm::vec3(64.0f, 10.0f, 0.0f)) * glm::scale(glm::vec3(5.0f, 5.0f, 5.0f));
 
     // Lights
-    en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
+    en::DirLight dirLight(
+            glm::vec3(0.3f, -1.0f, 1.0f),
+            glm::vec3(0.5f),
+            4096,
+            4096);
 
     en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f);
     pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
@@ -71,7 +78,7 @@ int main()
     // Scene
     en::Log::Info("Creating SceneRenderer");
 
-    en::SceneRenderer sceneRenderer(window.GetWidth(), window.GetHeight());
+    en::SceneRenderer sceneRenderer(window.GetWidth(), window.GetHeight(), true);
 
     sceneRenderer.SetDirLight(&dirLight);
     sceneRenderer.AddPointLight(&pointLight);
@@ -79,12 +86,11 @@ int main()
     sceneRenderer.AddStandardRenderObj(&backpackModel);
     sceneRenderer.AddStandardRenderObj(&floorModel);
     sceneRenderer.AddStandardRenderObj(&dragonModel);
+    sceneRenderer.AddStandardRenderObj(&testModel);
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
     sceneRenderer.AddReflectiveRenderObj(&reflectModel, 2.0f);
-
-    sceneRenderer.AddMirrorRenderObj(&mirrorModel, glm::vec3(-1.0f, 0.0f, 0.0f));
 
     sceneRenderer.AddSplineRenderObj(&splineRenderable);
 
@@ -94,6 +100,8 @@ int main()
     en::Log::Info("Staring main loop");
     while (window.IsOpen())
     {
+        //en::Log::Info("Iteration");
+
         // Setup
         window.Update();
         en::Input::Update();

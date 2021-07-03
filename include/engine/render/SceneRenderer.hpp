@@ -13,14 +13,13 @@
 #include "GBuffer.hpp"
 #include "../Window.hpp"
 #include "ReflectiveMap.hpp"
-#include "Mirror.hpp"
 
 namespace en
 {
     class SceneRenderer
     {
     public:
-        SceneRenderer(int32_t width, int32_t height);
+        SceneRenderer(int32_t width, int32_t height, bool advancedShadow);
 
         void Render(const Window* window, const Camera* cam) const;
         void Resize(int32_t width, int32_t height);
@@ -37,9 +36,6 @@ namespace en
         void AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane);
         void RemoveReflectiveRenderObj(const RenderObj* renderObj);
 
-        void AddMirrorRenderObj(const RenderObj* renderObj, glm::vec3 normal);
-        void RemoveMirrorRenderObj(const RenderObj* renderObj);
-
         void SetDirLight(const DirLight* dirLight);
 
         void AddPointLight(const PointLight* pointLight);
@@ -49,7 +45,10 @@ namespace en
 
         /**Removes all the objects, i.e. clears the vector lists (but not the DirLight or Skybox)*/
         void RemoveAllObjects();
+
     private:
+        bool advancedShadow_;
+
         const GLProgram* geometryProgram_;
         const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
@@ -58,15 +57,15 @@ namespace en
         const GLProgram* pointShadowProgram_;
         const GLProgram* reflectiveProgram_;
         const GLProgram* skyboxProgram_;
+        const GLProgram* gauss5HorizontalProgram;
+        const GLProgram* gauss5VerticalProgram;
 
         std::vector<const RenderObj*> standardRenderObjs_;
         std::vector<const RenderObj*> fixedColorRenderObjs_;
         std::vector<const RenderObj*> splineRenderObjs_;
         std::vector<const RenderObj*> reflectiveRenderObjs_;
-        std::vector<const RenderObj*> mirrorRenderObjs_;
 
         std::vector<ReflectiveMap> reflectiveMaps_;
-        std::vector<Mirror> mirrors_;
 
         const DirLight* dirLight_;
         std::vector<const PointLight*> pointLights_;
@@ -82,14 +81,16 @@ namespace en
 
         void RenderDirShadow() const;
         void RenderPointShadows() const;
+
         void RenderDeferredGeometry(const float* viewMat, const float* projMat) const;
         void RenderDeferredLighting(const Window* window, const Camera* cam) const;
+
         void RenderFixedColor(const float* viewMat, const float* projMat) const;
         void RenderSplines(const float* viewMat, const float* projMat) const;
+
         void RenderReflectiveMaps() const;
         void RenderReflectiveObj(glm::vec3 camPos, const float* viewMat, const float* projMat) const;
-        void RenderMirrorReflections(const Camera* cam) const;
-        void RenderMirrorObjs(const float* viewMat, const float* projMat) const;
+
         void RenderSkybox(const float* viewMat, const float* projMat) const;
     };
 }

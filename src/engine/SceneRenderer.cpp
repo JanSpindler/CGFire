@@ -10,14 +10,13 @@
 
 namespace en
 {
-    SceneRenderer::SceneRenderer(int32_t width, int32_t height) :
+    SceneRenderer::SceneRenderer(int32_t width, int32_t height, bool advancedShadow) :
+            advancedShadow_(advancedShadow),
             standardRenderObjs_({}),
             fixedColorRenderObjs_({}),
             dirLight_(nullptr),
             pointLights_({}),
             reflectiveMaps_({}),
-            mirrorRenderObjs_({}),
-            mirrors_({}),
             skyboxTex_(nullptr),
             gBuffer_(width, height)
     {
@@ -131,26 +130,6 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddMirrorRenderObj(const RenderObj *renderObj, glm::vec3 normal)
-    {
-        RemoveMirrorRenderObj(renderObj);
-        mirrorRenderObjs_.push_back(renderObj);
-        mirrors_.push_back(Mirror(renderObj, normal, 512));
-    }
-
-    void SceneRenderer::RemoveMirrorRenderObj(const RenderObj *renderObj)
-    {
-        for (uint32_t i = 0; i < mirrorRenderObjs_.size(); i++)
-        {
-            if (mirrorRenderObjs_[i] == renderObj)
-            {
-                mirrorRenderObjs_.erase(mirrorRenderObjs_.begin() + i);
-                mirrors_.erase(mirrors_.begin() + i);
-                return;
-            }
-        }
-    }
-
     void SceneRenderer::SetDirLight(const DirLight *dirLight)
     {
         dirLight_ = dirLight;
@@ -222,6 +201,12 @@ namespace en
         const GLShader* toEnvMapVert = GLShader::Load("CGFire/to_env_map.vert");
         const GLShader* toEnvMapFrag = GLShader::Load("CGFire/to_env_map.frag");
         toEnvMapProgram_ = GLProgram::Load(toEnvMapVert, nullptr, toEnvMapFrag);
+
+        const GLShader* gauss5HorizontalVert = GLShader::Load("CGFire/gauss5_horizontal.vert");
+        const GLShader* gauss5VerticalVert = GLShader::Load("CGFire/gauss5_vertical.vert");
+        const GLShader* gauss5Frag = GLShader::Load("CGFire/gauss5.frag");
+        gauss5HorizontalProgram = GLProgram::Load(gauss5HorizontalVert, nullptr, gauss5Frag);
+        gauss5VerticalProgram = GLProgram::Load(gauss5VerticalVert, nullptr, gauss5Frag);
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -328,8 +313,20 @@ namespace en
             renderObj->RenderPosOnly(dirShadowProgram_);
         for (const RenderObj* renderObj : reflectiveRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
-        for (const RenderObj* renderObj : mirrorRenderObjs_)
-            renderObj->RenderPosOnly(dirShadowProgram_);
+
+        if (advancedShadow_)
+        {
+            dirLight_->PrepareGauss5(gauss5HorizontalProgram, dirLight_->GetWidth());
+            glBindVertexArray(fullScreenVao_);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+            dirLight_->EndGauss5();
+
+            dirLight_->PrepareGauss5(gauss5VerticalProgram, dirLight_->GetHeight());
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+            glBindVertexArray(0);
+            dirLight_->EndGauss5();
+        }
+
         dirLight_->UnbindShadowBuffer();
     }
 
@@ -351,8 +348,6 @@ namespace en
                 renderObj->RenderPosOnly(pointShadowProgram_);
             for (const RenderObj* renderObj : reflectiveRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
-            for (const RenderObj* renderObj : mirrorRenderObjs_)
-                renderObj->RenderPosOnly(pointShadowProgram_);
             pointLight->UnbindShadowBuffer();
         }
     }
@@ -372,18 +367,30 @@ namespace en
 
     void SceneRenderer::RenderDeferredLighting(const Window* window, const Camera* cam) const
     {
+        // Bind screen framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+        // Use program and set uniforms
         lightingProgram_->Use();
-
-        gBuffer_.UseTextures(lightingProgram_);
         lightingProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
 
+        // Bind GBuffer
+        gBuffer_.UseTextures(lightingProgram_);
+
+        // Dir light
         glm::mat4 dirLightMat = dirLight_->GetLightMat();
         lightingProgram_->SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);
         dirLight_->Use(lightingProgram_);
         dirLight_->UseShadow(lightingProgram_);
 
+        // Dir light esm
+        lightingProgram_->SetUniformB("dir_use_esm", advancedShadow_);
+
+        glActiveTexture(GL_TEXTURE5);
+        dirLight_->BindEsmTex();
+        lightingProgram_->SetUniformI("dir_shadow_esm_tex", 5);
+
+        // Point light
         const int32_t pointLightCount = std::min((int)pointLights_.size(), 24);
         lightingProgram_->SetUniformI("point_light_count", pointLightCount);
         for (uint32_t i = 0; i < pointLightCount; i++)
@@ -393,6 +400,7 @@ namespace en
             pointLight->UseShadow(lightingProgram_, i);
         }
 
+        // Draw screen
         glBindVertexArray(fullScreenVao_);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
@@ -460,8 +468,6 @@ namespace en
                     if (renderObj != reflectiveRenderObj)
                         renderObj->RenderDiffuse(toEnvMapProgram_);
                 }
-                for (const RenderObj* renderObj : mirrorRenderObjs_)
-                    renderObj->RenderDiffuse(toEnvMapProgram_);
                 for (const RenderObj* renderObj : splineRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
             }
@@ -489,26 +495,6 @@ namespace en
         }
     }
 
-    void SceneRenderer::RenderMirrorReflections(const Camera *cam) const
-    {
-        for (uint32_t i = 0; i < mirrorRenderObjs_.size(); i++)
-        {
-            const RenderObj* mirrorRenderObj = mirrorRenderObjs_[i];
-            const Mirror& mirror = mirrors_[i];
-        }
-    }
-
-    void SceneRenderer::RenderMirrorObjs(const float *viewMat, const float *projMat) const
-    {
-        for (uint32_t i = 0; i < mirrorRenderObjs_.size(); i++)
-        {
-            const RenderObj* mirrorRenderObj = mirrorRenderObjs_[i];
-            const Mirror& mirror = mirrors_[i];
-
-
-        }
-    }
-
     void SceneRenderer::RenderSkybox(const float *viewMat, const float *projMat) const
     {
         if (skyboxTex_ == nullptr)
@@ -522,6 +508,8 @@ namespace en
 
         glActiveTexture(GL_TEXTURE0);
         skyboxTex_->BindTex();
+        //uint32_t h = pointLights_[0]->GetCubeMapHandle();
+        //glBindTexture(GL_TEXTURE_CUBE_MAP, h);
         skyboxProgram_->SetUniformI("skybox_tex", 0);
 
         glBindVertexArray(skyboxVao_);

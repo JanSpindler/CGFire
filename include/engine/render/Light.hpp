@@ -17,7 +17,7 @@ namespace en
     class DirLight
     {
     public:
-        DirLight(glm::vec3 dir, glm::vec3 color);
+        DirLight(glm::vec3 dir, glm::vec3 color, uint32_t width, uint32_t height);
 
         // Light
         void Use(const GLProgram* program) const;
@@ -25,17 +25,30 @@ namespace en
         void SetDir(glm::vec3 dir);
         void SetColor(glm::vec3 color);
 
+        uint32_t GetWidth() const;
+        uint32_t GetHeight() const;
+
         // Shadow
         void UseShadow(const GLProgram* program) const;
         glm::mat4 GetLightMat() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
+        void BindEsmTex() const;
+
+        void PrepareGauss5(const GLProgram* gauss5Program, uint32_t fboSize) const;
+        void EndGauss5() const;
 
     private:
         glm::vec3 dir_;
         glm::vec3 color_;
-        unsigned int shadowFbo_;
+
+        uint32_t width_;
+        uint32_t height_;
+
+        uint32_t shadowFbo_;
         GLDepthTex depthTex_;
+        uint32_t esmTex_;
+        uint32_t esmTmpTex_;
     };
 
     // Concrete PointLight must provide own pos and color
@@ -56,6 +69,8 @@ namespace en
         std::vector<glm::mat4> GetLightMats() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
+
+        uint32_t GetCubeMapHandle() const; // Temporary
 
     private:
         float strength_;
