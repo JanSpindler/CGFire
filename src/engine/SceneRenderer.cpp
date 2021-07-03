@@ -172,43 +172,49 @@ namespace en
         ImGui::Begin("Objects");
         dirLight_->OnImGuiRender();
 
+        const float MAXPOS = 50.f;
+
 
         for (int i = 0; i < standardRenderObjs_.size(); i++) {
             ImGui::PushID(("standard" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "standard %s %d", standardRenderObjs_[i]->GetName().c_str(), i);
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "standard%d %s ", i, standardRenderObjs_[i]->GetName().c_str());
             ImGui::InputFloat3("Position", &standardRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat3("PositionSlider", &standardRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
             ImGui::SliderFloat("RotationAngle", &standardRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::InputFloat3("RotationAxisVector", &standardRenderObjs_[i]->RotationAxis.x);
+            ImGui::SliderFloat3("RotationAxisVector", &standardRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
             ImGui::InputFloat3("Scaling", &standardRenderObjs_[i]->Scaling.x);
             ImGui::PopID();
         }
 
         for (int i = 0; i < fixedColorRenderObjs_.size(); i++) {
             ImGui::PushID(("fixedCol" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "fixedCol %s %d", fixedColorRenderObjs_[i]->GetName().c_str(), i);
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "fixedCol%d %s ", i, fixedColorRenderObjs_[i]->GetName().c_str());
             ImGui::InputFloat3("Position", &fixedColorRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat3("PositionSlider", &fixedColorRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
             ImGui::SliderFloat("RotationAngle", &fixedColorRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::InputFloat3("RotationAxisVector", &fixedColorRenderObjs_[i]->RotationAxis.x);
+            ImGui::SliderFloat3("RotationAxisVector", &fixedColorRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
             ImGui::InputFloat3("Scaling", &fixedColorRenderObjs_[i]->Scaling.x);
             ImGui::PopID();
         }
 
         for (int i = 0; i < splineRenderObjs_.size(); i++) {
             ImGui::PushID(("spline" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "spline %s %d", splineRenderObjs_[i]->GetName().c_str(), i);
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "spline%d %s ", i, splineRenderObjs_[i]->GetName().c_str());
             ImGui::InputFloat3("Position", &splineRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat3("PositionSlider", &splineRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
             ImGui::SliderFloat("RotationAngle", &splineRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::InputFloat3("RotationAxisVector", &splineRenderObjs_[i]->RotationAxis.x);
+            ImGui::SliderFloat3("RotationAxisVector", &splineRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
             ImGui::InputFloat3("Scaling", &splineRenderObjs_[i]->Scaling.x);
             ImGui::PopID();
         }
 
         for (int i = 0; i < reflectiveRenderObjs_.size(); i++) {
             ImGui::PushID(("reflective" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "reflective %s %d", reflectiveRenderObjs_[i]->GetName().c_str(), i);
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "reflective%d %s ", i, reflectiveRenderObjs_[i]->GetName().c_str());
             ImGui::InputFloat3("Position", &reflectiveRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat3("PositionSlider", &reflectiveRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
             ImGui::SliderFloat("RotationAngle", &reflectiveRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::InputFloat3("RotationAxisVector", &reflectiveRenderObjs_[i]->RotationAxis.x);
+            ImGui::SliderFloat3("RotationAxisVector", &reflectiveRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
             ImGui::InputFloat3("Scaling", &reflectiveRenderObjs_[i]->Scaling.x);
             ImGui::PopID();
         }

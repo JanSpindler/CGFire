@@ -50,14 +50,17 @@ int main()
     en::Spline3D spline(splinePoints, false, 32, en::Spline3D::TYPE_NATURAL_CUBIC);
     en::Spline3DRenderable splineRenderable(&spline);
 
-    en::Model backpackModel("backpack/backpack.obj", true, "backpack");
+//    en::Model backpackModel("backpack/backpack.obj", true, "backpack");
+//
+//    en::Model floorModel("cube.obj", true, "floor");
+//    floorModel.Position = glm::vec3(0.0f, -5.0f, 0.0f);
+//    floorModel.Scaling = glm::vec3(50.0f, 1.0f, 50.0f);
+//
+//    en::Model dragonModel("dragon.obj", false, "dragon");
+//    dragonModel.Position =glm::vec3(0.0f, 0.0f, 20.0f);
 
-    en::Model floorModel("cube.obj", true, "floor");
-    floorModel.Position = glm::vec3(0.0f, -5.0f, 0.0f);
-    floorModel.Scaling = glm::vec3(50.0f, 1.0f, 50.0f);
-
-    en::Model dragonModel("dragon.obj", false, "dragon");
-    dragonModel.Position =glm::vec3(0.0f, 0.0f, 20.0f);
+    en::Model houseModel("scene/house/Edificio.dae", false, "house");
+    houseModel.Position =glm::vec3(40.0f, 0.0f, 20.0f);
 
     en::Model reflectModel("hd_sphere.obj", false, "reflect sphere");
     reflectModel.Position = glm::vec3(0.0f, 0.0, -8.0f);
@@ -80,9 +83,10 @@ int main()
     sceneRenderer.SetDirLight(&dirLight);
     sceneRenderer.AddPointLight(&pointLight);
 
-    sceneRenderer.AddStandardRenderObj(&backpackModel);
-    sceneRenderer.AddStandardRenderObj(&floorModel);
-    sceneRenderer.AddStandardRenderObj(&dragonModel);
+//    sceneRenderer.AddStandardRenderObj(&backpackModel);
+//    sceneRenderer.AddStandardRenderObj(&floorModel);
+//    sceneRenderer.AddStandardRenderObj(&dragonModel);
+    sceneRenderer.AddStandardRenderObj(&houseModel);
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
@@ -109,8 +113,8 @@ int main()
 
         // Physics
         pointLight.RotationAngle += deltaTime * -0.5f;
-        backpackModel.RotationAngle += deltaTime * 1.0f;
-        dragonModel.RotationAngle += deltaTime * 0.2f;
+//        backpackModel.RotationAngle += deltaTime * 1.0f;
+//        dragonModel.RotationAngle += deltaTime * 0.2f;
         reflectModel.RotationAngle += deltaTime * 0.4f;
 
         //UI

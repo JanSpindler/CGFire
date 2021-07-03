@@ -72,20 +72,25 @@ namespace scene{
 
         /******************MODELS*/
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_DummyPositionFinder, RenderObjType::Standard)),
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_DummyPositionFinder, RenderObjType::FixedColor)),
+                       0.f);
+
+
+
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFloor, RenderObjType::Standard)),
                        0.f);
 
         this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelHouse, RenderObjType::Standard)),
                        0.f);
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFloor, RenderObjType::Standard)),
+//        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFireman, RenderObjType::Standard)),
+//                       0.f);
+
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelCar, RenderObjType::Standard)),
                        0.f);
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFireman, RenderObjType::Standard)),
-                       0.f);
-
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ReflectModel, RenderObjType::Reflective)),
-                       0.f);
+//        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ReflectModel, RenderObjType::Reflective)),
+//                       0.f);
 
         this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_CamSplineRenderable, RenderObjType::Spline)),
                        0.f);
@@ -96,7 +101,6 @@ namespace scene{
 
     void SceneManager::initObjects(){
 
-
         m_SkyboxTex = std::make_shared<en::GLSkyboxTex>("CGFire/skybox1", ".png", false);
         m_SceneRenderer.SetSkyboxTex(m_SkyboxTex.get());
 
@@ -106,18 +110,23 @@ namespace scene{
         m_DummyPositionFinder = std::make_shared<en::Model>("cube.obj", true, "Position Dummy");
         m_DummyPositionFinder->Position = glm::vec3(0.0f, 0.0f, 0.0f);
 
-        m_ModelHouse = std::make_shared<en::Model>("scene/house/Edificio.obj", true, "House");
-        m_ModelHouse->Position = glm::vec3(20.0f, 0.0f, 20.0f);
+        m_ModelHouse = std::make_shared<en::Model>("scene/house/EdificioNoTrees.obj", true, "House");
+        m_ModelHouse->Position = glm::vec3(40.0f, 0.0f, 40.0f);
 
         m_ModelFloor = std::make_shared<en::Model>("cube.obj", true, "floor");
         m_ModelFloor->Position = glm::vec3(0.0f, -2.0f, 0.0f);
         m_ModelFloor->Scaling = glm::vec3(10000.0f, 1.0f, 10000.0f);
 
-        m_ModelFireman = std::make_shared<en::Model>("dragon.obj", false, "fireman");
-        m_ModelFireman->Position = glm::vec3(0.0f, 0.0f, 20.0f);
+//        m_ModelFireman = std::make_shared<en::Model>("scene/robot/toonbot/toon_bot.dae", false, "fireman");
+//        m_ModelFireman->Position = glm::vec3(0.0f, 0.0f, 20.0f);
+//        m_AnimationFireman = std::make_shared<en::Animation>("scene/robot/Robo.dae", m_ModelFireman.get());
+//        m_AnimatorFireman = std::make_shared<en::Animator>(m_AnimationFireman.get());
 
-        m_ReflectModel = std::make_shared<en::Model>("hd_sphere.obj", false, "ReflectSphere");
-        m_ReflectModel->Position = glm::vec3(0.0f, 0.0, -8.0f);
+        m_ModelCar = std::make_shared<en::Model>("scene/car/car.dae", true, "Car");
+        m_ModelCar->Position = glm::vec3(20.0f, 0.f, 20.0f);
+
+//        m_ReflectModel = std::make_shared<en::Model>("hd_sphere.obj", false, "ReflectSphere");
+//        m_ReflectModel->Position = glm::vec3(0.0f, 0.0, -8.0f);
 
 
         std::vector<glm::vec3> splinePoints = {
@@ -126,7 +135,7 @@ namespace scene{
                 { -5.0f, 5.0f, -5.0f },
                 { 5.0f, 0.0f, -5.0f }
         };
-        m_CamSpline = std::make_shared<en::Spline3D>(splinePoints, false, 32, en::Spline3D::TYPE_NATURAL_CUBIC);
+        m_CamSpline = std::make_shared<en::Spline3D>(splinePoints, false, 32, en::Spline3D::TYPE_CATMULL_ROM);
         m_CamSplineRenderable = std::make_shared<en::Spline3DRenderable>(m_CamSpline.get());
 
     }

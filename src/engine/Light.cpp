@@ -75,6 +75,7 @@ namespace en
     void DirLight::OnImGuiRender(){
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "DirLight");
         ImGui::InputFloat3("Direction", &dir_.x);
+        ImGui::SliderFloat3("DirectionSlider", &dir_.x, -1.f, 1.f);
         SetDir(dir_);
     }
 

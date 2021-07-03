@@ -8,6 +8,8 @@
 #include <engine/render/SceneRenderer.hpp>
 #include <engine/model/Model.hpp>
 #include <engine/prefab/SimplePointLight.hpp>
+#include <RiggingAndBlending/animation.hpp>
+#include <RiggingAndBlending/animator.hpp>
 
 #include "particle/Water.h"
 #include "particle/Smoke.h"
@@ -110,6 +112,7 @@ namespace scene {
             m_WaterCreator.onImGuiRender();
             m_SmokeCreator.onImGuiRender();
             m_FireCreator.onImGuiRender();
+
         }
 
     private:
@@ -148,6 +151,7 @@ namespace scene {
 
 
 
+        std::vector<std::pair<std::shared_ptr<en::Animator>, bool>> m_AnimatorsAnd;
         /***************Renderer*/
         en::SceneRenderer m_SceneRenderer;
 
@@ -157,10 +161,18 @@ namespace scene {
 
         std::shared_ptr<en::Model> m_DummyPositionFinder;
 
-        std::shared_ptr<en::Model> m_ModelHouse;
         std::shared_ptr<en::Model> m_ModelFloor;
-        std::shared_ptr<en::Model> m_ModelFireman;
-        std::shared_ptr<en::Model> m_ReflectModel;
+
+        std::shared_ptr<en::Model> m_ModelHouse;
+
+//        std::shared_ptr<en::Model> m_ModelFireman;
+//        std::shared_ptr<en::Animation> m_AnimationFireman;
+//        std::shared_ptr<en::Animator> m_AnimatorFireman;
+
+        std::shared_ptr<en::Model> m_ModelCar;
+
+
+//        std::shared_ptr<en::Model> m_ReflectModel;
 
         std::shared_ptr<en::Spline3D> m_CamSpline;
         std::shared_ptr<en::Spline3DRenderable> m_CamSplineRenderable;
