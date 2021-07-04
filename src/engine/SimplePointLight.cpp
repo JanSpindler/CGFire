@@ -6,9 +6,9 @@
 
 namespace en
 {
-    SimplePointLight::SimplePointLight(glm::vec3 color, float strength) :
+    SimplePointLight::SimplePointLight(glm::vec3 color, float strength, uint32_t width, uint32_t height) :
             Model("sphere.obj", true),
-            PointLight(strength)
+            PointLight(strength, width, height)
     {
         color_ = color;
     }

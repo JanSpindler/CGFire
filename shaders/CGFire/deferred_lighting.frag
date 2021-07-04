@@ -9,11 +9,12 @@ uniform sampler2D specular_tex;
 
 uniform vec3 cam_pos;
 
+uniform bool use_esm;
+
 uniform vec3 dir_light_dir;
 uniform vec3 dir_light_color;
 uniform sampler2D dir_shadow_tex;
 uniform sampler2D dir_shadow_esm_tex;
-uniform bool dir_use_esm;
 uniform mat4 dir_light_mat;
 
 #define POINT_LIGHT_MAX 24
@@ -21,7 +22,8 @@ uniform int point_light_count;
 uniform vec3 point_light_pos[POINT_LIGHT_MAX];
 uniform vec3 point_light_color[POINT_LIGHT_MAX];
 uniform float point_light_strength[POINT_LIGHT_MAX];
-uniform samplerCube point_light_shadow_tex0;
+uniform samplerCube point_shadow_tex0;
+uniform samplerCube point_shadow_esm_tex0;
 
 const float pi = 3.14159265359;
 const float c = 80.0;
@@ -34,7 +36,7 @@ float get_dir_shadow(vec3 pos)
     vec3 proj_pos = dir_light_pos.xyz / dir_light_pos.w;
     proj_pos = proj_pos * 0.5 + 0.5;
 
-    if (dir_use_esm)
+    if (use_esm)
     {
         float d = proj_pos.z;
         float exp_z = texture(dir_shadow_esm_tex, proj_pos.xy).r;
@@ -78,6 +80,38 @@ vec3 get_dir_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specula
     return shadow * (diffuse_result + specular_result);
 }
 
+float get_point_shadow(vec3 frag_light_pos, int index)
+{
+    // Shadow
+    float closest_depth = 1.0f;
+    float exp_z = 1.0f;
+    switch (index)
+    {
+        case 0:
+        closest_depth = texture(point_shadow_tex0, frag_light_pos).r;
+        exp_z = texture(point_shadow_esm_tex0, frag_light_pos).r;
+        break;
+    }
+
+    float shadow;
+    float current_depth = length(frag_light_pos);
+    if (use_esm)
+    {
+        exp_z = exp(c * closest_depth); // not multiplied by 1024.0!!! // This is not a perfect solution but works
+        float d = current_depth / 1024.0;
+        float exp_d = exp(-c * d);
+        float result = exp_d * exp_z;
+        shadow = clamp(result, 0.0, 1.0);
+    }
+    else
+    {
+        closest_depth *= 1024.0;
+        shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
+    }
+
+    return shadow;
+}
+
 vec3 get_point_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specular_color, float shininess, int index)
 {
     vec3 light_pos = point_light_pos[index];
@@ -103,18 +137,9 @@ vec3 get_point_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specu
 
     // Shadow
     vec3 frag_light_pos = pos - light_pos;
-    float closest_depth = 1024.0;
-    switch (index)
-    {
-        case 0:
-            closest_depth = texture(point_light_shadow_tex0, frag_light_pos).r;
-            break;
-    }
+    float shadow = get_point_shadow(frag_light_pos, index);
 
-    closest_depth *= 1024.0;
-    float current_depth = length(frag_light_pos);
-    float shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
-
+    // Result
     float real_strength = light_strength / (distance * distance);
     return shadow * (real_strength * (diffuse_result + specular_result));
 }
@@ -136,6 +161,8 @@ void main()
         result += get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, i);
 
     out_color = vec4(result, 1.0);
+
+    //out_color = vec4(vec3(get_point_shadow(frag_pos - point_light_pos[0], 0)), 1.0);
 
     //out_color = vec4(vec3(get_dir_shadow(frag_pos)), 1.0);
 }

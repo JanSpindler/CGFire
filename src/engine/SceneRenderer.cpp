@@ -383,9 +383,10 @@ namespace en
         dirLight_->Use(lightingProgram_);
         dirLight_->UseShadow(lightingProgram_);
 
-        // Dir light esm
-        lightingProgram_->SetUniformB("dir_use_esm", advancedShadow_);
+        // Esm
+        lightingProgram_->SetUniformB("use_esm", advancedShadow_);
 
+        // Dir esm
         glActiveTexture(GL_TEXTURE5);
         dirLight_->BindEsmTex();
         lightingProgram_->SetUniformI("dir_shadow_esm_tex", 5);
@@ -398,6 +399,11 @@ namespace en
             const PointLight* pointLight = pointLights_[i];
             pointLight->Use(lightingProgram_, i);
             pointLight->UseShadow(lightingProgram_, i);
+
+            // Point esm
+            glActiveTexture(GL_TEXTURE6);
+            pointLight->BindEsmCubeMap();
+            lightingProgram_->SetUniformI("point_shadow_esm_tex" + std::to_string(i), 6);
         }
 
         // Draw screen
@@ -508,8 +514,6 @@ namespace en
 
         glActiveTexture(GL_TEXTURE0);
         skyboxTex_->BindTex();
-        //uint32_t h = pointLights_[0]->GetCubeMapHandle();
-        //glBindTexture(GL_TEXTURE_CUBE_MAP, h);
         skyboxProgram_->SetUniformI("skybox_tex", 0);
 
         glBindVertexArray(skyboxVao_);

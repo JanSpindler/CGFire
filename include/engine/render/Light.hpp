@@ -10,7 +10,8 @@
 #include <vector>
 #include "GLTexture.hpp"
 
-#define POINT_LIGHT_MAX 24
+#define SHADOW_TEX_WIDTH 2048
+#define SHADOW_TEX_HEIGHT SHADOW_TEX_WIDTH
 
 namespace en
 {
@@ -55,7 +56,7 @@ namespace en
     class PointLight
     {
     public:
-        PointLight(float strength);
+        PointLight(float strength, uint32_t width, uint32_t height);
 
         void Use(const GLProgram* program, unsigned int index) const;
 
@@ -69,13 +70,18 @@ namespace en
         std::vector<glm::mat4> GetLightMats() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
-
-        uint32_t GetCubeMapHandle() const; // Temporary
+        void BindEsmCubeMap() const;
 
     private:
         float strength_;
+
+        uint32_t width_;
+        uint32_t height_;
+
         unsigned int shadowFbo_;
         GLDepthCubeMap depthCubeMap_;
+        uint32_t esmCubeMap_;
+        uint32_t esmTmpTex_;
     };
 }
 

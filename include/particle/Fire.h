@@ -21,7 +21,7 @@ namespace particle{
               float expiringTime = 5.f,
               float particleLifeTime = 1.f,
               float particleLifeTimeVariation = 0.2f)
-        : PointLight(1.f),
+        : PointLight(1.f, SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT),
           Position(position),
           PositionVariation(positionVariation),
         ParticlesPerEmit(particlesPerEmit),
