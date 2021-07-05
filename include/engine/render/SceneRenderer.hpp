@@ -59,6 +59,7 @@ namespace en
         const GLProgram* skyboxProgram_;
         const GLProgram* gauss5HorizontalProgram;
         const GLProgram* gauss5VerticalProgram;
+        const GLProgram* grainProgram;
 
         std::vector<const RenderObj*> standardRenderObjs_;
         std::vector<const RenderObj*> fixedColorRenderObjs_;
@@ -74,6 +75,7 @@ namespace en
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;
         uint32_t skyboxVao_;
+        uint32_t screenTmpTex_;
 
         void LoadPrograms();
         void CreateFullScreenVao();
@@ -92,6 +94,8 @@ namespace en
         void RenderReflectiveObj(glm::vec3 camPos, const float* viewMat, const float* projMat) const;
 
         void RenderSkybox(const float* viewMat, const float* projMat) const;
+
+        void PostProcess(uint32_t width, uint32_t height) const;
     };
 }
 

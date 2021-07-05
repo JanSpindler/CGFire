@@ -43,6 +43,7 @@ int main()
     };
     en::Spline3D spline(splinePoints, false, 32, en::Spline3D::TYPE_NATURAL_CUBIC);
     en::Spline3DRenderable splineRenderable(&spline);
+    en::Spline3D::Iterator iterator = { 0, 0.0f };
 
     en::Model backpackModel("backpack/backpack.obj", true);
 
@@ -57,6 +58,8 @@ int main()
 
     en::Model testModel("cube.obj", false);
     testModel.t_ = glm::translate(glm::vec3(64.0f, 10.0f, 0.0f)) * glm::scale(glm::vec3(5.0f, 5.0f, 5.0f));
+
+    en::Model splineFollowModel("cube.obj", false);
 
     // Lights
     en::DirLight dirLight(
@@ -84,6 +87,7 @@ int main()
     sceneRenderer.AddStandardRenderObj(&floorModel);
     sceneRenderer.AddStandardRenderObj(&dragonModel);
     sceneRenderer.AddStandardRenderObj(&testModel);
+    sceneRenderer.AddStandardRenderObj(&splineFollowModel);
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
@@ -113,6 +117,7 @@ int main()
         backpackModel.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         dragonModel.t_ = dragonModel.t_ * glm::rotate(deltaTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
         reflectModel.t_ = glm::rotate(deltaTime * 0.4f, glm::vec3(0.0f, 1.0f, 0.0f)) * reflectModel.t_;
+        splineFollowModel.t_ = glm::translate(spline.IterateRelative(&iterator, deltaTime * 0.5f));
 
         // Render
         cam.SetAspectRatio(window.GetAspectRatio());

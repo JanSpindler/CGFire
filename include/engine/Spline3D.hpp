@@ -14,10 +14,21 @@ namespace en
     class Spline3D
     {
     public:
+        struct Iterator
+        {
+            uint32_t lastPoint;
+            float lastInterp;
+
+            Iterator(uint32_t lP, float lI);
+        };
+
         static const uint8_t TYPE_CATMULL_ROM = 0;
         static const uint8_t TYPE_NATURAL_CUBIC = 1;
 
         Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type);
+
+        glm::vec3 IterateRelative(Iterator* i, float t) const;
+        glm::vec3 IterateAbsolute(float t) const;
 
         unsigned int GetControlPointCount() const;
         const std::vector<glm::vec3>& GetControlPoints() const;

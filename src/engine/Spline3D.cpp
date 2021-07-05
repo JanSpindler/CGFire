@@ -5,9 +5,16 @@
 #include "engine/gr_include.hpp"
 #include "engine/Spline3D.hpp"
 #include "engine/Util.hpp"
+#include <glm/gtx/compatibility.hpp>
 
 namespace en
 {
+    Spline3D::Iterator::Iterator(uint32_t lP, float lI) :
+        lastPoint(lP),
+        lastInterp(lI)
+    {
+    }
+
     Spline3D::Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type)
     {
         controlPoints_ = controlPoints;
@@ -32,6 +39,49 @@ namespace en
             segmentLengths_[i] = segmentLength;
             totalLength_ += segmentLength;
         }
+    }
+
+    glm::vec3 Spline3D::IterateRelative(Iterator* i, float t) const
+    {
+        if (t == 0.0f)
+            Log::Error("t must be greater than 0.0 to iterate Spline", true);
+        if (t < 0.0f)
+            Log::Error("Spline3D iteration does not support negative t", true);
+        if (i->lastPoint < 0 || i->lastPoint >= points_.size())
+            Log::Error("i->lastPoint exceeded bounds", true);
+
+        t += i->lastInterp;
+        glm::vec3 lP;
+        while (t > 0.0f)
+        {
+            float segmentLen = segmentLengths_[i->lastPoint];
+            if (t > segmentLen)
+            {
+                t -= segmentLen;
+                i->lastPoint++;
+            }
+            else if (t < segmentLen)
+            {
+                float delta = segmentLen - t;
+                t = 0.0f;
+                i->lastInterp = t + delta;
+                lP = glm::lerp(points_[i->lastPoint], points_[i->lastPoint + 1], i->lastInterp / segmentLen);
+            }
+            else
+            {
+                i->lastPoint++;
+                i->lastInterp = 0.0f;
+                lP = points_[i->lastPoint];
+                t = 0.0f;
+            }
+        }
+        return lP;
+    }
+
+    glm::vec3 Spline3D::IterateAbsolute(float t) const
+    {
+        Iterator i = { 0, 0.0f };
+        return IterateRelative(&i, t);
     }
 
     unsigned int Spline3D::GetControlPointCount() const

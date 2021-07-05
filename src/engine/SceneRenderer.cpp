@@ -6,7 +6,6 @@
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
-#include <glm/gtx/transform.hpp>
 
 namespace en
 {
@@ -23,10 +22,21 @@ namespace en
         LoadPrograms();
         CreateFullScreenVao();
         CreateSkyboxVao();
+
+        glGenTextures(1, &screenTmpTex_);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex_);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void SceneRenderer::Render(const Window* window, const Camera* cam) const
     {
+        uint32_t width = window->GetWidth();
+        uint32_t height = window->GetHeight();
+
         glm::mat4 viewMat = cam->GetViewMat();
         glm::mat4 skyboxViewMat = glm::mat4(glm::mat3(viewMat));
         glm::mat4 projMat = cam->GetProjMat();
@@ -49,11 +59,17 @@ namespace en
         RenderReflectiveObj(cam->GetPos(), viewMatP, projMatP);
 
         RenderSkybox(skyboxViewMatP, projMatP);
+
+        PostProcess(width, height);
     }
 
     void SceneRenderer::Resize(int32_t width, int32_t height)
     {
         gBuffer_.Resize(width, height);
+
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void SceneRenderer::AddStandardRenderObj(const RenderObj* renderObj)
@@ -207,6 +223,10 @@ namespace en
         const GLShader* gauss5Frag = GLShader::Load("CGFire/gauss5.frag");
         gauss5HorizontalProgram = GLProgram::Load(gauss5HorizontalVert, nullptr, gauss5Frag);
         gauss5VerticalProgram = GLProgram::Load(gauss5VerticalVert, nullptr, gauss5Frag);
+
+        const GLShader* grainVert = GLShader::Load("CGFire/film_grain.vert");
+        const GLShader* grainFrag = GLShader::Load("CGFire/film_grain.frag");
+        grainProgram = GLProgram::Load(grainVert, nullptr, grainFrag);
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -521,5 +541,28 @@ namespace en
         glBindVertexArray(0);
 
         glDepthFunc(GL_LESS);
+    }
+
+    void SceneRenderer::PostProcess(uint32_t width, uint32_t height) const
+    {
+        // Bind screen fbo
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // Bind full screen vao
+        glBindVertexArray(fullScreenVao_);
+
+        // Copy image to tmp tex
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex_);
+        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+
+        // Film grain
+        grainProgram->Use();
+        glActiveTexture(GL_TEXTURE0);
+        grainProgram->SetUniformI("og_tex", 0);
+        grainProgram->SetUniformF("strength", 0.1);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Unbind full screen vao
+        glBindVertexArray(0);
     }
 }
