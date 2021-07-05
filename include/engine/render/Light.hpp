@@ -36,8 +36,7 @@ namespace en
         void UnbindShadowBuffer() const;
         void BindEsmTex() const;
 
-        void PrepareGauss5(const GLProgram* gauss5Program, uint32_t fboSize) const;
-        void EndGauss5() const;
+        void PrepareGauss5(const GLProgram* gauss5Program) const;
 
     private:
         glm::vec3 dir_;
@@ -70,7 +69,7 @@ namespace en
         std::vector<glm::mat4> GetLightMats() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
-        void BindEsmCubeMap() const;
+        //void BindEsmCubeMap() const;
 
     private:
         float strength_;
@@ -80,8 +79,8 @@ namespace en
 
         unsigned int shadowFbo_;
         GLDepthCubeMap depthCubeMap_;
-        uint32_t esmCubeMap_;
-        uint32_t esmTmpTex_;
+        //uint32_t esmCubeMap_;
+        //uint32_t esmTmpTex_;
     };
 }
 

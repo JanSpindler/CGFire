@@ -68,7 +68,7 @@ int main()
             4096,
             4096);
 
-    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f, SHADOW_TEX_WIDTH, SHADOW_TEX_HEIGHT);
+    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f, 512, 512);
     pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
     std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
 
@@ -78,7 +78,7 @@ int main()
     // Scene
     en::Log::Info("Creating SceneRenderer");
 
-    en::SceneRenderer sceneRenderer(window.GetWidth(), window.GetHeight(), true);
+    en::SceneRenderer sceneRenderer(window.GetWidth(), window.GetHeight(), true, true);
 
     sceneRenderer.SetDirLight(&dirLight);
     sceneRenderer.AddPointLight(&pointLight);

@@ -19,7 +19,7 @@ namespace en
     class SceneRenderer
     {
     public:
-        SceneRenderer(int32_t width, int32_t height, bool advancedShadow);
+        SceneRenderer(int32_t width, int32_t height, bool advancedShadow, bool postProcess);
 
         void Render(const Window* window, const Camera* cam) const;
         void Resize(int32_t width, int32_t height);
@@ -48,6 +48,7 @@ namespace en
 
     private:
         bool advancedShadow_;
+        bool postProcess_;
 
         const GLProgram* geometryProgram_;
         const GLProgram* lightingProgram_;
@@ -57,9 +58,10 @@ namespace en
         const GLProgram* pointShadowProgram_;
         const GLProgram* reflectiveProgram_;
         const GLProgram* skyboxProgram_;
-        const GLProgram* gauss5HorizontalProgram;
-        const GLProgram* gauss5VerticalProgram;
-        const GLProgram* grainProgram;
+        const GLProgram* gauss5Program_;
+        const GLProgram* grainProgram_;
+        const GLProgram* bloomExtractProgram_;
+        const GLProgram* bloomCombineProgram_;
 
         std::vector<const RenderObj*> standardRenderObjs_;
         std::vector<const RenderObj*> fixedColorRenderObjs_;
@@ -75,7 +77,8 @@ namespace en
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;
         uint32_t skyboxVao_;
-        uint32_t screenTmpTex_;
+        uint32_t screenTmpTex0_;
+        uint32_t screenTmpTex1_;
 
         void LoadPrograms();
         void CreateFullScreenVao();

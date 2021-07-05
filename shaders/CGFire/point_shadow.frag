@@ -6,7 +6,7 @@ uniform vec3 light_pos;
 
 const float c = 80.0;
 
-layout (location = 0) out float esm;
+//layout (location = 0) out float esm;
 
 void main()
 {
@@ -15,5 +15,5 @@ void main()
     gl_FragDepth = light_distance;
 
     float z = light_distance;
-    esm = exp(c * z);
+    //esm = exp(c * z);
 }

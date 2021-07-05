@@ -9,8 +9,9 @@
 
 namespace en
 {
-    SceneRenderer::SceneRenderer(int32_t width, int32_t height, bool advancedShadow) :
+    SceneRenderer::SceneRenderer(int32_t width, int32_t height, bool advancedShadow, bool postProcess) :
             advancedShadow_(advancedShadow),
+            postProcess_(postProcess),
             standardRenderObjs_({}),
             fixedColorRenderObjs_({}),
             dirLight_(nullptr),
@@ -23,13 +24,24 @@ namespace en
         CreateFullScreenVao();
         CreateSkyboxVao();
 
-        glGenTextures(1, &screenTmpTex_);
-        glBindTexture(GL_TEXTURE_2D, screenTmpTex_);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        if (postProcess_)
+        {
+            glGenTextures(1, &screenTmpTex0_);
+            glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            glGenTextures(1, &screenTmpTex1_);
+            glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
     }
 
     void SceneRenderer::Render(const Window* window, const Camera* cam) const
@@ -60,16 +72,24 @@ namespace en
 
         RenderSkybox(skyboxViewMatP, projMatP);
 
-        PostProcess(width, height);
+        if (postProcess_)
+            PostProcess(width, height);
     }
 
     void SceneRenderer::Resize(int32_t width, int32_t height)
     {
         gBuffer_.Resize(width, height);
 
-        glBindTexture(GL_TEXTURE_2D, screenTmpTex_);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        if (postProcess_)
+        {
+            glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+
+            glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
     }
 
     void SceneRenderer::AddStandardRenderObj(const RenderObj* renderObj)
@@ -218,15 +238,16 @@ namespace en
         const GLShader* toEnvMapFrag = GLShader::Load("CGFire/to_env_map.frag");
         toEnvMapProgram_ = GLProgram::Load(toEnvMapVert, nullptr, toEnvMapFrag);
 
-        const GLShader* gauss5HorizontalVert = GLShader::Load("CGFire/gauss5_horizontal.vert");
-        const GLShader* gauss5VerticalVert = GLShader::Load("CGFire/gauss5_vertical.vert");
+        const GLShader* gauss5Vert = GLShader::Load("CGFire/gauss5.vert");
         const GLShader* gauss5Frag = GLShader::Load("CGFire/gauss5.frag");
-        gauss5HorizontalProgram = GLProgram::Load(gauss5HorizontalVert, nullptr, gauss5Frag);
-        gauss5VerticalProgram = GLProgram::Load(gauss5VerticalVert, nullptr, gauss5Frag);
+        gauss5Program_ = GLProgram::Load(gauss5Vert, nullptr, gauss5Frag);
 
-        const GLShader* grainVert = GLShader::Load("CGFire/film_grain.vert");
-        const GLShader* grainFrag = GLShader::Load("CGFire/film_grain.frag");
-        grainProgram = GLProgram::Load(grainVert, nullptr, grainFrag);
+        if (postProcess_)
+        {
+            const GLShader* grainVert = GLShader::Load("CGFire/film_grain.vert");
+            const GLShader* grainFrag = GLShader::Load("CGFire/film_grain.frag");
+            grainProgram_ = GLProgram::Load(grainVert, nullptr, grainFrag);
+        }
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -336,15 +357,10 @@ namespace en
 
         if (advancedShadow_)
         {
-            dirLight_->PrepareGauss5(gauss5HorizontalProgram, dirLight_->GetWidth());
+            dirLight_->PrepareGauss5(gauss5Program_);
             glBindVertexArray(fullScreenVao_);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-            dirLight_->EndGauss5();
-
-            dirLight_->PrepareGauss5(gauss5VerticalProgram, dirLight_->GetHeight());
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
             glBindVertexArray(0);
-            dirLight_->EndGauss5();
         }
 
         dirLight_->UnbindShadowBuffer();
@@ -421,9 +437,9 @@ namespace en
             pointLight->UseShadow(lightingProgram_, i);
 
             // Point esm
-            glActiveTexture(GL_TEXTURE6);
+            /*glActiveTexture(GL_TEXTURE6);
             pointLight->BindEsmCubeMap();
-            lightingProgram_->SetUniformI("point_shadow_esm_tex" + std::to_string(i), 6);
+            lightingProgram_->SetUniformI("point_shadow_esm_tex" + std::to_string(i), 6);*/
         }
 
         // Draw screen
@@ -551,15 +567,36 @@ namespace en
         // Bind full screen vao
         glBindVertexArray(fullScreenVao_);
 
-        // Copy image to tmp tex
-        glBindTexture(GL_TEXTURE_2D, screenTmpTex_);
+        // Bloom (extract)
+        /*glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
         glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+        bloomExtractProgram_->Use();
+        glActiveTexture(GL_TEXTURE0);
+        bloomExtractProgram_->SetUniformI("og_tex", 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Bloom (blur)
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
+        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+        gauss5Program_->Use();
+        glActiveTexture(GL_TEXTURE0);
+        gauss5Program_->SetUniformI("og_tex", 0);
+        gauss5Program_->SetUniformF("pixel_width", 1.0f / (float) width);
+        gauss5Program_->SetUniformF("pixel_height", 1.0f / (float) height);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Bloom (combine)
+        bloomCombineProgram_->Use();
+        glActiveTexture(GL_TEXTURE0);
+        */
 
         // Film grain
-        grainProgram->Use();
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
+        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+        grainProgram_->Use();
         glActiveTexture(GL_TEXTURE0);
-        grainProgram->SetUniformI("og_tex", 0);
-        grainProgram->SetUniformF("strength", 0.1);
+        grainProgram_->SetUniformI("og_tex", 0);
+        grainProgram_->SetUniformF("strength", 0.1f);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Unbind full screen vao
