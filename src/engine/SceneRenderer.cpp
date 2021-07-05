@@ -6,6 +6,7 @@
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
+#include <glm/gtc/random.hpp>
 
 namespace en
 {
@@ -247,6 +248,14 @@ namespace en
             const GLShader* grainVert = GLShader::Load("CGFire/film_grain.vert");
             const GLShader* grainFrag = GLShader::Load("CGFire/film_grain.frag");
             grainProgram_ = GLProgram::Load(grainVert, nullptr, grainFrag);
+
+            const GLShader* bloomExtractVert = GLShader::Load("CGFire/bloom_extract.vert");
+            const GLShader* bloomExtractFrag = GLShader::Load("CGFire/bloom_extract.frag");
+            bloomExtractProgram_ = GLProgram::Load(bloomExtractVert, nullptr, bloomExtractFrag);
+
+            const GLShader* bloomCombineVert = GLShader::Load("CGFire/bloom_combine.vert");
+            const GLShader* bloomCombineFrag = GLShader::Load("CGFire/bloom_combine.frag");
+            bloomCombineProgram_ = GLProgram::Load(bloomCombineVert, nullptr, bloomCombineFrag);
         }
     }
 
@@ -561,45 +570,49 @@ namespace en
 
     void SceneRenderer::PostProcess(uint32_t width, uint32_t height) const
     {
-        // Bind screen fbo
+        // Prepare
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // Bind full screen vao
         glBindVertexArray(fullScreenVao_);
+        glDepthFunc(GL_LEQUAL);
 
         // Bloom (extract)
-        /*glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
-        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+        glCopyTextureSubImage2D(screenTmpTex0_, 0, 0, 0, 0, 0, width, height);
         bloomExtractProgram_->Use();
-        glActiveTexture(GL_TEXTURE0);
+        glBindTextureUnit(0, screenTmpTex0_);
         bloomExtractProgram_->SetUniformI("og_tex", 0);
+        bloomExtractProgram_->SetUniformF("min_brightness", 0.71f);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Bloom (blur)
-        glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
-        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
+        glCopyTextureSubImage2D(screenTmpTex1_, 0, 0, 0, 0, 0, width, height);
         gauss5Program_->Use();
-        glActiveTexture(GL_TEXTURE0);
+        glBindTextureUnit(0, screenTmpTex1_);
         gauss5Program_->SetUniformI("og_tex", 0);
         gauss5Program_->SetUniformF("pixel_width", 1.0f / (float) width);
         gauss5Program_->SetUniformF("pixel_height", 1.0f / (float) height);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Bloom (combine)
+        glCopyTextureSubImage2D(screenTmpTex1_, 0, 0, 0, 0, 0, width, height);
         bloomCombineProgram_->Use();
-        glActiveTexture(GL_TEXTURE0);
-        */
-
-        // Film grain
-        glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
-        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height);
-        grainProgram_->Use();
-        glActiveTexture(GL_TEXTURE0);
-        grainProgram_->SetUniformI("og_tex", 0);
-        grainProgram_->SetUniformF("strength", 0.1f);
+        glBindTextureUnit(0, screenTmpTex0_);
+        bloomCombineProgram_->SetUniformI("og_tex", 0);
+        glBindTextureUnit(1, screenTmpTex1_);
+        bloomCombineProgram_->SetUniformI("bloom_tex", 1);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-        // Unbind full screen vao
+        // Film grain
+        glCopyTextureSubImage2D(screenTmpTex0_, 0, 0, 0, 0, 0, width, height);
+        grainProgram_->Use();
+        glBindTextureUnit(0, screenTmpTex0_);
+        grainProgram_->SetUniformI("og_tex", 0);
+        grainProgram_->SetUniformF("strength", 0.1f);
+        grainProgram_->SetUniformVec2f("rand_in", glm::linearRand(glm::vec2(0.0f), glm::vec2(1.0f)));
+        grainProgram_->SetUniformVec2f("scree_size", glm::vec2((float) width, (float) height));
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Cleanup
+        glDepthFunc(GL_LESS);
         glBindVertexArray(0);
     }
 }

@@ -77,6 +77,7 @@ namespace en
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;
         uint32_t skyboxVao_;
+
         uint32_t screenTmpTex0_;
         uint32_t screenTmpTex1_;
 

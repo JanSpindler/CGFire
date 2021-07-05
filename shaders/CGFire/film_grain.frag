@@ -4,6 +4,8 @@ in vec2 frag_uv;
 
 uniform sampler2D og_tex;
 uniform float strength;
+uniform vec2 rand_in;
+uniform vec2 scree_size;
 
 out vec4 frag_color;
 
@@ -13,12 +15,12 @@ float rand(vec2 seed)
     return fract(sin(dot(seed, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-float grain_func(vec2 uv, vec4 src_color)
+float grain_func(vec2 uv)
 {
-    float g0 = rand(uv);
-    float g1 = rand(src_color.xy);
-    float g2 = rand(src_color.zw);
-    float grain = rand(vec2(g0 * g1, g1 * g2));
+    vec2 totalUv = vec2(uvec2(uv * scree_size / 2.0));
+    float g0 = rand(totalUv / scree_size);
+    float g1 = rand(rand_in);
+    float grain = rand(vec2(g0, g1));
 
     return grain * strength;
 }
@@ -26,6 +28,6 @@ float grain_func(vec2 uv, vec4 src_color)
 void main()
 {
     frag_color = texture(og_tex, frag_uv);
-    vec4 grain = vec4(vec3(grain_func(frag_uv, frag_color)), 0.0);
+    vec4 grain = vec4(vec3(grain_func(frag_uv)), 0.0);
     frag_color += grain;
 }
