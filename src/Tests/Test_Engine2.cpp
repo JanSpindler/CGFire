@@ -62,6 +62,9 @@ int main()
     en::Model houseModel("scene/house/Edificio.dae", false, "house");
     houseModel.Position =glm::vec3(40.0f, 0.0f, 20.0f);
 
+    en::Model roboModel("vampire/Jumping_Down.dae", false, "rob");
+    roboModel.Position =glm::vec3(10.0f, 0.0f, 40.0f);
+
     en::Model reflectModel("hd_sphere.obj", false, "reflect sphere");
     reflectModel.Position = glm::vec3(0.0f, 0.0, -8.0f);
 
