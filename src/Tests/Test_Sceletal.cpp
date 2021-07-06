@@ -39,12 +39,12 @@ int main()
     glm::mat4 viewMat;
     glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    const en::GLShader* vertShader = en::GLShader::Load("sceletal.vert");
-    const en::GLShader* fragShader = en::GLShader::Load("sceletal.frag");
+    const en::GLShader* vertShader = en::GLShader::Load("sceletaltest.vert");
+    const en::GLShader* fragShader = en::GLShader::Load("sceletaltest.frag");
     const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
-    en::Model vampiremodel("vampire/dancing_vampire.dae", true, "vampire");
-    en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
+    en::Model vampiremodel("vampire/Pistol_Kneeling_Idle.dae", true, "vampire");
+    en::Animation animation("vampire/Pistol_Kneeling_Idle.dae", &vampiremodel);
     en::Animator animator(&animation);
 
     program->Use();
@@ -70,7 +70,6 @@ int main()
         program->Use();
         program->SetUniformMat4("view_mat", false, &viewMat[0][0]);
         program->SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        program->SetUniformVec3f("cam_pos", cam.GetPos());
 
         auto transforms = animator.getfinalbonetransforms();
         for (int i = 0; i < transforms.size(); ++i) {

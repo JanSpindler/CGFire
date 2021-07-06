@@ -13,6 +13,7 @@
 #include "GBuffer.hpp"
 #include "../Window.hpp"
 #include "ReflectiveMap.hpp"
+#include "engine/Character.hpp"
 
 namespace en
 {
@@ -21,8 +22,13 @@ namespace en
     public:
         SceneRenderer(int32_t width, int32_t height);
 
+        void Update(float deltaTime);
+
         void Render(const Window* window, const Camera* cam) const;
         void Resize(int32_t width, int32_t height);
+
+        void AddCharacterRenderObj(Character* renderObj);
+        void RemoveCharacterRenderObj(const Character* renderObj);
 
         void AddStandardRenderObj(RenderObj* renderObj);
         void RemoveStandardRenderObj(const RenderObj* renderObj);
@@ -49,6 +55,7 @@ namespace en
         void OnImGuiRender();
     private:
         const GLProgram* geometryProgram_;
+        const GLProgram* characterProgram_; // = sceletal vertex shader + deffered geometry fragment shader
         const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
         const GLProgram* toEnvMapProgram_;
@@ -57,6 +64,7 @@ namespace en
         const GLProgram* reflectiveProgram_;
         const GLProgram* skyboxProgram_;
 
+        std::vector<Character*> characterRenderObjs_;
         std::vector<RenderObj*> standardRenderObjs_;
         std::vector<RenderObj*> fixedColorRenderObjs_;
         std::vector<RenderObj*> splineRenderObjs_;

@@ -21,6 +21,8 @@
 
 #include "SceneEventsTypes.h"
 
+#include "engine/Character.hpp"
+
 
 namespace scene {
 /**Organizes and manages all the events and objects of the scene.
@@ -60,21 +62,21 @@ namespace scene {
             m_TimePaused = false;
         }
 
-        void onUpdate(float deltaTime) {
+        void onUpdate(float dt) {
             if (m_TimePaused)
                 return;
 
-            m_SceneTime += deltaTime;
+            m_SceneTime += dt;
 
 
             m_SceneRenderer.Resize(m_Window.GetWidth(), m_Window.GetHeight()); // TODO: maybe something more performant
 
-            m_ParticleSystemWater.OnUpdate(deltaTime);
-            m_ParticleSystemSmoke.OnUpdate(deltaTime);
-            m_ParticleSystemFire.OnUpdate(deltaTime);
-            m_WaterCreator.onUpdate(deltaTime);
-            m_SmokeCreator.onUpdate(deltaTime);
-            m_FireCreator.onUpdate(deltaTime);
+            m_ParticleSystemWater.OnUpdate(dt);
+            m_ParticleSystemSmoke.OnUpdate(dt);
+            m_ParticleSystemFire.OnUpdate(dt);
+            m_WaterCreator.onUpdate(dt);
+            m_SmokeCreator.onUpdate(dt);
+            m_FireCreator.onUpdate(dt);
 
             // Check if any event occurred, if so, delete it from the list (so it will only be called once)
             auto it = m_EventsAndTimes.begin();
@@ -88,6 +90,8 @@ namespace scene {
                 else
                     break;
             }
+
+            m_SceneRenderer.Update(dt);
         }
 
         void OnRender(){
@@ -165,9 +169,8 @@ namespace scene {
 
         std::shared_ptr<en::Model> m_ModelHouse;
 
-//        std::shared_ptr<en::Model> m_ModelFireman;
-//        std::shared_ptr<en::Animation> m_AnimationFireman;
-//        std::shared_ptr<en::Animator> m_AnimatorFireman;
+
+        std::shared_ptr<en::Character> m_Vampire1;
 
         std::shared_ptr<en::Model> m_ModelCar;
 

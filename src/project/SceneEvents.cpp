@@ -79,7 +79,7 @@ namespace scene{
                        25.f);
 
 
-        /******************MODELS*/
+        /******************STATIC MODELS*/
 
         this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_DummyPositionFinder, RenderObjType::FixedColor)),
                        0.f);
@@ -92,19 +92,17 @@ namespace scene{
         this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelHouse, RenderObjType::Standard)),
                        0.f);
 
-//        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFireman, RenderObjType::Standard)),
-//                       0.f);
-
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelCar, RenderObjType::Standard)),
-                       0.f);
-
-//        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ReflectModel, RenderObjType::Reflective)),
-//                       0.f);
 
         this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_CamSplineRenderable, RenderObjType::Spline)),
                        0.f);
 
 
+        /*********Animated Stuff*/
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelCar, RenderObjType::Standard)),
+                       0.f);
+
+        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_Vampire1, RenderObjType::Char)),
+                       0.f);
     }
 
 
@@ -129,12 +127,14 @@ namespace scene{
         m_ModelFloor->Position = glm::vec3(0.0f, -25.0f, 0.0f);
         m_ModelFloor->Scaling = glm::vec3(1.0f, 1.0f, 1.0f);
 
-//        m_ModelFireman = std::make_shared<en::Model>("scene/robot/toonbot/toon_bot.dae", false, "fireman");
-//        m_ModelFireman->Position = glm::vec3(0.0f, 0.0f, 20.0f);
-//        m_AnimationFireman = std::make_shared<en::Animation>("scene/robot/Robo.dae", m_ModelFireman.get());
-//        m_AnimatorFireman = std::make_shared<en::Animator>(m_AnimationFireman.get());
 
-        m_ModelCar = std::make_shared<en::Model>("scene/car/car_alt.obj", true, "Car");
+        m_Vampire1 = std::make_shared<en::Character>("vampire/Walking.dae", "vampire1");
+        m_Vampire1->AddAnimation("vampire/Jumping_Down.dae", "jump_down");
+        m_Vampire1->AddAnimation("vampire/Walking.dae", "walking");
+        m_Vampire1->Position = glm::vec3(40.0f, -15.f, 25.0f);
+        m_Vampire1->Scaling = glm::vec3(1.5f, 1.5f, 1.5f);
+
+        m_ModelCar = std::make_shared<en::Model>("scene/car/truck.obj", true, "Car");
         m_ModelCar->Position = glm::vec3(20.0f, 0.f, 20.0f);
         m_ModelCar->Scaling = glm::vec3(8.0f, 8.f, 8.0f);
 

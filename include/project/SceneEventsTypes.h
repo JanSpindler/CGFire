@@ -111,7 +111,7 @@ namespace scene{
 
 
 
-    enum RenderObjType {Standard, FixedColor, Spline, Reflective };
+    enum RenderObjType {Char, Standard, FixedColor, Spline, Reflective };
 
     //RenderObj Creation
     class RenderObjCreationEvent : public Event{
@@ -123,6 +123,9 @@ namespace scene{
                     {}
         void onAction() override{
             switch (m_Type){
+                case Char:
+                    m_SceneRenderer.AddCharacterRenderObj(dynamic_cast<en::Character*>(m_Obj.get()));
+                    break;
                 case Standard:
                     m_SceneRenderer.AddStandardRenderObj(m_Obj.get());
                     break;

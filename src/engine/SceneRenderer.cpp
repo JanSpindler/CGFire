@@ -13,6 +13,7 @@
 namespace en
 {
     SceneRenderer::SceneRenderer(int32_t width, int32_t height) :
+            characterRenderObjs_({}),
             standardRenderObjs_({}),
             fixedColorRenderObjs_({}),
             dirLight_(nullptr),
@@ -24,6 +25,11 @@ namespace en
         LoadPrograms();
         CreateFullScreenVao();
         CreateSkyboxVao();
+    }
+
+    void SceneRenderer::Update(float deltaTime){
+        for (auto* c : characterRenderObjs_) //update animation
+            c->Update(deltaTime);
     }
 
     void SceneRenderer::Render(const Window* window, const Camera* cam) const
@@ -55,6 +61,24 @@ namespace en
     void SceneRenderer::Resize(int32_t width, int32_t height)
     {
         gBuffer_.Resize(width, height);
+    }
+
+    void SceneRenderer::AddCharacterRenderObj(Character* renderObj)
+    {
+        RemoveCharacterRenderObj(renderObj);
+        characterRenderObjs_.push_back(renderObj);
+    }
+
+    void SceneRenderer::RemoveCharacterRenderObj(const Character* renderObj)
+    {
+        for (uint32_t i = 0; i < characterRenderObjs_.size(); i++)
+        {
+            if (characterRenderObjs_[i] == renderObj)
+            {
+                characterRenderObjs_.erase(characterRenderObjs_.begin() + i);
+                return;
+            }
+        }
     }
 
     void SceneRenderer::AddStandardRenderObj(RenderObj* renderObj)
@@ -160,6 +184,7 @@ namespace en
     }
 
     void SceneRenderer::RemoveAllObjects(){
+        characterRenderObjs_.clear();
         standardRenderObjs_.clear();
         fixedColorRenderObjs_.clear();
         splineRenderObjs_.clear();
@@ -174,6 +199,17 @@ namespace en
 
         const float MAXPOS = 120.f;
 
+
+        for (int i = 0; i < characterRenderObjs_.size(); i++) {
+            ImGui::PushID(("character" + std::to_string(i)).c_str());
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "character%d %s ", i, characterRenderObjs_[i]->GetName().c_str());
+            ImGui::InputFloat3("Position", &characterRenderObjs_[i]->Position.x);
+            ImGui::SliderFloat3("PositionSlider", &characterRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
+            ImGui::SliderFloat("RotationAngle", &characterRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
+            ImGui::SliderFloat3("RotationAxisVector", &characterRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
+            ImGui::InputFloat3("Scaling", &characterRenderObjs_[i]->Scaling.x);
+            ImGui::PopID();
+        }
 
         for (int i = 0; i < standardRenderObjs_.size(); i++) {
             ImGui::PushID(("standard" + std::to_string(i)).c_str());
@@ -239,6 +275,10 @@ namespace en
         const GLShader* geomVert = GLShader::Load("CGFire/deferred_geometry.vert");
         const GLShader* geomFrag = GLShader::Load("CGFire/deferred_geometry.frag");
         geometryProgram_ = GLProgram::Load(geomVert, nullptr, geomFrag);
+
+        const GLShader* sceletalVert = GLShader::Load("CGFire/sceletal.vert");
+        const GLShader* sceletalFrag = GLShader::Load("CGFire/deferred_geometry.frag");
+        characterProgram_ = GLProgram::Load(sceletalVert, nullptr, sceletalFrag);
 
         const GLShader* lightVert = GLShader::Load("CGFire/deferred_lighting.vert");
         const GLShader* lightFrag = GLShader::Load("CGFire/deferred_lighting.frag");
@@ -355,6 +395,8 @@ namespace en
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
 
         dirLight_->BindShadowBuffer();
+        for (RenderObj* renderObj : characterRenderObjs_)
+            renderObj->RenderPosOnly(dirShadowProgram_);
         for (RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
         for (RenderObj* renderObj : fixedColorRenderObjs_)
@@ -376,6 +418,8 @@ namespace en
             pointShadowProgram_->SetUniformVec3f("light_pos", pointLight->GetPos());
 
             pointLight->BindShadowBuffer();
+            for (RenderObj* renderObj : characterRenderObjs_)
+                renderObj->RenderPosOnly(pointShadowProgram_);
             for (RenderObj* renderObj : standardRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
             for (RenderObj* renderObj : fixedColorRenderObjs_)
@@ -395,6 +439,12 @@ namespace en
         geometryProgram_->SetUniformMat4("proj_mat", false, projMat);
         for (RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderAll(geometryProgram_);
+
+        characterProgram_->Use();
+        characterProgram_->SetUniformMat4("view_mat", false, viewMat);
+        characterProgram_->SetUniformMat4("proj_mat", false, projMat);
+        for (RenderObj* renderObj : characterRenderObjs_)
+            renderObj->RenderAll(characterProgram_);
 
         gBuffer_.Unbind();
     }
@@ -473,6 +523,8 @@ namespace en
                 reflectiveMap.BindCubeMapFace(face);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+                for (RenderObj* renderObj : characterRenderObjs_)
+                    renderObj->RenderDiffuse(toEnvMapProgram_);
                 for (RenderObj* renderObj : standardRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
                 for (RenderObj* renderObj : fixedColorRenderObjs_)

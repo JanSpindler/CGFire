@@ -33,12 +33,20 @@ int main(int, char* argv[]) {
     scene::SceneManager Scene(cam, window);
     Scene.restart();
 
+    bool firstDeltaTime = true;
     while (window.IsOpen())
     {
         window.Update();
         en::Input::Update();
         en::Time::Update();
-        float deltaTime = (float)en::Time::GetDeltaTime();
+        float deltaTime;
+        if (!firstDeltaTime)
+            deltaTime = (float)en::Time::GetDeltaTime();
+        else{
+            firstDeltaTime = false;
+            deltaTime = 0.01f;
+        }
+
         util::HandleUserCamMovement(window, cam, deltaTime);
 
 
