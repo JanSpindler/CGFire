@@ -172,7 +172,7 @@ namespace en
         ImGui::Begin("Objects");
         dirLight_->OnImGuiRender();
 
-        const float MAXPOS = 50.f;
+        const float MAXPOS = 120.f;
 
 
         for (int i = 0; i < standardRenderObjs_.size(); i++) {

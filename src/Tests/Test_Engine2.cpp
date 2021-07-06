@@ -51,11 +51,11 @@ int main()
     en::Spline3DRenderable splineRenderable(&spline);
 
 //    en::Model backpackModel("backpack/backpack.obj", true, "backpack");
-//
-//    en::Model floorModel("cube.obj", true, "floor");
-//    floorModel.Position = glm::vec3(0.0f, -5.0f, 0.0f);
-//    floorModel.Scaling = glm::vec3(50.0f, 1.0f, 50.0f);
-//
+
+    en::Model floorModel("cube.obj", true, "floor");
+    floorModel.Position = glm::vec3(0.0f, -5.0f, 0.0f);
+    floorModel.Scaling = glm::vec3(50.0f, 1.0f, 50.0f);
+
 //    en::Model dragonModel("dragon.obj", false, "dragon");
 //    dragonModel.Position =glm::vec3(0.0f, 0.0f, 20.0f);
 
@@ -84,9 +84,10 @@ int main()
     sceneRenderer.AddPointLight(&pointLight);
 
 //    sceneRenderer.AddStandardRenderObj(&backpackModel);
-//    sceneRenderer.AddStandardRenderObj(&floorModel);
+    sceneRenderer.AddStandardRenderObj(&floorModel);
 //    sceneRenderer.AddStandardRenderObj(&dragonModel);
     sceneRenderer.AddStandardRenderObj(&houseModel);
+    sceneRenderer.AddStandardRenderObj(&roboModel);
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 

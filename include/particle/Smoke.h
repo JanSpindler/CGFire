@@ -18,7 +18,6 @@ namespace particle{
     public:
         explicit SmokeStream(
                 std::shared_ptr<en::Spline3D> spline,
-                const glm::vec3& position,
                 const glm::vec3& positionVariation = glm::vec3(1.f, 0.f, 1.f),
                 int particlesPerSecond = 14,
                 float speed = 4.f,
@@ -27,7 +26,6 @@ namespace particle{
                 float expiringTime = 20.f
                         )
         : Spline(std::move(spline)),
-          Position(position),
           PositionVariation(positionVariation),
           Speed(speed),
           SpeedVariation(speedVariation),
@@ -46,7 +44,6 @@ namespace particle{
             BuildingUp = false; Expiring = true; }
 
 
-        glm::vec3 Position;
         glm::vec3 PositionVariation;
 
         float Speed;

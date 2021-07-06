@@ -44,7 +44,7 @@ int main()
             0.01f,
             1000.0f);
 
-    std::string fileStr = MODEL_ROOT + "scene/house/Edificio.dae";
+    std::string fileStr = MODEL_ROOT + "scene/car/car.obj";
     std::vector<geometry> scene = loadScene(fileStr.c_str(), true);
 
     const en::GLShader* vert = en::GLShader::Load("CGFire/fixed_color.vert");

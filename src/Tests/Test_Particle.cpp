@@ -64,7 +64,6 @@ int main(int, char* argv[]) {
 
     smokeCreator.startSmokeStream(std::make_shared<SmokeStream>
                                    (spline,
-                                    glm::vec3(0.5f, 0.5f, 0.5f),
                                     glm::vec3(1.f, 0.f, 1.f)));
 
     //Water

@@ -110,7 +110,6 @@ namespace particle{
         for (int i = 0; i < m_SmokeStreams.size(); i++) {
             ImGui::PushID(("SmokeStream" + std::to_string(i)).c_str());
             ImGui::TextColored(ImVec4(1, 1, 1, 1), "smoke %d", i);
-            ImGui::InputFloat3("Position", &m_SmokeStreams[i]->Position.x);
             ImGui::InputFloat3("PositionVariation", &m_SmokeStreams[i]->PositionVariation.x);
             ImGui::InputFloat("Speed", &m_SmokeStreams[i]->Speed);
             ImGui::InputFloat("SpeedVariation", &m_SmokeStreams[i]->SpeedVariation);
