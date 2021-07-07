@@ -103,25 +103,17 @@ namespace particle{
         ImGui::Begin("Fire");
         ImGui::TextColored(ImVec4(0, 1, 1, 1), "Flame Particle Props (General)");
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
-        ImGui::InputFloat3("Velocity", &m_BaseFlameProps.Velocity.x);
-        ImGui::InputFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x);
-        ImGui::InputFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0, 1);
+        ImGui::DragFloat3("Velocity", &m_BaseFlameProps.Velocity.x, 0.5f, 0.f);
+        ImGui::DragFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, 0.5f, 0.f, 999.f);
+        ImGui::DragFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0.01f, 0.f, 999.f);
         ImGui::ColorEdit4("ColorBegin", &m_BaseFlameProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseFlameProps.ColorEnd.x);
-        ImGui::InputFloat("SizeBegin", &m_BaseFlameProps.SizeBegin);
-        ImGui::InputFloat("SizeVariation", &m_BaseFlameProps.SizeVariation);
-        ImGui::InputFloat("SizeEnd", &m_BaseFlameProps.SizeEnd);
+        ImGui::DragFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0.1f, 0.f, 999.f);
 
-
-        for (int i = 0; i < m_Flames.size(); i++){
-            ImGui::PushID(("Flame" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 1, 1, 1), "flame %d", i);
-            ImGui::InputFloat3("Position", &m_Flames[i]->Position.x);
-            ImGui::InputFloat3("PositionVariation", &m_Flames[i]->PositionVariation.x);
-            ImGui::InputInt("ParticlesPerEmit", &m_Flames[i]->ParticlesPerEmit);
-            ImGui::InputFloat("ParticleLifeTime", &m_Flames[i]->ParticleLifeTime);
-            ImGui::InputFloat("ParticleLifeTimeVariation", &m_Flames[i]->ParticleLifeTimeVariation);
-            ImGui::PopID();
+        for (auto& flame : m_Flames){
+            flame->OnImGuiRender();
         }
         ImGui::End();
     }

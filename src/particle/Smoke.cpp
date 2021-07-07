@@ -102,19 +102,13 @@ namespace particle{
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
         ImGui::ColorEdit4("ColorBegin", &m_BaseSmokeProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseSmokeProps.ColorEnd.x);
-        ImGui::InputFloat("SizeBegin", &m_BaseSmokeProps.SizeBegin);
-        ImGui::InputFloat("SizeVariation", &m_BaseSmokeProps.SizeVariation);
-        ImGui::InputFloat("SizeEnd", &m_BaseSmokeProps.SizeEnd);
+        ImGui::DragFloat("SizeBegin", &m_BaseSmokeProps.SizeBegin, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SizeVariation", &m_BaseSmokeProps.SizeVariation, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SizeEnd", &m_BaseSmokeProps.SizeEnd, 0.1f, 0.f, 999.f);
 
 
-        for (int i = 0; i < m_SmokeStreams.size(); i++) {
-            ImGui::PushID(("SmokeStream" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 1, 1, 1), "smoke %d", i);
-            ImGui::InputFloat3("PositionVariation", &m_SmokeStreams[i]->PositionVariation.x);
-            ImGui::InputFloat("Speed", &m_SmokeStreams[i]->Speed);
-            ImGui::InputFloat("SpeedVariation", &m_SmokeStreams[i]->SpeedVariation);
-            ImGui::InputInt("ParticlesPerSecond", &m_SmokeStreams[i]->ParticlesPerSecond);
-            ImGui::PopID();
+        for (auto& smoke : m_SmokeStreams) {
+            smoke->OnImGuiRender();
         }
         ImGui::End();
     }

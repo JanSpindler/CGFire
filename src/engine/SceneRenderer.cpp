@@ -15,7 +15,7 @@
 namespace en
 {
     SceneRenderer::SceneRenderer(int32_t width, int32_t height) :
-            characterRenderObjs_({}),
+            sceletalRenderObjs({}),
             standardRenderObjs_({}),
             fixedColorRenderObjs_({}),
             dirLight_(nullptr),
@@ -31,7 +31,7 @@ namespace en
     }
 
     void SceneRenderer::Update(float deltaTime){
-        for (auto* c : characterRenderObjs_) //update animation
+        for (auto* c : sceletalRenderObjs) //update animation
             c->Update(deltaTime);
     }
 
@@ -52,7 +52,8 @@ namespace en
         //printf("%s",glm::to_string(viewMat).c_str());
         window->UseViewport();
         RenderDeferredGeometry(viewMatP, projMatP);
-        ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, cam);
+        if (useSsao_)
+            ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, cam);
         RenderDeferredLighting(window, cam);
 
         gBuffer_.CopyDepthBufToDefaultFb();
@@ -70,19 +71,19 @@ namespace en
         ssao_.makeblurfbo(width, height);
     }
 
-    void SceneRenderer::AddCharacterRenderObj(Character* renderObj)
+    void SceneRenderer::AddSceletalRenderObj(Sceletal* renderObj)
     {
-        RemoveCharacterRenderObj(renderObj);
-        characterRenderObjs_.push_back(renderObj);
+        RemoveSceletalRenderObj(renderObj);
+        sceletalRenderObjs.push_back(renderObj);
     }
 
-    void SceneRenderer::RemoveCharacterRenderObj(const Character* renderObj)
+    void SceneRenderer::RemoveSceletalRenderObj(const Sceletal* renderObj)
     {
-        for (uint32_t i = 0; i < characterRenderObjs_.size(); i++)
+        for (uint32_t i = 0; i < sceletalRenderObjs.size(); i++)
         {
-            if (characterRenderObjs_[i] == renderObj)
+            if (sceletalRenderObjs[i] == renderObj)
             {
-                characterRenderObjs_.erase(characterRenderObjs_.begin() + i);
+                sceletalRenderObjs.erase(sceletalRenderObjs.begin() + i);
                 return;
             }
         }
@@ -191,7 +192,7 @@ namespace en
     }
 
     void SceneRenderer::RemoveAllObjects(){
-        characterRenderObjs_.clear();
+        sceletalRenderObjs.clear();
         standardRenderObjs_.clear();
         fixedColorRenderObjs_.clear();
         splineRenderObjs_.clear();
@@ -202,64 +203,28 @@ namespace en
 
     void SceneRenderer::OnImGuiRender(){
         ImGui::Begin("Objects");
+        ImGui::Checkbox("use ssao", &useSsao_);
         dirLight_->OnImGuiRender();
 
-        const float MAXPOS = 120.f;
-
-
-        for (int i = 0; i < characterRenderObjs_.size(); i++) {
-            ImGui::PushID(("character" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "character%d %s ", i, characterRenderObjs_[i]->GetName().c_str());
-            ImGui::InputFloat3("Position", &characterRenderObjs_[i]->Position.x);
-            ImGui::SliderFloat3("PositionSlider", &characterRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
-            ImGui::SliderFloat("RotationAngle", &characterRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::SliderFloat3("RotationAxisVector", &characterRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
-            ImGui::InputFloat3("Scaling", &characterRenderObjs_[i]->Scaling.x);
-            ImGui::PopID();
+        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Character ROs:");
+        for (auto& obj : sceletalRenderObjs) {
+            obj->OnImGuiRender();
         }
-
-        for (int i = 0; i < standardRenderObjs_.size(); i++) {
-            ImGui::PushID(("standard" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "standard%d %s ", i, standardRenderObjs_[i]->GetName().c_str());
-            ImGui::InputFloat3("Position", &standardRenderObjs_[i]->Position.x);
-            ImGui::SliderFloat3("PositionSlider", &standardRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
-            ImGui::SliderFloat("RotationAngle", &standardRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::SliderFloat3("RotationAxisVector", &standardRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
-            ImGui::InputFloat3("Scaling", &standardRenderObjs_[i]->Scaling.x);
-            ImGui::PopID();
+        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Standards ROs:");
+        for (auto& obj : standardRenderObjs_) {
+            obj->OnImGuiRender();
         }
-
-        for (int i = 0; i < fixedColorRenderObjs_.size(); i++) {
-            ImGui::PushID(("fixedCol" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "fixedCol%d %s ", i, fixedColorRenderObjs_[i]->GetName().c_str());
-            ImGui::InputFloat3("Position", &fixedColorRenderObjs_[i]->Position.x);
-            ImGui::SliderFloat3("PositionSlider", &fixedColorRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
-            ImGui::SliderFloat("RotationAngle", &fixedColorRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::SliderFloat3("RotationAxisVector", &fixedColorRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
-            ImGui::InputFloat3("Scaling", &fixedColorRenderObjs_[i]->Scaling.x);
-            ImGui::PopID();
+        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "FixedColor ROs:");
+        for (auto& obj : fixedColorRenderObjs_) {
+            obj->OnImGuiRender();
         }
-
-        for (int i = 0; i < splineRenderObjs_.size(); i++) {
-            ImGui::PushID(("spline" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "spline%d %s ", i, splineRenderObjs_[i]->GetName().c_str());
-            ImGui::InputFloat3("Position", &splineRenderObjs_[i]->Position.x);
-            ImGui::SliderFloat3("PositionSlider", &splineRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
-            ImGui::SliderFloat("RotationAngle", &splineRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::SliderFloat3("RotationAxisVector", &splineRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
-            ImGui::InputFloat3("Scaling", &splineRenderObjs_[i]->Scaling.x);
-            ImGui::PopID();
+        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Spline ROs:");
+        for (auto& obj : splineRenderObjs_) {
+            obj->OnImGuiRender();
         }
-
-        for (int i = 0; i < reflectiveRenderObjs_.size(); i++) {
-            ImGui::PushID(("reflective" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 0, 0, 1), "reflective%d %s ", i, reflectiveRenderObjs_[i]->GetName().c_str());
-            ImGui::InputFloat3("Position", &reflectiveRenderObjs_[i]->Position.x);
-            ImGui::SliderFloat3("PositionSlider", &reflectiveRenderObjs_[i]->Position.x, -MAXPOS, MAXPOS);
-            ImGui::SliderFloat("RotationAngle", &reflectiveRenderObjs_[i]->RotationAngle, -0, 6.28318530718f);
-            ImGui::SliderFloat3("RotationAxisVector", &reflectiveRenderObjs_[i]->RotationAxis.x, 0.f, 1.f);
-            ImGui::InputFloat3("Scaling", &reflectiveRenderObjs_[i]->Scaling.x);
-            ImGui::PopID();
+        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Reflective ROs:");
+        for (auto& obj : reflectiveRenderObjs_) {
+            obj->OnImGuiRender();
         }
         ImGui::End();
     }
@@ -285,7 +250,7 @@ namespace en
 
         const GLShader* sceletalVert = GLShader::Load("CGFire/sceletal.vert");
         const GLShader* sceletalFrag = GLShader::Load("CGFire/deferred_geometry.frag");
-        characterProgram_ = GLProgram::Load(sceletalVert, nullptr, sceletalFrag);
+        sceletalProgram = GLProgram::Load(sceletalVert, nullptr, sceletalFrag);
 
         const GLShader* lightVert = GLShader::Load("CGFire/deferred_lighting.vert");
         const GLShader* lightFrag = GLShader::Load("CGFire/deferred_lighting.frag");
@@ -405,7 +370,7 @@ namespace en
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
         dirLight_->BindShadowBuffer();
         dirShadowProgram_->SetUniformB("use_bone", true);
-        for (RenderObj* renderObj : characterRenderObjs_)
+        for (RenderObj* renderObj : sceletalRenderObjs)
             renderObj->RenderPosOnly(dirShadowProgram_);
         dirShadowProgram_->SetUniformB("use_bone", false);
         for (RenderObj* renderObj : standardRenderObjs_)
@@ -430,7 +395,7 @@ namespace en
 
             pointLight->BindShadowBuffer();
             pointShadowProgram_->SetUniformB("use_bone", true);
-            for (RenderObj* renderObj : characterRenderObjs_)
+            for (RenderObj* renderObj : sceletalRenderObjs)
                 renderObj->RenderPosOnly(pointShadowProgram_);
             pointShadowProgram_->SetUniformB("use_bone", false);
             for (RenderObj* renderObj : standardRenderObjs_)
@@ -454,7 +419,7 @@ namespace en
         for (RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderAll(geometryProgram_);
         geometryProgram_->SetUniformB("use_bone", true);
-        for (RenderObj* renderObj : characterRenderObjs_)
+        for (RenderObj* renderObj : sceletalRenderObjs)
             renderObj->RenderAll(geometryProgram_);
 
         /*characterProgram_->Use();
@@ -539,7 +504,7 @@ namespace en
                 reflectiveMap.BindCubeMapFace(face);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                for (RenderObj* renderObj : characterRenderObjs_)
+                for (RenderObj* renderObj : sceletalRenderObjs)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
                 for (RenderObj* renderObj : standardRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);

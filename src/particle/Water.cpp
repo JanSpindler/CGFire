@@ -107,25 +107,15 @@ namespace particle{
         ImGui::Begin("Water");
         ImGui::TextColored(ImVec4(0, 1, 1, 1), "WaterJet Particle Props (General)");
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
-        ImGui::InputFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor);
+        ImGui::DragFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor, 0.01f, 0.f, 999.f);
         ImGui::ColorEdit4("ColorBegin", &m_BaseWaterJetProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseWaterJetProps.ColorEnd.x);
-        ImGui::InputFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin);
-        ImGui::InputFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation);
-        ImGui::InputFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd);
+        ImGui::DragFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0.1f, 0.f, 999.f);
 
-        for (int i = 0; i < m_WaterJets.size(); i++) {
-            ImGui::PushID(("WaterJet" + std::to_string(i)).c_str());
-            ImGui::TextColored(ImVec4(1, 1, 1, 1), "WaterJet %d", i);
-            ImGui::InputFloat3("Position", &m_WaterJets[i]->Position.x);
-            ImGui::InputFloat3("PositionVariation", &m_WaterJets[i]->PositionVariation.x);
-            ImGui::InputFloat3("WaterDirection", &m_WaterJets[i]->WaterDirection.x);
-            ImGui::InputFloat("Speed", &m_WaterJets[i]->Speed);
-            ImGui::InputFloat("SpeedVariation", &m_WaterJets[i]->SpeedVariationFactor);
-            ImGui::InputInt("ParticlesPerSecond", &m_WaterJets[i]->ParticlesPerSecond);
-            ImGui::InputFloat("ParticleLifeTime", &m_WaterJets[i]->ParticleLifeTime);
-            ImGui::InputFloat("ParticleLifeTimeVariation", &m_WaterJets[i]->ParticleLifeTimeVariation);
-            ImGui::PopID();
+        for (auto& waterJet : m_WaterJets) {
+            waterJet->OnImGuiRender();
         }
         ImGui::End();
     }

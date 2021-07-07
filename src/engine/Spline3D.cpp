@@ -351,4 +351,10 @@ namespace en
         glDrawArrays(GL_POINTS, 0, spline_->GetControlPointCount());
         glBindVertexArray(0);
     }
+
+    void Spline3DRenderable::OnImGuiRender(){
+        //RenderObj::OnImGuiRender();
+
+        //TODO Spline verstellbar machen mittels slider + update button
+    }
 }

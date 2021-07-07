@@ -13,7 +13,7 @@
 #include "GBuffer.hpp"
 #include "../Window.hpp"
 #include "ReflectiveMap.hpp"
-#include "engine/Character.hpp"
+#include "engine/Sceletal.hpp"
 #include "ssao/ssao.h"
 
 namespace en
@@ -28,8 +28,8 @@ namespace en
         void Render(const Window* window, const Camera* cam) const;
         void Resize(int32_t width, int32_t height);
 
-        void AddCharacterRenderObj(Character* renderObj);
-        void RemoveCharacterRenderObj(const Character* renderObj);
+        void AddSceletalRenderObj(Sceletal* renderObj);
+        void RemoveSceletalRenderObj(const Sceletal* renderObj);
 
         void AddStandardRenderObj(RenderObj* renderObj);
         void RemoveStandardRenderObj(const RenderObj* renderObj);
@@ -56,7 +56,7 @@ namespace en
         void OnImGuiRender();
     private:
         const GLProgram* geometryProgram_;
-        const GLProgram* characterProgram_; // = sceletal vertex shader + deffered geometry fragment shader
+        const GLProgram* sceletalProgram; // = sceletal vertex shader + deffered geometry fragment shader
         const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
         const GLProgram* toEnvMapProgram_;
@@ -67,7 +67,7 @@ namespace en
         const GLProgram* SSAOProgram_;
         const GLProgram* SSAOBlurProgram_;
 
-        std::vector<Character*> characterRenderObjs_;
+        std::vector<Sceletal*> sceletalRenderObjs;
         std::vector<RenderObj*> standardRenderObjs_;
         std::vector<RenderObj*> fixedColorRenderObjs_;
         std::vector<RenderObj*> splineRenderObjs_;
@@ -80,6 +80,7 @@ namespace en
         const GLSkyboxTex* skyboxTex_;
 
         ssao ssao_;
+        bool useSsao_ = true;
 
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;

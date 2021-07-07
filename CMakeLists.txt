@@ -43,6 +43,7 @@ add_library(imGUILibrary STATIC
         ${imguiSOURCES})
 include_directories(vendor/imgui/)
 
+
 #STB laden
 #stb ist eine Header-only Library, d.h. man muss sie nur inkludieren
 #https://github.com/nothings/stb#stb
@@ -106,7 +107,7 @@ file(GLOB AUFGABEN_EXECUTABLES
 # und linkt alle Executables mit der frameworkLibrary
 foreach(PROJECT_SOURCE_FILE ${AUFGABEN_EXECUTABLES})
     get_filename_component(SRC_NAME ${PROJECT_SOURCE_FILE} NAME_WE)
-    add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE} src/ssao/ssao.cpp include/ssao/ssao.h)
+    add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE})
     target_link_libraries(${SRC_NAME} frameworkLibrary)
 endforeach(PROJECT_SOURCE_FILE)
 

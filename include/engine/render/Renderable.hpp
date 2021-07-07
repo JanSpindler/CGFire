@@ -20,9 +20,11 @@ namespace en
         virtual void Render(const GLProgram* program) = 0; // Deprecated
     };
 
+    static int NumRenderObjs = 0;
     class RenderObj : public Renderable
     {
     public:
+        int ID;
         glm::vec3 Position = glm::vec3(0.f, 0.f, 0.f);
         float RotationAngle = 0.f;
         glm::vec3 RotationAxis = glm::vec3(0.f, 1.f, 0.f);
@@ -41,6 +43,8 @@ namespace en
         virtual glm::vec3 GetPos();
 
         const std::string& GetName(){ return name_; }
+
+        virtual void OnImGuiRender();
     private:
         glm::mat4 t_;
 

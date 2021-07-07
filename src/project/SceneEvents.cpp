@@ -6,7 +6,7 @@
 namespace scene{
 
     //Here, add all of the events with their respective event time
-    void SceneManager::addEvents(){
+    void SceneManager::createEvents(){
         using namespace particle;
 #define MakeSharedEvent(x, y) std::static_pointer_cast<Event>(std::make_shared<x>y) //macro to simplify making of an event
 
@@ -21,11 +21,11 @@ namespace scene{
                 0.2f);
 
 
-        this->addEvent(MakeSharedEvent(FireCreationEvent, (m_SceneRenderer, m_FireCreator, Flame1)),
-                       5.f);
+        this->createEvent(MakeSharedEvent(FireCreationEvent, (m_SceneRenderer, m_FireCreator, Flame1)),
+                          5.f);
 
-        this->addEvent(MakeSharedEvent(FireExpiringEvent, (m_SceneRenderer, Flame1)),
-                       20.f);
+        this->createEvent(MakeSharedEvent(FireExpiringEvent, (m_SceneRenderer, Flame1)),
+                          20.f);
 
 
         /********************WATER*/
@@ -42,11 +42,11 @@ namespace scene{
                 5.f,
                 0.2f);
 
-        this->addEvent(MakeSharedEvent(WaterCreationEvent, (m_WaterCreator, WaterJet1)),
-                       7.f);
+        this->createEvent(MakeSharedEvent(WaterCreationEvent, (m_WaterCreator, WaterJet1)),
+                          7.f);
 
-        this->addEvent(MakeSharedEvent(WaterExpiringEvent, (WaterJet1)),
-                       20.f);
+        this->createEvent(MakeSharedEvent(WaterExpiringEvent, (WaterJet1)),
+                          20.f);
 
 
         /********************SMOKE*/
@@ -72,37 +72,41 @@ namespace scene{
                                               (spline,
                                                glm::vec3(0.3f, 0.3f, 0.3f));
 
-        this->addEvent(MakeSharedEvent(SmokeCreationEvent, (m_SmokeCreator, SmokeStream1)),
-                       6.f);
+        this->createEvent(MakeSharedEvent(SmokeCreationEvent, (m_SmokeCreator, SmokeStream1)),
+                          6.f);
 
-        this->addEvent(MakeSharedEvent(SmokeExpiringEvent, (SmokeStream1)),
-                       25.f);
+        this->createEvent(MakeSharedEvent(SmokeExpiringEvent, (SmokeStream1)),
+                          25.f);
 
 
         /******************STATIC MODELS*/
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_DummyPositionFinder, RenderObjType::FixedColor)),
-                       0.f);
+        this->createEvent(MakeSharedEvent(RenderObjCreationEvent,
+                                          (m_SceneRenderer, m_DummyPositionFinder, RenderObjType::FixedColor)),
+                          0.f);
 
 
+        this->createEvent(
+                MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFloor, RenderObjType::Standard)),
+                0.f);
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelFloor, RenderObjType::Standard)),
-                       0.f);
-
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelHouse, RenderObjType::Standard)),
-                       0.f);
+        this->createEvent(
+                MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelHouse, RenderObjType::Standard)),
+                0.f);
 
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_CamSplineRenderable, RenderObjType::Spline)),
-                       0.f);
+        this->createEvent(MakeSharedEvent(RenderObjCreationEvent,
+                                          (m_SceneRenderer, m_CamSplineRenderable, RenderObjType::Spline)),
+                          0.f);
 
 
         /*********Animated Stuff*/
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelCar, RenderObjType::Standard)),
-                       0.f);
+        this->createEvent(
+                MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_ModelCar, RenderObjType::Standard)),
+                0.f);
 
-        this->addEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_Vampire1, RenderObjType::Char)),
-                       0.f);
+        this->createEvent(MakeSharedEvent(RenderObjCreationEvent, (m_SceneRenderer, m_Vampire1, RenderObjType::Char)),
+                          0.f);
     }
 
 
@@ -128,8 +132,8 @@ namespace scene{
         m_ModelFloor->Scaling = glm::vec3(1.0f, 1.0f, 1.0f);
 
 
-        m_Vampire1 = std::make_shared<en::Character>("vampire/Walking.dae", "vampire1");
-        m_Vampire1->AddAnimation("vampire/Jumping_Down.dae", "jump_down");
+        m_Vampire1 = std::make_shared<en::Sceletal>("vampire/Vampire.dae", "vampire1");
+        //m_Vampire1->AddAnimation("vampire/Jumping_Down.dae", "jump_down");
         m_Vampire1->AddAnimation("vampire/Walking.dae", "walking");
         m_Vampire1->Position = glm::vec3(40.0f, -15.f, 25.0f);
         m_Vampire1->Scaling = glm::vec3(1.5f, 1.5f, 1.5f);
