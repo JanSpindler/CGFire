@@ -126,5 +126,5 @@ void main()
         result += get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, i, ambientocclusion);
 
     out_color = vec4(result, 1.0);
-    //out_color = vec4(1.0);
+    //out_color = vec4(ambientocclusion,0.0f, 0.0f,1.0);
 }

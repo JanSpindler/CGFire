@@ -123,7 +123,7 @@ namespace en{
         const en::GLShader* vertShader = GLShader::Load("ssao.vert");
         const en::GLShader* fragShader= GLShader::Load("ssao.frag");
         //en::GLProgram program(&vertShader, nullptr, &fragShader);
-        en::Log::Info("in ssaoprog");
+        //en::Log::Info("in ssaoprog");
         return GLProgram::Load(vertShader, nullptr, fragShader);
     }
     const GLProgram* ssao::makeblurprogram() {
@@ -177,7 +177,7 @@ namespace en{
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        en::Log::Info("in ssaoprog");
+        //en::Log::Info("in ssaoprog");
     }
     void ssao::usessaotex(const GLProgram *program) const {
         glBindTextureUnit(30, blurtex);
