@@ -5,6 +5,7 @@
 #include "engine/gr_include.hpp"
 #include "engine/render/GBuffer.hpp"
 #include "engine/Util.hpp"
+#include <iostream>
 
 namespace en
 {
@@ -117,9 +118,7 @@ namespace en
         width_ = width;
         height_ = height;
     }
-
-    void GBuffer::UseTextures(const GLProgram* program) const
-    {
+    void GBuffer::UseTexturesSSAO(const GLProgram *program) const{
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, posTex_);
         program->SetUniformI("pos_tex", 0);
@@ -127,11 +126,19 @@ namespace en
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, normalTex_);
         program->SetUniformI("normal_tex", 1);
+    }
 
+    void GBuffer::UseTextures(const GLProgram* program) const
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, posTex_);
+        program->SetUniformI("pos_tex", 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normalTex_);
+        program->SetUniformI("normal_tex", 1);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, diffuseTex_);
         program->SetUniformI("diffuse_tex", 2);
-
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, specularTex_);
         program->SetUniformI("specular_tex", 3);

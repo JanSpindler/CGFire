@@ -21,6 +21,7 @@ namespace en
         void Unbind() const;
         void Resize(int32_t width, int32_t height);
         void UseTextures(const GLProgram* program) const;
+        void UseTexturesSSAO(const GLProgram* program) const;
         void CopyDepthBufToDefaultFb() const;
 
     private:

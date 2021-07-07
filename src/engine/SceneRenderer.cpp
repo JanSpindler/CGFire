@@ -7,6 +7,8 @@
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
 #include <glm/gtx/transform.hpp>
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 #include <framework/imgui_util.hpp>
 
@@ -20,7 +22,8 @@ namespace en
             pointLights_({}),
             reflectiveMaps_({}),
             skyboxTex_(nullptr),
-            gBuffer_(width, height)
+            gBuffer_(width, height),
+            ssao_(width, height)
     {
         LoadPrograms();
         CreateFullScreenVao();
@@ -46,8 +49,10 @@ namespace en
         RenderPointShadows();
         RenderReflectiveMaps();
 
+        //printf("%s",glm::to_string(viewMat).c_str());
         window->UseViewport();
         RenderDeferredGeometry(viewMatP, projMatP);
+        ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, cam);
         RenderDeferredLighting(window, cam);
 
         gBuffer_.CopyDepthBufToDefaultFb();
@@ -61,6 +66,8 @@ namespace en
     void SceneRenderer::Resize(int32_t width, int32_t height)
     {
         gBuffer_.Resize(width, height);
+        ssao_.makessaofbo(width, height);
+        ssao_.makeblurfbo(width, height);
     }
 
     void SceneRenderer::AddCharacterRenderObj(Character* renderObj)
@@ -295,6 +302,9 @@ namespace en
         const GLShader* toEnvMapVert = GLShader::Load("CGFire/to_env_map.vert");
         const GLShader* toEnvMapFrag = GLShader::Load("CGFire/to_env_map.frag");
         toEnvMapProgram_ = GLProgram::Load(toEnvMapVert, nullptr, toEnvMapFrag);
+
+        SSAOProgram_ = ssao_.makessaoprogram();
+        SSAOBlurProgram_ = ssao_.makeblurprogram();
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -393,7 +403,6 @@ namespace en
         dirShadowProgram_->Use();
         glm::mat4 lightMat = dirLight_->GetLightMat();
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
-
         dirLight_->BindShadowBuffer();
         dirShadowProgram_->SetUniformB("use_bone", true);
         for (RenderObj* renderObj : characterRenderObjs_)
@@ -462,10 +471,8 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         lightingProgram_->Use();
-
         gBuffer_.UseTextures(lightingProgram_);
         lightingProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
-
         glm::mat4 dirLightMat = dirLight_->GetLightMat();
         lightingProgram_->SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);
         dirLight_->Use(lightingProgram_);
@@ -479,6 +486,7 @@ namespace en
             pointLight->Use(lightingProgram_, i);
             pointLight->UseShadow(lightingProgram_, i);
         }
+        ssao_.usessaotex(lightingProgram_);
 
         glBindVertexArray(fullScreenVao_);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

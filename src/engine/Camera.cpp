@@ -41,6 +41,9 @@ namespace en
     {
         return pos_;
     }
+    glm::vec3 Camera::GetViewDir() const {
+        return viewDir_;
+    }
 
     void Camera::SetPos(glm::vec3 pos)
     {

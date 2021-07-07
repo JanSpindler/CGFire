@@ -74,7 +74,8 @@ file(GLOB_RECURSE engineSOURCES
         src/particle/*.cpp
         src/util/*.cpp
         src/RiggingAndBlending/*.cpp
-        src/MotionBlur/*.cpp)
+        src/MotionBlur/*.cpp
+        src/ssao/*.cpp)
 add_library(engineLibrary STATIC ${engineSOURCES})
 target_link_libraries(engineLibrary frameworkLibrary)
 
@@ -84,7 +85,6 @@ target_link_libraries(engineLibrary frameworkLibrary)
 file(GLOB_RECURSE projectSOURCES src/project/*.cpp)
 add_executable(project ${projectSOURCES})
 target_link_libraries(project engineLibrary)
-
 
 file(GLOB TESTS_EXECUTABLES
         src/Tests/*.cpp)
@@ -106,7 +106,7 @@ file(GLOB AUFGABEN_EXECUTABLES
 # und linkt alle Executables mit der frameworkLibrary
 foreach(PROJECT_SOURCE_FILE ${AUFGABEN_EXECUTABLES})
     get_filename_component(SRC_NAME ${PROJECT_SOURCE_FILE} NAME_WE)
-    add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE})
+    add_executable(${SRC_NAME} ${PROJECT_SOURCE_FILE} src/ssao/ssao.cpp include/ssao/ssao.h)
     target_link_libraries(${SRC_NAME} frameworkLibrary)
 endforeach(PROJECT_SOURCE_FILE)
 

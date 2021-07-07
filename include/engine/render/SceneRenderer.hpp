@@ -14,6 +14,7 @@
 #include "../Window.hpp"
 #include "ReflectiveMap.hpp"
 #include "engine/Character.hpp"
+#include "ssao/ssao.h"
 
 namespace en
 {
@@ -63,6 +64,8 @@ namespace en
         const GLProgram* pointShadowProgram_;
         const GLProgram* reflectiveProgram_;
         const GLProgram* skyboxProgram_;
+        const GLProgram* SSAOProgram_;
+        const GLProgram* SSAOBlurProgram_;
 
         std::vector<Character*> characterRenderObjs_;
         std::vector<RenderObj*> standardRenderObjs_;
@@ -75,6 +78,8 @@ namespace en
         DirLight* dirLight_;
         std::vector<const PointLight*> pointLights_;
         const GLSkyboxTex* skyboxTex_;
+
+        ssao ssao_;
 
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;

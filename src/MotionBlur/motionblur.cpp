@@ -73,7 +73,7 @@ namespace en{
         glCreateFramebuffers(1, &fbo);
         glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, color_tex, 0);
         glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT1, motion_tex, 0);
-        //glFramebufferTexture2D(fbo, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, color_tex, 0);
+        //glFramebufferTexture2D(ssaofbo, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, color_tex, 0);
         glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_rbo);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         GLenum DrawBuffers[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};

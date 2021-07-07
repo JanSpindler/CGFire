@@ -20,6 +20,7 @@ namespace en
         glm::mat4 GetViewProjMat() const;
 
         glm::vec3 GetPos() const;
+        glm::vec3 GetViewDir() const;
 
         void SetPos(glm::vec3 pos);
         void SetViewDir(glm::vec3 viewDir);

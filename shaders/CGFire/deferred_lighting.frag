@@ -21,11 +21,16 @@ uniform vec3 point_light_color[POINT_LIGHT_MAX];
 uniform float point_light_strength[POINT_LIGHT_MAX];
 uniform samplerCube point_light_shadow_tex0;
 
+uniform sampler2D ssao;
+
 out vec4 out_color;
 
-vec3 get_dir_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specular_color, float shininess)
+vec3 get_dir_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specular_color, float shininess, float ambientocclusion)
 {
     vec3 light_dir = normalize(dir_light_dir);
+
+    //Ambient
+    vec3 ambient = vec3(diffuse_color*0.3*ambientocclusion);
 
     // Diffuse
     float diff = max(dot(normal, -light_dir), 0.0);
@@ -57,16 +62,19 @@ vec3 get_dir_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specula
         float current_depth = proj_pos.z;
         shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
     }
-    return shadow * (diffuse_result + specular_result);
+    return (ambient + shadow* (diffuse_result + specular_result));
 }
 
-vec3 get_point_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specular_color, float shininess, int index)
+vec3 get_point_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specular_color, float shininess, int index, float ambientocclusion)
 {
     vec3 light_pos = point_light_pos[index];
     vec3 light_color = point_light_color[index];
     float light_strength = point_light_strength[index];
 
     vec3 light_dir = normalize(light_pos - pos);
+
+    //Ambient
+    vec3 ambient = vec3(diffuse_color*0.3*ambientocclusion);
 
     // Diffuse
     float diff = max(dot(normal, light_dir), 0.0);
@@ -98,7 +106,7 @@ vec3 get_point_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specu
     float shadow = current_depth - 0.001 > closest_depth ? 0.0 : 1.0;
 
     float real_strength = light_strength / (distance * distance);
-    return shadow * (real_strength * (diffuse_result + specular_result));
+    return (ambient + shadow*(real_strength * (diffuse_result + specular_result)));
 }
 
 void main()
@@ -110,11 +118,12 @@ void main()
     vec4 specular_tex_val = texture(specular_tex, frag_uv);
     vec3 specular_color = specular_tex_val.rgb;
     float shininess = specular_tex_val.a;
+    float ambientocclusion = texture(ssao, frag_uv).r;
 
     // Lighting
-    vec3 result = get_dir_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess);
+    vec3 result = get_dir_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, ambientocclusion);
     for (int i = 0; i < point_light_count; i++)
-        result += get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, i);
+        result += get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, i, ambientocclusion);
 
     out_color = vec4(result, 1.0);
     //out_color = vec4(1.0);
