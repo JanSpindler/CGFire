@@ -33,6 +33,7 @@ int main(int, char* argv[]) {
     scene::SceneManager Scene(cam, window);
     Scene.restart();
 
+    en::Log::Info("Starting main loop");
     bool firstDeltaTime = true;
     while (window.IsOpen())
     {

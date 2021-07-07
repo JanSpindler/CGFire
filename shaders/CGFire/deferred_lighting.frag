@@ -14,7 +14,7 @@ uniform vec3 dir_light_color;
 uniform sampler2D dir_shadow_tex;
 uniform mat4 dir_light_mat;
 
-#define POINT_LIGHT_MAX 24
+#define POINT_LIGHT_MAX 8
 uniform int point_light_count;
 uniform vec3 point_light_pos[POINT_LIGHT_MAX];
 uniform vec3 point_light_color[POINT_LIGHT_MAX];
@@ -89,7 +89,7 @@ vec3 get_point_light_color(vec3 pos, vec3 normal, vec3 diffuse_color, vec3 specu
     switch (index)
     {
         case 0:
-            closest_depth = texture(point_light_shadow_tex0, frag_light_pos).r;
+            //closest_depth = texture(point_light_shadow_tex0, frag_light_pos).r;
             break;
     }
 
@@ -117,4 +117,5 @@ void main()
         result += get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, i);
 
     out_color = vec4(result, 1.0);
+    //out_color = vec4(1.0);
 }

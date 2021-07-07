@@ -49,7 +49,7 @@ namespace en
 
     void Log::Info(const std::string& msg)
     {
-        //std::cout << "INFO:  " << msg << std::endl;
+        std::cout << "INFO:  " << msg << std::endl;
     }
 
     void Log::Warn(const std::string& msg)
@@ -60,8 +60,8 @@ namespace en
     void Log::Error(const std::string& msg, bool exit)
     {
         std::cout << "Error: " << msg << std::endl;
-        //if (exit)
-        //    throw std::runtime_error("Closing Application due to Error");
+        if (exit)
+            throw std::runtime_error("Closing Application due to Error");
     }
 
     std::chrono::time_point<std::chrono::high_resolution_clock> Time::last_= std::chrono::high_resolution_clock::now();

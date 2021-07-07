@@ -395,8 +395,10 @@ namespace en
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
 
         dirLight_->BindShadowBuffer();
+        dirShadowProgram_->SetUniformB("use_bone", true);
         for (RenderObj* renderObj : characterRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
+        dirShadowProgram_->SetUniformB("use_bone", false);
         for (RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
         for (RenderObj* renderObj : fixedColorRenderObjs_)
@@ -418,8 +420,10 @@ namespace en
             pointShadowProgram_->SetUniformVec3f("light_pos", pointLight->GetPos());
 
             pointLight->BindShadowBuffer();
+            pointShadowProgram_->SetUniformB("use_bone", true);
             for (RenderObj* renderObj : characterRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
+            pointShadowProgram_->SetUniformB("use_bone", false);
             for (RenderObj* renderObj : standardRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
             for (RenderObj* renderObj : fixedColorRenderObjs_)
@@ -437,14 +441,18 @@ namespace en
         geometryProgram_->Use();
         geometryProgram_->SetUniformMat4("view_mat", false, viewMat);
         geometryProgram_->SetUniformMat4("proj_mat", false, projMat);
+        geometryProgram_->SetUniformB("use_bone", false);
         for (RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderAll(geometryProgram_);
+        geometryProgram_->SetUniformB("use_bone", true);
+        for (RenderObj* renderObj : characterRenderObjs_)
+            renderObj->RenderAll(geometryProgram_);
 
-        characterProgram_->Use();
+        /*characterProgram_->Use();
         characterProgram_->SetUniformMat4("view_mat", false, viewMat);
         characterProgram_->SetUniformMat4("proj_mat", false, projMat);
         for (RenderObj* renderObj : characterRenderObjs_)
-            renderObj->RenderAll(characterProgram_);
+            renderObj->RenderAll(characterProgram_);*/
 
         gBuffer_.Unbind();
     }
@@ -463,7 +471,7 @@ namespace en
         dirLight_->Use(lightingProgram_);
         dirLight_->UseShadow(lightingProgram_);
 
-        const int32_t pointLightCount = std::min((int)pointLights_.size(), 24);
+        const int32_t pointLightCount = std::min((int)pointLights_.size(), 8);
         lightingProgram_->SetUniformI("point_light_count", pointLightCount);
         for (uint32_t i = 0; i < pointLightCount; i++)
         {
