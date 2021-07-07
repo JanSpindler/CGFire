@@ -49,7 +49,7 @@ namespace en
 
     void Log::Info(const std::string& msg)
     {
-        //std::cout << "INFO:  " << msg << std::endl;
+        std::cout << "INFO:  " << msg << std::endl;
     }
 
     void Log::Warn(const std::string& msg)

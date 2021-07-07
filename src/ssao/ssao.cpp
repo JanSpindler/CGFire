@@ -45,6 +45,7 @@ namespace en{
         }
         printf("%s", glm::to_string(noise[0]).c_str());
         glCreateTextures(GL_TEXTURE_2D, 1, &noisetex);
+        glBindTexture(GL_TEXTURE_2D, noisetex);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, glm::value_ptr(noise[0]));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -179,7 +180,7 @@ namespace en{
         en::Log::Info("in ssaoprog");
     }
     void ssao::usessaotex(const GLProgram *program) const {
-        glBindTextureUnit(5, blurtex);
-        program->SetUniformI("ssao", 5);
+        glBindTextureUnit(30, blurtex);
+        program->SetUniformI("ssao", 30);
     }
 }

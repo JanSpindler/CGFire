@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 in vec2 TexCoord0;
 
@@ -6,7 +6,7 @@ uniform sampler2D ssaores;
 
 out float blurredocc;
 
-float offsets[4] = {-1.5, -0.5, 0.5, 1.5};
+const float offsets[] = {-1.5, -0.5, 0.5, 1.5};
 
 void main(){
     vec2 texelsize =1.0f/vec2(textureSize(ssaores,0));

@@ -23,7 +23,10 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo_);
         depthTex_.BindToFramebuffer();
         glDrawBuffer(GL_NONE);
-        glDrawBuffer(GL_NONE);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            Log::Error("Failed to completely construct dir light shadow fbo", true);
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
