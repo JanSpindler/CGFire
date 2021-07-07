@@ -161,8 +161,4 @@ void main()
         result += get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess, i);
 
     out_color = vec4(result, 1.0);
-
-    //out_color = vec4(vec3(get_point_shadow(frag_pos - point_light_pos[0], 0)), 1.0);
-
-    //out_color = vec4(vec3(get_dir_shadow(frag_pos)), 1.0);
 }

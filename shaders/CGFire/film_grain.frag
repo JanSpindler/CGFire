@@ -6,6 +6,7 @@ uniform sampler2D og_tex;
 uniform float strength;
 uniform vec2 rand_in;
 uniform vec2 scree_size;
+uniform int grain_size;
 
 out vec4 frag_color;
 
@@ -17,7 +18,7 @@ float rand(vec2 seed)
 
 float grain_func(vec2 uv)
 {
-    vec2 totalUv = vec2(uvec2(uv * scree_size / 2.0));
+    vec2 totalUv = vec2(uvec2(uv * scree_size / grain_size));
     float g0 = rand(totalUv / scree_size);
     float g1 = rand(rand_in);
     float grain = rand(vec2(g0, g1));

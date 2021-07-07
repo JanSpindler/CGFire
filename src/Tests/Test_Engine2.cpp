@@ -7,11 +7,11 @@
 #include "engine/Camera.hpp"
 #include "engine/model/Model.hpp"
 #include <glm/gtx/transform.hpp>
-#include "engine/render/Light.hpp"
 #include "engine/prefab/SimplePointLight.hpp"
 #include "engine/input/Input.hpp"
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Spline3D.hpp"
+#include "engine/prefab/BackgroundTerrain.hpp"
 
 void DeleteRemainingResources()
 {
@@ -75,6 +75,9 @@ int main()
     // Skybox
     en::GLSkyboxTex skyboxTex("CGFire/skybox1", ".png", false);
 
+    // Background Terrain
+    en::BackgroundTerrain terrain(100, 20.0f, -4.0f, 128.0f, 10.0f);
+
     // Scene
     en::Log::Info("Creating SceneRenderer");
 
@@ -84,10 +87,11 @@ int main()
     sceneRenderer.AddPointLight(&pointLight);
 
     sceneRenderer.AddStandardRenderObj(&backpackModel);
-    sceneRenderer.AddStandardRenderObj(&floorModel);
+    //sceneRenderer.AddStandardRenderObj(&floorModel);
+    sceneRenderer.AddStandardRenderObj(&terrain);
     sceneRenderer.AddStandardRenderObj(&dragonModel);
     sceneRenderer.AddStandardRenderObj(&testModel);
-    sceneRenderer.AddStandardRenderObj(&splineFollowModel);
+    //sceneRenderer.AddStandardRenderObj(&splineFollowModel);
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
@@ -117,7 +121,7 @@ int main()
         backpackModel.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         dragonModel.t_ = dragonModel.t_ * glm::rotate(deltaTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
         reflectModel.t_ = glm::rotate(deltaTime * 0.4f, glm::vec3(0.0f, 1.0f, 0.0f)) * reflectModel.t_;
-        splineFollowModel.t_ = glm::translate(spline.IterateRelative(&iterator, deltaTime * 0.5f));
+        //splineFollowModel.t_ = glm::translate(spline.IterateRelative(&iterator, deltaTime * 0.5f));
 
         // Render
         cam.SetAspectRatio(window.GetAspectRatio());

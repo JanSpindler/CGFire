@@ -606,9 +606,10 @@ namespace en
         grainProgram_->Use();
         glBindTextureUnit(0, screenTmpTex0_);
         grainProgram_->SetUniformI("og_tex", 0);
-        grainProgram_->SetUniformF("strength", 0.1f);
+        grainProgram_->SetUniformF("strength", 0.05f);
         grainProgram_->SetUniformVec2f("rand_in", glm::linearRand(glm::vec2(0.0f), glm::vec2(1.0f)));
         grainProgram_->SetUniformVec2f("scree_size", glm::vec2((float) width, (float) height));
+        grainProgram_->SetUniformI("grain_size", 3);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Cleanup

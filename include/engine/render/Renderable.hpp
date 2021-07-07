@@ -35,9 +35,10 @@ namespace en
 
         virtual glm::vec3 GetPos() const;
 
-    private:
-
+    protected:
         void SetMatrices(const GLProgram* program) const;
+
+    private:
     };
 }
 
