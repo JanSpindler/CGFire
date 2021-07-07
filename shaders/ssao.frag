@@ -42,5 +42,5 @@ void main (){
         }
     }
     occlusion = 1.0f - occ/float(kernelsize);
-    occlusion = pow(occlusion, 2);
+    occlusion = pow(occlusion, 4);
 }

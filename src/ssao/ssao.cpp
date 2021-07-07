@@ -54,6 +54,9 @@ namespace en{
         en::Log::Info("in makenoisetexture:");
     }
     void ssao::makeblurfbo(int width, int height) {
+        if (width == 0 || height == 0)
+            return;
+
         if (blurfbo) {
             glDeleteFramebuffers(1, &blurfbo);
         }
@@ -74,6 +77,9 @@ namespace en{
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     void ssao::makessaofbo(int width, int height) {
+        if (width == 0 || height == 0)
+            return;
+
         if (ssaofbo) {
             glDeleteFramebuffers(1, &ssaofbo);
         }
