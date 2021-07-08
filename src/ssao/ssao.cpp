@@ -11,6 +11,8 @@
 #include "engine/Util.hpp"
 #include "engine/Camera.hpp"
 #include <glm/gtx/string_cast.hpp>
+//#include <engine/Window.hpp>
+#include "ssao/ssao.h"
 
 
 namespace en{
@@ -19,7 +21,7 @@ namespace en{
             glm::vec3 currentkernel (
                     util::Random::Float() *2-1,
                     util::Random::Float()*2-1,
-                    util::Random::Float()*2-1
+                    util::Random::Float()
                     );
             currentkernel = glm::normalize(currentkernel);
             currentkernel *= util::Random::Float();
@@ -147,7 +149,9 @@ namespace en{
         makeblurfbo(width, height);
         quad = setup_fullscreen_quad();
     }
-    void ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, const GBuffer* buffer, const Camera* cam) const {
+
+    void en::ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, const GBuffer *buffer,
+                          const Camera *cam, const Window *window) const {
         //ssaopass
         if (glCheckNamedFramebufferStatus(ssaofbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             printf("Incomplete FBO!");
@@ -167,6 +171,7 @@ namespace en{
         ssaoprog->SetUniformMat4("viewprojmat", false, glm::value_ptr(cam->GetViewProjMat()));
         ssaoprog->SetUniformVec3f("campos", cam->GetPos());
         ssaoprog->SetUniformVec3f("camdir", cam->GetViewDir());
+        ssaoprog->SetUniformVec2f("scale", glm::vec2((float)window->GetWidth()/4.0f, (float)window->GetHeight()/4.0f));
         for (int i = 0; i < kernelsize; ++i) {
             assert(kernelsize==ssao::kernel.size());
             ssaoprog->SetUniformVec3f("kernel[" + std::to_string(i) + "]", ssao::kernel[i]);
@@ -185,6 +190,7 @@ namespace en{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //en::Log::Info("in ssaoprog");
     }
+
     void ssao::usessaotex(const GLProgram *program) const {
         glBindTextureUnit(30, blurtex);
         program->SetUniformI("ssao", 30);

@@ -52,7 +52,7 @@ namespace en
         //printf("%s",glm::to_string(viewMat).c_str());
         window->UseViewport();
         RenderDeferredGeometry(viewMatP, projMatP);
-        ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, cam);
+        ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, cam, window);
         RenderDeferredLighting(window, cam);
 
         gBuffer_.CopyDepthBufToDefaultFb();
