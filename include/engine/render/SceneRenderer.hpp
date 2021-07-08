@@ -33,7 +33,7 @@ namespace en
         void AddSplineRenderObj(const RenderObj* renderObj);
         void RemoveSplineRenderObj(const RenderObj* renderObj);
 
-        void AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane);
+        void AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane, float reflectiveness);
         void RemoveReflectiveRenderObj(const RenderObj* renderObj);
 
         void SetDirLight(const DirLight* dirLight);

@@ -13,7 +13,7 @@ namespace en
     class ReflectiveMap
     {
     public:
-        ReflectiveMap(uint32_t size, float nearPlane);
+        ReflectiveMap(uint32_t size, float nearPlane, float reflectiveness);
         ~ReflectiveMap();
 
         void BindFbo() const;
@@ -23,6 +23,7 @@ namespace en
         void BindCubeMapFace(uint8_t i) const;
 
         uint32_t GetSize() const;
+        float GetReflectiveness() const;
         glm::mat4 GetProjMat() const;
         std::vector<glm::mat4> GetViewMats(glm::vec3 pos) const;
 
@@ -32,6 +33,7 @@ namespace en
         uint32_t depthBuffer_;
 
         uint32_t size_;
+        float reflectiveness_;
 
         glm::mat4 projMat_;
     };

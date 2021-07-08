@@ -147,11 +147,11 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane)
+    void SceneRenderer::AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane, float reflectiveness)
     {
         RemoveReflectiveRenderObj(renderObj);
         reflectiveRenderObjs_.push_back(renderObj);
-        reflectiveMaps_.push_back(ReflectiveMap(256, nearPlane));
+        reflectiveMaps_.push_back(ReflectiveMap(256, nearPlane, reflectiveness));
     }
 
     void SceneRenderer::RemoveReflectiveRenderObj(const RenderObj* renderObj)
@@ -538,10 +538,11 @@ namespace en
             reflectiveProgram_->SetUniformMat4("view_mat", false, viewMat);
             reflectiveProgram_->SetUniformMat4("proj_mat", false, projMat);
             reflectiveProgram_->SetUniformVec3f("cam_pos", camPos);
+            reflectiveProgram_->SetUniformF("reflectiveness", reflectiveMap.GetReflectiveness());
 
-            glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE2);
             reflectiveMap.BindCubeMap();
-            reflectiveProgram_->SetUniformI("skybox_tex", 0);
+            reflectiveProgram_->SetUniformI("skybox_tex", 2);
             reflectiveRenderObj->RenderDiffuse(reflectiveProgram_);
         }
     }

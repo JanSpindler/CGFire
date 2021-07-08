@@ -9,8 +9,9 @@
 
 namespace en
 {
-    ReflectiveMap::ReflectiveMap(uint32_t size, float nearPlane) :
+    ReflectiveMap::ReflectiveMap(uint32_t size, float nearPlane, float reflectiveness) :
         size_(size),
+        reflectiveness_(reflectiveness),
         projMat_(glm::perspective(glm::radians(90.0f), 1.0f, nearPlane, 256.0f))
     {
         Log::Info("Creating Reflective Map");
@@ -77,6 +78,11 @@ namespace en
     uint32_t ReflectiveMap::GetSize() const
     {
         return size_;
+    }
+
+    float ReflectiveMap::GetReflectiveness() const
+    {
+        return reflectiveness_;
     }
 
     glm::mat4 ReflectiveMap::GetProjMat() const
