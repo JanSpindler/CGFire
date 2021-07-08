@@ -12,6 +12,7 @@
 
 namespace particle{
 
+    static int NumSmokeStreams = 0;
     /*A smoke stream can be placed in the scene, using a spline for the movement of the particles*/
     class SmokeStream {
         friend class SmokeCreator;
@@ -33,9 +34,10 @@ namespace particle{
           BuildUpTime(buildUpTime),
           ExpiringTime(expiringTime)
         {
-
+            ID = NumSmokeStreams++;
         }
 
+        uint32_t ID;
         void startExpiring(){
             if (Timer < BuildUpTime)
                 Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
@@ -53,6 +55,19 @@ namespace particle{
 
         std::shared_ptr<en::Spline3D> Spline;
 
+
+        void OnImGuiRender(){
+            std::string strID = "SmokeStream" + std::to_string(ID);
+            ImGui::PushID(strID.c_str());
+            if (ImGui::TreeNode(strID.c_str())) {
+                ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
+                ImGui::DragFloat("Speed", &Speed, 0.5f, 0.f, 999.f);
+                ImGui::DragFloat("SpeedVariation", &SpeedVariation, 0.5f, 0.f, 999.f);
+                ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
     private:
         const float BuildUpTime; //the amount of time the fire takes to come to its peak
         const float ExpiringTime; //the amount of time the fire takes to expire

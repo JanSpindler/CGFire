@@ -57,6 +57,7 @@ namespace en
         void RenderDiffuse(const GLProgram* program);
         void RenderAll(const GLProgram* program);
 
+        void OnImGuiRender();
     private:
         const Spline3D* spline_;
         unsigned int lineVao_;

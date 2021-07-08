@@ -10,6 +10,8 @@
 
 namespace particle{
 
+    static int NumFlames = 0;
+
     /*A flame of fire can be placed in the scene with individual properties.*/
     class Flame : public en::PointLight{
         friend class FireCreator;
@@ -30,7 +32,7 @@ namespace particle{
           ParticleLifeTime(particleLifeTime),
           ParticleLifeTimeVariation(particleLifeTimeVariation)
         {
-
+            ID = NumFlames++;
         }
 
         void startExpiring(){
@@ -40,7 +42,7 @@ namespace particle{
                 Timer = 0.f;
             BuildingUp = false; Expiring = true; }
 
-
+        uint32_t ID;
         glm::vec3 Position;
         glm::vec3 PositionVariation;
         int ParticlesPerEmit;
@@ -57,6 +59,19 @@ namespace particle{
             return glm::vec3(1.f, 1.f, 1.f);
         }
 
+        void OnImGuiRender(){
+            std::string strID = "Flame" + std::to_string(ID);
+            ImGui::PushID(strID.c_str());
+            if (ImGui::TreeNode(strID.c_str())) {
+                ImGui::DragFloat3("Position", &Position.x, 0.5f);
+                ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
+                ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999.f);
+                ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
+                ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
     private:
         const float BuildUpTime; //the amount of time the fire takes to come to its peak
         const float ExpiringTime; //the amount of time the fire takes to expire

@@ -9,9 +9,11 @@
 
 namespace particle{
 
+    static int NumWaterJets = 0;
     class WaterJet{
         friend class WaterCreator;
     public:
+
         explicit WaterJet(const glm::vec3& position,
                           const glm::vec3& positionVariation,
                           const glm::vec3& waterDirection,
@@ -33,8 +35,9 @@ namespace particle{
                   ParticleLifeTime(particleLifeTime),
                   ParticleLifeTimeVariation(particleLifeTimeVariation)
         {
-
+            ID = NumWaterJets++;
         }
+
 
         void startExpiring(){
             if (Timer < BuildUpTime)
@@ -43,6 +46,7 @@ namespace particle{
                 Timer = 0.f;
             BuildingUp = false; Expiring = true; }
 
+        uint32_t ID;
         glm::vec3 Position;
         glm::vec3 PositionVariation;
         glm::vec3 WaterDirection; // the direction of the water coming out of the source
@@ -52,6 +56,23 @@ namespace particle{
         int ParticlesPerSecond;
         float ParticleLifeTime;
         float ParticleLifeTimeVariation;
+
+        void OnImGuiRender(){
+            std::string strID = "WaterJet" + std::to_string(ID);
+            ImGui::PushID(strID.c_str());
+            if (ImGui::TreeNode(strID.c_str())) {
+                ImGui::DragFloat3("Position", &Position.x, 0.5f);
+                ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
+                ImGui::DragFloat3("WaterDirection", &WaterDirection.x, 0.1f);
+                ImGui::DragFloat("Speed", &Speed, 0.1f, 0.f, 999.f);
+                ImGui::DragFloat("SpeedVariation", &SpeedVariationFactor, 0.1f, 0.f, 999.f);
+                ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999.f);
+                ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
+                ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
 
     private:
         const float BuildUpTime; //the amount of time the fire takes to come to its peak

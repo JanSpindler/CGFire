@@ -8,14 +8,16 @@
 #include "particle/Water.h"
 #include "particle/Smoke.h"
 #include "particle/Fire.h"
-
+#include <framework/imgui_util.hpp>
 
 namespace scene{
+
 
     //Abstract base class for events
     class Event{
     public:
         virtual void onAction() = 0;
+        virtual void OnImGuiRender() = 0;
     private:
     };
 
@@ -31,6 +33,9 @@ namespace scene{
         void onAction() override{
             m_WaterCreator.startWaterJet(m_WaterJet);
         }
+        void OnImGuiRender(){
+            m_WaterJet->OnImGuiRender();
+        }
     private:
         WaterCreator& m_WaterCreator;
         std::shared_ptr<WaterJet> m_WaterJet;
@@ -44,6 +49,9 @@ namespace scene{
                   m_SmokeStream(std::move(smokeStream)){}
         void onAction() override{
             m_SmokeCreator.startSmokeStream(m_SmokeStream);
+        }
+        void OnImGuiRender(){
+            m_SmokeStream->OnImGuiRender();
         }
     private:
         SmokeCreator& m_SmokeCreator;
@@ -61,6 +69,9 @@ namespace scene{
             m_FireCreator.startFlame(m_Flame);
             m_SceneRenderer.AddPointLight(m_Flame.get());
         }
+        void OnImGuiRender(){
+            m_Flame->OnImGuiRender();
+        }
     private:
         en::SceneRenderer& m_SceneRenderer;
         FireCreator& m_FireCreator;
@@ -77,6 +88,9 @@ namespace scene{
         void onAction() override{
             m_WaterJet->startExpiring();
         }
+        void OnImGuiRender(){
+            m_WaterJet->OnImGuiRender();
+        }
     private:
         std::shared_ptr<WaterJet> m_WaterJet;
     };
@@ -89,6 +103,9 @@ namespace scene{
                 : m_smokeStream(std::move(smokeStream)){}
         void onAction() override{
             m_smokeStream->startExpiring();
+        }
+        void OnImGuiRender(){
+            m_smokeStream->OnImGuiRender();
         }
     private:
         std::shared_ptr<SmokeStream> m_smokeStream;
@@ -103,6 +120,9 @@ namespace scene{
         void onAction() override{
             m_Flame->startExpiring();
             m_SceneRenderer.RemovePointLight(m_Flame.get());
+        }
+        void OnImGuiRender(){
+            m_Flame->OnImGuiRender();
         }
     private:
         en::SceneRenderer& m_SceneRenderer;
@@ -124,7 +144,7 @@ namespace scene{
         void onAction() override{
             switch (m_Type){
                 case Char:
-                    m_SceneRenderer.AddCharacterRenderObj(dynamic_cast<en::Character*>(m_Obj.get()));
+                    m_SceneRenderer.AddSceletalRenderObj(dynamic_cast<en::Sceletal *>(m_Obj.get()));
                     break;
                 case Standard:
                     m_SceneRenderer.AddStandardRenderObj(m_Obj.get());
@@ -140,9 +160,14 @@ namespace scene{
                     break;
             }
         }
+        void OnImGuiRender(){
+            m_Obj->OnImGuiRender();
+        }
     private:
         en::SceneRenderer& m_SceneRenderer;
         std::shared_ptr<en::RenderObj> m_Obj;
         RenderObjType m_Type;
     };
+
+
 }

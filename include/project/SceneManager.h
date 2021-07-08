@@ -20,8 +20,9 @@
 #include "engine/input/Input.hpp"
 
 #include "SceneEventsTypes.h"
+#include "EventInterface.h"
 
-#include "engine/Character.hpp"
+#include "engine/Sceletal.hpp"
 
 
 namespace scene {
@@ -38,11 +39,12 @@ namespace scene {
                   m_WaterCreator(m_ParticleSystemWater),
                   m_SmokeCreator(m_ParticleSystemSmoke),
                   m_FireCreator(m_ParticleSystemFire),
-                  m_SceneRenderer(1000, 800) //TODO
-
+                  m_SceneRenderer(1000, 800),
+                  m_EventInterface(m_EventsAndTimesSave)
                   {
 
                       initObjects();
+                      this->createEvents();
         }
 
 
@@ -55,8 +57,8 @@ namespace scene {
 
             this->m_EventsAndTimesDone.clear();
             this->m_EventsAndTimes.clear();
-            this->addEvents();
-            m_EventsAndTimes.sort([](const auto& a, const auto& b) { return a.second < b.second; });
+            m_EventInterface.SortEvents();
+            m_EventsAndTimes.assign(m_EventsAndTimesSave.begin(), m_EventsAndTimesSave.end());
 
             m_SceneTime = 0.f;
             m_TimePaused = false;
@@ -109,9 +111,16 @@ namespace scene {
             }
             if (ImGui::Button(m_TimePaused ? "Resume" : "Pause"))
                 m_TimePaused = !m_TimePaused;
+
+            ImGui::DragFloat("Select Scene Time", &m_SceneTimeSelection, 0.1f, 0.f, 3600.f);
+            if (ImGui::Button("Set Time to Selected")){
+                this->restart();
+                m_SceneTime = m_SceneTimeSelection;
+            }
+
             ImGui::End();
 
-
+            m_EventInterface.OnImGuiRender();
             m_SceneRenderer.OnImGuiRender();
             m_WaterCreator.onImGuiRender();
             m_SmokeCreator.onImGuiRender();
@@ -136,22 +145,30 @@ namespace scene {
 
         float m_SceneTime;
         bool m_TimePaused;
+        float m_SceneTimeSelection = 0.f;
+
+
+        //This is used to program some events in-game and export it to a file
+        EventInterface m_EventInterface;
+
+
+        //the original list of events.
+        std::vector<std::pair<std::shared_ptr<Event>, float>> m_EventsAndTimesSave;
 
         //List of upcoming events with their respective times
-        std::list<std::pair<std::shared_ptr<Event>, float>> m_EventsAndTimes;
+        std::vector<std::pair<std::shared_ptr<Event>, float>> m_EventsAndTimes;
 
         //List of done events with their respective times.
         // This is used because we dont want to delete the event objects by removing them from m_EventsAndTimes.
         // They could still be used. E.g. a smoke that has started expiring still is in the scene.
-        std::list<std::pair<std::shared_ptr<Event>, float>> m_EventsAndTimesDone;
+        std::vector<std::pair<std::shared_ptr<Event>, float>> m_EventsAndTimesDone;
 
 
-        void addEvent(const std::shared_ptr<Event>& event, float eventTime){
-            m_EventsAndTimes.emplace_back(std::make_pair(event, eventTime));
+        void createEvent(const std::shared_ptr<Event>& event, float eventTime){
+            m_EventsAndTimesSave.emplace_back(std::make_pair(event, eventTime));
         }
-
         //This is where the data of the events is coded, in file SceneEvents.cpp
-        void addEvents();
+        void createEvents();
 
 
 
@@ -170,7 +187,7 @@ namespace scene {
         std::shared_ptr<en::Model> m_ModelHouse;
 
 
-        std::shared_ptr<en::Character> m_Vampire1;
+        std::shared_ptr<en::Sceletal> m_Vampire1;
 
         std::shared_ptr<en::Model> m_ModelCar;
 

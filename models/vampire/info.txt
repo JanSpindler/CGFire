@@ -1,0 +1,4 @@
+Vincent:
+The models are from mixamo.com.
+
+For each animatino file I removed all parts of the dae that are not animation because these are redundant and are already stored in Vampire.dae
