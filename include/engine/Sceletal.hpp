@@ -12,7 +12,7 @@ namespace en {
         friend class CharacterAnimationManager;
     public:
         /**The modelFile must at the same time include the default animation*/
-        explicit Sceletal(const std::string& modelFile, const std::string& characterName);
+        explicit Sceletal(const std::string& modelFile);
         void AddAnimation(const std::string& animationFile, const std::string& animationName);
         void PlayAnimation(const std::string& animationName);
 
@@ -30,21 +30,4 @@ namespace en {
 
         void SetBoneUniforms(const GLProgram* program);
     };
-
-//    class CharacterAnimationManager {
-//    public:
-//        explicit CharacterAnimationManager(){
-//
-//        }
-//
-//        Character* LoadCharacterModel(const std::string& modelFile){
-//            m_Characters.emplace_back(std::make_shared<Character>())
-//        }
-//        void LoadCharacterAnimation(const std::string& animationFile, const std::string& animationName){
-//
-//        }
-//    private:
-//
-//        std::vector<std::shared_ptr<Character>> m_Characters;
-//    };
 }

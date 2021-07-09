@@ -16,6 +16,7 @@
 #define MODEL_ROOT (ROOT_FOLDER + std::string("/models/"))
 #define SHADER_ROOT (ROOT_FOLDER + std::string("/shaders/"))
 #define DATA_ROOT (ROOT_FOLDER + std::string("/data/"))
+#define SCENE_DATA_ROOT (ROOT_FOLDER + std::string("/scenedata/"))
 //
 
 #endif //CGFIRE_CONFIG_HPP

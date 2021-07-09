@@ -65,7 +65,7 @@ namespace particle{
             if (ImGui::TreeNode(strID.c_str())) {
                 ImGui::DragFloat3("Position", &Position.x, 0.5f);
                 ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
-                ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999.f);
+                ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999);
                 ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
                 ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
                 ImGui::TreePop();

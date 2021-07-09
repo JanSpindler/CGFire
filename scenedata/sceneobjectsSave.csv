@@ -1,0 +1,9 @@
+# dont use any spaces in names!!
+# each model, sceletal and spline is a renderobj. The renderobj data will be printed one line below the specific data
+# 0=model 1=sceletal 2=spline
+# RenderObjData = PosX PosY PosZ RotVecX RotVecY RotVecZ Rotation ScalingX ScalingY ScalingZ
+# model has: name file
+#
+
+0 Positioning_Dummy cube.obj
+0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.4 0.4 0.4

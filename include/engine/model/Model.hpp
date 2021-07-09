@@ -25,7 +25,7 @@ namespace en
     class Model : public RenderObj
     {
     public:
-        Model(const std::string& path, bool flipUv, const std::string& name);
+        Model(const std::string& path, bool flipUv);
         ~Model();
 
         void Render(const GLProgram* program) override;
@@ -36,6 +36,8 @@ namespace en
         std::map<std::string, boneinfo> getbonemap();
         int getbonecount() const;
         const std::vector<Mesh*>& GetMeshes() const;
+
+
 
     private:
         std::vector<Mesh*> meshes_;

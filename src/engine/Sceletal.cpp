@@ -9,8 +9,8 @@
 
 
 namespace en{
-        Sceletal::Sceletal(const std::string& modelFile, const std::string& characterName)
-                : Model(modelFile, true, characterName)
+        Sceletal::Sceletal(const std::string& modelFile)
+                : Model(modelFile, true)
         {
             m_DefaultAnimation = std::make_shared<Animation>(modelFile, this);
             m_Animator = std::make_shared<Animator>(m_DefaultAnimation.get());

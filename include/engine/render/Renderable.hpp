@@ -34,7 +34,7 @@ namespace en
 
         const glm::mat4& GetTransform() { return t_; }
 
-        RenderObj(const std::string& name = "noname");
+        RenderObj();
 
         void RenderPosOnly(const GLProgram* program) override;
         void RenderDiffuse(const GLProgram* program) override;
@@ -44,15 +44,18 @@ namespace en
 
         virtual glm::vec3 GetPos();
 
+        void SetName(const std::string& name){ name_ = name; }
         const std::string& GetName(){ return name_; }
 
-        virtual void OnImGuiRender();
+        void OnImGuiRender();
+
+
     private:
         glm::mat4 t_;
 
         void SetMatrices(const GLProgram* program);
     protected:
-        std::string name_;
+        std::string name_= "noname";
     };
 }
 
