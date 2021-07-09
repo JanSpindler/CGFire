@@ -6,8 +6,8 @@
 
 namespace en
 {
-    SimplePointLight::SimplePointLight(glm::vec3 color, float strength, const std::string& name) :
-            Model("sphere.obj", true, name),
+    SimplePointLight::SimplePointLight(glm::vec3 color, float strength) :
+            Model("sphere.obj", true),
             PointLight(strength)
     {
         color_ = color;

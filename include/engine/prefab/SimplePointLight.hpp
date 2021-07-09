@@ -14,7 +14,7 @@ namespace en
     class SimplePointLight : public PointLight, public Model
     {
     public:
-        SimplePointLight(glm::vec3 color, float strength, const std::string& name);
+        SimplePointLight(glm::vec3 color, float strength);
 
         glm::vec3 GetPos() const override;
         glm::vec3 GetColor() const override;

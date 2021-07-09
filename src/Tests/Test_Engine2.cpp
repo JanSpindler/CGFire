@@ -52,26 +52,31 @@ int main()
 
 //    en::Model backpackModel("backpack/backpack.obj", true, "backpack");
 
-    en::Model floorModel("cube.obj", true, "floor");
+    en::Model floorModel("cube.obj", true);
+    floorModel.SetName("floor");
     floorModel.Position = glm::vec3(0.0f, -5.0f, 0.0f);
     floorModel.Scaling = glm::vec3(50.0f, 1.0f, 50.0f);
 
 //    en::Model dragonModel("dragon.obj", false, "dragon");
 //    dragonModel.Position =glm::vec3(0.0f, 0.0f, 20.0f);
 
-    en::Model houseModel("scene/house/Edificio.dae", false, "house");
+    en::Model houseModel("scene/house/Edificio.dae", false);
+    houseModel.SetName("house");
     houseModel.Position =glm::vec3(40.0f, 0.0f, 20.0f);
 
-    en::Model roboModel("vampire/Jumping_Down.dae", false, "rob");
+    en::Model roboModel("vampire/Jumping_Down.dae", false);
+    roboModel.SetName("rob");
     roboModel.Position =glm::vec3(10.0f, 0.0f, 40.0f);
 
-    en::Model reflectModel("hd_sphere.obj", false, "reflect sphere");
+    en::Model reflectModel("hd_sphere.obj", false);
+    reflectModel.SetName("reflect sphere");
     reflectModel.Position = glm::vec3(0.0f, 0.0, -8.0f);
 
     // Lights
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
 
-    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f, "Simple Point Light");
+    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f);
+    pointLight.SetName("Simple Point Light");
     pointLight.Position = glm::vec3(0.0f, 10.0f, 15.0f);
     std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
 

@@ -11,8 +11,7 @@
 
 namespace en
 {
-    Model::Model(const std::string& path, bool flipUv, const std::string& name)
-    : RenderObj(name)
+    Model::Model(const std::string& path, bool flipUv)
     {
         flipUv_ = flipUv;
 

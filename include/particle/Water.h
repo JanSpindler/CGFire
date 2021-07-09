@@ -66,7 +66,7 @@ namespace particle{
                 ImGui::DragFloat3("WaterDirection", &WaterDirection.x, 0.1f);
                 ImGui::DragFloat("Speed", &Speed, 0.1f, 0.f, 999.f);
                 ImGui::DragFloat("SpeedVariation", &SpeedVariationFactor, 0.1f, 0.f, 999.f);
-                ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999.f);
+                ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
                 ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
                 ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
                 ImGui::TreePop();

@@ -8,8 +8,7 @@
 
 namespace en
 {
-    RenderObj::RenderObj(const std::string& name)
-    : name_(name)
+    RenderObj::RenderObj()
     {
         t_ = glm::identity<glm::mat4>();
         ID = NumRenderObjs++;
