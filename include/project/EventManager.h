@@ -17,6 +17,9 @@ namespace scene {
     //This class provides an ImGui interface for the events to manipulate them in game and save them to a file
     //and load them from a file
     class EventManager{
+        const std::string SceneEventDataFileName = "sceneevents.csv";
+        const std::string SceneEventDataAutoCopyFileName = "autocopy_sceneevents.csv";
+        const std::string SceneEventDataAutoCopyBeforeStartFileName = "autocopylaststart_sceneevents.csv";
     public:
         explicit EventManager(en::SceneRenderer &sceneRenderer,
                               scene::ObjectManager& objectManager)
@@ -25,9 +28,14 @@ namespace scene {
           m_ObjectManager(objectManager),
           m_nextEvent(m_EventsAndTimes.begin())
         {
+            //Safety copy
+            std::filesystem::copy_file(SCENE_DATA_ROOT + SceneEventDataFileName, SCENE_DATA_ROOT + SceneEventDataAutoCopyBeforeStartFileName,
+                                       std::filesystem::copy_options::overwrite_existing);
+
+
             //read scene events from file
 
-            util::CSVReader csv(SCENE_DATA_ROOT + "sceneevents.csv");
+            util::CSVReader csv(SCENE_DATA_ROOT + SceneEventDataFileName);
             auto& table = csv.getTable();
 
             for (int i = 0; i < table.size(); ++i) {
@@ -55,7 +63,7 @@ namespace scene {
                     continue;
                 }
 
-                ev->LoadFromStrings(row);
+                ev->LoadDataFromStrings(row);
 
                 m_EventsAndTimes.emplace_back(std::make_pair(ev, time));
             }
@@ -70,12 +78,31 @@ namespace scene {
 
 
         void SaveToFile(){
+            //first make a safe of the current scene before the loading. I
+            // So, in case we made a mistake, we can still check out the old scene.
+            std::filesystem::copy_file(SCENE_DATA_ROOT + SceneEventDataFileName, SCENE_DATA_ROOT + SceneEventDataAutoCopyFileName,
+                                       std::filesystem::copy_options::overwrite_existing);
+
+            //save the scene events
+
+            using namespace util;
+            CSVWriter csv(SCENE_DATA_ROOT + SceneEventDataFileName);
+
+            this->SortEvents();
+
+            //for each event, write in a row: EventTime,EventID,<EventSpecificData>
+            for (auto& p : m_EventsAndTimes){
+                Event* e = p.first;
+                csv << p.second << static_cast<int>(e->GetTypeID());
+                e->SaveSpecificDataToCSV(csv);
+                csv << endrow;
+            }
 
         }
 
 
         void OnResetTime(){
-            SortEvents();
+            this->SortEvents();
             m_nextEvent = m_EventsAndTimes.begin();
         }
 
@@ -114,7 +141,7 @@ namespace scene {
         en::SceneRenderer& m_SceneRenderer;
         scene::ObjectManager& m_ObjectManager;
         size_t m_SelectedEventType = 0;
-        std::unordered_map<std::string, uint32_t> m_EventTypeNameToID;
+
 
         std::vector<std::pair<scene::Event*, float>> m_EventsAndTimes;
 

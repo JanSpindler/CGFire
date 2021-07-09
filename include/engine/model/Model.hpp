@@ -38,9 +38,11 @@ namespace en
         const std::vector<Mesh*>& GetMeshes() const;
 
 
+        const std::string& GetPathName() const;
 
     private:
         std::vector<Mesh*> meshes_;
+        std::string pathName_;
         std::string directory_;
         std::unordered_map<const aiMaterial*, Material*> materials_;
         std::unordered_map<std::string, GLPictureTex*> textures_;

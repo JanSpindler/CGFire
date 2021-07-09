@@ -33,6 +33,8 @@ int main(int, char* argv[]) {
     scene::SceneManager Scene(cam, window);
     Scene.restart();
 
+    bool UI_DisabledByMinus = false;
+
     en::Log::Info("Starting main loop");
     bool firstDeltaTime = true;
     while (window.IsOpen())
@@ -50,12 +52,19 @@ int main(int, char* argv[]) {
 
         util::HandleUserCamMovement(window, cam, deltaTime);
 
+        //if you press num-pad "+", enables UI
+        //if you press num-pad "-", disables UI
+        if (en::Input::IsKeyPressed(GLFW_KEY_KP_SUBTRACT)) {
+            UI_DisabledByMinus = true;
+        }else if (en::Input::IsKeyPressed(GLFW_KEY_KP_ADD)){
+            UI_DisabledByMinus = false;
+        }
 
         //Updates
         Scene.onUpdate(deltaTime);
 
         //UI
-        bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
+        bool renderImGui = !UI_DisabledByMinus && !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
         if (renderImGui) {
             imgui_new_frame(600, 400);
             Scene.onImGuiRender();
