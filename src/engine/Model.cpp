@@ -12,6 +12,7 @@
 namespace en
 {
     Model::Model(const std::string& path, bool flipUv)
+    :pathName_(path)
     {
         flipUv_ = flipUv;
 
@@ -73,6 +74,10 @@ namespace en
     const std::vector<Mesh*>& Model::GetMeshes() const
     {
         return meshes_;
+    }
+
+    const std::string& Model::GetPathName() const{
+        return pathName_;
     }
 
     void Model::LoadMaterials(const aiScene *scene)

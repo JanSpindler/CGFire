@@ -14,15 +14,21 @@ namespace scene {
 
     class ShowRenderObjEvent : public Event {
     public:
+        EventType GetTypeID() override {return EventType::ShowRenderObjEvent; };
+
         explicit ShowRenderObjEvent(en::SceneRenderer &sceneRenderer, scene::ObjectManager& objectManager)
                 : m_SceneRenderer(sceneRenderer),
                   m_ObjectManager(objectManager) {}
 
-        void LoadFromStrings(const std::vector<std::string>& data) override{
+        void LoadDataFromStrings(const std::vector<std::string>& data) override{
             //<specific data>: name RenderObjType
             std::string name = data[0];
             m_Obj = m_ObjectManager.GetRenderObj(name);
             m_Type = static_cast<RenderObjType>(std::stoi(data[1]));
+        }
+
+        void SaveSpecificDataToCSV(util::CSVWriter& csv) override{
+            csv << m_Obj->GetName() << static_cast<int>(m_Type);
         }
 
         void OnAction() override {

@@ -202,30 +202,9 @@ namespace en
     }
 
     void SceneRenderer::OnImGuiRender(){
-        ImGui::Begin("Objects");
+        ImGui::Begin("Renderer");
         ImGui::Checkbox("use ssao", &useSsao_);
         dirLight_->OnImGuiRender();
-
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Character ROs:");
-        for (auto& obj : sceletalRenderObjs) {
-            obj->OnImGuiRender();
-        }
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Standards ROs:");
-        for (auto& obj : standardRenderObjs_) {
-            obj->OnImGuiRender();
-        }
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "FixedColor ROs:");
-        for (auto& obj : fixedColorRenderObjs_) {
-            obj->OnImGuiRender();
-        }
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Spline ROs:");
-        for (auto& obj : splineRenderObjs_) {
-            obj->OnImGuiRender();
-        }
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Reflective ROs:");
-        for (auto& obj : reflectiveRenderObjs_) {
-            obj->OnImGuiRender();
-        }
         ImGui::End();
     }
 
