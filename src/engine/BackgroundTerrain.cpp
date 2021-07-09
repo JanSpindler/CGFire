@@ -14,12 +14,13 @@ namespace en
             uint32_t vertexCount,
             float vertexSpacing,
             float baseHeight,
+            float baseFreq,
             float amplitude,
             float seed) :
         RenderObj(),
         seed_(seed)
     {
-        GenVao(GenHeightMap(vertexCount, vertexSpacing, baseHeight, amplitude));
+        GenVao(GenHeightMap(vertexCount, vertexSpacing, baseHeight, baseFreq, amplitude));
     }
 
     BackgroundTerrain::~BackgroundTerrain()
@@ -61,6 +62,7 @@ namespace en
             uint32_t vertexCount,
             float vertexSpacing,
             float baseHeight,
+            float baseFreq,
             float amplitude)
     {
         float totalSize = vertexSpacing * (float) vertexCount;
@@ -79,7 +81,7 @@ namespace en
                 float distance = glm::length(glm::vec2(xOffset + baseCoord, zOffset + baseCoord));
                 float d = glm::clamp((distance - 128.0f) / 256.0f, 0.0f, 1.0f);
 
-                float yOffset = d * amplitude * RandomHeight(glm::vec2(xOffset, zOffset) / totalSize, seed_);
+                float yOffset = d * amplitude * RandomHeight(glm::vec2(xOffset, zOffset) / totalSize, baseFreq, seed_);
 
                 heightMap[x][z] = basePoint + glm::vec3(xOffset, yOffset, zOffset);
             }
@@ -89,14 +91,14 @@ namespace en
     }
 
     //https://www.redblobgames.com/maps/terrain-from-noise/
-    float BackgroundTerrain::RandomHeight(glm::vec2 pos, float seed)
+    float BackgroundTerrain::RandomHeight(glm::vec2 pos, float baseFreq, float seed)
     {
         const float persistance = 0.5f;
         const float lacunarity = 2.0f;
         const uint32_t octaveCount = 16;
         const float exponent = 1.0f;
 
-        float freq = 1.0f;
+        float freq = baseFreq;
         float ampl = 1.0f;
         float height = 0.0f;
         float norm = 0.0f;

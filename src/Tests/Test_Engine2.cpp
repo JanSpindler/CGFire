@@ -76,7 +76,7 @@ int main()
     en::GLSkyboxTex skyboxTex("CGFire/skybox1", ".png", false);
 
     // Background Terrain
-    en::BackgroundTerrain terrain(100, 20.0f, -4.0f, 128.0f, 0.0f);
+    en::BackgroundTerrain terrain(100, 20.0f, -4.0f, 1.0f, 128.0f, 0.0f);
 
     // Scene
     en::Log::Info("Creating SceneRenderer");
@@ -95,7 +95,7 @@ int main()
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
-    sceneRenderer.AddReflectiveRenderObj(&reflectModel, 2.0f, 0.75f);
+    sceneRenderer.AddReflectiveRenderObj(&reflectModel, 2.0f, 1.0f);
 
     sceneRenderer.AddSplineRenderObj(&splineRenderable);
 

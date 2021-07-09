@@ -13,12 +13,13 @@ namespace en
     Material::Material(
             const GLPictureTex* diffuseTex,
             const GLPictureTex* specularTex,
+            const GLPictureTex* normalTex,
             glm::vec4 diffuseColor,
             glm::vec4 specularColor,
-            float shininess
-            ) :
+            float shininess) :
             diffuseTex_(diffuseTex),
             specularTex_(specularTex),
+            normalTex_(normalTex),
             diffuseColor_(diffuseColor),
             specularColor_(specularColor),
             shininess_(shininess)
@@ -42,7 +43,7 @@ namespace en
         program->SetUniformVec4f("diffuse_color", diffuseColor_);
     }
 
-    void Material::UseAll(const GLProgram *program, uint32_t diffTexUnit, uint32_t specTexUnit) const
+    void Material::UseAll(const GLProgram *program, uint32_t diffTexUnit, uint32_t specTexUnit, uint32_t normalTexUnit) const
     {
         // Diffuse
         bool useDiffTex = diffuseTex_ != nullptr;
@@ -65,6 +66,15 @@ namespace en
         program->SetUniformI("specular_tex", specTexUnit);
 
         program->SetUniformVec4f("specular_color", specularColor_);
+
+        // Normal
+        bool useNormalTex = normalTex_ != nullptr;
+        program->SetUniformB("use_normal_tex", useNormalTex);
+
+        glActiveTexture(GL_TEXTURE0 + normalTexUnit);
+        if (useNormalTex)
+            normalTex_->BindTex();
+        program->SetUniformI("normal_tex", normalTexUnit);
 
         // Shininess
         program->SetUniformF("shininess", shininess_);

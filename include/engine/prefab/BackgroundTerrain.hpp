@@ -18,6 +18,7 @@ namespace en
                 uint32_t vertexCount,
                 float vertexSpacing,
                 float baseHeight,
+                float baseFreq,
                 float amplitude,
                 float seed);
         ~BackgroundTerrain();
@@ -36,8 +37,9 @@ namespace en
                 uint32_t vertexCount,
                 float vertexSpacing,
                 float baseHeight,
+                float baseFreq,
                 float amplitude);
-        float RandomHeight(glm::vec2 pos, float seed);
+        float RandomHeight(glm::vec2 pos, float baseFreq, float seed);
 
         void GenVao(const std::vector<std::vector<glm::vec3>>& heightMap);
     };
