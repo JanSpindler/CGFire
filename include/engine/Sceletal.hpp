@@ -23,6 +23,7 @@ namespace en {
         void RenderAll(const GLProgram* program) override;
         std::vector<glm::mat4> prevbonetransforms;
 
+        bool IsRenderObjTypePossible(en::RenderObjType type) const;
     private:
         std::shared_ptr<en::Animator> m_Animator;
         std::shared_ptr<Animation> m_DefaultAnimation;

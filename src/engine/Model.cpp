@@ -80,6 +80,17 @@ namespace en
         return pathName_;
     }
 
+    bool Model::IsRenderObjTypePossible(en::RenderObjType type) const{
+        switch(type){
+            case RenderObjType::Standard:
+            case RenderObjType::FixedColor:
+            case RenderObjType::Reflective:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     void Model::LoadMaterials(const aiScene *scene)
     {
         if (!scene->HasMaterials())

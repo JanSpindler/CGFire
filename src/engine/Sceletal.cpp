@@ -70,4 +70,14 @@ namespace en{
                 //prevbonetransforms[i] = transforms[i];
             }
         }
+        bool Sceletal::IsRenderObjTypePossible(en::RenderObjType type) const{
+            switch(type){
+                case RenderObjType::Sceletal:
+                case RenderObjType::FixedColor:
+                case RenderObjType::Reflective:
+                    return true;
+                default:
+                    return false;
+            }
+        }
 }

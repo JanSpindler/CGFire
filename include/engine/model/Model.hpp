@@ -39,6 +39,7 @@ namespace en
 
 
         const std::string& GetPathName() const;
+        bool IsRenderObjTypePossible(RenderObjType type) const override;
 
     private:
         std::vector<Mesh*> meshes_;

@@ -51,7 +51,7 @@ namespace en
         prevM = t_;
     }
     void RenderObj::OnImGuiRender(){
-        std::string strID = "RO" + std::to_string(ID) + name_;
+        std::string strID = "RO " + std::to_string(ID) + ": " + name_;
         ImGui::PushID(strID.c_str());
         if (ImGui::TreeNode(strID.c_str())) {
             ImGui::DragFloat3("Position", &Position.x, 0.25f);

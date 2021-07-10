@@ -357,4 +357,13 @@ namespace en
 
         //TODO Spline verstellbar machen mittels slider + update button
     }
+
+    bool Spline3DRenderable::IsRenderObjTypePossible(en::RenderObjType type) const{
+        switch(type){
+            case RenderObjType::Spline:
+                return true;
+            default:
+                return false;
+        }
+    }
 }
