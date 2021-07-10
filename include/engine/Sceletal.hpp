@@ -22,6 +22,7 @@ namespace en {
         void RenderDiffuse(const GLProgram* program) override;
         void RenderAll(const GLProgram* program) override;
 
+        bool IsRenderObjTypePossible(en::RenderObjType type) const;
     private:
         std::shared_ptr<en::Animator> m_Animator;
         std::shared_ptr<Animation> m_DefaultAnimation;

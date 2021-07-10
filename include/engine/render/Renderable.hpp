@@ -2,6 +2,7 @@
 // Created by JS on 27/05/2021.
 //
 
+#pragma once
 #ifndef CGFIRE_RENDERABLE_HPP
 #define CGFIRE_RENDERABLE_HPP
 
@@ -20,7 +21,16 @@ namespace en
         virtual void Render(const GLProgram* program) = 0; // Deprecated
     };
 
-    static int NumRenderObjs = 0;
+    //Be aware:
+    // Model can be: Standard, FixedColor, Reflective
+    // Sceletal can be: Sceletal, fixedColor, Reflective
+    // Spline can be: Spline only (automatically also FixedColor)
+    enum class RenderObjType {
+        Sceletal, Standard, FixedColor, Spline, Reflective
+    };
+
+
+    static int NumRenderObjs = 0; //for ID creation
     class RenderObj : public Renderable
     {
     public:
@@ -47,6 +57,7 @@ namespace en
 
         void OnImGuiRender();
 
+        virtual bool IsRenderObjTypePossible(RenderObjType type) const = 0;
 
     private:
         glm::mat4 t_;

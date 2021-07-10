@@ -100,12 +100,12 @@ namespace scene {
             if (ImGui::Button(m_TimePaused ? "Resume" : "Pause"))
                 m_TimePaused = !m_TimePaused;
 
-            ImGui::DragFloat("Select Scene Time", &m_SceneTimeSelection, 0.1f, 0.f, 3600.f);
-            ImGui::SameLine();
+
             if (ImGui::Button("Set Time to Selected")){
                 this->restart();
                 m_SceneTime = m_SceneTimeSelection;
             }
+            ImGui::DragFloat("", &m_SceneTimeSelection, 0.1f, 0.f, 3600.f);
 
             if (ImGui::Button("Save Scene")){
                 m_ObjectManager.SaveToFile();

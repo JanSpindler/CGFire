@@ -58,6 +58,7 @@ namespace en
         void RenderAll(const GLProgram* program);
 
         void OnImGuiRender();
+        bool IsRenderObjTypePossible(en::RenderObjType type) const;
     private:
         const Spline3D* spline_;
         unsigned int lineVao_;
