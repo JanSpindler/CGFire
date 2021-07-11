@@ -15,6 +15,7 @@
 #include "ReflectiveMap.hpp"
 #include "engine/Sceletal.hpp"
 #include "ssao/ssao.h"
+#include "MotionBlur/motionblur.hpp"
 
 namespace en
 {
@@ -24,6 +25,8 @@ namespace en
         SceneRenderer(int32_t width, int32_t height);
 
         void Update(float deltaTime);
+
+        void SetPrevViewMat(Camera* cam);
 
         void Render(const Window* window, const Camera* cam) const;
         void Resize(int32_t width, int32_t height);
@@ -66,6 +69,7 @@ namespace en
         const GLProgram* skyboxProgram_;
         const GLProgram* SSAOProgram_;
         const GLProgram* SSAOBlurProgram_;
+        const GLProgram* motionblurProgram_;
 
         std::vector<Sceletal*> sceletalRenderObjs;
         std::vector<RenderObj*> standardRenderObjs_;
@@ -81,6 +85,8 @@ namespace en
 
         ssao ssao_;
         bool useSsao_ = true;
+
+        motionblur motionblur_;
 
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;

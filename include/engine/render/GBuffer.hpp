@@ -22,6 +22,7 @@ namespace en
         void Resize(int32_t width, int32_t height);
         void UseTextures(const GLProgram* program) const;
         void UseTexturesSSAO(const GLProgram* program) const;
+        void UseTextureMotionBlur(const GLProgram* program) const;
         void CopyDepthBufToDefaultFb() const;
 
     private:
@@ -31,6 +32,7 @@ namespace en
         uint32_t diffuseTex_;
         uint32_t specularTex_;
         uint32_t depthBuffer_;
+        uint32_t motionTex_;
 
         int32_t width_;
         int32_t height_;

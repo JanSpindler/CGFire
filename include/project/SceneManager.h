@@ -101,6 +101,7 @@ namespace scene {
             m_ParticleSystemWater.OnRender();
             m_ParticleSystemSmoke.OnRender();
             m_ParticleSystemFire.OnRender();
+            m_SceneRenderer.SetPrevViewMat(&m_Cam);
         }
 
         void onImGuiRender() {

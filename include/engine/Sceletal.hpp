@@ -21,6 +21,7 @@ namespace en {
         void RenderPosOnly(const GLProgram* program) override;
         void RenderDiffuse(const GLProgram* program) override;
         void RenderAll(const GLProgram* program) override;
+        std::vector<glm::mat4> prevbonetransforms;
 
     private:
         std::shared_ptr<en::Animator> m_Animator;

@@ -23,7 +23,8 @@ namespace en
             reflectiveMaps_({}),
             skyboxTex_(nullptr),
             gBuffer_(width, height),
-            ssao_(width, height)
+            ssao_(width, height),
+            motionblur_(width, height)
     {
         LoadPrograms();
         CreateFullScreenVao();
@@ -33,6 +34,10 @@ namespace en
     void SceneRenderer::Update(float deltaTime){
         for (auto* c : sceletalRenderObjs) //update animation
             c->Update(deltaTime);
+    }
+
+    void SceneRenderer::SetPrevViewMat(Camera *cam) {
+        motionblur_.prevprojviewmodelmat = cam->GetViewProjMat();
     }
 
     void SceneRenderer::Render(const Window* window, const Camera* cam) const
@@ -56,6 +61,7 @@ namespace en
             ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, cam, window);
         }
         RenderDeferredLighting(window, cam);
+        motionblur_.doblur(motionblurProgram_, &gBuffer_, cam);
 
         gBuffer_.CopyDepthBufToDefaultFb();
         RenderFixedColor(viewMatP, projMatP);
@@ -70,6 +76,7 @@ namespace en
         gBuffer_.Resize(width, height);
         ssao_.makessaofbo(width, height);
         ssao_.makeblurfbo(width, height);
+        motionblur_.build_framebuffer(width, height);
     }
 
     void SceneRenderer::AddSceletalRenderObj(Sceletal* renderObj)
@@ -249,9 +256,9 @@ namespace en
         const GLShader* geomFrag = GLShader::Load("CGFire/deferred_geometry.frag");
         geometryProgram_ = GLProgram::Load(geomVert, nullptr, geomFrag);
 
-        const GLShader* sceletalVert = GLShader::Load("CGFire/sceletal.vert");
-        const GLShader* sceletalFrag = GLShader::Load("CGFire/deferred_geometry.frag");
-        sceletalProgram = GLProgram::Load(sceletalVert, nullptr, sceletalFrag);
+        //const GLShader* sceletalVert = GLShader::Load("CGFire/sceletal.vert");
+        //const GLShader* sceletalFrag = GLShader::Load("CGFire/deferred_geometry.frag");
+        //sceletalProgram = GLProgram::Load(sceletalVert, nullptr, sceletalFrag);
 
         const GLShader* lightVert = GLShader::Load("CGFire/deferred_lighting.vert");
         const GLShader* lightFrag = GLShader::Load("CGFire/deferred_lighting.frag");
@@ -271,6 +278,8 @@ namespace en
 
         SSAOProgram_ = ssao_.makessaoprogram();
         SSAOBlurProgram_ = ssao_.makeblurprogram();
+
+        motionblurProgram_ = motionblur_.makerenderprog();
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -416,19 +425,22 @@ namespace en
         geometryProgram_->Use();
         geometryProgram_->SetUniformMat4("view_mat", false, viewMat);
         geometryProgram_->SetUniformMat4("proj_mat", false, projMat);
+        geometryProgram_->SetUniformMat4("prevPV", false, glm::value_ptr(motionblur_.prevprojviewmodelmat));
         geometryProgram_->SetUniformB("use_bone", false);
-        for (RenderObj* renderObj : standardRenderObjs_)
+        for (RenderObj* renderObj : standardRenderObjs_) {
+            geometryProgram_->SetUniformB("blur", renderObj->blur);
             renderObj->RenderAll(geometryProgram_);
+        }
         geometryProgram_->SetUniformB("use_bone", true);
-        for (RenderObj* renderObj : sceletalRenderObjs)
+        for (RenderObj* renderObj : sceletalRenderObjs) {
+            geometryProgram_->SetUniformB("blur", renderObj->blur);
             renderObj->RenderAll(geometryProgram_);
-
+        }
         /*characterProgram_->Use();
         characterProgram_->SetUniformMat4("view_mat", false, viewMat);
         characterProgram_->SetUniformMat4("proj_mat", false, projMat);
         for (RenderObj* renderObj : characterRenderObjs_)
             renderObj->RenderAll(characterProgram_);*/
-
         gBuffer_.Unbind();
     }
 
@@ -437,6 +449,7 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         lightingProgram_->Use();
+        motionblur_.firstpasssetup(window->GetWidth(), window->GetHeight());
         gBuffer_.UseTextures(lightingProgram_);
         lightingProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
         glm::mat4 dirLightMat = dirLight_->GetLightMat();

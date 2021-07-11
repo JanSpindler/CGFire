@@ -68,6 +68,7 @@ int main(int, char* argv[]) {
 
         if (renderImGui)
             imgui_render();
+
     }
 
     cleanup_imgui();

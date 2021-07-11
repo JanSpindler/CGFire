@@ -12,6 +12,7 @@ namespace en
     : name_(name)
     {
         t_ = glm::identity<glm::mat4>();
+        prevM = t_;
         ID = NumRenderObjs++;
     }
 
@@ -47,6 +48,8 @@ namespace en
         program->SetUniformMat4("model_mat", false, &t_[0][0]);
         glm::mat3 normalMat = glm::mat3(glm::transpose(glm::inverse(t_)));
         program->SetUniformMat3("normal_mat", false, &normalMat[0][0]);
+        program->SetUniformMat4("prevM", false, &prevM[0][0]);
+        prevM = t_;
     }
     void RenderObj::OnImGuiRender(){
         std::string strID = "RO" + std::to_string(ID) + name_;
@@ -56,6 +59,7 @@ namespace en
             ImGui::DragFloat("RotationAngle", &RotationAngle, 0.1f, 0.f, 6.28318530718f);
             ImGui::DragFloat3("RotationAxisVector", &RotationAxis.x, 0.05, 0.f, 1.f);
             ImGui::DragFloat3("Scaling", &Scaling.x, 0.25f, 0.f, 999.f);
+            ImGui::Checkbox("use motionblur", &blur);
             ImGui::TreePop();
         }
         ImGui::PopID();

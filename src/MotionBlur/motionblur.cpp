@@ -49,6 +49,9 @@ namespace en{
         };
     }
     void motionblur::build_framebuffer(int width, int height) {
+        if (width == 0 || height == 0)
+            return;
+
         if (color_tex) {
             glDeleteTextures(1, &color_tex);
         }
@@ -60,24 +63,25 @@ namespace en{
         if (fbo) {
             glDeleteFramebuffers(1, &fbo);
         }
-        if (motion_tex){
-            glDeleteTextures(1, &motion_tex);
-        }
+        //if (motion_tex){
+        //    glDeleteTextures(1, &motion_tex);
+        //}
 
         color_tex = en::create_texture_rgba32f(width, height);
-        motion_tex = en::create_texture_rgba32f(width, height);
+        //motion_tex = en::create_texture_rgba32f(width, height);
 
 
         glCreateRenderbuffers(1, &depth_rbo);
         glNamedRenderbufferStorage(depth_rbo, GL_DEPTH_COMPONENT32, width, height);
         glCreateFramebuffers(1, &fbo);
         glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, color_tex, 0);
-        glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT1, motion_tex, 0);
+        //glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT1, motion_tex, 0);
         //glFramebufferTexture2D(ssaofbo, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, color_tex, 0);
         glNamedFramebufferRenderbuffer(fbo, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_rbo);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        GLenum DrawBuffers[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-        glNamedFramebufferDrawBuffers(fbo, 2, DrawBuffers);
+        //GLenum DrawBuffers[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+        GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+        glNamedFramebufferDrawBuffers(fbo, 1, DrawBuffers);
         if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             printf("Incomplete FBO!");
             std::terminate();
@@ -101,24 +105,35 @@ namespace en{
         //Log::Info("Got renderprog");
         return program;
     }
-    void motionblur::doblur(const GLProgram* program) {
+    void motionblur::doblur(const GLProgram* program, const GBuffer* buffer, const Camera* cam) const {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         program->Use();
-        glDisable(GL_DEPTH_TEST);
+        //glDisable(GL_DEPTH_TEST);
         glBindVertexArray(quad);
         glBindTextureUnit(0, color_tex);
-        glBindTextureUnit(1, motion_tex);
+        //glBindTextureUnit(1, motion_tex);
         program->SetUniformI("colortex", 0);
-        program->SetUniformI("motiontex", 1);
+        //program->SetUniformI("motiontex", 1);
+        buffer->UseTextureMotionBlur(program);
+        program->SetUniformVec3f("campos", cam->GetPos());
+        program->SetUniformVec3f("camdir", cam->GetViewDir());
+        //std::cout << glGetError() << std::endl;
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
+        glBindVertexArray(0);
+        glEnable(GL_DEPTH_TEST);
+        //std::cout << glGetError() << std::endl;
         //Log::Info("shouldve drawn this");
     }
-    void motionblur::firstpasssetup(int width, int height) {
+    void motionblur::firstpasssetup(int width, int height) const {
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0,0,width, height);
     }
     void motionblur::addprevprojviewmodelmat(const GLProgram* program) {
         program->SetUniformMat4("prevPVM", false, glm::value_ptr(prevprojviewmodelmat));
+    }
+
+    void motionblur::setprevprojviewmodelmat(glm::mat4 viewmat, glm::mat4 projmat) {
+        prevprojviewmodelmat = projmat*viewmat;
     }
 }

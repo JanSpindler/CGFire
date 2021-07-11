@@ -187,7 +187,7 @@ namespace en{
         ssaoprog->SetUniformI("ssaores", 0);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*) 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //en::Log::Info("in ssaoprog");
     }
 
