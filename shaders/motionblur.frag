@@ -1,6 +1,6 @@
 #version 330 core
 
-#define radius 20
+#define sampling 30
 #define epsilon 0.3
 
 in vec2 TexCoord0;
@@ -31,10 +31,10 @@ void main(){
     vec2 texcoord = TexCoord0;
     float hit = 0;
     float posz = dot(texture(postex,TexCoord0).xyz-campos, camdir);
-    for (int i = 1; i<= radius; i++){
-        texcoord = TexCoord0 - i*motionvec/radius;
+    for (int i = 1; i<= sampling; i++){
+        texcoord = TexCoord0 - i*2*motionvec/sampling;
         float samplez = dot(texture(postex, texcoord).xyz-campos, camdir);
-        if (length(samplez-posz)<=10){
+        if (length(samplez-posz)<=5){
             hit++;
             color += texture(colortex, texcoord);
         }
