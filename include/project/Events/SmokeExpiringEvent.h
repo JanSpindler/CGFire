@@ -15,8 +15,10 @@ namespace scene {
             m_smokeStream->startExpiring();
         }
 
-        void OnImGuiRender() {
+        bool OnImGuiRender() override{
             m_smokeStream->OnImGuiRender();
+
+            return true;
         }
 
     private:

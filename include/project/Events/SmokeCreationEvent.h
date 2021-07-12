@@ -14,8 +14,10 @@ namespace scene{
         void OnAction() override{
             m_SmokeCreator.startSmokeStream(m_SmokeStream);
         }
-        void OnImGuiRender(){
+        bool OnImGuiRender() override{
             m_SmokeStream->OnImGuiRender();
+
+            return true;
         }
     private:
         SmokeCreator& m_SmokeCreator;

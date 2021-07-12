@@ -14,15 +14,16 @@
 #include "ObjectManager.h"
 
 namespace scene {
+    class SceneManager;
 
     //This class provides an ImGui interface for the events to manipulate them in game and save them to a file
     //and load them from a file
     class EventManager{
-        const std::string SceneEventDataFileName = "sceneevents.csv";
-        const std::string SceneEventDataAutoCopyFileName = "autocopy_sceneevents.csv";
+        const std::string SceneEventDataFileName = "sceneevents.csv"; //this should always be the most recent edit
         const std::string SceneEventDataAutoCopyBeforeStartFileName = "autocopylaststart_sceneevents.csv";
     public:
-        explicit EventManager(en::SceneRenderer &sceneRenderer,
+        explicit EventManager(SceneManager& sceneManager,
+                              en::SceneRenderer &sceneRenderer,
                               scene::ObjectManager& objectManager);
 
         ~EventManager();
@@ -36,7 +37,16 @@ namespace scene {
         void OnUpdate(float sceneTime);
 
         void OnImGuiRender();
+
+        void OnObjDeletion(en::RenderObj* obj);
+
+        void UpdateEventDescriptions();
+
+        void OnImGuiRenderEventsOfObj(en::RenderObj* obj);
+
+        void OnCreateNewObj(en::RenderObj* obj);
     private:
+        SceneManager& m_SceneManager;
         en::SceneRenderer& m_SceneRenderer;
         scene::ObjectManager& m_ObjectManager;
         size_t m_SelectedEventType = 0;

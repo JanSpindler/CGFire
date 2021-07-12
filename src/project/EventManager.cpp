@@ -7,21 +7,27 @@
 //
 
 #include "project/EventManager.h"
+#include "project/SceneManager.h"
 
 namespace scene {
-    EventManager::EventManager(en::SceneRenderer &sceneRenderer,
+    EventManager::EventManager(SceneManager& sceneManager,
+                               en::SceneRenderer &sceneRenderer,
                           scene::ObjectManager& objectManager)
             :
+            m_SceneManager(sceneManager),
             m_SceneRenderer(sceneRenderer),
             m_ObjectManager(objectManager)
     {
+        /************************ATTENTION*************/
+        /******We need to add for each event type one dummy event here!******/
         m_DummyEventsOfAllTypes.push_back(std::make_unique<scene::ShowRenderObjEvent>(m_SceneRenderer, m_ObjectManager));
-        //... add for each event type one here
+
 
 
 
         //Safety copy
-        std::filesystem::copy_file(SCENE_DATA_ROOT + SceneEventDataFileName, SCENE_DATA_ROOT + SceneEventDataAutoCopyBeforeStartFileName,
+        std::filesystem::copy_file(SCENE_DATA_ROOT + SceneEventDataFileName,
+                                   SCENE_DATA_ROOT + SceneEventDataAutoCopyBeforeStartFileName,
                                    std::filesystem::copy_options::overwrite_existing);
 
 
@@ -66,11 +72,6 @@ namespace scene {
 
 
     void EventManager::SaveToFile(){
-        //first make a safe of the current scene before the loading. I
-        // So, in case we made a mistake, we can still check out the old scene.
-        std::filesystem::copy_file(SCENE_DATA_ROOT + SceneEventDataFileName, SCENE_DATA_ROOT + SceneEventDataAutoCopyFileName,
-                                   std::filesystem::copy_options::overwrite_existing);
-
         //save the scene events
 
         using namespace util;
@@ -108,7 +109,7 @@ namespace scene {
     }
 
     void EventManager::OnImGuiRender(){
-        ImGui::Begin("Events");
+        ImGui::Begin("All Events");
 
         if (ImGui::Button("New Event")){
             ImGui::OpenPopup("Choose Event Type");
@@ -116,23 +117,13 @@ namespace scene {
 
         this->OnImGuiCreateEventRender();
 
+        ImGui::SameLine();
+
         if (ImGui::Button("Sort")){
             SortEvents();
         }
 
-        for (int i = 0; i < m_EventsAndTimes.size(); i++){
-            auto& e = m_EventsAndTimes[i];
-            std::string EventTypeName = getEventTypeName(e.first);
-            EventTypeName = std::to_string(i) + " " + EventTypeName;
-            ImGui::PushID(EventTypeName.c_str());
-            if (ImGui::TreeNode(EventTypeName.c_str())) {
-                ImGui::DragFloat("Time", &e.second, 0.005f, 0.f, 999.f);
-                e.first->OnImGuiRender();
-                ImGui::TreePop();
-            }
-            ImGui::PopID();
-        }
-
+        OnImGuiRenderEventsOfObj(nullptr); // nullptr means: render all events
 
         ImGui::End();
 
@@ -164,53 +155,27 @@ namespace scene {
                 ImGui::EndCombo();
             }
 
-            static Event* s_EventToCreate = nullptr;
-            if (ImGui::Button("OK")) {
-
-                bool isLegit = true;
-                if (m_SelectedDummyEvent == nullptr)
-                    isLegit = false;
-
-                if (isLegit) {
-                    //Create Event
-                    s_EventToCreate = CreateEventFromType(m_SelectedDummyEvent->GetTypeID());
-                    ImGui::OpenPopup("Set Event Options");
-
-                } else {
-                    ImGui::OpenPopup("Error");
-                }
-            }
-
-            if (ImGui::BeginPopupModal("Error", nullptr)) {
-                ImGui::Text("Something is wrong. Cannot create event.");
-                if (ImGui::Button("Close"))
-                    ImGui::CloseCurrentPopup();
-                ImGui::EndPopup();
-            }
-
-            if (ImGui::BeginPopupModal("Set Event Options", nullptr)) {
+            if (m_SelectedDummyEvent != nullptr){
                 static float s_ChosenTime = 0.f;
                 ImGui::DragFloat("Event Time", &s_ChosenTime, 0.005f, 0.f, 999.f);
 
-                bool optionsAreOk = s_EventToCreate->OnImGuiRenderSetOptions();
+                bool optionsAreOk = m_SelectedDummyEvent->OnImGuiRender();
                 if (optionsAreOk){
                     if (ImGui::Button("OK")) {
-                        m_EventsAndTimes.emplace_back(std::make_pair(s_EventToCreate, s_ChosenTime));
+                        //Create Event
+                        auto s_EventToCreate = m_SelectedDummyEvent->Clone();
 
-                        s_EventToCreate = nullptr;
+                        m_EventsAndTimes.emplace_back(std::make_pair(s_EventToCreate, s_ChosenTime));
+                        s_EventToCreate->UpdateDescription();
+                        SaveToFile();
+                        m_SceneManager.restart(false);
                         ImGui::CloseCurrentPopup();
                         ImGui::CloseCurrentPopup();
                     }
                     ImGui::SameLine();
                 }
-                if (ImGui::Button("Abort")) {
-                    s_EventToCreate = nullptr;
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
 
-            ImGui::SameLine();
+            }
             if (ImGui::Button("Abort")) {
                 ImGui::CloseCurrentPopup();
             }
@@ -220,14 +185,92 @@ namespace scene {
     }
 
     scene::Event* EventManager::CreateEventFromType(scene::EventType type){
-        /**************************Here insert all event types //TODO make this somehow automatic (idk how. in python it would be easy)*/
-        scene::Event* ev;
-        if (type == EventType::ShowRenderObjEvent){
-            ev = new scene::ShowRenderObjEvent(m_SceneRenderer, m_ObjectManager);
-        } else {
-            std::cout << "No such event type: " << static_cast<int>(type) << std::endl;
-            ev = nullptr;
+        for (auto& dummyEvent : m_DummyEventsOfAllTypes){
+            if (dummyEvent->GetTypeID() == type){
+                return dummyEvent->Clone();
+            }
         }
-        return ev;
+
+        std::cout << "No such event type: " << static_cast<int>(type) << std::endl;
+        return nullptr;
     }
+
+    void EventManager::OnObjDeletion(en::RenderObj* obj){
+        m_nextEventIndex = 0;
+        //Delete all events related to obj
+        auto it = m_EventsAndTimes.begin();
+        while (it != m_EventsAndTimes.end()){
+            if (it->first->IsRenderObjRelated(obj))
+                it = m_EventsAndTimes.erase(it);
+            else
+                ++it;
+        }
+    }
+
+    void EventManager::UpdateEventDescriptions(){
+        for (auto p : m_EventsAndTimes){
+            p.first->UpdateDescription();
+        }
+    }
+
+    void EventManager::OnImGuiRenderEventsOfObj(en::RenderObj* obj){
+        int deleteEvent = -1; //work-around to not have to delete while looping over the same vector
+        for (int i = 0; i < m_EventsAndTimes.size(); i++){
+            auto& e = m_EventsAndTimes[i];
+
+            if (obj == nullptr || e.first->IsRenderObjRelated(obj)) {
+                std::string EventTypeName = getEventTypeName(e.first);
+                ImGui::PushID(e.first);
+
+                ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), "%s",
+                                   util::GetFloatPrecisionFixedString(e.second, 3).c_str());
+                ImGui::SameLine();
+                bool nodeOpen = ImGui::TreeNode(EventTypeName.c_str());
+
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), "%s", e.first->GetDescription().c_str());
+
+                ImGui::SameLine();
+                if (ImGui::Button("Clone Event")) {
+                    //Clone Event
+                    Event *clone = e.first->Clone();
+
+                    m_EventsAndTimes.emplace_back(clone, e.second);
+                    e = m_EventsAndTimes[i]; // emplace_back may reallocate the array, so e's address may change
+                    clone->UpdateDescription();
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Delete Event")) {
+                    //Delete Event
+                    deleteEvent = i;
+                }
+
+                if (nodeOpen) {
+                    ImGui::PushItemWidth(100);
+                    ImGui::DragFloat("Time", &e.second, 0.005f, 0.f, 999.f);
+                    ImGui::PopItemWidth();
+
+                    e.first->OnImGuiRender();
+                    ImGui::TreePop();
+                }
+
+                ImGui::PopID();
+            }
+        }
+
+        if (deleteEvent != -1){
+            delete m_EventsAndTimes[deleteEvent].first;
+            m_EventsAndTimes.erase(m_EventsAndTimes.begin() + deleteEvent);
+        }
+    }
+    void EventManager::OnCreateNewObj(en::RenderObj* obj){
+        //Create new ShowRenderObjEvent as default for all new created objects so they appear immediately
+
+        auto p = std::make_pair(new ShowRenderObjEvent(m_SceneRenderer, m_ObjectManager,
+                                                   obj, RenderObjType::Standard, true), 0.f);
+        m_EventsAndTimes.emplace_back(p);
+        p.first->UpdateDescription();
+    }
+
 }

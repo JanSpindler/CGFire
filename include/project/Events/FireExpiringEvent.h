@@ -15,11 +15,13 @@ namespace scene{
             m_Flame->startExpiring();
             m_SceneRenderer.RemovePointLight(m_Flame.get());
         }
-        void OnImGuiRender(){
+        bool OnImGuiRender() override{
             m_Flame->OnImGuiRender();
+
+            return true;
         }
     private:
-        en::SceneRenderer& m_SceneRenderer;
+        en::SceneRenderer &m_SceneRenderer;
         std::shared_ptr<Flame> m_Flame;
     };
 }

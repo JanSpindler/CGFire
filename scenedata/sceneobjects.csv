@@ -1,2 +1,6 @@
-0,"Positioning Dummy","cube.obj"
-0,1.75,0,0,1,0,6.28319,0.25,0.75,1.25
+0,"sphere2","Aufgaben\sphere.obj"
+0,16.75,0,0,1,0,0,1,1,1
+0,"ed","scene\house\Edificio.obj"
+0,0,0,0,1,0,0,1,1,1
+0,"God","Aufgaben\buddha.obj"
+0,11.5,0,0,1,0,0,1,1,1
