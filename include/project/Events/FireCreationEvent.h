@@ -20,8 +20,10 @@ namespace scene {
             m_SceneRenderer.AddPointLight(m_Flame.get());
         }
 
-        void OnImGuiRender() {
+        bool OnImGuiRender() override{
             m_Flame->OnImGuiRender();
+
+            return true;
         }
 
     private:

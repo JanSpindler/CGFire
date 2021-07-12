@@ -15,8 +15,10 @@ namespace scene {
             m_WaterJet->startExpiring();
         }
 
-        void OnImGuiRender() {
+        bool OnImGuiRender() override{
             m_WaterJet->OnImGuiRender();
+
+            return true;
         }
 
     private:

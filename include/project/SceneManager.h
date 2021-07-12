@@ -34,94 +34,17 @@ namespace scene {
  * This is supposed to be where we program the animation*/
     class SceneManager {
     public:
-        explicit SceneManager(en::Camera &cam, en::Window& window)
-                : m_Cam(cam),
-                  m_Window(window),
-                  m_ParticleSystemWater(3000, cam, false),
-                  m_ParticleSystemSmoke(4000, cam, false),
-                  m_ParticleSystemFire(3000, cam, true),
-                  m_WaterCreator(m_ParticleSystemWater),
-                  m_SmokeCreator(m_ParticleSystemSmoke),
-                  m_FireCreator(m_ParticleSystemFire),
-                  m_SceneRenderer(1000, 800),
-                  m_EventManager(m_SceneRenderer, m_ObjectManager)
-                  {
-
-                      initObjects();
-        }
+        explicit SceneManager(en::Camera &cam, en::Window& window);
 
 
         /**Initialization. Needs to be called when the scene (re-)starts*/
-        void restart() {
-            m_SceneRenderer.RemoveAllObjects();
-            m_WaterCreator.clear();
-            m_SmokeCreator.clear();
-            m_FireCreator.clear();
+        void restart(bool resetTime = true);
 
-            m_EventManager.OnResetTime();
+        void onUpdate(float dt);
 
-            m_SceneTime = 0.f;
-            m_TimePaused = false;
-        }
+        void OnRender();
 
-        void onUpdate(float dt) {
-            if (m_TimePaused)
-                return;
-
-            m_SceneTime += dt;
-
-            m_SceneRenderer.Resize(m_Window.GetWidth(), m_Window.GetHeight()); // TODO: maybe something more performant
-
-            m_ParticleSystemWater.OnUpdate(dt);
-            m_ParticleSystemSmoke.OnUpdate(dt);
-            m_ParticleSystemFire.OnUpdate(dt);
-            m_WaterCreator.onUpdate(dt);
-            m_SmokeCreator.onUpdate(dt);
-            m_FireCreator.onUpdate(dt);
-
-            m_EventManager.OnUpdate(m_SceneTime);
-
-            m_SceneRenderer.Update(dt);
-        }
-
-        void OnRender(){
-            m_SceneRenderer.Render(&m_Window, &m_Cam);
-            m_ParticleSystemWater.OnRender();
-            m_ParticleSystemSmoke.OnRender();
-            m_ParticleSystemFire.OnRender();
-        }
-
-        void onImGuiRender() {
-            ImGui::Begin("Menu");
-            ImGui::TextColored(ImVec4(0, 1, 0, 1), "Time: %f", m_SceneTime);
-            if (ImGui::Button("Restart")){
-                this->restart();
-            }
-            if (ImGui::Button(m_TimePaused ? "Resume" : "Pause"))
-                m_TimePaused = !m_TimePaused;
-
-
-            if (ImGui::Button("Set Time to Selected")){
-                this->restart();
-                m_SceneTime = m_SceneTimeSelection;
-            }
-            ImGui::DragFloat("", &m_SceneTimeSelection, 0.1f, 0.f, 3600.f);
-
-            if (ImGui::Button("Save Scene")){
-                m_ObjectManager.SaveToFile();
-                m_EventManager.SaveToFile();
-            }
-
-            ImGui::End();
-
-            m_ObjectManager.OnImGuiRender();
-            m_EventManager.OnImGuiRender();
-            m_SceneRenderer.OnImGuiRender();
-            m_WaterCreator.onImGuiRender();
-            m_SmokeCreator.onImGuiRender();
-            m_FireCreator.onImGuiRender();
-
-        }
+        void onImGuiRender();
 
     private:
         en::Camera& m_Cam;
@@ -142,17 +65,23 @@ namespace scene {
         /*************Event related*/
         EventManager m_EventManager; //imports and exports Events + creation of event ui
 
+        //Scene time
         float m_SceneTime;
         bool m_TimePaused;
         float m_SceneTimeSelection = 0.f;
 
+        //fps
+        int m_FPS;
 
+        //Auto Save
+        bool m_AutoSave;
+        float m_TimeSinceAutoSave = 0.f;
+        float m_AutoSaveEveryXSeconds = 5.f;
 
-//        void createEvent(const std::shared_ptr<Event>& event, float eventTime){
-//            m_EventsAndTimesSave.emplace_back(std::make_pair(event, eventTime));
-//        }
-//        //This is where the data of the events is coded, in file SceneEvents.cpp
-//        void createEvents();
+        //Auto reload Events--> Good for modelling the scene with actual data
+        bool m_ReloadEventsPeriodically;
+        float m_TimeSinceReloadEvents = 0.f;
+        float m_ReloadEventsEveryXSeconds = 1.f;
 
 
 

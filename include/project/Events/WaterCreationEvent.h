@@ -14,8 +14,10 @@ namespace scene{
         void OnAction() override{
             m_WaterCreator.startWaterJet(m_WaterJet);
         }
-        void OnImGuiRender(){
+        bool OnImGuiRender(){
             m_WaterJet->OnImGuiRender();
+
+            return true;
         }
     private:
         WaterCreator& m_WaterCreator;

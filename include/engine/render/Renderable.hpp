@@ -55,10 +55,7 @@ namespace en
         void SetName(const std::string& name){ name_ = name; }
         const std::string& GetName(){ return name_; }
 
-        void OnImGuiRender();
-
         virtual bool IsRenderObjTypePossible(RenderObjType type) const = 0;
-
     private:
         glm::mat4 t_;
 

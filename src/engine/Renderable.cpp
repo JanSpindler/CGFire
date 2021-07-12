@@ -47,16 +47,4 @@ namespace en
         glm::mat3 normalMat = glm::mat3(glm::transpose(glm::inverse(t_)));
         program->SetUniformMat3("normal_mat", false, &normalMat[0][0]);
     }
-    void RenderObj::OnImGuiRender(){
-        std::string strID = "RO " + std::to_string(ID) + ": " + name_;
-        ImGui::PushID(strID.c_str());
-        if (ImGui::TreeNode(strID.c_str())) {
-            ImGui::DragFloat3("Position", &Position.x, 0.25f);
-            ImGui::DragFloat("RotationAngle", &RotationAngle, 0.1f, 0.f, 6.28318530718f);
-            ImGui::DragFloat3("RotationAxisVector", &RotationAxis.x, 0.05, 0.f, 1.f);
-            ImGui::DragFloat3("Scaling", &Scaling.x, 0.25f, 0.f, 999.f);
-            ImGui::TreePop();
-        }
-        ImGui::PopID();
-    }
 }

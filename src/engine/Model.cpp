@@ -24,7 +24,7 @@ namespace en
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
             Log::Error(std::string("Assimp Error - ") + importer.GetErrorString(), true);
 
-        directory_ = realPath.substr(0, realPath.find_last_of('/'));
+        directory_ = realPath.substr(0, std::max(realPath.find_last_of('/'), realPath.find_last_of('\\')));
 
         Log::Info("model has " + std::to_string(scene->mNumMeshes) + " meshes");
         LoadMaterials(scene);

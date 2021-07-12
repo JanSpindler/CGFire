@@ -19,10 +19,13 @@
 #include "engine/Spline3D.hpp"
 
 
+
 namespace scene {
+    class EventManager;
+    class SceneManager;
+
     class ObjectManager {
-        const std::string SceneObjectDataFileName = "sceneobjects.csv";
-        const std::string SceneObjectDataAutoCopyLastFileName = "autocopy_sceneobjects.csv";
+        const std::string SceneObjectDataFileName = "sceneobjects.csv"; //this should always be the most recent edit
         const std::string SceneObjectDataAutoCopyBeforeStartFileName = "autocopylaststart_sceneobjects.csv";
     public:
         enum class ObjectType {
@@ -31,7 +34,7 @@ namespace scene {
             Spline = 2
             };
 
-        ObjectManager();
+        explicit ObjectManager(SceneManager& sceneManager, EventManager& eventManager);
 
         void SaveToFile();
 
@@ -46,6 +49,8 @@ namespace scene {
         std::vector<std::shared_ptr<en::Sceletal>>& GetSceletals(){ return m_Sceletals; }
         std::vector<std::pair<std::shared_ptr<en::Spline3D>, std::shared_ptr<en::Spline3DRenderable>>>& GetSplines(){ return m_Splines; }
     private:
+        SceneManager& m_SceneManager; //TODO probably we should simply create a static instance of each manager
+        EventManager& m_EventManager;
         std::vector<en::RenderObj*> m_AllRenderObjects;
 
         std::vector<std::shared_ptr<en::Model>> m_Models; //Those objects that are models but have no animation
@@ -55,9 +60,19 @@ namespace scene {
         static void SaveRenderObjDataToCSV(util::CSVWriter& writer, en::RenderObj& o);
         static void ReadRenderObjDataFromStrings(const std::vector<std::string>& str, en::RenderObj& o);
 
-        void OnImGuiAddModelRender();
+        void OnImGuiAddObjectRender(ObjectType type);
+        void OnImGuiAddModelObjRender(const std::string& name); //used by OnImGuiAddObjectRender
 
 
         std::vector<std::string> m_FoundObjectFiles; // stores all paths to object files in /models/ directory
+
+
+        bool DoesObjNameExistAlready(const std::string& name);
+        std::shared_ptr<en::Model> LoadModel(const std::string& name, const std::string& file);
+        std::string FindNextAvailableName(const std::string& name);
+
+        enum class ButtonClickHappened {None, Clone, Delete}; //There may be a better approach to this but idk
+        ButtonClickHappened ObjectManager::OnImGuiObjectRender(en::RenderObj& o);
+
     };
 }
