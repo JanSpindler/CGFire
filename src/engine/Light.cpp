@@ -24,8 +24,8 @@ namespace en
         glGenTextures(1, &esmTex_);
         glBindTexture(GL_TEXTURE_2D, esmTex_);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width_, height_, 0, GL_RED, GL_FLOAT, nullptr);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
         float floatLimit = std::numeric_limits<float>::max();
@@ -51,8 +51,8 @@ namespace en
 
     void DirLight::Use(const GLProgram *program) const
     {
-        program->SetUniformVec3f("dir_light_dir", dir_);
-        program->SetUniformVec3f("dir_light_color", color_);
+        program->SetUniformVec3f("light_dir", dir_);
+        program->SetUniformVec3f("light_color", color_);
     }
 
     void DirLight::SetDir(glm::vec3 dir)
@@ -73,13 +73,6 @@ namespace en
     uint32_t DirLight::GetHeight() const
     {
         return height_;
-    }
-
-    void DirLight::UseShadow(const GLProgram *program) const
-    {
-        glActiveTexture(GL_TEXTURE4);
-        depthTex_.BindTex();
-        program->SetUniformI("dir_shadow_tex", 4);
     }
 
     glm::mat4 DirLight::GetLightMat() const
@@ -106,6 +99,11 @@ namespace en
     void DirLight::BindEsmTex() const
     {
         glBindTexture(GL_TEXTURE_2D, esmTex_);
+    }
+
+    void DirLight::BindDepthTex() const
+    {
+        depthTex_.BindTex();
     }
 
     void DirLight::PrepareGauss5(const GLProgram *gauss5Program) const
@@ -161,25 +159,16 @@ namespace en
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);*/
     }
 
-    void PointLight::Use(const GLProgram *program, unsigned int index) const
+    void PointLight::Use(const GLProgram *program) const
     {
-        std::string indexStr = std::to_string(index);
-        program->SetUniformVec3f("point_light_pos[" + indexStr + "]", GetPos());
-        program->SetUniformVec3f("point_light_color[" + indexStr + "]", GetColor());
-        program->SetUniformF("point_light_strength[" + indexStr + "]", GetStrength());
+        program->SetUniformVec3f("light_pos", GetPos());
+        program->SetUniformVec3f("light_color", GetColor());
+        program->SetUniformF("light_strength", GetStrength());
     }
 
     float PointLight::GetStrength() const
     {
         return strength_;
-    }
-
-    void PointLight::UseShadow(const GLProgram* program, unsigned int index) const
-    {
-        int32_t texIndex = 10 + index;
-        glActiveTexture(GL_TEXTURE0 + texIndex);
-        depthCubeMap_.BindTex();
-        program->SetUniformI("point_shadow_tex" + std::to_string(index), texIndex);
     }
 
     std::vector<glm::mat4> PointLight::GetLightMats() const
@@ -211,8 +200,8 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    /*void PointLight::BindEsmCubeMap() const
+    void PointLight::BindDepthCubeMap() const
     {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, esmCubeMap_);
-    }*/
+        depthCubeMap_.BindTex();
+    }
 }

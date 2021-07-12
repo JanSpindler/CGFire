@@ -30,10 +30,10 @@ namespace en
         uint32_t GetHeight() const;
 
         // Shadow
-        void UseShadow(const GLProgram* program) const;
         glm::mat4 GetLightMat() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
+        void BindDepthTex() const;
         void BindEsmTex() const;
 
         void PrepareGauss5(const GLProgram* gauss5Program) const;
@@ -57,7 +57,7 @@ namespace en
     public:
         PointLight(float strength, uint32_t width, uint32_t height);
 
-        void Use(const GLProgram* program, unsigned int index) const;
+        void Use(const GLProgram* program) const;
 
         // Light
         virtual glm::vec3 GetPos() const = 0;
@@ -65,10 +65,10 @@ namespace en
         float GetStrength() const;
 
         // Shadow
-        void UseShadow(const GLProgram* program, unsigned int index) const;
         std::vector<glm::mat4> GetLightMats() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
+        void BindDepthCubeMap() const;
         //void BindEsmCubeMap() const;
 
     private:

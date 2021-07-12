@@ -8,9 +8,9 @@
 
 namespace en
 {
-    GBuffer::GBuffer(int32_t width, int32_t height) :
-        width_(0),
-        height_(0)
+    GBuffer::GBuffer(uint32_t width, uint32_t height) :
+        width_(width),
+        height_(height)
     {
         glGenFramebuffers(1, &fbo_);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
@@ -90,14 +90,8 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void GBuffer::Resize(int32_t width, int32_t height)
+    void GBuffer::Resize(uint32_t width, uint32_t height)
     {
-        if (width == 0 || height == 0)
-            return;
-
-        if (width == width_ && height == height_)
-            return;
-
         glBindTexture(GL_TEXTURE_2D, posTex_);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
 

@@ -22,7 +22,7 @@ namespace en
         SceneRenderer(int32_t width, int32_t height, bool advancedShadow, bool postProcess);
 
         void Render(const Window* window, const Camera* cam) const;
-        void Resize(int32_t width, int32_t height);
+        void Resize(uint32_t width, uint32_t height);
 
         void AddStandardRenderObj(const RenderObj* renderObj);
         void RemoveStandardRenderObj(const RenderObj* renderObj);
@@ -62,6 +62,11 @@ namespace en
         const GLProgram* grainProgram_;
         const GLProgram* bloomExtractProgram_;
         const GLProgram* bloomCombineProgram_;
+        const GLProgram* deferredDirProgram_;
+        const GLProgram* deferredPointProgram_;
+
+        uint32_t width_;
+        uint32_t height_;
 
         std::vector<const RenderObj*> standardRenderObjs_;
         std::vector<const RenderObj*> fixedColorRenderObjs_;

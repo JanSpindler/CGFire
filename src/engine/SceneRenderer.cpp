@@ -25,24 +25,22 @@ namespace en
         CreateFullScreenVao();
         CreateSkyboxVao();
 
-        if (postProcess_)
-        {
-            glGenTextures(1, &screenTmpTex0_);
-            glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // Temp textures
+        glGenTextures(1, &screenTmpTex0_);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-            glGenTextures(1, &screenTmpTex1_);
-            glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenTextures(1, &screenTmpTex1_);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void SceneRenderer::Render(const Window* window, const Camera* cam) const
@@ -77,20 +75,25 @@ namespace en
             PostProcess(width, height);
     }
 
-    void SceneRenderer::Resize(int32_t width, int32_t height)
+    void SceneRenderer::Resize(uint32_t width, uint32_t height)
     {
+        if (width == 0 || height == 0)
+            return;
+        if (width == width_ && height == height_)
+            return;
+
         gBuffer_.Resize(width, height);
 
-        if (postProcess_)
-        {
-            glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
 
-            glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
 
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        width_ = width;
+        height_ = height;
     }
 
     void SceneRenderer::AddStandardRenderObj(const RenderObj* renderObj)
@@ -257,6 +260,14 @@ namespace en
             const GLShader* bloomCombineFrag = GLShader::Load("CGFire/bloom_combine.frag");
             bloomCombineProgram_ = GLProgram::Load(bloomCombineVert, nullptr, bloomCombineFrag);
         }
+
+        const GLShader* defDirVert = GLShader::Load("CGFire/deferred_dir.vert");
+        const GLShader* defDirFrag = GLShader::Load("CGFire/deferred_dir.frag");
+        deferredDirProgram_ = GLProgram::Load(defDirVert, nullptr, defDirFrag);
+
+        const GLShader* defPointVert = GLShader::Load("CGFire/deferred_point.vert");
+        const GLShader* defPointFrag = GLShader::Load("CGFire/deferred_point.frag");
+        deferredPointProgram_ = GLProgram::Load(defPointVert, nullptr, defPointFrag);
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -412,48 +423,51 @@ namespace en
 
     void SceneRenderer::RenderDeferredLighting(const Window* window, const Camera* cam) const
     {
-        // Bind screen framebuffer
+        // Bind screen fbo
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // Use program and set uniforms
-        lightingProgram_->Use();
-        lightingProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
+        // Draw dir
+        deferredDirProgram_->Use();
+        deferredDirProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
+        gBuffer_.UseTextures(deferredDirProgram_);
 
-        // Bind GBuffer
-        gBuffer_.UseTextures(lightingProgram_);
-
-        // Dir light
-        glm::mat4 dirLightMat = dirLight_->GetLightMat();
-        lightingProgram_->SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);
-        dirLight_->Use(lightingProgram_);
-        dirLight_->UseShadow(lightingProgram_);
-
-        // Esm
-        lightingProgram_->SetUniformB("use_esm", advancedShadow_);
-
-        // Dir esm
+        deferredDirProgram_->SetUniformMat4("light_mat", false, &dirLight_->GetLightMat()[0][0]);
+        dirLight_->Use(deferredDirProgram_);
+        glActiveTexture(GL_TEXTURE4);
+        dirLight_->BindDepthTex();
+        deferredDirProgram_->SetUniformI("shadow_tex", 4);
+        deferredDirProgram_->SetUniformB("use_esm", advancedShadow_);
         glActiveTexture(GL_TEXTURE5);
         dirLight_->BindEsmTex();
-        lightingProgram_->SetUniformI("dir_shadow_esm_tex", 5);
+        deferredDirProgram_->SetUniformI("shadow_esm_tex", 5);
 
-        // Point light
-        const int32_t pointLightCount = std::min((int)pointLights_.size(), 24);
-        lightingProgram_->SetUniformI("point_light_count", pointLightCount);
-        for (uint32_t i = 0; i < pointLightCount; i++)
-        {
-            const PointLight* pointLight = pointLights_[i];
-            pointLight->Use(lightingProgram_, i);
-            pointLight->UseShadow(lightingProgram_, i);
-
-            // Point esm
-            /*glActiveTexture(GL_TEXTURE6);
-            pointLight->BindEsmCubeMap();
-            lightingProgram_->SetUniformI("point_shadow_esm_tex" + std::to_string(i), 6);*/
-        }
-
-        // Draw screen
         glBindVertexArray(fullScreenVao_);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Draw points
+        glDepthFunc(GL_LEQUAL);
+        deferredPointProgram_->Use();
+        gBuffer_.UseTextures(deferredPointProgram_);
+        deferredPointProgram_->SetUniformB("use_esm", advancedShadow_);
+        for (const PointLight* pointLight : pointLights_)
+        {
+            // Copy old image
+            glCopyTextureSubImage2D(screenTmpTex0_, 0, 0, 0, 0, 0, width_, height_);
+            glBindTextureUnit(4, screenTmpTex0_);
+            deferredPointProgram_->SetUniformI("old_tex", 4);
+
+            // PointLight specific uniforms
+            pointLight->Use(deferredPointProgram_);
+            glActiveTexture(GL_TEXTURE5);
+            pointLight->BindDepthCubeMap();
+            deferredPointProgram_->SetUniformI("shadow_tex", 5);
+
+            // Draw
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        }
+        glDepthFunc(GL_LESS);
+
+        // End
         glBindVertexArray(0);
     }
 
