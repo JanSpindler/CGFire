@@ -68,9 +68,11 @@ int main()
             4096,
             4096);
 
-    en::SimplePointLight pointLight(glm::vec3(1.0f, 1.0f, 1.0f), 200.0f, 512, 512);
-    pointLight.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
-    std::vector<const en::PointLight*> pointLights = { (const en::PointLight*)&pointLight };
+    en::SimplePointLight pointLight0(glm::vec3(1.0f, 0.0f, 0.0f), 200.0f, 512, 512);
+    pointLight0.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
+
+    en::SimplePointLight pointLight1(glm::vec3(0.0f, 1.0f, 1.0f), 100.0f, 512, 512);
+    pointLight1.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
 
     // Skybox
     en::GLSkyboxTex skyboxTex("CGFire/skybox1", ".png", false);
@@ -84,16 +86,17 @@ int main()
     en::SceneRenderer sceneRenderer(window.GetWidth(), window.GetHeight(), true, true);
 
     sceneRenderer.SetDirLight(&dirLight);
-    sceneRenderer.AddPointLight(&pointLight);
+    sceneRenderer.AddPointLight(&pointLight0);
+    sceneRenderer.AddPointLight(&pointLight1);
 
     sceneRenderer.AddStandardRenderObj(&backpackModel);
-    //sceneRenderer.AddStandardRenderObj(&floorModel);
     sceneRenderer.AddStandardRenderObj(&terrain);
     sceneRenderer.AddStandardRenderObj(&dragonModel);
     sceneRenderer.AddStandardRenderObj(&testModel);
-    //sceneRenderer.AddStandardRenderObj(&splineFollowModel);
+    sceneRenderer.AddStandardRenderObj(&splineFollowModel);
 
-    sceneRenderer.AddFixedColorRenderObj(&pointLight);
+    sceneRenderer.AddFixedColorRenderObj(&pointLight0);
+    sceneRenderer.AddFixedColorRenderObj(&pointLight1);
 
     sceneRenderer.AddReflectiveRenderObj(&reflectModel, 2.0f, 1.0f);
 
@@ -101,31 +104,33 @@ int main()
 
     sceneRenderer.SetSkyboxTex(&skyboxTex);
 
+    cam.TrackSpline(&spline);
+
     // Main loop
     en::Log::Info("Staring main loop");
     while (window.IsOpen())
     {
-        //en::Log::Info("Iteration");
-
         // Setup
         window.Update();
         en::Input::Update();
         en::Time::Update();
         float deltaTime = (float) en::Time::GetDeltaTime();
-        sceneRenderer.Resize(window.GetWidth(), window.GetHeight()); // TODO: maybe something more performant
+        sceneRenderer.Resize(window.GetWidth(), window.GetHeight());
 
         en::Input::HandleUserCamInput(&window, &cam, deltaTime);
 
         // Physics
-        pointLight.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight.t_;
+        pointLight0.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight0.t_;
         backpackModel.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         dragonModel.t_ = dragonModel.t_ * glm::rotate(deltaTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
         reflectModel.t_ = glm::rotate(deltaTime * 0.4f, glm::vec3(0.0f, 1.0f, 0.0f)) * reflectModel.t_;
-        //splineFollowModel.t_ = glm::translate(spline.IterateRelative(&iterator, deltaTime * 0.5f));
+        splineFollowModel.t_ = glm::translate(spline.IterateRelative(&iterator, 10.0f * deltaTime));
+
+        cam.TrackStep(deltaTime * 2.0f, glm::vec3(0.0f));
 
         // Render
         cam.SetAspectRatio(window.GetAspectRatio());
-        sceneRenderer.Render(&window, &cam);
+        sceneRenderer.Render(&cam);
     }
 
     DeleteRemainingResources();

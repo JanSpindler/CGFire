@@ -27,7 +27,7 @@ namespace en
 
         Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type);
 
-        glm::vec3 IterateRelative(Iterator* i, float t) const;
+        glm::vec3 IterateRelative(Iterator* iterator, float t) const;
         glm::vec3 IterateAbsolute(float t) const;
 
         unsigned int GetControlPointCount() const;

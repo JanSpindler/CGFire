@@ -10,7 +10,7 @@
 
 namespace en
 {
-    SceneRenderer::SceneRenderer(int32_t width, int32_t height, bool advancedShadow, bool postProcess) :
+    SceneRenderer::SceneRenderer(uint32_t width, uint32_t height, bool advancedShadow, bool postProcess) :
             advancedShadow_(advancedShadow),
             postProcess_(postProcess),
             standardRenderObjs_({}),
@@ -19,35 +19,18 @@ namespace en
             pointLights_({}),
             reflectiveMaps_({}),
             skyboxTex_(nullptr),
+            width_(width),
+            height_(height),
             gBuffer_(width, height)
     {
         LoadPrograms();
         CreateFullScreenVao();
         CreateSkyboxVao();
-
-        // Temp textures
-        glGenTextures(1, &screenTmpTex0_);
-        glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        glGenTextures(1, &screenTmpTex1_);
-        glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
+        CreateScreenTmpTex();
     }
 
-    void SceneRenderer::Render(const Window* window, const Camera* cam) const
+    void SceneRenderer::Render(const Camera* cam) const
     {
-        uint32_t width = window->GetWidth();
-        uint32_t height = window->GetHeight();
-
         glm::mat4 viewMat = cam->GetViewMat();
         glm::mat4 skyboxViewMat = glm::mat4(glm::mat3(viewMat));
         glm::mat4 projMat = cam->GetProjMat();
@@ -60,9 +43,11 @@ namespace en
         RenderPointShadows();
         RenderReflectiveMaps();
 
-        window->UseViewport();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, width_, height_);
+
         RenderDeferredGeometry(viewMatP, projMatP);
-        RenderDeferredLighting(window, cam);
+        RenderDeferredLighting(cam->GetPos());
 
         gBuffer_.CopyDepthBufToDefaultFb();
         RenderFixedColor(viewMatP, projMatP);
@@ -72,7 +57,7 @@ namespace en
         RenderSkybox(skyboxViewMatP, projMatP);
 
         if (postProcess_)
-            PostProcess(width, height);
+            PostProcess(width_, height_);
     }
 
     void SceneRenderer::Resize(uint32_t width, uint32_t height)
@@ -361,6 +346,27 @@ namespace en
         glBindVertexArray(0);
     }
 
+    void SceneRenderer::CreateScreenTmpTex()
+    {
+        glGenTextures(1, &screenTmpTex0_);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width_, height_, 0, GL_RGBA, GL_FLOAT, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glGenTextures(1, &screenTmpTex1_);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width_, height_, 0, GL_RGBA, GL_FLOAT, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     void SceneRenderer::RenderDirShadow() const
     {
         dirShadowProgram_->Use();
@@ -421,14 +427,14 @@ namespace en
         gBuffer_.Unbind();
     }
 
-    void SceneRenderer::RenderDeferredLighting(const Window* window, const Camera* cam) const
+    void SceneRenderer::RenderDeferredLighting(glm::vec3 camPos) const
     {
         // Bind screen fbo
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // Draw dir
         deferredDirProgram_->Use();
-        deferredDirProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
+        deferredDirProgram_->SetUniformVec3f("cam_pos", camPos);
         gBuffer_.UseTextures(deferredDirProgram_);
 
         deferredDirProgram_->SetUniformMat4("light_mat", false, &dirLight_->GetLightMat()[0][0]);
@@ -449,6 +455,7 @@ namespace en
         deferredPointProgram_->Use();
         gBuffer_.UseTextures(deferredPointProgram_);
         deferredPointProgram_->SetUniformB("use_esm", advancedShadow_);
+        deferredPointProgram_->SetUniformVec3f("cam_pos", camPos);
         for (const PointLight* pointLight : pointLights_)
         {
             // Copy old image

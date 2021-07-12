@@ -41,47 +41,49 @@ namespace en
         }
     }
 
-    glm::vec3 Spline3D::IterateRelative(Iterator* i, float t) const
+    glm::vec3 Spline3D::IterateRelative(Iterator* iterator, float t) const
     {
         if (t == 0.0f)
             Log::Error("t must be greater than 0.0 to iterate Spline", true);
         if (t < 0.0f)
             Log::Error("Spline3D iteration does not support negative t", true);
-        if (i->lastPoint < 0 || i->lastPoint >= points_.size())
+        if (iterator->lastPoint < 0 || iterator->lastPoint >= points_.size())
             Log::Error("i->lastPoint exceeded bounds", true);
 
-        t += i->lastInterp;
-        glm::vec3 lP;
-        while (t > 0.0f)
+        t += iterator->lastInterp;
+
+        uint32_t i = iterator->lastPoint;
+        while (t > segmentLengths_[i])
         {
-            float segmentLen = segmentLengths_[i->lastPoint];
-            if (t > segmentLen)
-            {
-                t -= segmentLen;
-                i->lastPoint++;
-            }
-            else if (t < segmentLen)
-            {
-                float delta = segmentLen - t;
-                t = 0.0f;
-                i->lastInterp = t + delta;
-                lP = glm::lerp(points_[i->lastPoint], points_[i->lastPoint + 1], i->lastInterp / segmentLen);
-            }
-            else
-            {
-                i->lastPoint++;
-                i->lastInterp = 0.0f;
-                lP = points_[i->lastPoint];
-                t = 0.0f;
-            }
+            t -= segmentLengths_[i];
+            i++;
+            i %= segmentLengths_.size();
         }
-        return lP;
+
+        iterator->lastInterp = t;
+        iterator->lastPoint = i;
+        return glm::lerp(points_[i], points_[i + 1], t / segmentLengths_[i]);
     }
 
     glm::vec3 Spline3D::IterateAbsolute(float t) const
     {
-        Iterator i = { 0, 0.0f };
-        return IterateRelative(&i, t);
+        if (t < 0.0f)
+            Log::Error("t cannot be negative", true);
+
+        while (t > totalLength_)
+            t -= totalLength_;
+
+        uint32_t i = 0;
+        while (t > segmentLengths_[i])
+        {
+            t -= segmentLengths_[i];
+            i++;
+        }
+        if (i == points_.size() - 1)
+            i = 0;
+
+        t /= segmentLengths_[i];
+        return glm::lerp(points_[i], points_[i + 1], t);
     }
 
     unsigned int Spline3D::GetControlPointCount() const

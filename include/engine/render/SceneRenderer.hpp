@@ -19,9 +19,9 @@ namespace en
     class SceneRenderer
     {
     public:
-        SceneRenderer(int32_t width, int32_t height, bool advancedShadow, bool postProcess);
+        SceneRenderer(uint32_t width, uint32_t height, bool advancedShadow, bool postProcess);
 
-        void Render(const Window* window, const Camera* cam) const;
+        void Render(const Camera* cam) const;
         void Resize(uint32_t width, uint32_t height);
 
         void AddStandardRenderObj(const RenderObj* renderObj);
@@ -89,12 +89,13 @@ namespace en
         void LoadPrograms();
         void CreateFullScreenVao();
         void CreateSkyboxVao();
+        void CreateScreenTmpTex();
 
         void RenderDirShadow() const;
         void RenderPointShadows() const;
 
         void RenderDeferredGeometry(const float* viewMat, const float* projMat) const;
-        void RenderDeferredLighting(const Window* window, const Camera* cam) const;
+        void RenderDeferredLighting(glm::vec3 camPos) const;
 
         void RenderFixedColor(const float* viewMat, const float* projMat) const;
         void RenderSplines(const float* viewMat, const float* projMat) const;
