@@ -47,12 +47,21 @@ namespace en
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, specularTex_, 0);
 
+        // Motion vec texture
+        glGenTextures(1, &motionTex_);
+        glBindTexture(GL_TEXTURE_2D, motionTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, motionTex_, 0);
+
         // Add color attachments to frambuffer
         std::vector<uint32_t> colorAttachments = {
                 GL_COLOR_ATTACHMENT0,
                 GL_COLOR_ATTACHMENT1,
                 GL_COLOR_ATTACHMENT2,
-                GL_COLOR_ATTACHMENT3
+                GL_COLOR_ATTACHMENT3,
+                GL_COLOR_ATTACHMENT4
         };
         glDrawBuffers(colorAttachments.size(), colorAttachments.data());
 
@@ -75,6 +84,7 @@ namespace en
         glDeleteTextures(1, &normalTex_);
         glDeleteTextures(1, &diffuseTex_);
         glDeleteTextures(1, &specularTex_);
+        glDeleteTextures(1, &motionTex_);
         glDeleteRenderbuffers(1, &depthBuffer_);
         glDeleteFramebuffers(1, &fbo_);
     }
@@ -104,6 +114,11 @@ namespace en
         glBindTexture(GL_TEXTURE_2D, specularTex_);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 
+        glBindTexture(GL_TEXTURE_2D, motionTex_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
         glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer_);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -114,21 +129,35 @@ namespace en
 
     void GBuffer::UseTextures(const GLProgram* program) const
     {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, posTex_);
+        glBindTextureUnit(0, posTex_);
         program->SetUniformI("pos_tex", 0);
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, normalTex_);
+        glBindTextureUnit(1, normalTex_);
         program->SetUniformI("normal_tex", 1);
 
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, diffuseTex_);
+        glBindTextureUnit(2, diffuseTex_);
         program->SetUniformI("diffuse_tex", 2);
 
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, specularTex_);
+        glBindTextureUnit(3, specularTex_);
         program->SetUniformI("specular_tex", 3);
+    }
+
+    void GBuffer::UseTexturesSSAO(const GLProgram *program) const
+    {
+        glBindTextureUnit(0, posTex_);
+        program->SetUniformI("pos_tex", 0);
+
+        glBindTextureUnit(1, normalTex_);
+        program->SetUniformI("normal_tex", 1);
+    }
+
+    void GBuffer::UseTextureMotionBlur(const GLProgram *program) const
+    {
+        glBindTextureUnit(1, motionTex_);
+        program->SetUniformI("motiontex", 1);
+
+        glBindTextureUnit(2, posTex_);
+        program->SetUniformI("postex", 2);
     }
 
     void GBuffer::CopyDepthBufToDefaultFb() const

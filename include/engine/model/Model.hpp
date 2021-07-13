@@ -33,6 +33,11 @@ namespace en
         void RenderDiffuse(const GLProgram* program) const override;
         void RenderAll(const GLProgram* program) const override;
 
+        uint32_t GetMeshCount() const;
+
+        const Material* GetMeshMaterial(uint32_t meshIndex) const;
+        void SetMeshMaterial(const Material* material, uint32_t meshIndex);
+
         std::map<std::string, boneinfo> getbonemap();
         int getbonecount() const;
         const std::vector<Mesh*>& GetMeshes() const;

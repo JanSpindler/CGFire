@@ -21,8 +21,11 @@ namespace en
             skyboxTex_(nullptr),
             width_(width),
             height_(height),
-            gBuffer_(width, height)
+            gBuffer_(width, height),
+            ssao_(width, height)
     {
+        useSsao_ = true;
+
         LoadPrograms();
         CreateFullScreenVao();
         CreateSkyboxVao();
@@ -47,6 +50,8 @@ namespace en
         glViewport(0, 0, width_, height_);
 
         RenderDeferredGeometry(viewMatP, projMatP);
+        if (useSsao_)
+            ssao_.dossao(ssaoProgram_, ssaoBlurProgram_, &gBuffer_, cam, width_, height_);
         RenderDeferredLighting(cam->GetPos());
 
         gBuffer_.CopyDepthBufToDefaultFb();
@@ -68,6 +73,8 @@ namespace en
             return;
 
         gBuffer_.Resize(width, height);
+        ssao_.makessaofbo(width, height);
+        ssao_.makeblurfbo(width, height);
 
         glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
@@ -211,10 +218,6 @@ namespace en
         const GLShader* geomFrag = GLShader::Load("CGFire/deferred_geometry.frag");
         geometryProgram_ = GLProgram::Load(geomVert, nullptr, geomFrag);
 
-        const GLShader* lightVert = GLShader::Load("CGFire/deferred_lighting.vert");
-        const GLShader* lightFrag = GLShader::Load("CGFire/deferred_lighting.frag");
-        lightingProgram_ = GLProgram::Load(lightVert, nullptr, lightFrag);
-
         const GLShader* skyboxVert = GLShader::Load("CGFire/skybox.vert");
         const GLShader* skyboxFrag = GLShader::Load("CGFire/skybox.frag");
         skyboxProgram_ = GLProgram::Load(skyboxVert, nullptr, skyboxFrag);
@@ -253,6 +256,9 @@ namespace en
         const GLShader* defPointVert = GLShader::Load("CGFire/deferred_point.vert");
         const GLShader* defPointFrag = GLShader::Load("CGFire/deferred_point.frag");
         deferredPointProgram_ = GLProgram::Load(defPointVert, nullptr, defPointFrag);
+
+        ssaoProgram_ = ssao_.makessaoprogram();
+        ssaoBlurProgram_ = ssao_.makeblurprogram();
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -439,13 +445,17 @@ namespace en
 
         deferredDirProgram_->SetUniformMat4("light_mat", false, &dirLight_->GetLightMat()[0][0]);
         dirLight_->Use(deferredDirProgram_);
-        glActiveTexture(GL_TEXTURE4);
-        dirLight_->BindDepthTex();
-        deferredDirProgram_->SetUniformI("shadow_tex", 4);
         deferredDirProgram_->SetUniformB("use_esm", advancedShadow_);
-        glActiveTexture(GL_TEXTURE5);
+
+        glActiveTexture(GL_TEXTURE10);
+        dirLight_->BindDepthTex();
+        deferredDirProgram_->SetUniformI("shadow_tex", 10);
+
+        glActiveTexture(GL_TEXTURE11);
         dirLight_->BindEsmTex();
-        deferredDirProgram_->SetUniformI("shadow_esm_tex", 5);
+        deferredDirProgram_->SetUniformI("shadow_esm_tex", 11);
+
+        ssao_.usessaotex(deferredDirProgram_, 12);
 
         glBindVertexArray(fullScreenVao_);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -460,14 +470,14 @@ namespace en
         {
             // Copy old image
             glCopyTextureSubImage2D(screenTmpTex0_, 0, 0, 0, 0, 0, width_, height_);
-            glBindTextureUnit(4, screenTmpTex0_);
-            deferredPointProgram_->SetUniformI("old_tex", 4);
+            glBindTextureUnit(10, screenTmpTex0_);
+            deferredPointProgram_->SetUniformI("old_tex", 10);
 
             // PointLight specific uniforms
             pointLight->Use(deferredPointProgram_);
-            glActiveTexture(GL_TEXTURE5);
+            glActiveTexture(GL_TEXTURE11);
             pointLight->BindDepthCubeMap();
-            deferredPointProgram_->SetUniformI("shadow_tex", 5);
+            deferredPointProgram_->SetUniformI("shadow_tex", 11);
 
             // Draw
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

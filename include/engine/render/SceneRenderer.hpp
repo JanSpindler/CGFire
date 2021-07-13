@@ -13,6 +13,7 @@
 #include "GBuffer.hpp"
 #include "../Window.hpp"
 #include "ReflectiveMap.hpp"
+#include "ssao/ssao.h"
 
 namespace en
 {
@@ -51,7 +52,6 @@ namespace en
         bool postProcess_;
 
         const GLProgram* geometryProgram_;
-        const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
         const GLProgram* toEnvMapProgram_;
         const GLProgram* dirShadowProgram_;
@@ -64,6 +64,11 @@ namespace en
         const GLProgram* bloomCombineProgram_;
         const GLProgram* deferredDirProgram_;
         const GLProgram* deferredPointProgram_;
+        const GLProgram* ssaoProgram_;
+        const GLProgram* ssaoBlurProgram_;
+
+        ssao ssao_;
+        bool useSsao_;
 
         uint32_t width_;
         uint32_t height_;

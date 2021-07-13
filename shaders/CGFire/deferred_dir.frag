@@ -17,6 +17,8 @@ uniform sampler2D shadow_tex;
 uniform sampler2D shadow_esm_tex;
 uniform mat4 light_mat;
 
+uniform sampler2D ssao_tex;
+
 const float pi = 3.14159265359;
 const float c = 80.0;
 
@@ -81,10 +83,14 @@ void main()
     vec4 specular_tex_val = texture(specular_tex, frag_uv);
     vec3 specular_color = specular_tex_val.rgb;
     float shininess = specular_tex_val.a;
+    float ao = texture(ssao_tex, frag_uv).r;
+
+    // Calculate ambient oclusion
+    vec3 ambient_result = diffuse_color * ao * 0.3;
 
     // Calculate light shadow
     vec3 light_result = get_dir_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess);
 
     // Final result
-    frag_color = vec4(light_result, 1.0);
+    frag_color = vec4(ambient_result + light_result, 1.0);
 }

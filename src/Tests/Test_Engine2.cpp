@@ -106,6 +106,8 @@ int main()
 
     cam.TrackSpline(&spline);
 
+    testModel.SetMeshMaterial(backpackModel.GetMeshMaterial(0), 0);
+
     // Main loop
     en::Log::Info("Staring main loop");
     while (window.IsOpen())
@@ -118,7 +120,7 @@ int main()
         sceneRenderer.Resize(window.GetWidth(), window.GetHeight());
 
         en::Input::HandleUserCamInput(&window, &cam, deltaTime);
-
+        
         // Physics
         pointLight0.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight0.t_;
         backpackModel.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));

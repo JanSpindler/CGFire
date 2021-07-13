@@ -74,7 +74,8 @@ file(GLOB_RECURSE engineSOURCES
         src/particle/*.cpp
         src/util/*.cpp
         src/RiggingAndBlending/*.cpp
-        src/MotionBlur/*.cpp)
+        src/MotionBlur/*.cpp
+        src/ssao/*.cpp)
 add_library(engineLibrary STATIC ${engineSOURCES})
 target_link_libraries(engineLibrary frameworkLibrary)
 
