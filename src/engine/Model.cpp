@@ -26,7 +26,7 @@ namespace en
 
         Log::Info("model has " + std::to_string(scene->mNumMeshes) + " meshes");
         LoadMaterials(scene);
-        ProcessNode(scene->mRootNode, scene);
+        ProcessNode(scene->mRootNode, scene, glm::identity<glm::mat4>());
     }
 
     Model::~Model()
@@ -221,20 +221,29 @@ namespace en
         }
     }
 
-    void Model::ProcessNode(aiNode* node, const aiScene* scene)
+    void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentT)
     {
+        aiMatrix4x4 localAiT = node->mTransformation;
+        glm::mat4 localT (
+                localAiT.a1, localAiT.b1, localAiT.c1, localAiT.d1,
+                localAiT.a2, localAiT.b2, localAiT.c2, localAiT.d2,
+                localAiT.a3, localAiT.b3, localAiT.c3, localAiT.d3,
+                localAiT.a4, localAiT.b4, localAiT.c4, localAiT.d4
+        );
+        glm::mat4 totalT = parentT * localT;
+
         unsigned int meshCount = node->mNumMeshes;
         Log::Info("Node has " + std::to_string(meshCount) + " meshes");
         for (unsigned int i = 0; i < meshCount; i++)
         {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            meshes_.push_back(ProcessMesh(mesh, scene));
+            meshes_.push_back(ProcessMesh(mesh, scene, totalT));
         }
 
         unsigned int childCount = node->mNumChildren;
         Log::Info("Node has " + std::to_string(childCount) + " children");
         for (unsigned int i = 0; i < node->mNumChildren; i++)
-            ProcessNode(node->mChildren[i], scene);
+            ProcessNode(node->mChildren[i], scene, totalT);
     }
 
     std::map<std::string, boneinfo> Model::getbonemap()
@@ -290,7 +299,7 @@ namespace en
 
     }
 
-    Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+    Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 t)
     {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
@@ -320,6 +329,8 @@ namespace en
                 uv.x = mesh->mTextureCoords[0][i].x;
                 uv.y = mesh->mTextureCoords[0][i].y;
             }
+
+            pos = glm::vec3(t * glm::vec4(pos, 1.0f));
 
             Vertex vert(pos, normal, uv);
             vertices.push_back(vert);

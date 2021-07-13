@@ -59,8 +59,8 @@ int main()
     en::Model reflectModel("hd_sphere.obj", false);
     reflectModel.t_ = glm::translate(glm::vec3(0.0f, 0.0, -8.0f));
 
-    en::Model testModel("cube.obj", false);
-    testModel.t_ = glm::translate(glm::vec3(64.0f, 10.0f, 0.0f)) * glm::scale(glm::vec3(5.0f, 5.0f, 5.0f));
+    en::Model testModel("scene/house/Edificio.dae", false);
+    testModel.t_ = glm::translate(glm::vec3(64.0f, 10.0f, 0.0f)) * glm::scale(glm::vec3(10.0f));
 
     en::Model splineFollowModel("cube.obj", false);
 
@@ -108,8 +108,6 @@ int main()
     sceneRenderer.SetSkyboxTex(&skyboxTex);
 
     cam.TrackSpline(&spline);
-
-    testModel.SetMeshMaterial(backpackModel.GetMeshMaterial(0), 0);
 
     // Main loop
     en::Log::Info("Staring main loop");

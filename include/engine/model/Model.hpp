@@ -52,8 +52,8 @@ namespace en
         int bonecount = 0;
 
         void LoadMaterials(const aiScene* scene);
-        void ProcessNode(aiNode* node, const aiScene* scene);
-        Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene);
+        void ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parantT);
+        Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 t);
         void BoneweightforVertices(std::vector<Vertex>& vertices, aiMesh* mesh);
     };
 }
