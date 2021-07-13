@@ -63,14 +63,24 @@ namespace scene {
 
                 renderObj = this->LoadSkeletal(objName, modelfile, animations).get();
             } else if (id == ObjectType::Spline) {
+                //SpecificStuff: loop[0 or 1] resolution[uint] type controlPoints[(x1,y1,z1)(x2,y2,z2)...]
+                bool loop = static_cast<bool>(std::stoi(row[2]));
+                uint32_t resolution = static_cast<uint32_t>(std::stoi(row[3]));
+                uint8_t type = static_cast<uint8_t>(std::stoi(row[4]));
+
+                std::vector<glm::vec3> controlPoints;
+                for (int j = 5; j < row.size(); j+=3){
+                    controlPoints.emplace_back(glm::vec3(
+                            std::stof(row[j]), std::stof(row[j+1]), std::stof(row[j+2])));
+                }
+                renderObj = this->LoadSpline(objName, loop, resolution, type, controlPoints).second.get();
+
             } else {
                 std::cout << "unknown object type-id:!!" << static_cast<int>(id) << std::endl;
                 continue;
             }
             assert(renderObj != nullptr);
 
-            //renderObj->SetName(objName);//already in LoadModel, comment out for now
-            //m_AllRenderObjects.emplace_back(renderObj);//already in LoadModel, comment out for now
 
             //Now read RenderObjData: (Pos3f, RotationVector3f, RotationAngle1f, Scaling3f); it's stored in the next line
             auto RenderObjDataStr = table[i + 1];
@@ -88,11 +98,15 @@ namespace scene {
         CSVWriter csv(SCENE_DATA_ROOT + SceneObjectDataFileName);
 
         for (auto &o : m_Models) {
-            csv << static_cast<int>(ObjectType::Model) << o->GetName() << o->GetPathName() << endrow;
+            csv << static_cast<int>(ObjectType::Model)
+                << o->GetName()
+                << o->GetPathName()<< endrow;
             SaveRenderObjDataToCSV(csv, *o);
         }
         for (auto &o : m_Skeletals) {
-            csv << static_cast<int>(ObjectType::Skeletal) << o->GetName() << o->GetPathName();
+            csv << static_cast<int>(ObjectType::Skeletal)
+                << o->GetName()
+                << o->GetPathName();
             for (auto& p : o->GetAnimationNamesAndFiles()){
                 csv << p.first << p.second;
             }
@@ -100,7 +114,16 @@ namespace scene {
             SaveRenderObjDataToCSV(csv, *o);
         }
         for (auto &o : m_Splines) {
-
+            csv << static_cast<int>(ObjectType::Spline)
+                << o.second->GetName()
+                << static_cast<int>(o.first->IsLooped())
+                << static_cast<int>(o.first->GetResolution())
+                << static_cast<int>(o.first->GetType());
+            for (auto& p : o.first->GetControlPoints()){
+                csv << p.x << p.y << p.z;
+            }
+            csv << endrow;
+            SaveRenderObjDataToCSV(csv, *o.second);
         }
 
     }
@@ -169,7 +192,7 @@ namespace scene {
             /******Skeletal Specific*****/
             if (type == ObjectType::Skeletal) {
                 auto skeletal = dynamic_cast<en::Skeletal *>(&o);
-                OnImGuiSkeletalAnimationsRender(skeletal->GetAnimationNamesAndFiles());
+                OnImGuiSkeletalAnimationsListRender(skeletal->GetAnimationNamesAndFiles());
                 //Render Add-Animation Button
                 std::string animationFileSelection;
                 std::string animationCustomName;
@@ -177,6 +200,10 @@ namespace scene {
                 if (!animationFileSelection.empty() && !animationCustomName.empty()){
                     skeletal->AddAnimation(animationFileSelection, animationCustomName);
                 }
+            } /********Spline Specific*********/
+            else if (type == ObjectType::Spline){
+                auto splineRenderable = dynamic_cast<en::Spline3DRenderable *>(&o);
+                splineRenderable->GetSpline3D()->OnImGuiRender();
             }
 
             ImGui::TreePop();
@@ -228,7 +255,7 @@ namespace scene {
             if (cloneOrDeleteHappened == ButtonClickHappened::Delete){
                 //Remove from scene
                 m_EventManager.OnObjDeletion(o);
-                DeleteRenderObjFromVec(o, m_AllRenderObjects); //important to do this before erasing from models
+                DeleteRenderObjFromVec(o, m_AllRenderObjects); //important to do this before erasing from skeletals
                 m_Skeletals.erase(it);
 
                 m_SceneManager.restart(false);
@@ -248,8 +275,32 @@ namespace scene {
 
         /******Splines****/
         ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Spline ROs:");
-        for (auto &obj : m_Splines) {
-            //OnImGuiObjectRender(ObjectType::Spline, *obj.second);
+        for (auto it = m_Splines.begin(); it != m_Splines.end(); ++it) {
+            tSpline tuple = *it;
+            auto o = tuple.second.get();
+
+            auto cloneOrDeleteHappened = OnImGuiObjectRender(ObjectType::Spline, *o);
+            if (cloneOrDeleteHappened == ButtonClickHappened::Delete){
+                //Remove from scene
+                m_EventManager.OnObjDeletion(o);
+                DeleteRenderObjFromVec(o, m_AllRenderObjects); //important to do this before erasing from splines
+                m_Splines.erase(it);
+
+                m_SceneManager.restart(false);
+                break;
+            }
+            else if (cloneOrDeleteHappened == ButtonClickHappened::Clone){
+                //Clone
+                auto cloneSpline = this->LoadSpline(
+                        this->FindNextAvailableName(o->GetName()),
+                        tuple.first->IsLooped(),
+                        tuple.first->GetResolution(),
+                        tuple.first->GetType(),
+                        tuple.first->GetControlPoints());
+                assert(cloneSpline.first != nullptr);
+                m_SceneManager.restart(false);
+                break;
+            }
         }
         OnImGuiAddObjectRender(ObjectType::Spline);
 
@@ -322,6 +373,7 @@ namespace scene {
                     OnImGuiAddSkeletalObjRender(s_Name);
                     break;
                 case ObjectType::Spline:
+                    OnImGuiAddSplineObjRender(s_Name);
                     break;
             }
 
@@ -393,6 +445,7 @@ namespace scene {
         }
     }
 
+
     void ObjectManager::OnImGuiAddSkeletalObjRender(const std::string& name){
         static std::string s_FileSelection;
         static std::vector<std::pair<std::string, std::string>> s_AnimationFileSelections; //custom names and animation file names
@@ -411,7 +464,7 @@ namespace scene {
         }
 
         //Render selected Animation-Files
-        OnImGuiSkeletalAnimationsRender(s_AnimationFileSelections);
+        OnImGuiSkeletalAnimationsListRender(s_AnimationFileSelections);
 
 
         //Render Add-Animation Button
@@ -454,9 +507,11 @@ namespace scene {
             }
         }
     }
-    void ObjectManager::OnImGuiSkeletalAnimationsRender(std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths){
+
+    void ObjectManager::OnImGuiSkeletalAnimationsListRender(std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths){
         ImGui::Text("Animations:");
         for (int i = 0; i < animationNamesAndFilePaths.size(); i++){
+            ImGui::PushID(i);
             ImGui::TextColored(ImVec4(0.f, 1.f, 0.75f, 1.f),
                                "%s", animationNamesAndFilePaths[i].first.c_str());
             ImGui::SameLine();
@@ -466,10 +521,13 @@ namespace scene {
             if (ImGui::Button("Delete")){
                 animationNamesAndFilePaths.erase(animationNamesAndFilePaths.begin() + i);
                 //TODO maybe OnAnimationDeleted in Events manager
+                ImGui::PopID();
                 break;
             }
+            ImGui::PopID();
         }
     }
+
     void ObjectManager::OnImGuiAddSkeletalAnimationButtonRender(std::string& animationCustomName, std::string& animationFileSelection){
 
         static std::string s_AnimationFileSelection;
@@ -515,6 +573,51 @@ namespace scene {
         }
     }
 
+    void ObjectManager::OnImGuiAddSplineObjRender(const std::string& name){
+        static bool s_Loop = false;
+        ImGui::Checkbox("loop", &s_Loop);
+
+        static int s_Resolution = 32;
+        ImGui::DragInt("Resolution", &s_Resolution, 1, 1, 150);
+
+        static int s_Type = 0;
+        ImGui::Combo("Type ", &s_Type, "CATMULL_ROM\0NATURAL_CUBIC\0");
+
+        static std::vector<glm::vec3> s_ControlPoints({
+            glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 5.f, 0.f),
+            glm::vec3(5.f, 5.f, 0.f), glm::vec3(0.f, 5.f, 5.f)});
+
+        //OK-Button to finish spline creation
+        if (ImGui::Button("OK")) {
+
+            bool isLegit = true;
+
+            if (name.empty())
+                isLegit = false;
+
+            if (isLegit) {
+                //Add new Spline
+                auto spline = this->LoadSpline(name, s_Loop, s_Resolution, s_Type, s_ControlPoints);
+                if (spline.first != nullptr) {
+                    SaveToFile();
+                    m_EventManager.OnCreateNewObj(ObjectType::Spline, spline.second.get()); //Creates by default a ShowRenderObjEvent event
+                    ImGui::CloseCurrentPopup();
+                }
+                else{
+                    ImGui::OpenPopup("Error");
+                }
+
+            } else {
+                ImGui::OpenPopup("Error");
+            }
+        }
+    }
+
+    void OnImGuiSplineSettingsRender(){
+
+    }
+
+
     bool ObjectManager::DoesObjNameExistAlready(const std::string& name){
         for (auto& m : m_AllRenderObjects){ //check if name already exists
             if (m->GetName() == name){
@@ -543,6 +646,7 @@ namespace scene {
         m_AllRenderObjects.emplace_back(model.get());
         return model;
     }
+
     std::shared_ptr<en::Skeletal> ObjectManager::LoadSkeletal(const std::string& name, const std::string& file,
                                                               std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths){
         if (DoesObjNameExistAlready(name))
@@ -555,5 +659,27 @@ namespace scene {
         m_Skeletals.emplace_back(skeletal);
         m_AllRenderObjects.emplace_back(skeletal.get());
         return skeletal;
+    }
+    tSpline ObjectManager::LoadSpline(const std::string& name,
+                                      bool loop,
+                                      uint32_t resolution,
+                                      uint8_t type,
+                                      const std::vector<glm::vec3>& controlPoints){
+        if (DoesObjNameExistAlready(name))
+            return std::make_pair(nullptr, nullptr);
+        auto spline3d = std::make_shared<en::Spline3D>(controlPoints, loop, resolution, type);
+        auto splineRenderable = std::make_shared<en::Spline3DRenderable>(spline3d.get());
+        splineRenderable->SetName(name);
+
+        tSpline spline = std::make_pair(spline3d, splineRenderable);
+        m_Splines.emplace_back(spline);
+        m_AllRenderObjects.emplace_back(splineRenderable.get());
+        return spline;
+    }
+
+    void ObjectManager::OnRecalculateSplines(){
+        for (auto& spline : m_Splines){
+            //TODO: recalculate spline
+        }
     }
 }

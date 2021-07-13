@@ -35,6 +35,7 @@ namespace scene {
         m_TimePaused = false;
         m_AutoSave =  true;
         m_ReloadEventsPeriodically = true;
+        m_RecalculateSplinesPeriodically = true;
     }
 
     void SceneManager::onUpdate(float dt) {
@@ -48,6 +49,11 @@ namespace scene {
             this->restart(false);
         }
 
+        if (m_RecalculateSplinesPeriodically){
+            m_TimeSinceRecalculateSplines = 0.f;
+            m_ObjectManager.OnRecalculateSplines();
+        }
+
         m_FPS = static_cast<int>(1.f/dt);
 
         if (m_TimePaused)
@@ -56,6 +62,7 @@ namespace scene {
         m_SceneTime += dt;
         m_TimeSinceAutoSave += dt;
         m_TimeSinceReloadEvents += dt;
+        m_TimeSinceRecalculateSplines += dt;
 
         m_SceneRenderer.Resize(m_Window.GetWidth(), m_Window.GetHeight()); // TODO: maybe something more performant
 
@@ -106,10 +113,18 @@ namespace scene {
         ImGui::SameLine();
         ImGui::Text("seconds");
 
-        ImGui::Checkbox("Auto-Reload Modified Events every", &m_ReloadEventsPeriodically);
+        ImGui::Checkbox("Auto-Reload Events every", &m_ReloadEventsPeriodically);
         ImGui::SameLine();
         ImGui::PushItemWidth(100);
         ImGui::DragFloat("##ReloadEventsEveryXSeconds", &m_ReloadEventsEveryXSeconds, 0.1f, 0.f);
+        ImGui::PopItemWidth();
+        ImGui::SameLine();
+        ImGui::Text("seconds");
+
+        ImGui::Checkbox("Auto-Recalculate Splines every", &m_RecalculateSplinesPeriodically);
+        ImGui::SameLine();
+        ImGui::PushItemWidth(100);
+        ImGui::DragFloat("##RecalculateSplinesEveryXSeconds", &m_RecalculateSplinesEveryXSeconds, 0.1f, 0.f);
         ImGui::PopItemWidth();
         ImGui::SameLine();
         ImGui::Text("seconds");

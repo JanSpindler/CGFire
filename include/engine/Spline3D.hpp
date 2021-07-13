@@ -8,6 +8,7 @@
 #include <vector>
 #include "render/Renderable.hpp"
 #include <glm/glm.hpp>
+#include "framework/imgui_util.hpp"
 
 namespace en
 {
@@ -28,10 +29,17 @@ namespace en
         bool IsLooped() const;
         float GetTotalLength() const;
 
+        uint32_t GetResolution() const;
+        uint8_t GetType() const;
+
+        void OnImGuiRender();
+
     private:
         std::vector<glm::vec3> controlPoints_;
         std::vector<glm::vec3> points_;
         bool loop_;
+        int resolution_;
+        int type_;
         float totalLength_;
         std::vector<float> segmentLengths_;
 
@@ -50,7 +58,7 @@ namespace en
     class Spline3DRenderable : public RenderObj
     {
     public:
-        Spline3DRenderable(const Spline3D* spline);
+        Spline3DRenderable(Spline3D* spline);
 
         void Render(const GLProgram* program); // Deprecated
         void RenderPosOnly(const GLProgram* program);
@@ -59,8 +67,10 @@ namespace en
 
         void OnImGuiRender();
         bool IsRenderObjTypePossible(en::RenderObjType type) const;
+
+        Spline3D* GetSpline3D(){return spline_;};
     private:
-        const Spline3D* spline_;
+        Spline3D* spline_;
         unsigned int lineVao_;
         unsigned int pointVao_;
 

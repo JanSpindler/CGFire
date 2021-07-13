@@ -83,6 +83,11 @@ namespace scene {
         float m_TimeSinceReloadEvents = 0.f;
         float m_ReloadEventsEveryXSeconds = 1.f;
 
+        //Auto recalculate splines --> if splines did change (when modeling), we want to recalculate them every x seconds
+        bool m_RecalculateSplinesPeriodically;
+        float m_TimeSinceRecalculateSplines = 0.f;
+        float m_RecalculateSplinesEveryXSeconds = 0.3f;
+
 
 
         std::vector<std::pair<std::shared_ptr<en::Animator>, bool>> m_AnimatorsAnd;

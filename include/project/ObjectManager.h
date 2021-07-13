@@ -24,6 +24,8 @@ namespace scene {
     class EventManager;
     class SceneManager;
 
+    typedef std::pair<std::shared_ptr<en::Spline3D>, std::shared_ptr<en::Spline3DRenderable>> tSpline;
+
 
     enum class ObjectType {
         Model = 0,
@@ -42,7 +44,7 @@ namespace scene {
 
 
         void OnImGuiRender();
-
+        void OnRecalculateSplines();
 
         en::RenderObj* GetRenderObj(const std::string& name);
 
@@ -57,20 +59,24 @@ namespace scene {
 
         std::vector<std::shared_ptr<en::Model>> m_Models; //Those objects that are models but have no animation
         std::vector<std::shared_ptr<en::Skeletal>> m_Skeletals; //Those objects that are models and have an animation
-        std::vector<std::pair<std::shared_ptr<en::Spline3D>, std::shared_ptr<en::Spline3DRenderable>>> m_Splines;
+        std::vector<tSpline> m_Splines;
+
+        std::vector<std::string> m_FoundObjectFiles; // stores all paths to object files in /models/ directory
+        std::vector<std::string> m_FoundDaeFiles; // stores all paths to Animated object files in /models/ directory
 
         static void SaveRenderObjDataToCSV(util::CSVWriter& writer, en::RenderObj& o);
         static void ReadRenderObjDataFromStrings(const std::vector<std::string>& str, en::RenderObj& o);
 
         void OnImGuiAddObjectRender(ObjectType type);
+
         void OnImGuiAddModelObjRender(const std::string& name); //used by OnImGuiAddObjectRender
+
         void OnImGuiAddSkeletalObjRender(const std::string& name); //used by OnImGuiAddObjectRender
         void OnImGuiAddSkeletalAnimationButtonRender(std::string& animationCustomName, std::string& animationFileSelection);
-        static void OnImGuiSkeletalAnimationsRender(std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths);
+        static void OnImGuiSkeletalAnimationsListRender(std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths);
 
-        std::vector<std::string> m_FoundObjectFiles; // stores all paths to object files in /models/ directory
-        std::vector<std::string> m_FoundDaeFiles; // stores all paths to Animated object files in /models/ directory
-
+        void OnImGuiAddSplineObjRender(const std::string& name);
+        void OnImGuiSplineSettingsRender();
 
         bool DoesObjNameExistAlready(const std::string& name);
         std::string FindNextAvailableName(const std::string& name);
@@ -78,6 +84,11 @@ namespace scene {
         std::shared_ptr<en::Model> LoadModel(const std::string& name, const std::string& file);
         std::shared_ptr<en::Skeletal> LoadSkeletal(const std::string& name, const std::string& file,
                                                    std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths);
+        tSpline LoadSpline(const std::string& name,
+                           bool loop,
+                           uint32_t resolution,
+                           uint8_t type,
+                           const std::vector<glm::vec3>& controlPoints);
 
         enum class ButtonClickHappened {None, Clone, Delete}; //There may be a better approach to this but idk
         ButtonClickHappened ObjectManager::OnImGuiObjectRender(ObjectType type, en::RenderObj& o);
