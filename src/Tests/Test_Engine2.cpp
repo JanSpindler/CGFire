@@ -13,6 +13,9 @@
 #include "engine/Spline3D.hpp"
 #include "engine/prefab/BackgroundTerrain.hpp"
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
 void DeleteRemainingResources()
 {
     en::GLShader::DeleteAll();
@@ -126,7 +129,11 @@ int main()
         backpackModel.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         dragonModel.t_ = dragonModel.t_ * glm::rotate(deltaTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
         reflectModel.t_ = glm::rotate(deltaTime * 0.4f, glm::vec3(0.0f, 1.0f, 0.0f)) * reflectModel.t_;
-        splineFollowModel.t_ = glm::translate(spline.IterateRelative(&iterator, 10.0f * deltaTime));
+
+        glm::vec3 segmentDir = spline.GetSegmentDir(iterator.lastPoint);
+        glm::mat4 rotMat = glm::orientation(segmentDir, glm::vec3(0.0f, 1.0f, 0.0f));
+        splineFollowModel.t_ =
+                glm::translate(spline.IterateRelative(&iterator, 10.0f * deltaTime)) * rotMat;
 
         cam.TrackStep(deltaTime * 2.0f, glm::vec3(0.0f));
 

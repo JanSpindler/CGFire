@@ -86,6 +86,12 @@ namespace en
         return glm::lerp(points_[i], points_[i + 1], t);
     }
 
+    glm::vec3 Spline3D::GetSegmentDir(uint32_t segmentIndex) const
+    {
+        segmentIndex %= segmentLengths_.size();
+        return glm::normalize(points_[segmentIndex + 1] - points_[segmentIndex]);
+    }
+
     unsigned int Spline3D::GetControlPointCount() const
     {
         return controlPoints_.size();

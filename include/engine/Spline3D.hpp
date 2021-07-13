@@ -29,6 +29,7 @@ namespace en
 
         glm::vec3 IterateRelative(Iterator* iterator, float t) const;
         glm::vec3 IterateAbsolute(float t) const;
+        glm::vec3 GetSegmentDir(uint32_t segmentIndex) const;
 
         unsigned int GetControlPointCount() const;
         const std::vector<glm::vec3>& GetControlPoints() const;
