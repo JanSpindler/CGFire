@@ -9,6 +9,8 @@
 namespace en
 {
     Spline3D::Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type)
+    : resolution_(resolution),
+    type_(type)
     {
         controlPoints_ = controlPoints;
         loop_ = loop;
@@ -53,6 +55,15 @@ namespace en
     {
         return totalLength_;
     }
+
+    uint32_t Spline3D::GetResolution() const{
+        return resolution_;
+    }
+    uint8_t Spline3D::GetType() const{
+        return type_;
+    }
+
+
 
 
     void Spline3D::ConstructCatmullRom(uint32_t resolution)
@@ -275,7 +286,8 @@ namespace en
         return part0 + part1 + part2 + part3;
     }
 
-    Spline3DRenderable::Spline3DRenderable(const Spline3D *spline)
+
+    Spline3DRenderable::Spline3DRenderable(Spline3D *spline)
     {
         spline_ = spline;
 
@@ -364,6 +376,38 @@ namespace en
                 return true;
             default:
                 return false;
+        }
+    }
+
+    void Spline3D::OnImGuiRender(){
+        ImGui::Checkbox("loop", &loop_);
+
+        ImGui::DragInt("Resolution", &resolution_, 1, 1, 150);
+
+        ImGui::Combo("Type ", &type_, "CATMULL_ROM\0NATURAL_CUBIC\0");
+
+        int i = 0;
+        for (auto it = controlPoints_.begin(); it != controlPoints_.end(); ++it){
+            ImGui::PushID(i);
+            ImGui::DragFloat3("", &(*it).x);
+            ImGui::SameLine();
+            if(ImGui::Button("Clone")){
+                controlPoints_.insert(it, (*it));
+                ImGui::PopID();
+                break;
+
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Delete")){
+                if (controlPoints_.size() > 4) {
+                    controlPoints_.erase(it);
+                    ImGui::PopID();
+                    break;
+                }
+            }
+
+            ImGui::PopID();
+            i++;
         }
     }
 }
