@@ -17,6 +17,7 @@ namespace en
         Material(
                 const GLPictureTex* diffuseTex,
                 const GLPictureTex* specularTex,
+                const GLPictureTex* normalTex,
                 glm::vec4 diffuseColor,
                 glm::vec4 specularColor,
                 float shininess
@@ -24,13 +25,14 @@ namespace en
         ~Material();
 
         void UseDiffuse(const GLProgram* program, uint32_t diffTexUnit) const;
-        void UseAll(const GLProgram* program, uint32_t diffTexUnit, uint32_t specTexUnit) const;
+        void UseAll(const GLProgram* program, uint32_t diffTexUnit, uint32_t specTexUnit, uint32_t normalTexUnit) const;
 
         glm::vec4 GetDiffuseColor() const;
 
     private:
         const GLPictureTex* diffuseTex_;
         const GLPictureTex* specularTex_;
+        const GLPictureTex* normalTex_;
         glm::vec4 diffuseColor_;
         glm::vec4 specularColor_;
         float shininess_;

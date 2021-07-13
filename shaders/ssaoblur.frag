@@ -8,7 +8,8 @@ out float blurredocc;
 
 const float offsets[] = {-1.5, -0.5, 0.5, 1.5};
 
-void main(){
+void main()
+{
     vec2 texelsize =1.0f/vec2(textureSize(ssaores,0));
     float result = 0.0f;
     //for (int x = 0; x<4;x++){

@@ -7,7 +7,6 @@
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
 #include "util/assimptoglmmatrix.h"
-#include <glm/gtx/string_cast.hpp>
 
 namespace en
 {
@@ -28,7 +27,7 @@ namespace en
 
         Log::Info("model has " + std::to_string(scene->mNumMeshes) + " meshes");
         LoadMaterials(scene);
-        ProcessNode(scene->mRootNode, scene);
+        ProcessNode(scene->mRootNode, scene, glm::identity<glm::mat4>());
     }
 
     Model::~Model()
@@ -71,6 +70,25 @@ namespace en
             mesh->RenderAll(program);
     }
 
+    uint32_t Model::GetMeshCount() const
+    {
+        return meshes_.size();
+    }
+
+    const Material* Model::GetMeshMaterial(uint32_t meshIndex) const
+    {
+        if (meshIndex >= meshes_.size())
+            Log::Error("Mesh index exceeds boundaries", true);
+        return meshes_[meshIndex]->GetMaterial();
+    }
+
+    void Model::SetMeshMaterial(const Material *material, uint32_t meshIndex)
+    {
+        if (meshIndex >= meshes_.size())
+            Log::Error("Mesh index exceeds boundaries", true);
+        meshes_[meshIndex]->SetMaterial(material);
+    }
+
     const std::vector<Mesh*>& Model::GetMeshes() const
     {
         return meshes_;
@@ -89,8 +107,10 @@ namespace en
             aiMaterial* aiMat = scene->mMaterials[i];
             int diffuseTexCount = aiMat->GetTextureCount(aiTextureType_DIFFUSE);
             int specularTexCount = aiMat->GetTextureCount(aiTextureType_SPECULAR);
+            int normalTexCount = aiMat->GetTextureCount(aiTextureType_NORMALS);
             Log::Info("Material " + std::to_string(i) + " has " + std::to_string(diffuseTexCount) + " diffuse textures. Only loading first");
             Log::Info("Material " + std::to_string(i) + " has " + std::to_string(specularTexCount) + " specular textures. Only loading first");
+            Log::Info("Material " + std::to_string(i) + " has " + std::to_string(normalTexCount) + " normal textures. Only loading first");
 
             // Shininess
             Material* material;
@@ -173,37 +193,79 @@ namespace en
                 }
             }
 
+            // Normal texture
+            GLPictureTex* normalTex = nullptr;
+            if (normalTexCount > 0)
+            {
+                // TODO: maybe enable multiple textures later
+                aiString fileName;
+                aiMat->GetTexture(aiTextureType_NORMALS, 0, &fileName);
+                std::string filePath = directory_ + "/" + fileName.C_Str();
+                if (textures_.find(filePath) == textures_.end())
+                {
+                    normalTex = new GLPictureTex(
+                            GLPictureTex::WrapMode::CLAMP_TO_EDGE,
+                            GLPictureTex::FilterMode::LINEAR,
+                            filePath,
+                            flipUv_);
+                    textures_.insert(std::pair<std::string, GLPictureTex*>(filePath, normalTex));
+                }
+                else
+                {
+                    normalTex = textures_.at(filePath);
+                }
+            }
+
             // New material
-            material = new Material(diffuseTex, specularTex, diffuseColor, specularColor, shininess);
+            material = new Material(diffuseTex, specularTex, normalTex, diffuseColor, specularColor, shininess);
             materials_.insert(std::pair<const aiMaterial*, Material*>(aiMat, material));
         }
     }
 
-    void Model::ProcessNode(aiNode* node, const aiScene* scene)
+    void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentT)
     {
+        aiMatrix4x4 localAiT = node->mTransformation;
+        glm::mat4 localT (
+                localAiT.a1, localAiT.b1, localAiT.c1, localAiT.d1,
+                localAiT.a2, localAiT.b2, localAiT.c2, localAiT.d2,
+                localAiT.a3, localAiT.b3, localAiT.c3, localAiT.d3,
+                localAiT.a4, localAiT.b4, localAiT.c4, localAiT.d4
+        );
+        glm::mat4 totalT = parentT * localT;
+
         unsigned int meshCount = node->mNumMeshes;
         Log::Info("Node has " + std::to_string(meshCount) + " meshes");
         for (unsigned int i = 0; i < meshCount; i++)
         {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            meshes_.push_back(ProcessMesh(mesh, scene));
+            meshes_.push_back(ProcessMesh(mesh, scene, totalT));
         }
 
         unsigned int childCount = node->mNumChildren;
         Log::Info("Node has " + std::to_string(childCount) + " children");
         for (unsigned int i = 0; i < node->mNumChildren; i++)
-            ProcessNode(node->mChildren[i], scene);
+            ProcessNode(node->mChildren[i], scene, totalT);
     }
 
-std::map<std::string, boneinfo> Model::getbonemap() {
+    std::map<std::string, boneinfo> Model::getbonemap()
+    {
         return bonemap;
     }
-    int Model::getbonecount() const { return bonecount;}
-    void Model::BoneweightforVertices(std::vector<Vertex>& vertices, aiMesh* mesh){
-        for (int i = 0; i < mesh->mNumBones; i++){
+
+    int Model::getbonecount() const
+    {
+        return bonecount;
+    }
+
+    void Model::BoneweightforVertices(std::vector<Vertex>& vertices, aiMesh* mesh)
+    {
+        for (int i = 0; i < mesh->mNumBones; i++)
+        {
             std::string bonename = mesh->mBones[i]->mName.C_Str();
             int id = -1;
-            if(bonemap.find(bonename) == bonemap.end()) {
+
+            if(bonemap.find(bonename) == bonemap.end())
+            {
                 boneinfo newinfo{};
                 newinfo.boneid = bonecount;
                 newinfo.offsetmat = util::AssimptoGLM4x4(mesh->mBones[i]->mOffsetMatrix);
@@ -212,15 +274,21 @@ std::map<std::string, boneinfo> Model::getbonemap() {
                 bonecount++;
                 //Log::Info("added offsetmatrix to"+bonename+glm::to_string(newinfo.offsetmat));
             }
-            else{
+            else
+            {
                 id = bonemap.find(bonename)->second.boneid;
             }
+
             aiVertexWeight* boneweights = mesh->mBones[i]->mWeights;
             int num = mesh->mBones[i]->mNumWeights;
-            for (int k=0;k<num;k++){
+
+            for (int k=0;k<num;k++)
+            {
                 assert(boneweights[k].mVertexId<=vertices.size());
-                for (int l = 0; l<MAXBONEINFLUENCE; l++){
-                    if(vertices[boneweights[k].mVertexId].boneids_[l]<=0) {
+                for (int l = 0; l<MAXBONEINFLUENCE; l++)
+                {
+                    if(vertices[boneweights[k].mVertexId].boneids_[l]<=0)
+                    {
                         vertices[boneweights[k].mVertexId].boneids_[l] = id;
                         vertices[boneweights[k].mVertexId].boneweights_[l] = boneweights[k].mWeight;
                         //Log::Info("Extracted boneweight" + std::to_string(vertices[boneweights[k].mVertexId].boneweights_[l]));
@@ -228,13 +296,11 @@ std::map<std::string, boneinfo> Model::getbonemap() {
                     }
                 }
             }
-
-
         }
 
     }
 
-    Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+    Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 t)
     {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
@@ -264,6 +330,8 @@ std::map<std::string, boneinfo> Model::getbonemap() {
                 uv.x = mesh->mTextureCoords[0][i].x;
                 uv.y = mesh->mTextureCoords[0][i].y;
             }
+
+            pos = glm::vec3(t * glm::vec4(pos, 1.0f));
 
             Vertex vert(pos, normal, uv);
             vertices.push_back(vert);

@@ -14,12 +14,12 @@ namespace en
     class GBuffer
     {
     public:
-        GBuffer(int32_t width, int32_t height);
+        GBuffer(uint32_t width, uint32_t height);
         ~GBuffer();
 
         void Bind() const;
         void Unbind() const;
-        void Resize(int32_t width, int32_t height);
+        void Resize(uint32_t width, uint32_t height);
         void UseTextures(const GLProgram* program) const;
         void UseTexturesSSAO(const GLProgram* program) const;
         void UseTextureMotionBlur(const GLProgram* program) const;
@@ -34,8 +34,8 @@ namespace en
         uint32_t depthBuffer_;
         uint32_t motionTex_;
 
-        int32_t width_;
-        int32_t height_;
+        uint32_t width_;
+        uint32_t height_;
     };
 }
 

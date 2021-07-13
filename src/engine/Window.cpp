@@ -48,12 +48,12 @@ namespace en
         // OpenGL Setup
         gladLoadGL();
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
             Log::Error("Failed to load GLAD", true);
-        }
         ClearGLError();
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+        //glEnable(GL_FRAMEBUFFER_SRGB);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);

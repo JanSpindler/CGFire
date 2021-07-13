@@ -5,9 +5,16 @@
 #include "engine/gr_include.hpp"
 #include "engine/Spline3D.hpp"
 #include "engine/Util.hpp"
+#include <glm/gtx/compatibility.hpp>
 
 namespace en
 {
+    Spline3D::Iterator::Iterator(uint32_t lP, float lI) :
+        lastPoint(lP),
+        lastInterp(lI)
+    {
+    }
+
     Spline3D::Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type)
     {
         controlPoints_ = controlPoints;
@@ -22,6 +29,67 @@ namespace en
                 ConstructNaturalCubic(resolution);
                 break;
         }
+
+        totalLength_ = 0.0f;
+        unsigned int segmentCount = points_.size() - 1;
+        segmentLengths_.resize(segmentCount);
+        for (unsigned int i = 0; i < segmentCount; i++)
+        {
+            float segmentLength = glm::length(points_[i + 1] - points_[i]);
+            segmentLengths_[i] = segmentLength;
+            totalLength_ += segmentLength;
+        }
+    }
+
+    glm::vec3 Spline3D::IterateRelative(Iterator* iterator, float t) const
+    {
+        if (t == 0.0f)
+            Log::Error("t must be greater than 0.0 to iterate Spline", true);
+        if (t < 0.0f)
+            Log::Error("Spline3D iteration does not support negative t", true);
+        if (iterator->lastPoint < 0 || iterator->lastPoint >= points_.size())
+            Log::Error("i->lastPoint exceeded bounds", true);
+
+        t += iterator->lastInterp;
+
+        uint32_t i = iterator->lastPoint;
+        while (t > segmentLengths_[i])
+        {
+            t -= segmentLengths_[i];
+            i++;
+            i %= segmentLengths_.size();
+        }
+
+        iterator->lastInterp = t;
+        iterator->lastPoint = i;
+        return glm::lerp(points_[i], points_[i + 1], t / segmentLengths_[i]);
+    }
+
+    glm::vec3 Spline3D::IterateAbsolute(float t) const
+    {
+        if (t < 0.0f)
+            Log::Error("t cannot be negative", true);
+
+        while (t > totalLength_)
+            t -= totalLength_;
+
+        uint32_t i = 0;
+        while (t > segmentLengths_[i])
+        {
+            t -= segmentLengths_[i];
+            i++;
+        }
+        if (i == points_.size() - 1)
+            i = 0;
+
+        t /= segmentLengths_[i];
+        return glm::lerp(points_[i], points_[i + 1], t);
+    }
+
+    glm::vec3 Spline3D::GetSegmentDir(uint32_t segmentIndex) const
+    {
+        segmentIndex %= segmentLengths_.size();
+        return glm::normalize(points_[segmentIndex + 1] - points_[segmentIndex]);
     }
 
     unsigned int Spline3D::GetControlPointCount() const
@@ -109,17 +177,6 @@ namespace en
 
         // Include first point twice for complete last segment of last pair
         points_[offset + resolution] = CatmullRom(p0, p1, p2, p3, 1.0f);
-
-        // Calculate length of ext_spline
-        totalLength_ = 0.0f;
-        unsigned int segmentCount = pointCount - 1;
-        segmentLengths_.resize(segmentCount);
-        for (unsigned int i = 0; i < segmentCount; i++)
-        {
-            float segmentLength = glm::length(points_[i + 1] - points_[i]);
-            segmentLengths_[i] = segmentLength;
-            totalLength_ += segmentLength;
-        }
     }
 
     glm::vec3 Spline3D::CatmullRom(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t)
@@ -317,9 +374,6 @@ namespace en
     void Spline3DRenderable::RenderPosOnly(const GLProgram *program)
     {
         RenderObj::RenderPosOnly(program);
-        // This call is used for shadow mapping
-        // Point shadow mapping used Triangled in the Geometry Shader
-        // Therefore method must not draw any non Triangle primitives
     }
 
     void Spline3DRenderable::RenderDiffuse(const GLProgram *program)

@@ -22,7 +22,7 @@ namespace en{
                     util::Random::Float() *2-1,
                     util::Random::Float()*2-1,
                     util::Random::Float()
-                    );
+            );
             currentkernel = glm::normalize(currentkernel);
             currentkernel *= util::Random::Float();
             float scale = (float)i/kernelsize;
@@ -36,7 +36,7 @@ namespace en{
                     util::Random::Float()*2-1,
                     util::Random::Float()*2-1,
                     0.0f
-                    );
+            );
             newnoise = glm::normalize(newnoise);
             ssao::noise.push_back(newnoise);
         }
@@ -135,8 +135,8 @@ namespace en{
         return GLProgram::Load(vertShader, nullptr, fragShader);
     }
     const GLProgram* ssao::makeblurprogram() {
-       const en::GLShader* vertShader= GLShader::Load("ssao.vert");
-       const  en::GLShader* fragShader= GLShader::Load("ssaoblur.frag");
+        const en::GLShader* vertShader= GLShader::Load("ssao.vert");
+        const  en::GLShader* fragShader= GLShader::Load("ssaoblur.frag");
         //en::GLProgram program(&vertShader, nullptr, &fragShader);
         en::Log::Info("in ssaoblurprog");
         return GLProgram::Load(vertShader, nullptr, fragShader);
@@ -150,8 +150,13 @@ namespace en{
         quad = setup_fullscreen_quad();
     }
 
-    void en::ssao::dossao(const GLProgram *ssaoprog, const GLProgram *blurprog, const GBuffer *buffer,
-                          const Camera *cam, const Window *window) const {
+    void en::ssao::dossao(
+            const GLProgram *ssaoprog,
+            const GLProgram *blurprog,
+            const GBuffer *buffer,
+            const Camera *cam,
+            uint32_t windowWidth,
+            uint32_t windowHeight) const {
         //ssaopass
         if (glCheckNamedFramebufferStatus(ssaofbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             printf("Incomplete FBO!");
@@ -171,7 +176,7 @@ namespace en{
         ssaoprog->SetUniformMat4("viewprojmat", false, glm::value_ptr(cam->GetViewProjMat()));
         ssaoprog->SetUniformVec3f("campos", cam->GetPos());
         ssaoprog->SetUniformVec3f("camdir", cam->GetViewDir());
-        ssaoprog->SetUniformVec2f("scale", glm::vec2((float)window->GetWidth()/4.0f, (float)window->GetHeight()/4.0f));
+        ssaoprog->SetUniformVec2f("scale", glm::vec2((float) windowWidth, (float) windowHeight) / 4.0f);
         for (int i = 0; i < kernelsize; ++i) {
             assert(kernelsize==ssao::kernel.size());
             ssaoprog->SetUniformVec3f("kernel[" + std::to_string(i) + "]", ssao::kernel[i]);
@@ -191,8 +196,8 @@ namespace en{
         //en::Log::Info("in ssaoprog");
     }
 
-    void ssao::usessaotex(const GLProgram *program) const {
-        glBindTextureUnit(30, blurtex);
-        program->SetUniformI("ssao", 30);
+    void ssao::usessaotex(const GLProgram *program, uint32_t unit) const {
+        glBindTextureUnit(unit, blurtex);
+        program->SetUniformI("ssao_tex", unit);
     }
 }

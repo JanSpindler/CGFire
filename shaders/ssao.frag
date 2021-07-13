@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 #define kernelsize 64
 #define radius 0.5f
@@ -20,7 +20,8 @@ uniform vec2 scale;
 
 out float occlusion;
 
-void main (){
+void main ()
+{
     vec3 pos = texture(pos_tex, TexCoord0).xyz;
     vec3 norm = texture(normal_tex, TexCoord0).xyz;
     vec3 noise = texture(noisetex, TexCoord0*scale).xyz;

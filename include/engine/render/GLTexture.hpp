@@ -52,7 +52,7 @@ namespace en
     class GLDepthTex : public GLTexture
     {
     public:
-        GLDepthTex(int width, int height);
+        GLDepthTex(uint32_t width, uint32_t height);
 
         void BindTex() const override;
         void BindToFramebuffer() const;
@@ -67,6 +67,8 @@ namespace en
 
         void BindTex() const override;
         void BindToFramebuffer() const;
+
+        uint32_t GetHandle() const; // Temporary
 
     private:
     };

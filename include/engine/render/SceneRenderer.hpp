@@ -13,40 +13,31 @@
 #include "GBuffer.hpp"
 #include "../Window.hpp"
 #include "ReflectiveMap.hpp"
-#include "engine/Sceletal.hpp"
 #include "ssao/ssao.h"
-#include "MotionBlur/motionblur.hpp"
 
 namespace en
 {
     class SceneRenderer
     {
     public:
-        SceneRenderer(int32_t width, int32_t height);
+        SceneRenderer(uint32_t width, uint32_t height, bool advancedShadow, bool postProcess);
 
-        void Update(float deltaTime);
+        void Render(const Camera* cam) const;
+        void Resize(uint32_t width, uint32_t height);
 
-        void SetPrevViewMat(Camera* cam);
-
-        void Render(const Window* window, const Camera* cam) const;
-        void Resize(int32_t width, int32_t height);
-
-        void AddSceletalRenderObj(Sceletal* renderObj);
-        void RemoveSceletalRenderObj(const Sceletal* renderObj);
-
-        void AddStandardRenderObj(RenderObj* renderObj);
+        void AddStandardRenderObj(const RenderObj* renderObj);
         void RemoveStandardRenderObj(const RenderObj* renderObj);
 
-        void AddFixedColorRenderObj(RenderObj* renderObj);
+        void AddFixedColorRenderObj(const RenderObj* renderObj);
         void RemoveFixedColorRenderObj(const RenderObj* renderObj);
 
-        void AddSplineRenderObj(RenderObj* renderObj);
+        void AddSplineRenderObj(const RenderObj* renderObj);
         void RemoveSplineRenderObj(const RenderObj* renderObj);
 
-        void AddReflectiveRenderObj(RenderObj* renderObj);
+        void AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane, float reflectiveness);
         void RemoveReflectiveRenderObj(const RenderObj* renderObj);
 
-        void SetDirLight(DirLight* dirLight);
+        void SetDirLight(const DirLight* dirLight);
 
         void AddPointLight(const PointLight* pointLight);
         void RemovePointLight(const PointLight* pointLight);
@@ -56,55 +47,70 @@ namespace en
         /**Removes all the objects, i.e. clears the vector lists (but not the DirLight or Skybox)*/
         void RemoveAllObjects();
 
-        void OnImGuiRender();
     private:
+        bool advancedShadow_;
+        bool postProcess_;
+
         const GLProgram* geometryProgram_;
-        const GLProgram* sceletalProgram; // = sceletal vertex shader + deffered geometry fragment shader
-        const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
         const GLProgram* toEnvMapProgram_;
         const GLProgram* dirShadowProgram_;
         const GLProgram* pointShadowProgram_;
         const GLProgram* reflectiveProgram_;
         const GLProgram* skyboxProgram_;
-        const GLProgram* SSAOProgram_;
-        const GLProgram* SSAOBlurProgram_;
-        const GLProgram* motionblurProgram_;
+        const GLProgram* gauss5Program_;
+        const GLProgram* grainProgram_;
+        const GLProgram* bloomExtractProgram_;
+        const GLProgram* bloomCombineProgram_;
+        const GLProgram* deferredDirProgram_;
+        const GLProgram* deferredPointProgram_;
+        const GLProgram* ssaoProgram_;
+        const GLProgram* ssaoBlurProgram_;
 
-        std::vector<Sceletal*> sceletalRenderObjs;
-        std::vector<RenderObj*> standardRenderObjs_;
-        std::vector<RenderObj*> fixedColorRenderObjs_;
-        std::vector<RenderObj*> splineRenderObjs_;
-        std::vector<RenderObj*> reflectiveRenderObjs_;
+        ssao ssao_;
+        bool useSsao_;
+
+        uint32_t width_;
+        uint32_t height_;
+
+        std::vector<const RenderObj*> standardRenderObjs_;
+        std::vector<const RenderObj*> fixedColorRenderObjs_;
+        std::vector<const RenderObj*> splineRenderObjs_;
+        std::vector<const RenderObj*> reflectiveRenderObjs_;
 
         std::vector<ReflectiveMap> reflectiveMaps_;
 
-        DirLight* dirLight_;
+        const DirLight* dirLight_;
         std::vector<const PointLight*> pointLights_;
         const GLSkyboxTex* skyboxTex_;
-
-        ssao ssao_;
-        bool useSsao_ = true;
-
-        motionblur motionblur_;
 
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;
         uint32_t skyboxVao_;
 
+        uint32_t screenTmpTex0_;
+        uint32_t screenTmpTex1_;
+
         void LoadPrograms();
         void CreateFullScreenVao();
         void CreateSkyboxVao();
+        void CreateScreenTmpTex();
 
         void RenderDirShadow() const;
         void RenderPointShadows() const;
+
         void RenderDeferredGeometry(const float* viewMat, const float* projMat) const;
-        void RenderDeferredLighting(const Window* window, const Camera* cam) const;
+        void RenderDeferredLighting(glm::vec3 camPos) const;
+
         void RenderFixedColor(const float* viewMat, const float* projMat) const;
         void RenderSplines(const float* viewMat, const float* projMat) const;
+
         void RenderReflectiveMaps() const;
         void RenderReflectiveObj(glm::vec3 camPos, const float* viewMat, const float* projMat) const;
+
         void RenderSkybox(const float* viewMat, const float* projMat) const;
+
+        void PostProcess(uint32_t width, uint32_t height) const;
     };
 }
 

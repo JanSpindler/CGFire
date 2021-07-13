@@ -5,13 +5,12 @@
 #include "engine/gr_include.hpp"
 #include "engine/render/GBuffer.hpp"
 #include "engine/Util.hpp"
-#include <iostream>
 
 namespace en
 {
-    GBuffer::GBuffer(int32_t width, int32_t height) :
-        width_(0),
-        height_(0)
+    GBuffer::GBuffer(uint32_t width, uint32_t height) :
+        width_(width),
+        height_(height)
     {
         glGenFramebuffers(1, &fbo_);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
@@ -48,7 +47,7 @@ namespace en
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, specularTex_, 0);
 
-        //motion vec texture
+        // Motion vec texture
         glGenTextures(1, &motionTex_);
         glBindTexture(GL_TEXTURE_2D, motionTex_);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
@@ -85,6 +84,7 @@ namespace en
         glDeleteTextures(1, &normalTex_);
         glDeleteTextures(1, &diffuseTex_);
         glDeleteTextures(1, &specularTex_);
+        glDeleteTextures(1, &motionTex_);
         glDeleteRenderbuffers(1, &depthBuffer_);
         glDeleteFramebuffers(1, &fbo_);
     }
@@ -100,14 +100,8 @@ namespace en
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void GBuffer::Resize(int32_t width, int32_t height)
+    void GBuffer::Resize(uint32_t width, uint32_t height)
     {
-        if (width == 0 || height == 0)
-            return;
-
-        if (width == width_ && height == height_)
-            return;
-
         glBindTexture(GL_TEXTURE_2D, posTex_);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
 
@@ -123,6 +117,8 @@ namespace en
         glBindTexture(GL_TEXTURE_2D, motionTex_);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 
+        glBindTexture(GL_TEXTURE_2D, 0);
+
         glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer_);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -130,39 +126,38 @@ namespace en
         width_ = width;
         height_ = height;
     }
-    void GBuffer::UseTexturesSSAO(const GLProgram *program) const{
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, posTex_);
-        program->SetUniformI("pos_tex", 0);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, normalTex_);
-        program->SetUniformI("normal_tex", 1);
-    }
-
-    void GBuffer::UseTextureMotionBlur(const GLProgram *program) const {
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, motionTex_);
-        program->SetUniformI("motiontex", 1);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, posTex_);
-        program->SetUniformI("postex", 2);
-    }
 
     void GBuffer::UseTextures(const GLProgram* program) const
     {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, posTex_);
+        glBindTextureUnit(0, posTex_);
         program->SetUniformI("pos_tex", 0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, normalTex_);
+
+        glBindTextureUnit(1, normalTex_);
         program->SetUniformI("normal_tex", 1);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, diffuseTex_);
+
+        glBindTextureUnit(2, diffuseTex_);
         program->SetUniformI("diffuse_tex", 2);
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, specularTex_);
+
+        glBindTextureUnit(3, specularTex_);
         program->SetUniformI("specular_tex", 3);
+    }
+
+    void GBuffer::UseTexturesSSAO(const GLProgram *program) const
+    {
+        glBindTextureUnit(0, posTex_);
+        program->SetUniformI("pos_tex", 0);
+
+        glBindTextureUnit(1, normalTex_);
+        program->SetUniformI("normal_tex", 1);
+    }
+
+    void GBuffer::UseTextureMotionBlur(const GLProgram *program) const
+    {
+        glBindTextureUnit(1, motionTex_);
+        program->SetUniformI("motiontex", 1);
+
+        glBindTextureUnit(2, posTex_);
+        program->SetUniformI("postex", 2);
     }
 
     void GBuffer::CopyDepthBufToDefaultFb() const

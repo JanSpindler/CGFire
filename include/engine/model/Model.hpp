@@ -33,6 +33,11 @@ namespace en
         void RenderDiffuse(const GLProgram* program) override;
         void RenderAll(const GLProgram* program) override;
 
+        uint32_t GetMeshCount() const;
+
+        const Material* GetMeshMaterial(uint32_t meshIndex) const;
+        void SetMeshMaterial(const Material* material, uint32_t meshIndex);
+
         std::map<std::string, boneinfo> getbonemap();
         int getbonecount() const;
         const std::vector<Mesh*>& GetMeshes() const;
@@ -47,8 +52,8 @@ namespace en
         int bonecount = 0;
 
         void LoadMaterials(const aiScene* scene);
-        void ProcessNode(aiNode* node, const aiScene* scene);
-        Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene);
+        void ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parantT);
+        Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 t);
         void BoneweightforVertices(std::vector<Vertex>& vertices, aiMesh* mesh);
     };
 }

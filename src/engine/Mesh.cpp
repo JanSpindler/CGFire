@@ -57,7 +57,7 @@ namespace en
 
     void Mesh::Render(const GLProgram *program) // Deprecated
     {
-        material_->UseAll(program, 0, 1);
+        material_->UseAll(program, 0, 1, 2);
         GLDrawCall();
     }
 
@@ -74,8 +74,18 @@ namespace en
 
     void Mesh::RenderAll(const GLProgram *program)
     {
-        material_->UseAll(program, 0, 1);
+        material_->UseAll(program, 0, 1, 2);
         GLDrawCall();
+    }
+
+    const Material* Mesh::GetMaterial() const
+    {
+        return material_;
+    }
+
+    void Mesh::SetMaterial(const Material *material)
+    {
+        material_ = material;
     }
 
     void Mesh::GLDrawCall() const

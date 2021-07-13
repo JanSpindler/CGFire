@@ -10,14 +10,15 @@
 #include <vector>
 #include "GLTexture.hpp"
 
-#define POINT_LIGHT_MAX 24
+#define SHADOW_TEX_WIDTH 2048
+#define SHADOW_TEX_HEIGHT SHADOW_TEX_WIDTH
 
 namespace en
 {
     class DirLight
     {
     public:
-        DirLight(glm::vec3 dir, glm::vec3 color);
+        DirLight(glm::vec3 dir, glm::vec3 color, uint32_t width, uint32_t height);
 
         // Light
         void Use(const GLProgram* program) const;
@@ -25,27 +26,39 @@ namespace en
         void SetDir(glm::vec3 dir);
         void SetColor(glm::vec3 color);
 
+        uint32_t GetWidth() const;
+        uint32_t GetHeight() const;
+
         // Shadow
-        void UseShadow(const GLProgram* program) const;
         glm::mat4 GetLightMat() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
+        void BindDepthTex() const;
+        void BindEsmTex() const;
+
+        void PrepareGauss5(const GLProgram* gauss5Program) const;
 
         void OnImGuiRender();
     private:
         glm::vec3 dir_;
         glm::vec3 color_;
-        unsigned int shadowFbo_;
+
+        uint32_t width_;
+        uint32_t height_;
+
+        uint32_t shadowFbo_;
         GLDepthTex depthTex_;
+        uint32_t esmTex_;
+        uint32_t esmTmpTex_;
     };
 
     // Concrete PointLight must provide own pos and color
     class PointLight
     {
     public:
-        PointLight(float strength);
+        PointLight(float strength, uint32_t width, uint32_t height);
 
-        void Use(const GLProgram* program, unsigned int index) const;
+        void Use(const GLProgram* program) const;
 
         // Light
         virtual glm::vec3 GetPos() const = 0;
@@ -53,15 +66,22 @@ namespace en
         float GetStrength() const;
 
         // Shadow
-        void UseShadow(const GLProgram* program, unsigned int index) const;
         std::vector<glm::mat4> GetLightMats() const;
         void BindShadowBuffer() const;
         void UnbindShadowBuffer() const;
+        void BindDepthCubeMap() const;
+        //void BindEsmCubeMap() const;
 
     private:
         float strength_;
+
+        uint32_t width_;
+        uint32_t height_;
+
         unsigned int shadowFbo_;
         GLDepthCubeMap depthCubeMap_;
+        //uint32_t esmCubeMap_;
+        //uint32_t esmTmpTex_;
     };
 }
 

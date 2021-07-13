@@ -101,11 +101,11 @@ namespace en
         glBindTexture(GL_TEXTURE_2D, handle_);
     }
 
-    GLDepthTex::GLDepthTex(int width, int height) :
+    GLDepthTex::GLDepthTex(uint32_t width, uint32_t height) :
             GLTexture()
     {
         glBindTexture(GL_TEXTURE_2D, handle_);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -158,6 +158,11 @@ namespace en
     void GLDepthCubeMap::BindToFramebuffer() const
     {
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, handle_, 0);
+    }
+
+    uint32_t GLDepthCubeMap::GetHandle() const
+    {
+        return handle_;
     }
 
     GLSkyboxTex::GLSkyboxTex(const std::string& dirPath, const std::string& fileExtension, bool flipUv) :

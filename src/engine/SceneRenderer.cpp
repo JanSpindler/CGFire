@@ -6,41 +6,33 @@
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Util.hpp"
 #include "engine/config.hpp"
-#include <glm/gtx/transform.hpp>
-#include <iostream>
-#include <glm/gtx/string_cast.hpp>
-
-#include <framework/imgui_util.hpp>
+#include <glm/gtc/random.hpp>
 
 namespace en
 {
-    SceneRenderer::SceneRenderer(int32_t width, int32_t height) :
-            sceletalRenderObjs({}),
+    SceneRenderer::SceneRenderer(uint32_t width, uint32_t height, bool advancedShadow, bool postProcess) :
+            advancedShadow_(advancedShadow),
+            postProcess_(postProcess),
             standardRenderObjs_({}),
             fixedColorRenderObjs_({}),
             dirLight_(nullptr),
             pointLights_({}),
             reflectiveMaps_({}),
             skyboxTex_(nullptr),
+            width_(width),
+            height_(height),
             gBuffer_(width, height),
-            ssao_(width, height),
-            motionblur_(width, height)
+            ssao_(width, height)
     {
+        useSsao_ = true;
+
         LoadPrograms();
         CreateFullScreenVao();
         CreateSkyboxVao();
+        CreateScreenTmpTex();
     }
 
-    void SceneRenderer::Update(float deltaTime){
-        for (auto* c : sceletalRenderObjs) //update animation
-            c->Update(deltaTime);
-    }
-
-    void SceneRenderer::SetPrevViewMat(Camera *cam) {
-        motionblur_.prevprojviewmodelmat = cam->GetViewProjMat();
-    }
-
-    void SceneRenderer::Render(const Window* window, const Camera* cam) const
+    void SceneRenderer::Render(const Camera* cam) const
     {
         glm::mat4 viewMat = cam->GetViewMat();
         glm::mat4 skyboxViewMat = glm::mat4(glm::mat3(viewMat));
@@ -54,14 +46,13 @@ namespace en
         RenderPointShadows();
         RenderReflectiveMaps();
 
-        //printf("%s",glm::to_string(viewMat).c_str());
-        window->UseViewport();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, width_, height_);
+
         RenderDeferredGeometry(viewMatP, projMatP);
-        if (useSsao_) {
-            ssao_.dossao(SSAOProgram_, SSAOBlurProgram_, &gBuffer_, cam, window);
-        }
-        RenderDeferredLighting(window, cam);
-        motionblur_.doblur(motionblurProgram_, &gBuffer_, cam);
+        if (useSsao_)
+            ssao_.dossao(ssaoProgram_, ssaoBlurProgram_, &gBuffer_, cam, width_, height_);
+        RenderDeferredLighting(cam->GetPos());
 
         gBuffer_.CopyDepthBufToDefaultFb();
         RenderFixedColor(viewMatP, projMatP);
@@ -69,35 +60,35 @@ namespace en
         RenderReflectiveObj(cam->GetPos(), viewMatP, projMatP);
 
         RenderSkybox(skyboxViewMatP, projMatP);
+
+        if (postProcess_)
+            PostProcess(width_, height_);
     }
 
-    void SceneRenderer::Resize(int32_t width, int32_t height)
+    void SceneRenderer::Resize(uint32_t width, uint32_t height)
     {
+        if (width == 0 || height == 0)
+            return;
+        if (width == width_ && height == height_)
+            return;
+
         gBuffer_.Resize(width, height);
         ssao_.makessaofbo(width, height);
         ssao_.makeblurfbo(width, height);
-        motionblur_.build_framebuffer(width, height);
+
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        width_ = width;
+        height_ = height;
     }
 
-    void SceneRenderer::AddSceletalRenderObj(Sceletal* renderObj)
-    {
-        RemoveSceletalRenderObj(renderObj);
-        sceletalRenderObjs.push_back(renderObj);
-    }
-
-    void SceneRenderer::RemoveSceletalRenderObj(const Sceletal* renderObj)
-    {
-        for (uint32_t i = 0; i < sceletalRenderObjs.size(); i++)
-        {
-            if (sceletalRenderObjs[i] == renderObj)
-            {
-                sceletalRenderObjs.erase(sceletalRenderObjs.begin() + i);
-                return;
-            }
-        }
-    }
-
-    void SceneRenderer::AddStandardRenderObj(RenderObj* renderObj)
+    void SceneRenderer::AddStandardRenderObj(const RenderObj* renderObj)
     {
         RemoveStandardRenderObj(renderObj);
         standardRenderObjs_.push_back(renderObj);
@@ -115,7 +106,7 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddFixedColorRenderObj(RenderObj* renderObj)
+    void SceneRenderer::AddFixedColorRenderObj(const RenderObj* renderObj)
     {
         RemoveFixedColorRenderObj(renderObj);
         fixedColorRenderObjs_.push_back(renderObj);
@@ -133,7 +124,7 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddSplineRenderObj(RenderObj* renderObj)
+    void SceneRenderer::AddSplineRenderObj(const RenderObj* renderObj)
     {
         RemoveSplineRenderObj(renderObj);
         splineRenderObjs_.push_back(renderObj);
@@ -151,11 +142,11 @@ namespace en
         }
     }
 
-    void SceneRenderer::AddReflectiveRenderObj(RenderObj* renderObj)
+    void SceneRenderer::AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane, float reflectiveness)
     {
         RemoveReflectiveRenderObj(renderObj);
         reflectiveRenderObjs_.push_back(renderObj);
-        reflectiveMaps_.push_back(ReflectiveMap(256));
+        reflectiveMaps_.push_back(ReflectiveMap(256, nearPlane, reflectiveness));
     }
 
     void SceneRenderer::RemoveReflectiveRenderObj(const RenderObj* renderObj)
@@ -171,7 +162,7 @@ namespace en
         }
     }
 
-    void SceneRenderer::SetDirLight(DirLight *dirLight)
+    void SceneRenderer::SetDirLight(const DirLight *dirLight)
     {
         dirLight_ = dirLight;
     }
@@ -200,41 +191,12 @@ namespace en
     }
 
     void SceneRenderer::RemoveAllObjects(){
-        sceletalRenderObjs.clear();
         standardRenderObjs_.clear();
         fixedColorRenderObjs_.clear();
         splineRenderObjs_.clear();
         reflectiveRenderObjs_.clear();
         reflectiveMaps_.clear();
         pointLights_.clear();
-    }
-
-    void SceneRenderer::OnImGuiRender(){
-        ImGui::Begin("Objects");
-        ImGui::Checkbox("use ssao", &useSsao_);
-        dirLight_->OnImGuiRender();
-
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Character ROs:");
-        for (auto& obj : sceletalRenderObjs) {
-            obj->OnImGuiRender();
-        }
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Standards ROs:");
-        for (auto& obj : standardRenderObjs_) {
-            obj->OnImGuiRender();
-        }
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "FixedColor ROs:");
-        for (auto& obj : fixedColorRenderObjs_) {
-            obj->OnImGuiRender();
-        }
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Spline ROs:");
-        for (auto& obj : splineRenderObjs_) {
-            obj->OnImGuiRender();
-        }
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Reflective ROs:");
-        for (auto& obj : reflectiveRenderObjs_) {
-            obj->OnImGuiRender();
-        }
-        ImGui::End();
     }
 
     void SceneRenderer::LoadPrograms()
@@ -256,14 +218,6 @@ namespace en
         const GLShader* geomFrag = GLShader::Load("CGFire/deferred_geometry.frag");
         geometryProgram_ = GLProgram::Load(geomVert, nullptr, geomFrag);
 
-        //const GLShader* sceletalVert = GLShader::Load("CGFire/sceletal.vert");
-        //const GLShader* sceletalFrag = GLShader::Load("CGFire/deferred_geometry.frag");
-        //sceletalProgram = GLProgram::Load(sceletalVert, nullptr, sceletalFrag);
-
-        const GLShader* lightVert = GLShader::Load("CGFire/deferred_lighting.vert");
-        const GLShader* lightFrag = GLShader::Load("CGFire/deferred_lighting.frag");
-        lightingProgram_ = GLProgram::Load(lightVert, nullptr, lightFrag);
-
         const GLShader* skyboxVert = GLShader::Load("CGFire/skybox.vert");
         const GLShader* skyboxFrag = GLShader::Load("CGFire/skybox.frag");
         skyboxProgram_ = GLProgram::Load(skyboxVert, nullptr, skyboxFrag);
@@ -276,10 +230,35 @@ namespace en
         const GLShader* toEnvMapFrag = GLShader::Load("CGFire/to_env_map.frag");
         toEnvMapProgram_ = GLProgram::Load(toEnvMapVert, nullptr, toEnvMapFrag);
 
-        SSAOProgram_ = ssao_.makessaoprogram();
-        SSAOBlurProgram_ = ssao_.makeblurprogram();
+        const GLShader* gauss5Vert = GLShader::Load("CGFire/gauss5.vert");
+        const GLShader* gauss5Frag = GLShader::Load("CGFire/gauss5.frag");
+        gauss5Program_ = GLProgram::Load(gauss5Vert, nullptr, gauss5Frag);
 
-        motionblurProgram_ = motionblur_.makerenderprog();
+        if (postProcess_)
+        {
+            const GLShader* grainVert = GLShader::Load("CGFire/film_grain.vert");
+            const GLShader* grainFrag = GLShader::Load("CGFire/film_grain.frag");
+            grainProgram_ = GLProgram::Load(grainVert, nullptr, grainFrag);
+
+            const GLShader* bloomExtractVert = GLShader::Load("CGFire/bloom_extract.vert");
+            const GLShader* bloomExtractFrag = GLShader::Load("CGFire/bloom_extract.frag");
+            bloomExtractProgram_ = GLProgram::Load(bloomExtractVert, nullptr, bloomExtractFrag);
+
+            const GLShader* bloomCombineVert = GLShader::Load("CGFire/bloom_combine.vert");
+            const GLShader* bloomCombineFrag = GLShader::Load("CGFire/bloom_combine.frag");
+            bloomCombineProgram_ = GLProgram::Load(bloomCombineVert, nullptr, bloomCombineFrag);
+        }
+
+        const GLShader* defDirVert = GLShader::Load("CGFire/deferred_dir.vert");
+        const GLShader* defDirFrag = GLShader::Load("CGFire/deferred_dir.frag");
+        deferredDirProgram_ = GLProgram::Load(defDirVert, nullptr, defDirFrag);
+
+        const GLShader* defPointVert = GLShader::Load("CGFire/deferred_point.vert");
+        const GLShader* defPointFrag = GLShader::Load("CGFire/deferred_point.frag");
+        deferredPointProgram_ = GLProgram::Load(defPointVert, nullptr, defPointFrag);
+
+        ssaoProgram_ = ssao_.makessaoprogram();
+        ssaoBlurProgram_ = ssao_.makeblurprogram();
     }
 
     void SceneRenderer::CreateFullScreenVao()
@@ -373,22 +352,49 @@ namespace en
         glBindVertexArray(0);
     }
 
+    void SceneRenderer::CreateScreenTmpTex()
+    {
+        glGenTextures(1, &screenTmpTex0_);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex0_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width_, height_, 0, GL_RGBA, GL_FLOAT, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glGenTextures(1, &screenTmpTex1_);
+        glBindTexture(GL_TEXTURE_2D, screenTmpTex1_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width_, height_, 0, GL_RGBA, GL_FLOAT, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     void SceneRenderer::RenderDirShadow() const
     {
         dirShadowProgram_->Use();
         glm::mat4 lightMat = dirLight_->GetLightMat();
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
+
         dirLight_->BindShadowBuffer();
-        dirShadowProgram_->SetUniformB("use_bone", true);
-        for (RenderObj* renderObj : sceletalRenderObjs)
+        for (const RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
-        dirShadowProgram_->SetUniformB("use_bone", false);
-        for (RenderObj* renderObj : standardRenderObjs_)
+        for (const RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
-        for (RenderObj* renderObj : fixedColorRenderObjs_)
+        for (const RenderObj* renderObj : reflectiveRenderObjs_)
             renderObj->RenderPosOnly(dirShadowProgram_);
-        for (RenderObj* renderObj : reflectiveRenderObjs_)
-            renderObj->RenderPosOnly(dirShadowProgram_);
+
+        if (advancedShadow_)
+        {
+            dirLight_->PrepareGauss5(gauss5Program_);
+            glBindVertexArray(fullScreenVao_);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+            glBindVertexArray(0);
+        }
+
         dirLight_->UnbindShadowBuffer();
     }
 
@@ -404,15 +410,11 @@ namespace en
             pointShadowProgram_->SetUniformVec3f("light_pos", pointLight->GetPos());
 
             pointLight->BindShadowBuffer();
-            pointShadowProgram_->SetUniformB("use_bone", true);
-            for (RenderObj* renderObj : sceletalRenderObjs)
+            for (const RenderObj* renderObj : standardRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
-            pointShadowProgram_->SetUniformB("use_bone", false);
-            for (RenderObj* renderObj : standardRenderObjs_)
+            for (const RenderObj* renderObj : fixedColorRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
-            for (RenderObj* renderObj : fixedColorRenderObjs_)
-                renderObj->RenderPosOnly(pointShadowProgram_);
-            for (RenderObj* renderObj : reflectiveRenderObjs_)
+            for (const RenderObj* renderObj : reflectiveRenderObjs_)
                 renderObj->RenderPosOnly(pointShadowProgram_);
             pointLight->UnbindShadowBuffer();
         }
@@ -425,50 +427,64 @@ namespace en
         geometryProgram_->Use();
         geometryProgram_->SetUniformMat4("view_mat", false, viewMat);
         geometryProgram_->SetUniformMat4("proj_mat", false, projMat);
-        geometryProgram_->SetUniformMat4("prevPV", false, glm::value_ptr(motionblur_.prevprojviewmodelmat));
-        geometryProgram_->SetUniformB("use_bone", false);
-        for (RenderObj* renderObj : standardRenderObjs_) {
-            geometryProgram_->SetUniformB("blur", renderObj->blur);
+        for (const RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderAll(geometryProgram_);
-        }
-        geometryProgram_->SetUniformB("use_bone", true);
-        for (RenderObj* renderObj : sceletalRenderObjs) {
-            geometryProgram_->SetUniformB("blur", renderObj->blur);
-            renderObj->RenderAll(geometryProgram_);
-        }
-        /*characterProgram_->Use();
-        characterProgram_->SetUniformMat4("view_mat", false, viewMat);
-        characterProgram_->SetUniformMat4("proj_mat", false, projMat);
-        for (RenderObj* renderObj : characterRenderObjs_)
-            renderObj->RenderAll(characterProgram_);*/
+
         gBuffer_.Unbind();
     }
 
-    void SceneRenderer::RenderDeferredLighting(const Window* window, const Camera* cam) const
+    void SceneRenderer::RenderDeferredLighting(glm::vec3 camPos) const
     {
+        // Bind screen fbo
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        lightingProgram_->Use();
-        motionblur_.firstpasssetup(window->GetWidth(), window->GetHeight());
-        gBuffer_.UseTextures(lightingProgram_);
-        lightingProgram_->SetUniformVec3f("cam_pos", cam->GetPos());
-        glm::mat4 dirLightMat = dirLight_->GetLightMat();
-        lightingProgram_->SetUniformMat4("dir_light_mat", false, &dirLightMat[0][0]);
-        dirLight_->Use(lightingProgram_);
-        dirLight_->UseShadow(lightingProgram_);
+        // Draw dir
+        deferredDirProgram_->Use();
+        deferredDirProgram_->SetUniformVec3f("cam_pos", camPos);
+        gBuffer_.UseTextures(deferredDirProgram_);
 
-        const int32_t pointLightCount = std::min((int)pointLights_.size(), 8);
-        lightingProgram_->SetUniformI("point_light_count", pointLightCount);
-        for (uint32_t i = 0; i < pointLightCount; i++)
-        {
-            const PointLight* pointLight = pointLights_[i];
-            pointLight->Use(lightingProgram_, i);
-            pointLight->UseShadow(lightingProgram_, i);
-        }
-        ssao_.usessaotex(lightingProgram_);
+        deferredDirProgram_->SetUniformMat4("light_mat", false, &dirLight_->GetLightMat()[0][0]);
+        dirLight_->Use(deferredDirProgram_);
+        deferredDirProgram_->SetUniformB("use_esm", advancedShadow_);
+
+        glActiveTexture(GL_TEXTURE10);
+        dirLight_->BindDepthTex();
+        deferredDirProgram_->SetUniformI("shadow_tex", 10);
+
+        glActiveTexture(GL_TEXTURE11);
+        dirLight_->BindEsmTex();
+        deferredDirProgram_->SetUniformI("shadow_esm_tex", 11);
+
+        ssao_.usessaotex(deferredDirProgram_, 12);
 
         glBindVertexArray(fullScreenVao_);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Draw points
+        glDepthFunc(GL_LEQUAL);
+        deferredPointProgram_->Use();
+        gBuffer_.UseTextures(deferredPointProgram_);
+        deferredPointProgram_->SetUniformB("use_esm", advancedShadow_);
+        deferredPointProgram_->SetUniformVec3f("cam_pos", camPos);
+        for (const PointLight* pointLight : pointLights_)
+        {
+            // Copy old image
+            glCopyTextureSubImage2D(screenTmpTex0_, 0, 0, 0, 0, 0, width_, height_);
+            glBindTextureUnit(10, screenTmpTex0_);
+            deferredPointProgram_->SetUniformI("old_tex", 10);
+
+            // PointLight specific uniforms
+            pointLight->Use(deferredPointProgram_);
+            glActiveTexture(GL_TEXTURE11);
+            pointLight->BindDepthCubeMap();
+            deferredPointProgram_->SetUniformI("shadow_tex", 11);
+
+            // Draw
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        }
+        glDepthFunc(GL_LESS);
+
+        // End
         glBindVertexArray(0);
     }
 
@@ -477,7 +493,7 @@ namespace en
         fixedColorProgram_->Use();
         fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
-        for (RenderObj* renderObj : fixedColorRenderObjs_)
+        for (const RenderObj* renderObj : fixedColorRenderObjs_)
             renderObj->RenderDiffuse(fixedColorProgram_);
     }
 
@@ -486,7 +502,7 @@ namespace en
         fixedColorProgram_->Use();
         fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
-        for (RenderObj* renderObj : splineRenderObjs_)
+        for (const RenderObj* renderObj : splineRenderObjs_)
             renderObj->RenderDiffuse(fixedColorProgram_);
     }
 
@@ -495,41 +511,46 @@ namespace en
         for (uint32_t i = 0; i < reflectiveMaps_.size(); i++)
         {
             const ReflectiveMap& reflectiveMap = reflectiveMaps_[i];
-            RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
+            const RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
 
+            // Calculate matrices
             uint32_t size = reflectiveMap.GetSize();
             glm::mat4 projMat = reflectiveMap.GetProjMat();
             std::vector<glm::mat4> viewMats = reflectiveMap.GetViewMats(reflectiveRenderObj->GetPos());
+            std::vector<glm::mat4> skyboxViewMats = reflectiveMap.GetViewMats(glm::vec3(0.0f));
             float* projMatP = &projMat[0][0];
 
+            // Bind framebuffer
             reflectiveMap.BindFbo();
             glViewport(0, 0, size, size);
 
-            reflectiveMap.BindCubeMap();
-
-            toEnvMapProgram_->Use();
-            toEnvMapProgram_->SetUniformMat4("proj_mat", false, projMatP);
-            toEnvMapProgram_->SetUniformVec3f("obj_pos", reflectiveRenderObj->GetPos());
+            // Draw all 6 faces one by one // TODO: optimize with geometry shader later
             for (uint32_t face = 0; face < 6; face++)
             {
-                float* viewMatP = &viewMats[face][0][0];
-                toEnvMapProgram_->SetUniformMat4("view_mat", false, viewMatP);
-
+                // Bind and clear buffers
+                reflectiveMap.BindCubeMap(); // Cube map need to be bound for every face because RenderSkybox binds skybox cube map
                 reflectiveMap.BindCubeMapFace(face);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                for (RenderObj* renderObj : sceletalRenderObjs)
+                // Render skybox
+                RenderSkybox(&skyboxViewMats[face][0][0], projMatP);
+
+                // Render all reflected objects
+                toEnvMapProgram_->Use();
+                toEnvMapProgram_->SetUniformMat4("proj_mat", false, projMatP);
+                toEnvMapProgram_->SetUniformVec3f("obj_pos", reflectiveRenderObj->GetPos());
+                toEnvMapProgram_->SetUniformMat4("view_mat", false, &viewMats[face][0][0]);
+                for (const RenderObj* renderObj : standardRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
-                for (RenderObj* renderObj : standardRenderObjs_)
+                for (const RenderObj* renderObj : fixedColorRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
-                for (RenderObj* renderObj : fixedColorRenderObjs_)
-                    renderObj->RenderDiffuse(toEnvMapProgram_);
-                for (RenderObj* renderObj : reflectiveRenderObjs_)
+                for (const RenderObj* renderObj : reflectiveRenderObjs_)
                 {
+                    // Dont reflect the reflecting object
                     if (renderObj != reflectiveRenderObj)
                         renderObj->RenderDiffuse(toEnvMapProgram_);
                 }
-                for (RenderObj* renderObj : splineRenderObjs_)
+                for (const RenderObj* renderObj : splineRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
             }
 
@@ -541,17 +562,18 @@ namespace en
     {
         for (uint32_t i = 0; i < reflectiveRenderObjs_.size(); i++)
         {
-            RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
+            const RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];
             const ReflectiveMap& reflectiveMap = reflectiveMaps_[i];
 
             reflectiveProgram_->Use();
             reflectiveProgram_->SetUniformMat4("view_mat", false, viewMat);
             reflectiveProgram_->SetUniformMat4("proj_mat", false, projMat);
             reflectiveProgram_->SetUniformVec3f("cam_pos", camPos);
+            reflectiveProgram_->SetUniformF("reflectiveness", reflectiveMap.GetReflectiveness());
 
-            glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE2);
             reflectiveMap.BindCubeMap();
-            reflectiveProgram_->SetUniformI("skybox_tex", 0);
+            reflectiveProgram_->SetUniformI("skybox_tex", 2);
             reflectiveRenderObj->RenderDiffuse(reflectiveProgram_);
         }
     }
@@ -576,5 +598,54 @@ namespace en
         glBindVertexArray(0);
 
         glDepthFunc(GL_LESS);
+    }
+
+    void SceneRenderer::PostProcess(uint32_t width, uint32_t height) const
+    {
+        // Prepare
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindVertexArray(fullScreenVao_);
+        glDepthFunc(GL_LEQUAL);
+
+        // Bloom (extract)
+        glCopyTextureSubImage2D(screenTmpTex0_, 0, 0, 0, 0, 0, width, height);
+        bloomExtractProgram_->Use();
+        glBindTextureUnit(0, screenTmpTex0_);
+        bloomExtractProgram_->SetUniformI("og_tex", 0);
+        bloomExtractProgram_->SetUniformF("min_brightness", 0.71f);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Bloom (blur)
+        glCopyTextureSubImage2D(screenTmpTex1_, 0, 0, 0, 0, 0, width, height);
+        gauss5Program_->Use();
+        glBindTextureUnit(0, screenTmpTex1_);
+        gauss5Program_->SetUniformI("og_tex", 0);
+        gauss5Program_->SetUniformF("pixel_width", 1.0f / (float) width);
+        gauss5Program_->SetUniformF("pixel_height", 1.0f / (float) height);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Bloom (combine)
+        glCopyTextureSubImage2D(screenTmpTex1_, 0, 0, 0, 0, 0, width, height);
+        bloomCombineProgram_->Use();
+        glBindTextureUnit(0, screenTmpTex0_);
+        bloomCombineProgram_->SetUniformI("og_tex", 0);
+        glBindTextureUnit(1, screenTmpTex1_);
+        bloomCombineProgram_->SetUniformI("bloom_tex", 1);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Film grain
+        glCopyTextureSubImage2D(screenTmpTex0_, 0, 0, 0, 0, 0, width, height);
+        grainProgram_->Use();
+        glBindTextureUnit(0, screenTmpTex0_);
+        grainProgram_->SetUniformI("og_tex", 0);
+        grainProgram_->SetUniformF("strength", 0.05f);
+        grainProgram_->SetUniformVec2f("rand_in", glm::linearRand(glm::vec2(0.0f), glm::vec2(1.0f)));
+        grainProgram_->SetUniformVec2f("scree_size", glm::vec2((float) width, (float) height));
+        grainProgram_->SetUniformI("grain_size", 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        // Cleanup
+        glDepthFunc(GL_LESS);
+        glBindVertexArray(0);
     }
 }
