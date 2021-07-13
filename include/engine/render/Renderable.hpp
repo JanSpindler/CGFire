@@ -47,12 +47,14 @@ namespace en
         const std::string& GetName(){ return name_; }
 
         virtual void OnImGuiRender();
-    private:
-        glm::mat4 t_;
 
-        void SetMatrices(const GLProgram* program);
     protected:
         std::string name_;
+
+        void SetMatrices(const GLProgram* program);
+
+    private:
+        glm::mat4 t_;
     };
 }
 

@@ -39,7 +39,7 @@ namespace scene {
                   m_WaterCreator(m_ParticleSystemWater),
                   m_SmokeCreator(m_ParticleSystemSmoke),
                   m_FireCreator(m_ParticleSystemFire),
-                  m_SceneRenderer(1000, 800),
+                  m_SceneRenderer(1000, 800, true, false),
                   m_EventInterface(m_EventsAndTimesSave)
                   {
 
@@ -71,7 +71,7 @@ namespace scene {
             m_SceneTime += dt;
 
 
-            m_SceneRenderer.Resize(m_Window.GetWidth(), m_Window.GetHeight()); // TODO: maybe something more performant
+            m_SceneRenderer.Resize(m_Window.GetWidth(), m_Window.GetHeight());
 
             m_ParticleSystemWater.OnUpdate(dt);
             m_ParticleSystemSmoke.OnUpdate(dt);
@@ -93,15 +93,15 @@ namespace scene {
                     break;
             }
 
-            m_SceneRenderer.Update(dt);
+            //m_SceneRenderer.Update(dt); // TODO
         }
 
         void OnRender(){
-            m_SceneRenderer.Render(&m_Window, &m_Cam);
+            m_SceneRenderer.Render(&m_Cam);
             m_ParticleSystemWater.OnRender();
             m_ParticleSystemSmoke.OnRender();
             m_ParticleSystemFire.OnRender();
-            m_SceneRenderer.SetPrevViewMat(&m_Cam);
+            //m_SceneRenderer.SetPrevViewMat(&m_Cam); // TODO
         }
 
         void onImGuiRender() {
@@ -122,7 +122,7 @@ namespace scene {
             ImGui::End();
 
             m_EventInterface.OnImGuiRender();
-            m_SceneRenderer.OnImGuiRender();
+            //m_SceneRenderer.OnImGuiRender(); // TODO
             m_WaterCreator.onImGuiRender();
             m_SmokeCreator.onImGuiRender();
             m_FireCreator.onImGuiRender();

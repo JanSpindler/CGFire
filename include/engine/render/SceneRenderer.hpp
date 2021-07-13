@@ -25,16 +25,19 @@ namespace en
         void Render(const Camera* cam) const;
         void Resize(uint32_t width, uint32_t height);
 
-        void AddStandardRenderObj(const RenderObj* renderObj);
+        void AddSkeletalRenderObj(RenderObj* renderObj);
+        void RemoveSkeletalRenderObj(const RenderObj* renderObj);
+
+        void AddStandardRenderObj(RenderObj* renderObj);
         void RemoveStandardRenderObj(const RenderObj* renderObj);
 
-        void AddFixedColorRenderObj(const RenderObj* renderObj);
+        void AddFixedColorRenderObj(RenderObj* renderObj);
         void RemoveFixedColorRenderObj(const RenderObj* renderObj);
 
-        void AddSplineRenderObj(const RenderObj* renderObj);
+        void AddSplineRenderObj(RenderObj* renderObj);
         void RemoveSplineRenderObj(const RenderObj* renderObj);
 
-        void AddReflectiveRenderObj(const RenderObj* renderObj, float nearPlane, float reflectiveness);
+        void AddReflectiveRenderObj(RenderObj* renderObj, float nearPlane, float reflectiveness);
         void RemoveReflectiveRenderObj(const RenderObj* renderObj);
 
         void SetDirLight(const DirLight* dirLight);
@@ -73,10 +76,11 @@ namespace en
         uint32_t width_;
         uint32_t height_;
 
-        std::vector<const RenderObj*> standardRenderObjs_;
-        std::vector<const RenderObj*> fixedColorRenderObjs_;
-        std::vector<const RenderObj*> splineRenderObjs_;
-        std::vector<const RenderObj*> reflectiveRenderObjs_;
+        std::vector<RenderObj*> skeletalRenderObjs_;
+        std::vector<RenderObj*> standardRenderObjs_;
+        std::vector<RenderObj*> fixedColorRenderObjs_;
+        std::vector<RenderObj*> splineRenderObjs_;
+        std::vector<RenderObj*> reflectiveRenderObjs_;
 
         std::vector<ReflectiveMap> reflectiveMaps_;
 

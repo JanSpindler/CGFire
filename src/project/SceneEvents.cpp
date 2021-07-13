@@ -115,7 +115,7 @@ namespace scene{
         m_SkyboxTex = std::make_shared<en::GLSkyboxTex>("CGFire/skybox1", ".png", false);
         m_SceneRenderer.SetSkyboxTex(m_SkyboxTex.get());
 
-        m_DirLight = std::make_shared<en::DirLight>(glm::vec3(0.743f, -0.287f, -0.605f), glm::vec3(1.f));
+        m_DirLight = std::make_shared<en::DirLight>(glm::vec3(0.743f, -0.287f, -0.605f), glm::vec3(1.f), 2048, 2048);
         m_SceneRenderer.SetDirLight(m_DirLight.get());
 
         m_DummyPositionFinder = std::make_shared<en::Model>("cube.obj", true, "Positioning Dummy");

@@ -23,9 +23,9 @@ namespace en
                 float seed);
         ~BackgroundTerrain();
 
-        void RenderPosOnly(const GLProgram* program) const override;
-        void RenderDiffuse(const GLProgram* program) const override;
-        void RenderAll(const GLProgram* program) const override;
+        void RenderPosOnly(const GLProgram* program) override;
+        void RenderDiffuse(const GLProgram* program) override;
+        void RenderAll(const GLProgram* program) override;
 
     private:
         float seed_;

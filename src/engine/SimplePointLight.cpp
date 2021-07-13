@@ -6,8 +6,8 @@
 
 namespace en
 {
-    SimplePointLight::SimplePointLight(glm::vec3 color, float strength, uint32_t width, uint32_t height) :
-            Model("sphere.obj", true),
+    SimplePointLight::SimplePointLight(glm::vec3 color, float strength, uint32_t width, uint32_t height, const std::string& name) :
+            Model("sphere.obj", true, name),
             PointLight(strength, width, height)
     {
         color_ = color;
@@ -15,7 +15,7 @@ namespace en
 
     glm::vec3 SimplePointLight::GetPos() const
     {
-        return glm::vec3(t_ * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        return Position;
     }
 
     glm::vec3 SimplePointLight::GetColor() const

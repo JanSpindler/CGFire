@@ -41,9 +41,6 @@ namespace en
     {
         return pos_;
     }
-    glm::vec3 Camera::GetViewDir() const {
-        return viewDir_;
-    }
 
     glm::vec3 Camera::GetViewDir() const
     {

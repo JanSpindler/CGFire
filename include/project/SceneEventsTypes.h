@@ -144,7 +144,7 @@ namespace scene{
         void onAction() override{
             switch (m_Type){
                 case Char:
-                    m_SceneRenderer.AddSceletalRenderObj(dynamic_cast<en::Sceletal *>(m_Obj.get()));
+                    m_SceneRenderer.AddSkeletalRenderObj(m_Obj.get());
                     break;
                 case Standard:
                     m_SceneRenderer.AddStandardRenderObj(m_Obj.get());
@@ -156,7 +156,7 @@ namespace scene{
                     m_SceneRenderer.AddSplineRenderObj(m_Obj.get());
                     break;
                 case Reflective:
-                    m_SceneRenderer.AddReflectiveRenderObj(m_Obj.get());
+                    m_SceneRenderer.AddReflectiveRenderObj(m_Obj.get(), 2.0f, 0.5f);
                     break;
             }
         }

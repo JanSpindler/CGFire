@@ -27,7 +27,7 @@ namespace en
     {
     }
 
-    void BackgroundTerrain::RenderPosOnly(const GLProgram* program) const
+    void BackgroundTerrain::RenderPosOnly(const GLProgram* program)
     {
         RenderObj::SetMatrices(program);
         glBindVertexArray(vao_);
@@ -35,7 +35,7 @@ namespace en
         glBindVertexArray(0);
     }
 
-    void BackgroundTerrain::RenderDiffuse(const GLProgram* program) const
+    void BackgroundTerrain::RenderDiffuse(const GLProgram* program)
     {
         RenderObj::SetMatrices(program);
         program->SetUniformB("use_diffuse_tex", false);
@@ -45,7 +45,7 @@ namespace en
         glBindVertexArray(0);
     }
 
-    void BackgroundTerrain::RenderAll(const GLProgram* program) const
+    void BackgroundTerrain::RenderAll(const GLProgram* program)
     {
         RenderObj::SetMatrices(program);
         program->SetUniformB("use_diffuse_tex", false);

@@ -48,21 +48,19 @@ int main()
     en::Spline3DRenderable splineRenderable(&spline);
     en::Spline3D::Iterator iterator = { 0, 0.0f };
 
-    en::Model backpackModel("backpack/backpack.obj", true);
+    en::Model backpackModel("backpack/backpack.obj", true, "Backpack");
 
-    en::Model floorModel("cube.obj", true);
-    floorModel.t_ = glm::translate(glm::vec3(0.0f, -5.0f, 0.0f)) * glm::scale(glm::vec3(256.0f, 1.0f, 256.0f));
+    en::Model dragonModel("dragon.obj", false, "Dragon");
+    dragonModel.Position = glm::vec3(0.0f, 0.0f, 20.0f);
 
-    en::Model dragonModel("dragon.obj", false);
-    dragonModel.t_ = glm::translate(glm::vec3(0.0f, 0.0f, 20.0f));
+    en::Model reflectModel("hd_sphere.obj", false, "Reflective Sphere");
+    reflectModel.Position = glm::vec3(0.0f, 0.0f, -8.0f);
 
-    en::Model reflectModel("hd_sphere.obj", false);
-    reflectModel.t_ = glm::translate(glm::vec3(0.0f, 0.0, -8.0f));
+    en::Model testModel("scene/house/Edificio.dae", false, "Test Model");
+    testModel.Position = glm::vec3(64.0f, 10.0f, 0.0f);
+    testModel.Scaling = glm::vec3(10.0f);
 
-    en::Model testModel("scene/house/Edificio.dae", false);
-    testModel.t_ = glm::translate(glm::vec3(64.0f, 10.0f, 0.0f)) * glm::scale(glm::vec3(10.0f));
-
-    en::Model splineFollowModel("cube.obj", false);
+    en::Model splineFollowModel("cube.obj", false, "Spline Follower");
 
     // Lights
     en::DirLight dirLight(
@@ -71,11 +69,11 @@ int main()
             4096,
             4096);
 
-    en::SimplePointLight pointLight0(glm::vec3(1.0f, 0.0f, 0.0f), 200.0f, 512, 512);
-    pointLight0.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
+    en::SimplePointLight pointLight0(glm::vec3(1.0f, 0.0f, 0.0f), 200.0f, 512, 512, "Pointlight 0");
+    pointLight0.Position = glm::vec3(0.0f, 10.0f, 15.0f);
 
-    en::SimplePointLight pointLight1(glm::vec3(0.0f, 1.0f, 1.0f), 100.0f, 512, 512);
-    pointLight1.t_ = glm::translate(glm::vec3(0.0f, 10.0f, 15.0f));
+    en::SimplePointLight pointLight1(glm::vec3(0.0f, 1.0f, 1.0f), 100.0f, 512, 512, "Pointlight 1");
+    pointLight1.Position = glm::vec3(0.0f, 10.0f, 15.0f);
 
     // Skybox
     en::GLSkyboxTex skyboxTex("CGFire/skybox1", ".png", false);
@@ -123,15 +121,16 @@ int main()
         en::Input::HandleUserCamInput(&window, &cam, deltaTime);
         
         // Physics
-        pointLight0.t_ = glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * pointLight0.t_;
-        backpackModel.t_ *= glm::rotate(deltaTime * 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-        dragonModel.t_ = dragonModel.t_ * glm::rotate(deltaTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
-        reflectModel.t_ = glm::rotate(deltaTime * 0.4f, glm::vec3(0.0f, 1.0f, 0.0f)) * reflectModel.t_;
+        pointLight0.Position = glm::vec3(glm::rotate(deltaTime * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(pointLight0.Position, 1.0f));
+        backpackModel.RotationAngle += deltaTime * 1.0f;
+        dragonModel.RotationAngle += deltaTime * 0.2f;
+        reflectModel.Position = glm::vec3(glm::rotate(deltaTime * 0.4f, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(reflectModel.Position, 1.0f));
+        splineFollowModel.Position = spline.IterateRelative(&iterator, deltaTime * 5.0f);
 
-        glm::vec3 segmentDir = spline.GetSegmentDir(iterator.lastPoint);
-        glm::mat4 rotMat = glm::orientation(segmentDir, glm::vec3(0.0f, 1.0f, 0.0f));
-        splineFollowModel.t_ =
-                glm::translate(spline.IterateRelative(&iterator, 10.0f * deltaTime)) * rotMat;
+        glm::vec3 segDir = spline.GetSegmentDir(iterator.lastPoint);
+        glm::vec3 defOrient(0.0f, 0.0f, 1.0f);
+        splineFollowModel.RotationAxis = -glm::cross(segDir, defOrient);
+        splineFollowModel.RotationAngle = glm::acos(glm::dot(segDir, defOrient));
 
         cam.TrackStep(deltaTime * 2.0f, glm::vec3(0.0f));
 
