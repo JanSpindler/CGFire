@@ -79,13 +79,13 @@ namespace en
         motionblur_.build_framebuffer(width, height);
     }
 
-    void SceneRenderer::AddSceletalRenderObj(Sceletal* renderObj)
+    void SceneRenderer::AddSceletalRenderObj(Skeletal* renderObj)
     {
         RemoveSceletalRenderObj(renderObj);
         sceletalRenderObjs.push_back(renderObj);
     }
 
-    void SceneRenderer::RemoveSceletalRenderObj(const Sceletal* renderObj)
+    void SceneRenderer::RemoveSceletalRenderObj(const Skeletal* renderObj)
     {
         for (uint32_t i = 0; i < sceletalRenderObjs.size(); i++)
         {

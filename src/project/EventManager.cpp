@@ -18,9 +18,8 @@ namespace scene {
             m_SceneRenderer(sceneRenderer),
             m_ObjectManager(objectManager)
     {
-        /************************ATTENTION*************/
-        /******We need to add for each event type one dummy event here!******/
-        m_DummyEventsOfAllTypes.push_back(std::make_unique<scene::ShowRenderObjEvent>(m_SceneRenderer, m_ObjectManager));
+
+        scene::InitDummyEvents(m_SceneRenderer, m_ObjectManager);
 
 
 
@@ -141,7 +140,7 @@ namespace scene {
 
             if (ImGui::BeginCombo("Event Type", s_Selection.c_str()))
             {
-                for (auto& eventTypeDummy : m_DummyEventsOfAllTypes)
+                for (auto& eventTypeDummy : DummyEventsOfAllTypes)
                 {
                     std::string EventTypeName = getEventTypeName(eventTypeDummy.get());
                     bool is_selected = (s_Selection == EventTypeName);
@@ -185,7 +184,7 @@ namespace scene {
     }
 
     scene::Event* EventManager::CreateEventFromType(scene::EventType type){
-        for (auto& dummyEvent : m_DummyEventsOfAllTypes){
+        for (auto& dummyEvent : DummyEventsOfAllTypes){
             if (dummyEvent->GetTypeID() == type){
                 return dummyEvent->Clone();
             }
@@ -264,11 +263,19 @@ namespace scene {
             m_EventsAndTimes.erase(m_EventsAndTimes.begin() + deleteEvent);
         }
     }
-    void EventManager::OnCreateNewObj(en::RenderObj* obj){
+    void EventManager::OnCreateNewObj(ObjectType type, en::RenderObj* obj){
         //Create new ShowRenderObjEvent as default for all new created objects so they appear immediately
 
+        RenderObjType renderObjType = RenderObjType::Standard;
+
+        if (type == ObjectType::Skeletal){
+            renderObjType = RenderObjType::Skeletal;
+        }else if (type == ObjectType::Spline){
+            renderObjType = RenderObjType::FixedColor;
+        }
+
         auto p = std::make_pair(new ShowRenderObjEvent(m_SceneRenderer, m_ObjectManager,
-                                                   obj, RenderObjType::Standard, true), 0.f);
+                                                   obj, renderObjType, true), 0.f);
         m_EventsAndTimes.emplace_back(p);
         p.first->UpdateDescription();
     }

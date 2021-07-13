@@ -15,6 +15,9 @@ namespace scene {
         std::vector<std::string> extensions = {".obj", ".dae", ".fbx"};
         util::GetAllFilesByExtensions(MODEL_ROOT, extensions, m_FoundObjectFiles);
 
+        std::vector<std::string> extensionsDae = {".dae"};
+        util::GetAllFilesByExtensions(MODEL_ROOT, extensionsDae, m_FoundDaeFiles);
+
 
 
         //Safety copy
@@ -47,11 +50,18 @@ namespace scene {
             ObjectType id = static_cast<ObjectType>(std::stoi(idString));
             if (id == ObjectType::Model) {
                 // SpecificStuff: modelfile
-                std::string file = row[2];
+                std::string modelfile = row[2];
 
-                renderObj = this->LoadModel(objName, file).get();
-            } else if (id == ObjectType::Sceletal) {
+                renderObj = this->LoadModel(objName, modelfile).get();
+            } else if (id == ObjectType::Skeletal) {
+                //SpecificStuff: modelfile, animationName1, AnimationFile1, AnimationName2, AnimationFile2,...
+                std::string modelfile = row[2];
+                std::vector<std::pair<std::string, std::string>> animations;
+                for (int j = 3; j < row.size(); j+=2){
+                    animations.emplace_back(std::make_pair(row[j], row[j+1]));
+                }
 
+                renderObj = this->LoadSkeletal(objName, modelfile, animations).get();
             } else if (id == ObjectType::Spline) {
             } else {
                 std::cout << "unknown object type-id:!!" << static_cast<int>(id) << std::endl;
@@ -81,8 +91,13 @@ namespace scene {
             csv << static_cast<int>(ObjectType::Model) << o->GetName() << o->GetPathName() << endrow;
             SaveRenderObjDataToCSV(csv, *o);
         }
-        for (auto &o : m_Sceletals) {
-
+        for (auto &o : m_Skeletals) {
+            csv << static_cast<int>(ObjectType::Skeletal) << o->GetName() << o->GetPathName();
+            for (auto& p : o->GetAnimationNamesAndFiles()){
+                csv << p.first << p.second;
+            }
+            csv << endrow;
+            SaveRenderObjDataToCSV(csv, *o);
         }
         for (auto &o : m_Splines) {
 
@@ -90,7 +105,7 @@ namespace scene {
 
     }
 
-    ObjectManager::ButtonClickHappened ObjectManager::OnImGuiObjectRender(en::RenderObj& o){
+    ObjectManager::ButtonClickHappened ObjectManager::OnImGuiObjectRender(ObjectType type, en::RenderObj& o){
         auto cloneOrDeleteHappened = ButtonClickHappened::None;
         //std::string strID = "RO " + std::to_string(o.ID) + ": " + o.GetName();
         ImGui::PushID(o.ID);
@@ -151,6 +166,19 @@ namespace scene {
                 ImGui::TreePop();
             }
 
+            /******Skeletal Specific*****/
+            if (type == ObjectType::Skeletal) {
+                auto skeletal = dynamic_cast<en::Skeletal *>(&o);
+                OnImGuiSkeletalAnimationsRender(skeletal->GetAnimationNamesAndFiles());
+                //Render Add-Animation Button
+                std::string animationFileSelection;
+                std::string animationCustomName;
+                OnImGuiAddSkeletalAnimationButtonRender(animationCustomName, animationFileSelection);
+                if (!animationFileSelection.empty() && !animationCustomName.empty()){
+                    skeletal->AddAnimation(animationFileSelection, animationCustomName);
+                }
+            }
+
             ImGui::TreePop();
         }
         ImGui::PopID();
@@ -168,12 +196,13 @@ namespace scene {
     void ObjectManager::OnImGuiRender() {
         ImGui::Begin("Objects");
 
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Model (non sceletal) ROs:");
+        /******Models****/
+        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Model (non skeletal) ROs:");
         for (auto it = m_Models.begin(); it != m_Models.end(); ++it) {
             en::Model* o = it->get();
-            auto cloneOrDeleteHappened = OnImGuiObjectRender(*o);
+            auto cloneOrDeleteHappened = OnImGuiObjectRender(ObjectType::Model, *o);
             if (cloneOrDeleteHappened == ButtonClickHappened::Delete){
-                //Remove Model from scene
+                //Remove from scene
                 m_EventManager.OnObjDeletion(o);
                 DeleteRenderObjFromVec(o, m_AllRenderObjects); //important to do this before erasing from models
                 m_Models.erase(it);
@@ -182,7 +211,7 @@ namespace scene {
                 break;
             }
             else if (cloneOrDeleteHappened == ButtonClickHappened::Clone){
-                //Clone Model
+                //Clone
                 auto model = this->LoadModel(this->FindNextAvailableName(o->GetName()), o->GetPathName());
                 assert(model != nullptr);
                 m_SceneManager.restart(false);
@@ -191,15 +220,36 @@ namespace scene {
         }
         OnImGuiAddObjectRender(ObjectType::Model);
 
-        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Sceletal ROs:");
-        for (auto &obj : m_Sceletals) {
-            //OnImGuiObjectRender(*obj);
-        }
-        OnImGuiAddObjectRender(ObjectType::Sceletal);
+        /******Skeletals****/
+        ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Skeletal ROs:");
+        for (auto it = m_Skeletals.begin(); it != m_Skeletals.end(); ++it) {
+            en::Skeletal* o = it->get();
+            auto cloneOrDeleteHappened = OnImGuiObjectRender(ObjectType::Skeletal, *o);
+            if (cloneOrDeleteHappened == ButtonClickHappened::Delete){
+                //Remove from scene
+                m_EventManager.OnObjDeletion(o);
+                DeleteRenderObjFromVec(o, m_AllRenderObjects); //important to do this before erasing from models
+                m_Skeletals.erase(it);
 
+                m_SceneManager.restart(false);
+                break;
+            }
+            else if (cloneOrDeleteHappened == ButtonClickHappened::Clone){
+                //Clone
+                auto skeletal = this->LoadSkeletal(
+                        this->FindNextAvailableName(o->GetName()), o->GetPathName(), o->GetAnimationNamesAndFiles());
+                assert(skeletal != nullptr);
+                m_SceneManager.restart(false);
+                break;
+            }
+        }
+        OnImGuiAddObjectRender(ObjectType::Skeletal);
+
+
+        /******Splines****/
         ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Spline ROs:");
         for (auto &obj : m_Splines) {
-            //OnImGuiObjectRender(*obj.second);
+            //OnImGuiObjectRender(ObjectType::Spline, *obj.second);
         }
         OnImGuiAddObjectRender(ObjectType::Spline);
 
@@ -247,8 +297,8 @@ namespace scene {
             case ObjectType::Spline:
                 strcpy_s(addStr, "Add Spline");
                 break;
-            case ObjectType::Sceletal:
-                strcpy_s(addStr, "Add Sceletal");
+            case ObjectType::Skeletal:
+                strcpy_s(addStr, "Add Skeletal");
                 break;
         }
 
@@ -268,9 +318,10 @@ namespace scene {
                 case ObjectType::Model:
                     OnImGuiAddModelObjRender(s_Name);
                     break;
-                case ObjectType::Spline:
+                case ObjectType::Skeletal:
+                    OnImGuiAddSkeletalObjRender(s_Name);
                     break;
-                case ObjectType::Sceletal:
+                case ObjectType::Spline:
                     break;
             }
 
@@ -282,8 +333,9 @@ namespace scene {
 
 
             if (ImGui::BeginPopupModal("Error")) {
-                ImGui::Text("Something is wrong. Files need to be .obj/.dae/.fbx.\n"
-                            "Also no name duplicates or empty names!");
+                ImGui::Text("Something is wrong. Object files need to be .obj/.dae/.fbx.\n"
+                            "Animation Files need to be .dae\n"
+                            "Also, no name duplicates or empty names!");
                 if (ImGui::Button("Close"))
                     ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
@@ -312,14 +364,14 @@ namespace scene {
 
         if (ImGui::Button("OK")) {
 
-            bool isLegit = false;
-            if (util::HasSuffix(s_FileSelection, ".obj")
-                || util::HasSuffix(s_FileSelection, ".dae")
-                || util::HasSuffix(s_FileSelection, ".fbx")) {
-                isLegit = true;
+            bool isLegit = true;
+            if (!util::HasSuffix(s_FileSelection, ".obj")
+                && !util::HasSuffix(s_FileSelection, ".dae")
+                && !util::HasSuffix(s_FileSelection, ".fbx")) {
+                isLegit = false;
             }
 
-            if (name == "")
+            if (name.empty())
                 isLegit = false;
 
             if (isLegit) {
@@ -327,7 +379,7 @@ namespace scene {
                 auto model = this->LoadModel(name, s_FileSelection);
                 if (model != nullptr) {
                     SaveToFile();
-                    m_EventManager.OnCreateNewObj(model.get()); //Creates by default an ShowRenderObjEvent event
+                    m_EventManager.OnCreateNewObj(ObjectType::Model, model.get()); //Creates by default an ShowRenderObjEvent event
 
                     ImGui::CloseCurrentPopup();
                 }
@@ -341,6 +393,128 @@ namespace scene {
         }
     }
 
+    void ObjectManager::OnImGuiAddSkeletalObjRender(const std::string& name){
+        static std::string s_FileSelection;
+        static std::vector<std::pair<std::string, std::string>> s_AnimationFileSelections; //custom names and animation file names
+
+        if (ImGui::BeginCombo("Choose Skeletal Model", s_FileSelection.c_str()))
+        {
+            for (auto& filePath : m_FoundDaeFiles)
+            {
+                bool is_selected = (s_FileSelection == filePath);
+                if (ImGui::Selectable(filePath.c_str(), is_selected))
+                    s_FileSelection = filePath;
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        //Render selected Animation-Files
+        OnImGuiSkeletalAnimationsRender(s_AnimationFileSelections);
+
+
+        //Render Add-Animation Button
+        std::string s_AnimationFileSelection;
+        std::string s_AnimationCustomName;
+        OnImGuiAddSkeletalAnimationButtonRender(s_AnimationCustomName, s_AnimationFileSelection);
+        if (!s_AnimationFileSelection.empty() && !s_AnimationCustomName.empty()){
+            s_AnimationFileSelections.emplace_back(std::make_pair(s_AnimationCustomName, s_AnimationFileSelection));
+            s_AnimationFileSelection.clear();
+            s_AnimationCustomName.clear();
+        }
+
+        //OK-Button to finish skeletal creation
+        if (ImGui::Button("OK")) {
+
+            bool isLegit = true;
+            if (!util::HasSuffix(s_FileSelection, ".dae")) {
+                isLegit = false;
+            }
+
+            if (name.empty())
+                isLegit = false;
+
+            if (isLegit) {
+                //Add new Skeletal
+                auto skeletal = this->LoadSkeletal(name, s_FileSelection, s_AnimationFileSelections);
+                if (skeletal != nullptr) {
+                    s_AnimationFileSelections.clear();
+                    SaveToFile();
+                    m_EventManager.OnCreateNewObj(ObjectType::Skeletal, skeletal.get()); //Creates by default an ShowRenderObjEvent event
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else{
+                    ImGui::OpenPopup("Error");
+                }
+
+            } else {
+                ImGui::OpenPopup("Error");
+            }
+        }
+    }
+    void ObjectManager::OnImGuiSkeletalAnimationsRender(std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths){
+        ImGui::Text("Animations:");
+        for (int i = 0; i < animationNamesAndFilePaths.size(); i++){
+            ImGui::TextColored(ImVec4(0.f, 1.f, 0.75f, 1.f),
+                               "%s", animationNamesAndFilePaths[i].first.c_str());
+            ImGui::SameLine();
+            ImGui::TextColored(ImVec4(0.f, 0.5f, 0.5f, 1.f),
+                               "%s", animationNamesAndFilePaths[i].second.c_str());
+            ImGui::SameLine();
+            if (ImGui::Button("Delete")){
+                animationNamesAndFilePaths.erase(animationNamesAndFilePaths.begin() + i);
+                //TODO maybe OnAnimationDeleted in Events manager
+                break;
+            }
+        }
+    }
+    void ObjectManager::OnImGuiAddSkeletalAnimationButtonRender(std::string& animationCustomName, std::string& animationFileSelection){
+
+        static std::string s_AnimationFileSelection;
+        if (ImGui::Button("Add Animation")){
+            s_AnimationFileSelection = "";
+            ImGui::OpenPopup("Choose new Animation");
+        }
+
+        if (ImGui::BeginPopupModal("Choose new Animation")) {
+
+            if (ImGui::BeginCombo("Choose Animation", s_AnimationFileSelection.c_str()))
+            {
+                for (auto& filePath : m_FoundDaeFiles)
+                {
+                    bool is_selected = (s_AnimationFileSelection == filePath);
+                    if (ImGui::Selectable(filePath.c_str(), is_selected)) {
+                        s_AnimationFileSelection = filePath;
+                    }
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            static char s_AnimNameString[32] = "";
+            ImGui::Text("Choose Name:", "%s", s_AnimNameString);
+            ImGui::InputText("##editanimname", s_AnimNameString, IM_ARRAYSIZE(s_AnimNameString));
+
+            if (!s_AnimationFileSelection.empty() && !std::string(s_AnimNameString).empty()) {
+                if (ImGui::Button("Add")) {
+                    animationCustomName = std::string(s_AnimNameString);
+                    animationFileSelection = s_AnimationFileSelection;
+                    strcpy_s(s_AnimNameString, "");
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+            }
+            if (ImGui::Button("Abort")) {
+                strcpy_s(s_AnimNameString, "");
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+    }
+
     bool ObjectManager::DoesObjNameExistAlready(const std::string& name){
         for (auto& m : m_AllRenderObjects){ //check if name already exists
             if (m->GetName() == name){
@@ -348,15 +522,6 @@ namespace scene {
             }
         }
         return false;
-    }
-    std::shared_ptr<en::Model> ObjectManager::LoadModel(const std::string& name, const std::string& file){
-        if (DoesObjNameExistAlready(name))
-            return nullptr;
-        auto model = std::make_shared<en::Model>(file, true);
-        model->SetName(name);
-        m_Models.emplace_back(model);
-        m_AllRenderObjects.emplace_back(model.get());
-        return model;
     }
 
     std::string ObjectManager::FindNextAvailableName(const std::string& name){
@@ -367,5 +532,28 @@ namespace scene {
             k++;
         }
         return newName;
+    }
+
+    std::shared_ptr<en::Model> ObjectManager::LoadModel(const std::string& name, const std::string& file){
+        if (DoesObjNameExistAlready(name))
+            return nullptr;
+        auto model = std::make_shared<en::Model>(file, true);
+        model->SetName(name);
+        m_Models.emplace_back(model);
+        m_AllRenderObjects.emplace_back(model.get());
+        return model;
+    }
+    std::shared_ptr<en::Skeletal> ObjectManager::LoadSkeletal(const std::string& name, const std::string& file,
+                                                              std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths){
+        if (DoesObjNameExistAlready(name))
+            return nullptr;
+        auto skeletal = std::make_shared<en::Skeletal>(file);
+        skeletal->SetName(name);
+        for (auto p : animationNamesAndFilePaths) {
+            skeletal->AddAnimation(p.second, p.first);
+        }
+        m_Skeletals.emplace_back(skeletal);
+        m_AllRenderObjects.emplace_back(skeletal.get());
+        return skeletal;
     }
 }

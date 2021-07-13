@@ -15,7 +15,7 @@
 #include "util/FileFinder.h"
 #include "framework/imgui_util.hpp"
 #include "engine/model/Model.hpp"
-#include "engine/Sceletal.hpp"
+#include "engine/Skeletal.hpp"
 #include "engine/Spline3D.hpp"
 
 
@@ -24,15 +24,17 @@ namespace scene {
     class EventManager;
     class SceneManager;
 
+
+    enum class ObjectType {
+        Model = 0,
+        Skeletal = 1,
+        Spline = 2
+    };
+
     class ObjectManager {
         const std::string SceneObjectDataFileName = "sceneobjects.csv"; //this should always be the most recent edit
         const std::string SceneObjectDataAutoCopyBeforeStartFileName = "autocopylaststart_sceneobjects.csv";
     public:
-        enum class ObjectType {
-            Model = 0,
-            Sceletal = 1,
-            Spline = 2
-            };
 
         explicit ObjectManager(SceneManager& sceneManager, EventManager& eventManager);
 
@@ -46,7 +48,7 @@ namespace scene {
 
         std::vector<en::RenderObj*>& GetAllRenderObjects(){ return m_AllRenderObjects; };
         std::vector<std::shared_ptr<en::Model>>& GetModels(){ return m_Models; }
-        std::vector<std::shared_ptr<en::Sceletal>>& GetSceletals(){ return m_Sceletals; }
+        std::vector<std::shared_ptr<en::Skeletal>>& GetSceletals(){ return m_Skeletals; }
         std::vector<std::pair<std::shared_ptr<en::Spline3D>, std::shared_ptr<en::Spline3DRenderable>>>& GetSplines(){ return m_Splines; }
     private:
         SceneManager& m_SceneManager; //TODO probably we should simply create a static instance of each manager
@@ -54,7 +56,7 @@ namespace scene {
         std::vector<en::RenderObj*> m_AllRenderObjects;
 
         std::vector<std::shared_ptr<en::Model>> m_Models; //Those objects that are models but have no animation
-        std::vector<std::shared_ptr<en::Sceletal>> m_Sceletals; //Those objects that are models and have an animation
+        std::vector<std::shared_ptr<en::Skeletal>> m_Skeletals; //Those objects that are models and have an animation
         std::vector<std::pair<std::shared_ptr<en::Spline3D>, std::shared_ptr<en::Spline3DRenderable>>> m_Splines;
 
         static void SaveRenderObjDataToCSV(util::CSVWriter& writer, en::RenderObj& o);
@@ -62,17 +64,23 @@ namespace scene {
 
         void OnImGuiAddObjectRender(ObjectType type);
         void OnImGuiAddModelObjRender(const std::string& name); //used by OnImGuiAddObjectRender
-
+        void OnImGuiAddSkeletalObjRender(const std::string& name); //used by OnImGuiAddObjectRender
+        void OnImGuiAddSkeletalAnimationButtonRender(std::string& animationCustomName, std::string& animationFileSelection);
+        static void OnImGuiSkeletalAnimationsRender(std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths);
 
         std::vector<std::string> m_FoundObjectFiles; // stores all paths to object files in /models/ directory
+        std::vector<std::string> m_FoundDaeFiles; // stores all paths to Animated object files in /models/ directory
 
 
         bool DoesObjNameExistAlready(const std::string& name);
-        std::shared_ptr<en::Model> LoadModel(const std::string& name, const std::string& file);
         std::string FindNextAvailableName(const std::string& name);
 
+        std::shared_ptr<en::Model> LoadModel(const std::string& name, const std::string& file);
+        std::shared_ptr<en::Skeletal> LoadSkeletal(const std::string& name, const std::string& file,
+                                                   std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths);
+
         enum class ButtonClickHappened {None, Clone, Delete}; //There may be a better approach to this but idk
-        ButtonClickHappened ObjectManager::OnImGuiObjectRender(en::RenderObj& o);
+        ButtonClickHappened ObjectManager::OnImGuiObjectRender(ObjectType type, en::RenderObj& o);
 
     };
 }

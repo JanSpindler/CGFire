@@ -2,11 +2,11 @@
 //Created by vincent on 08.07.2021.
 //
 #pragma once
+#include "project/InitEvents.h"
 #include "project/SceneEvent.h"
 #include "project/ObjectManager.h"
 #include "engine/render/SceneRenderer.hpp"
 
-using namespace particle;
 
 namespace scene {
 
@@ -64,11 +64,11 @@ namespace scene {
 
         void OnAction() override {
             switch (m_Type) {
-                case RenderObjType::Sceletal:
+                case RenderObjType::Skeletal:
                     if (m_Show)
-                        m_SceneRenderer.AddSceletalRenderObj(dynamic_cast<Sceletal *>(m_Obj));
+                        m_SceneRenderer.AddSceletalRenderObj(dynamic_cast<Skeletal *>(m_Obj));
                     else
-                        m_SceneRenderer.RemoveSceletalRenderObj(dynamic_cast<Sceletal *>(m_Obj));
+                        m_SceneRenderer.RemoveSceletalRenderObj(dynamic_cast<Skeletal *>(m_Obj));
                     break;
                 case RenderObjType::Standard:
                     if (m_Show)

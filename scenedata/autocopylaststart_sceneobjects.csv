@@ -1,6 +1,4 @@
-0,"sphere","Aufgaben\sphere.obj"
+0,"sphere2","Aufgaben\sphere.obj"
+0,16.75,0,0,1,0,0,1,1,1
+1,"v","vampire\Walking.dae","walk","vampire\Walking.dae"
 0,0,0,0,1,0,0,1,1,1
-0,"ed","scene\house\Edificio.obj"
-0,0,0,0,1,0,0,1,1,1
-0,"God","Aufgaben\buddha.obj"
-0,11.5,0,0,1,0,0,1,1,1

@@ -26,7 +26,7 @@ namespace en
     // Sceletal can be: Sceletal, fixedColor, Reflective
     // Spline can be: Spline only (automatically also FixedColor)
     enum class RenderObjType {
-        Sceletal, Standard, FixedColor, Spline, Reflective
+        Skeletal, Standard, FixedColor, Spline, Reflective
     };
 
 

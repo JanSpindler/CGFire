@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "SceneEvent.h"
+#include "InitEvents.h"
 #include <framework/imgui_util.hpp>
 #include <typeinfo>
 #include <project/Events/ShowRenderObjEvent.h>
@@ -15,6 +15,8 @@
 
 namespace scene {
     class SceneManager;
+    class ObjectManager;
+    enum class ObjectType;
 
     //This class provides an ImGui interface for the events to manipulate them in game and save them to a file
     //and load them from a file
@@ -44,7 +46,7 @@ namespace scene {
 
         void OnImGuiRenderEventsOfObj(en::RenderObj* obj);
 
-        void OnCreateNewObj(en::RenderObj* obj);
+        void OnCreateNewObj(ObjectType type, en::RenderObj* obj);
     private:
         SceneManager& m_SceneManager;
         en::SceneRenderer& m_SceneRenderer;
@@ -54,8 +56,7 @@ namespace scene {
         std::vector<std::pair<scene::Event*, float>> m_EventsAndTimes;
         size_t m_nextEventIndex = 0;
 
-        //For creating new events, I use a list of dummy events. Each new event type must have a dummy event
-        std::vector<std::unique_ptr<scene::Event>> m_DummyEventsOfAllTypes;
+
         scene::Event* m_SelectedDummyEvent = nullptr;
 
         void SortEvents();
