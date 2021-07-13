@@ -3,26 +3,15 @@
 // In this file all the event types are defined
 #pragma once
 
-#include <utility>
 
-#include "particle/Water.h"
-#include "particle/Smoke.h"
-#include "particle/Fire.h"
-#include <framework/imgui_util.hpp>
 #include <util/CSVWriter.h>
-#include "project/ObjectManager.h"
-#include "engine/render/SceneRenderer.hpp"
+#include "InitEvents.h"
+
+namespace en {
+    class RenderObj;
+}
 
 namespace scene{
-    //Here add for each new event the type
-    //Make sure to also update EventManager.h accordingly......no better solution so far:
-    //Sadly you have to edit 3 different files to create a new event type
-    enum class EventType{
-        ShowRenderObjEvent,
-        DummyEvent //Keep it the last one so we can read from this the number of event types
-    };
-
-
 
     //Abstract base class for events
     class Event{

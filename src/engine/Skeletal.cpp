@@ -2,54 +2,64 @@
 //Created by vincent on 06.07.2021.
 //
 
-#include "engine/Sceletal.hpp"
+#include "engine/Skeletal.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
 namespace en{
-        Sceletal::Sceletal(const std::string& modelFile)
+        Skeletal::Skeletal(const std::string& modelFile)
                 : Model(modelFile, true)
         {
             m_DefaultAnimation = std::make_shared<Animation>(modelFile, this);
             m_Animator = std::make_shared<Animator>(m_DefaultAnimation.get());
             m_Animations["default"] = m_DefaultAnimation;
         }
-        void Sceletal::AddAnimation(const std::string& animationFile, const std::string& animationName){
-            m_Animations[animationName] = std::make_shared<en::Animation>(animationFile, this);
+        void Skeletal::AddAnimation(const std::string& animationFile, const std::string& animationName){
+            if (!m_Animations.count(animationName)) {
+                m_Animations[animationName] = std::make_shared<en::Animation>(animationFile, this);
+                m_AnimationsNamesAndFiles.emplace_back(std::make_pair(animationName, animationFile));
+            }
         };
-
-        void Sceletal::PlayAnimation(const std::string& animationName){
+        void Skeletal::DeleteAnimation(const std::string& animationName){
+            for (auto it = m_AnimationsNamesAndFiles.begin(); it != m_AnimationsNamesAndFiles.end(); ++it){
+                if (it->first == animationName){
+                    m_AnimationsNamesAndFiles.erase(it);
+                    break;
+                }
+            }
+        }
+        void Skeletal::PlayAnimation(const std::string& animationName){
             m_Animator->playAnim(m_Animations[animationName].get());
         }
 
-        void Sceletal::Update(float deltaTime){
+        void Skeletal::Update(float deltaTime){
             m_Animator->UpdateAnim(deltaTime);
         }
-        void Sceletal::Render(const GLProgram* program){
+        void Skeletal::Render(const GLProgram* program){
             this->SetBoneUniforms(program);
             Model::Render(program);
         }
-        void Sceletal::RenderPosOnly(const GLProgram* program){
+        void Skeletal::RenderPosOnly(const GLProgram* program){
             this->SetBoneUniforms(program);
             Model::RenderPosOnly(program);
         }
-        void Sceletal::RenderDiffuse(const GLProgram* program){
+        void Skeletal::RenderDiffuse(const GLProgram* program){
             this->SetBoneUniforms(program);
             Model::RenderDiffuse(program);
         }
-        void Sceletal::RenderAll(const GLProgram* program){
+        void Skeletal::RenderAll(const GLProgram* program){
             this->SetBoneUniforms(program);
             Model::RenderAll(program);
         }
 
-        void Sceletal::SetBoneUniforms(const GLProgram* program){
+        void Skeletal::SetBoneUniforms(const GLProgram* program){
             auto transforms = m_Animator->getfinalbonetransforms();
             for (int i = 0; i < transforms.size(); ++i) {
                 program->SetUniformMat4(("finalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(transforms[i]));
             }
         }
-        bool Sceletal::IsRenderObjTypePossible(en::RenderObjType type) const{
+        bool Skeletal::IsRenderObjTypePossible(en::RenderObjType type) const{
             switch(type){
-                case RenderObjType::Sceletal:
+                case RenderObjType::Skeletal:
                 case RenderObjType::FixedColor:
                 case RenderObjType::Reflective:
                     return true;

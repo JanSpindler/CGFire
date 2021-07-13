@@ -22,7 +22,7 @@
 #include "SceneEvent.h"
 #include "EventManager.h"
 
-#include "engine/Sceletal.hpp"
+#include "engine/Skeletal.hpp"
 
 #include "ObjToSplineConnector.h"
 #include "ObjectManager.h"

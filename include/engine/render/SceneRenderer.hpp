@@ -13,7 +13,7 @@
 #include "GBuffer.hpp"
 #include "../Window.hpp"
 #include "ReflectiveMap.hpp"
-#include "engine/Sceletal.hpp"
+#include "engine/Skeletal.hpp"
 #include "ssao/ssao.h"
 
 namespace en
@@ -28,8 +28,8 @@ namespace en
         void Render(const Window* window, const Camera* cam) const;
         void Resize(int32_t width, int32_t height);
 
-        void AddSceletalRenderObj(Sceletal* renderObj);
-        void RemoveSceletalRenderObj(const Sceletal* renderObj);
+        void AddSceletalRenderObj(Skeletal* renderObj);
+        void RemoveSceletalRenderObj(const Skeletal* renderObj);
 
         void AddStandardRenderObj(RenderObj* renderObj);
         void RemoveStandardRenderObj(const RenderObj* renderObj);
@@ -67,7 +67,7 @@ namespace en
         const GLProgram* SSAOProgram_;
         const GLProgram* SSAOBlurProgram_;
 
-        std::vector<Sceletal*> sceletalRenderObjs;
+        std::vector<Skeletal*> sceletalRenderObjs;
         std::vector<RenderObj*> standardRenderObjs_;
         std::vector<RenderObj*> fixedColorRenderObjs_;
         std::vector<RenderObj*> splineRenderObjs_;
