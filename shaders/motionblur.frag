@@ -34,7 +34,7 @@ void main(){
     for (int i = 1; i<= sampling; i++){
         texcoord = TexCoord0 - i*2*motionvec/sampling;
         float samplez = dot(texture(postex, texcoord).xyz-campos, camdir);
-        if (length(samplez-posz)<=5){
+        if (length(samplez-posz)<=1){
             hit++;
             color += texture(colortex, texcoord);
         }

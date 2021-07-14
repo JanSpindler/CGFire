@@ -16,7 +16,11 @@ namespace en{
             m_Animator = std::make_shared<Animator>(m_DefaultAnimation.get());
             m_Animations["default"] = m_DefaultAnimation;
             m_Animator->UpdateAnim(0);
-            prevbonetransforms = m_Animator->getfinalbonetransforms();
+            auto current = m_Animator->getfinalbonetransforms();
+            for (int i = 0; i<current.size(); i++){
+                prevbonetransforms.emplace_back(1.0f);
+                prevbonetransforms[i] = current[i];
+            }
         }
         void Sceletal::AddAnimation(const std::string& animationFile, const std::string& animationName){
             m_Animations[animationName] = std::make_shared<en::Animation>(animationFile, this);
@@ -25,10 +29,17 @@ namespace en{
         void Sceletal::PlayAnimation(const std::string& animationName){
             m_Animator->playAnim(m_Animations[animationName].get());
             m_Animator->UpdateAnim(0);
-            prevbonetransforms = m_Animator->getfinalbonetransforms();
+            auto current = m_Animator->getfinalbonetransforms();
+            for (int i = 0; i<current.size(); i++){
+                prevbonetransforms[i] = current[i];
+            }
         }
 
         void Sceletal::Update(float deltaTime){
+            auto current = m_Animator->getfinalbonetransforms();
+            for (int i = 0; i<current.size(); i++){
+                prevbonetransforms[i] = current[i];
+            }
             m_Animator->UpdateAnim(deltaTime);
         }
         void Sceletal::Render(const GLProgram* program){
@@ -50,10 +61,13 @@ namespace en{
 
         void Sceletal::SetBoneUniforms(const GLProgram* program){
             auto transforms = m_Animator->getfinalbonetransforms();
+            //printf("1: %s\n2: %s\n",glm::to_string(transforms[0]).c_str(),glm::to_string(prevbonetransforms[0]).c_str());
+            //printf("2: %s", glm::to_string(prevbonetransforms[0]).c_str());
             for (int i = 0; i < transforms.size(); ++i) {
+                assert(transforms.size()==prevbonetransforms.size());
                 program->SetUniformMat4(("finalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(transforms[i]));
                 program->SetUniformMat4(("prevfinalbones[" + std::to_string(i) + "]").c_str(), false, glm::value_ptr(prevbonetransforms[i]));
-                prevbonetransforms[i] = transforms[i];
+                //prevbonetransforms[i] = transforms[i];
             }
         }
 }
