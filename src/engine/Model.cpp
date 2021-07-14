@@ -232,7 +232,7 @@ namespace en
                 localAiT.a4, localAiT.b4, localAiT.c4, localAiT.d4
         );
         glm::mat4 totalT = parentT * localT;
-        totalT = glm::identity<glm::mat4>();
+        //totalT = glm::identity<glm::mat4>();
 
         unsigned int meshCount = node->mNumMeshes;
         Log::Info("Node has " + std::to_string(meshCount) + " meshes");

@@ -393,6 +393,7 @@ namespace en
 
     void SceneRenderer::RenderDirShadow() const
     {
+        glDepthFunc(GL_LESS);
         dirLight_->BindShadowBuffer();
 
         dirShadowProgram_->Use();
@@ -423,6 +424,8 @@ namespace en
 
     void SceneRenderer::RenderPointShadows() const
     {
+        glDepthFunc(GL_LESS);
+
         pointShadowProgram_->Use();
         std::vector<glm::mat4> lightMats;
         for (const PointLight* pointLight : pointLights_)
@@ -451,6 +454,7 @@ namespace en
 
     void SceneRenderer::RenderDeferredGeometry(const float* viewMat, const float* projMat) const
     {
+        glDepthFunc(GL_LESS);
         gBuffer_.Bind();
 
         geometryProgram_->Use();
@@ -469,6 +473,8 @@ namespace en
 
     void SceneRenderer::RenderDeferredLighting(glm::vec3 camPos) const
     {
+        glDepthFunc(GL_LESS);
+
         // Bind screen fbo
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -524,6 +530,7 @@ namespace en
 
     void SceneRenderer::RenderFixedColor(const float* viewMat, const float* projMat) const
     {
+        glDepthFunc(GL_LESS);
         fixedColorProgram_->Use();
         fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
@@ -533,6 +540,7 @@ namespace en
 
     void SceneRenderer::RenderSplines(const float *viewMat, const float *projMat) const
     {
+        glDepthFunc(GL_LESS);
         fixedColorProgram_->Use();
         fixedColorProgram_->SetUniformMat4("view_mat", false, viewMat);
         fixedColorProgram_->SetUniformMat4("proj_mat", false, projMat);
@@ -542,6 +550,7 @@ namespace en
 
     void SceneRenderer::RenderReflectiveMaps() const
     {
+        glDepthFunc(GL_LESS);
         for (uint32_t i = 0; i < reflectiveMaps_.size(); i++)
         {
             const ReflectiveMap& reflectiveMap = reflectiveMaps_[i];
@@ -594,6 +603,7 @@ namespace en
 
     void SceneRenderer::RenderReflectiveObj(glm::vec3 camPos, const float *viewMat, const float *projMat) const
     {
+        glDepthFunc(GL_LESS);
         for (uint32_t i = 0; i < reflectiveRenderObjs_.size(); i++)
         {
             RenderObj* reflectiveRenderObj = reflectiveRenderObjs_[i];

@@ -88,7 +88,7 @@ void main()
     float shininess = specular_tex_val.a;
 
     // Calculate color
-    vec3 old_result = texture(old_tex, frag_uv).rgb;
+    vec3 old_result = vec3(get_point_shadow(frag_pos - light_pos));//texture(old_tex, frag_uv).rgb;
     vec3 light_result = get_point_light_color(frag_pos, frag_normal, diffuse_color, specular_color, shininess);
     frag_color = vec4(old_result + light_result, 1.0);
 }
