@@ -10,78 +10,41 @@
 
 namespace particle{
 
-    static int NumFlames = 0;
-
     /*A flame of fire can be placed in the scene with individual properties.*/
     class Flame : public en::PointLight{
         friend class FireCreator;
     public:
-        explicit Flame(const glm::vec3& position,
+        Flame(const char name[32] = "FlameNoName",
+              const glm::vec3& position = glm::vec3(0.f, 5.f, 0.f),
               const glm::vec3& positionVariation = glm::vec3(1.f, 0.f, 1.f),
               int particlesPerEmit = 5,
               float buildUpTime = 5.f,
               float expiringTime = 5.f,
               float particleLifeTime = 1.f,
-              float particleLifeTimeVariation = 0.2f)
-        : PointLight(1.f),
-          Position(position),
-          PositionVariation(positionVariation),
-        ParticlesPerEmit(particlesPerEmit),
-          BuildUpTime(buildUpTime),
-          ExpiringTime(expiringTime),
-          ParticleLifeTime(particleLifeTime),
-          ParticleLifeTimeVariation(particleLifeTimeVariation)
-        {
-            ID = NumFlames++;
-        }
+              float particleLifeTimeVariation = 0.2f);
 
-        void startExpiring(){
-            if (Timer < BuildUpTime)
-                Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
-            else
-                Timer = 0.f;
-            BuildingUp = false; Expiring = true; }
-
-        uint32_t ID;
+        //Relevant Data
+        char Name[32];
         glm::vec3 Position;
         glm::vec3 PositionVariation;
         int ParticlesPerEmit;
+        const float BuildUpTime; //the amount of time the fire takes to come to its peak
+        const float ExpiringTime; //the amount of time the fire takes to expire
         float ParticleLifeTime;
         float ParticleLifeTimeVariation;
 
 
+        void startExpiring();
+        void OnImGuiRender();
+
         //PointLight abstract methods
-
-        glm::vec3 GetPos() const override{
-            return Position;
-        }
-        glm::vec3 GetColor() const override {
-            return glm::vec3(1.f, 1.f, 1.f);
-        }
-
-        void OnImGuiRender(){
-            std::string strID = "Flame" + std::to_string(ID);
-            ImGui::PushID(strID.c_str());
-            if (ImGui::TreeNode(strID.c_str())) {
-                ImGui::DragFloat3("Position", &Position.x, 0.5f);
-                ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
-                ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999);
-                ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
-                ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
-                ImGui::TreePop();
-            }
-            ImGui::PopID();
-        }
+        glm::vec3 GetPos() const override { return Position; }
+        glm::vec3 GetColor() const override { return glm::vec3(1.f, 1.f, 1.f);}
     private:
-        const float BuildUpTime; //the amount of time the fire takes to come to its peak
-        const float ExpiringTime; //the amount of time the fire takes to expire
-
         bool BuildingUp = true;
         bool Expiring = false; //if set true, the fire will start to expire
         bool Expired = false; //if set true, it is done completely
-
         float SecondsSinceEmit = 0.f; //internal emit timer
-
         float Timer = 0.f;
     };
 

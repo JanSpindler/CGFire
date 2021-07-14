@@ -4,12 +4,12 @@
 #include "project/SceneManager.h"
 
 #include "project/Events/ShowRenderObjEvent.h"
-#include "project/Events/FireCreationEvent.h"
-#include "project/Events/FireExpiringEvent.h"
-#include "project/Events/SmokeCreationEvent.h"
-#include "project/Events/SmokeExpiringEvent.h"
-#include "project/Events/WaterCreationEvent.h"
-#include "project/Events/WaterExpiringEvent.h"
+#include "project/Events/CreateFlameEvent.h"
+#include "project/Events/ExpireFlameEvent.h"
+#include "project/Events/CreateSmokeStreamEvent.h"
+#include "project/Events/ExpireSmokeStreamEvent.h"
+#include "project/Events/CreateWaterJetEvent.h"
+#include "project/Events/ExpireWaterJetEvent.h"
 namespace scene{
 
 //    //Here, add all of the events with their respective event time

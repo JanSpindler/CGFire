@@ -31,7 +31,7 @@ int main(int, char* argv[]) {
 
     //Create the Scene
     scene::SceneManager Scene(cam, window);
-    Scene.restart();
+    Scene.Restart();
 
     bool UI_DisabledByMinus = false;
 

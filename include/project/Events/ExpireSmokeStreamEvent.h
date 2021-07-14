@@ -6,9 +6,9 @@
 using namespace particle;
 
 namespace scene {
-    class SmokeExpiringEvent : public Event {
+    class ExpireSmokeStreamEvent : public Event {
     public:
-        explicit SmokeExpiringEvent(std::shared_ptr <SmokeStream> smokeStream)
+        explicit ExpireSmokeStreamEvent(std::shared_ptr <SmokeStream> smokeStream)
                 : m_smokeStream(std::move(smokeStream)) {}
 
         void OnAction() override {

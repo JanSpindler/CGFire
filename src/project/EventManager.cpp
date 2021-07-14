@@ -8,18 +8,24 @@
 
 #include "project/EventManager.h"
 #include "project/SceneManager.h"
+#include "particle/Water.h"
+#include "particle/Smoke.h"
+#include "particle/Fire.h"
 
 namespace scene {
     EventManager::EventManager(SceneManager& sceneManager,
                                en::SceneRenderer &sceneRenderer,
-                          scene::ObjectManager& objectManager)
+                          scene::ObjectManager& objectManager,
+                               particle::FireCreator& fireCreator,
+                               particle::WaterCreator& waterCreator,
+                               particle::SmokeCreator& smokeCreator)
             :
             m_SceneManager(sceneManager),
             m_SceneRenderer(sceneRenderer),
             m_ObjectManager(objectManager)
     {
 
-        scene::InitDummyEvents(m_SceneRenderer, m_ObjectManager);
+        scene::InitDummyEvents(m_SceneRenderer, m_ObjectManager, fireCreator, waterCreator, smokeCreator);
 
 
 
@@ -167,7 +173,7 @@ namespace scene {
                         m_EventsAndTimes.emplace_back(std::make_pair(s_EventToCreate, s_ChosenTime));
                         s_EventToCreate->UpdateDescription();
                         SaveToFile();
-                        m_SceneManager.restart(false);
+                        m_SceneManager.Restart(false);
                         ImGui::CloseCurrentPopup();
                         ImGui::CloseCurrentPopup();
                     }
@@ -230,7 +236,7 @@ namespace scene {
                 ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), "%s", e.first->GetDescription().c_str());
 
                 ImGui::SameLine();
-                if (ImGui::Button("Clone Event")) {
+                if (ImGui::Button("Clone")) {
                     //Clone Event
                     Event *clone = e.first->Clone();
 
@@ -240,7 +246,7 @@ namespace scene {
                 }
 
                 ImGui::SameLine();
-                if (ImGui::Button("Delete Event")) {
+                if (ImGui::Button("Delet")) {
                     //Delete Event
                     deleteEvent = i;
                 }
@@ -271,7 +277,7 @@ namespace scene {
         if (type == ObjectType::Skeletal){
             renderObjType = RenderObjType::Skeletal;
         }else if (type == ObjectType::Spline){
-            renderObjType = RenderObjType::FixedColor;
+            renderObjType = RenderObjType::Spline;
         }
 
         auto p = std::make_pair(new ShowRenderObjEvent(m_SceneRenderer, m_ObjectManager,

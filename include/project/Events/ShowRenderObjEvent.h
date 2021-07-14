@@ -83,10 +83,12 @@ namespace scene {
                         m_SceneRenderer.RemoveFixedColorRenderObj(m_Obj);
                     break;
                 case RenderObjType::Spline:
-                    if (m_Show)
-                        m_SceneRenderer.AddSplineRenderObj(m_Obj);
-                    else
-                        m_SceneRenderer.RemoveSplineRenderObj(m_Obj);
+                    if (m_ObjectManager.AreSplinesDrawn()) {
+                        if (m_Show)
+                            m_SceneRenderer.AddSplineRenderObj(m_Obj);
+                        else
+                            m_SceneRenderer.RemoveSplineRenderObj(m_Obj);
+                    }
                     break;
                 case RenderObjType::Reflective:
                     if (m_Show)
@@ -108,9 +110,10 @@ namespace scene {
 
             if (ImGui::BeginCombo("Object", s_ObjSelection.c_str()))
             {
-                for (int i = 0; i < m_ObjectManager.GetAllRenderObjects().size(); ++i)
+                auto& allObjects = m_ObjectManager.GetAllRenderObjects();
+                for (int i = 0; i < allObjects.size(); ++i)
                 {
-                    auto& o = m_ObjectManager.GetAllRenderObjects()[i];
+                    auto& o = allObjects[i];
                     bool is_selected = (s_ObjSelection == o->GetName());
                     ImGui::PushID(i);
                     if (ImGui::Selectable(o->GetName().c_str(), is_selected)) {
@@ -126,7 +129,7 @@ namespace scene {
             }
 
 
-            if (m_Obj != nullptr) { // if it is nullptr, the dummy event is used to create the event no object has been set yet
+            if (m_Obj != nullptr) { // if it is nullptr, the dummy event is used to create the event, so no object has been set yet
                 int s_TypeSelection = static_cast<int>(m_Type);
 
                 if (ImGui::BeginCombo("Type", RenderObjTypeNames[s_TypeSelection])) {

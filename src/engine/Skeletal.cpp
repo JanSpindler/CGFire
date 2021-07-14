@@ -37,11 +37,13 @@ namespace en{
             }
         }
         void Skeletal::PlayAnimation(const std::string& animationName){
-            m_Animator->playAnim(m_Animations[animationName].get());
-            m_Animator->UpdateAnim(0);
-            auto current = m_Animator->getfinalbonetransforms();
-            for (int i = 0; i<current.size(); i++){
-                prevbonetransforms[i] = current[i];
+            if (m_Animations.count(animationName)) {
+                m_Animator->playAnim(m_Animations[animationName].get());
+                m_Animator->UpdateAnim(0);
+                auto current = m_Animator->getfinalbonetransforms();
+                for (int i = 0; i < current.size(); i++) {
+                    prevbonetransforms[i] = current[i];
+                }
             }
         }
 

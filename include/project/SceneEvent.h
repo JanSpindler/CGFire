@@ -18,7 +18,8 @@ namespace scene{
     public:
         virtual EventType GetTypeID() = 0;
 
-        virtual Event* Clone() = 0; //Return a copy
+        //Returns a copy. This is used to create new events from the dummy events
+        virtual Event* Clone() = 0;
 
         virtual void OnAction() = 0; //the thing that happens
         virtual bool OnImGuiRender() = 0; //used to create a new event. Returns true when the options are good to go

@@ -4,8 +4,45 @@
 
 #include "particle/Fire.h"
 
-
 namespace particle{
+
+    Flame::Flame(const char name[32],
+                 const glm::vec3& position,
+          const glm::vec3& positionVariation,
+          int particlesPerEmit,
+          float buildUpTime,
+          float expiringTime,
+          float particleLifeTime,
+          float particleLifeTimeVariation)
+            : PointLight(1.f),
+              Position(position),
+              PositionVariation(positionVariation),
+              ParticlesPerEmit(particlesPerEmit),
+              BuildUpTime(buildUpTime),
+              ExpiringTime(expiringTime),
+              ParticleLifeTime(particleLifeTime),
+              ParticleLifeTimeVariation(particleLifeTimeVariation)
+    {
+        strcpy_s(Name, name);
+    }
+
+
+    void Flame::startExpiring(){
+        if (Timer < BuildUpTime)
+            Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
+        else
+            Timer = 0.f;
+        BuildingUp = false; Expiring = true;
+    }
+
+    void Flame::OnImGuiRender(){
+        ImGui::InputText("Flame Name", Name, IM_ARRAYSIZE(Name));
+        ImGui::DragFloat3("Position", &Position.x, 0.5f);
+        ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
+        ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999);
+        ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
+    }
 
     FireCreator::FireCreator(ParticleSystem& particleSystem)
             : m_ParticleSystem(particleSystem)
@@ -112,8 +149,13 @@ namespace particle{
         ImGui::DragFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0.1f, 0.f, 999.f);
         ImGui::DragFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0.1f, 0.f, 999.f);
 
-        for (auto& flame : m_Flames){
-            flame->OnImGuiRender();
+        for (int i = 0; i < m_Flames.size(); ++i){
+            ImGui::PushID(i);
+            if (ImGui::TreeNode((std::string("Flame ") + std::to_string(i)).c_str())) {
+                m_Flames[i]->OnImGuiRender();
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
         }
         ImGui::End();
     }

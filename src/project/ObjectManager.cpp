@@ -179,10 +179,12 @@ namespace scene {
         }
 
         if (isOpen) {
-            ImGui::DragFloat3("Position", &o.Position.x, 0.25f);
-            ImGui::DragFloat("RotationAngle", &o.RotationAngle, 0.1f, 0.f, 6.28318530718f);
-            ImGui::DragFloat3("RotationAxisVector", &o.RotationAxis.x, 0.05f, 0.f, 1.f);
-            ImGui::DragFloat3("Scaling", &o.Scaling.x, 0.25f, 0.f, 999.f);
+            if (type != ObjectType::Spline) {
+                ImGui::DragFloat3("Position", &o.Position.x, 0.25f);
+                ImGui::DragFloat("RotationAngle", &o.RotationAngle, 0.1f, 0.f, 6.28318530718f);
+                ImGui::DragFloat3("RotationAxisVector", &o.RotationAxis.x, 0.05f, 0.f, 1.f);
+                ImGui::DragFloat3("Scaling", &o.Scaling.x, 0.25f, 0.f, 999.f);
+            }
 
             if (ImGui::TreeNode("Events")) {
                 m_EventManager.OnImGuiRenderEventsOfObj(&o);
@@ -234,14 +236,14 @@ namespace scene {
                 DeleteRenderObjFromVec(o, m_AllRenderObjects); //important to do this before erasing from models
                 m_Models.erase(it);
 
-                m_SceneManager.restart(false);
+                m_SceneManager.Restart(false);
                 break;
             }
             else if (cloneOrDeleteHappened == ButtonClickHappened::Clone){
                 //Clone
                 auto model = this->LoadModel(this->FindNextAvailableName(o->GetName()), o->GetPathName());
                 assert(model != nullptr);
-                m_SceneManager.restart(false);
+                m_SceneManager.Restart(false);
                 break;
             }
         }
@@ -258,7 +260,7 @@ namespace scene {
                 DeleteRenderObjFromVec(o, m_AllRenderObjects); //important to do this before erasing from skeletals
                 m_Skeletals.erase(it);
 
-                m_SceneManager.restart(false);
+                m_SceneManager.Restart(false);
                 break;
             }
             else if (cloneOrDeleteHappened == ButtonClickHappened::Clone){
@@ -266,7 +268,7 @@ namespace scene {
                 auto skeletal = this->LoadSkeletal(
                         this->FindNextAvailableName(o->GetName()), o->GetPathName(), o->GetAnimationNamesAndFiles());
                 assert(skeletal != nullptr);
-                m_SceneManager.restart(false);
+                m_SceneManager.Restart(false);
                 break;
             }
         }
@@ -286,7 +288,7 @@ namespace scene {
                 DeleteRenderObjFromVec(o, m_AllRenderObjects); //important to do this before erasing from splines
                 m_Splines.erase(it);
 
-                m_SceneManager.restart(false);
+                m_SceneManager.Restart(false);
                 break;
             }
             else if (cloneOrDeleteHappened == ButtonClickHappened::Clone){
@@ -298,7 +300,7 @@ namespace scene {
                         tuple.first->GetType(),
                         tuple.first->GetControlPoints());
                 assert(cloneSpline.first != nullptr);
-                m_SceneManager.restart(false);
+                m_SceneManager.Restart(false);
                 break;
             }
         }
@@ -613,10 +615,6 @@ namespace scene {
         }
     }
 
-    void OnImGuiSplineSettingsRender(){
-
-    }
-
 
     bool ObjectManager::DoesObjNameExistAlready(const std::string& name){
         for (auto& m : m_AllRenderObjects){ //check if name already exists
@@ -681,5 +679,26 @@ namespace scene {
         for (auto& spline : m_Splines){
             //TODO: recalculate spline
         }
+    }
+
+    std::string ObjectManager::GetNameOfSpline(en::Spline3D* spline){
+        for (auto& s : m_Splines){
+            if (s.first.get() == spline){
+                return s.second->GetName();
+            }
+        }
+        return "NoSpline";
+    }
+    std::shared_ptr<en::Spline3D> ObjectManager::GetSplineByName(const std::string name){
+        for (auto& s : m_Splines){
+            if (s.second->GetName() == name){
+                return s.first;
+            }
+        }
+        return nullptr;
+    }
+
+    bool ObjectManager::AreSplinesDrawn() {
+        return m_SceneManager.AreSplinesDrawn();
     }
 }
