@@ -13,10 +13,16 @@
 #include "util/CSVReader.h"
 #include "ObjectManager.h"
 
+namespace particle {
+    class FireCreator;
+    class WaterCreator;
+    class SmokeCreator;
+}
 namespace scene {
     class SceneManager;
     class ObjectManager;
     enum class ObjectType;
+
 
     //This class provides an ImGui interface for the events to manipulate them in game and save them to a file
     //and load them from a file
@@ -26,7 +32,10 @@ namespace scene {
     public:
         explicit EventManager(SceneManager& sceneManager,
                               en::SceneRenderer &sceneRenderer,
-                              scene::ObjectManager& objectManager);
+                              scene::ObjectManager& objectManager,
+                              particle::FireCreator& fireCreator,
+                              particle::WaterCreator& waterCreator,
+                              particle::SmokeCreator& smokeCreator);
 
         ~EventManager();
 

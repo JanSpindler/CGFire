@@ -6,9 +6,9 @@
 using namespace particle;
 
 namespace scene{
-    class WaterCreationEvent : public Event{
+    class CreateWaterJetEvent : public Event{
     public:
-        explicit WaterCreationEvent(WaterCreator& waterCreator, std::shared_ptr<WaterJet> waterJet)
+        explicit CreateWaterJetEvent(WaterCreator& waterCreator, std::shared_ptr<WaterJet> waterJet)
                 : m_WaterCreator(waterCreator),
                   m_WaterJet(std::move(waterJet)){}
         void OnAction() override{

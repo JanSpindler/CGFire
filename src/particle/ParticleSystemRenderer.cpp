@@ -181,7 +181,6 @@ namespace particle {
         else //Smoke
             life = 1.f - particle.LifeTime; // in ParticleSystem we saved the parameter t of the spline in LifeTime
 
-
         glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
         float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
 

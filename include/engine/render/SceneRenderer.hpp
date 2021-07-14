@@ -56,7 +56,7 @@ namespace en
         void OnImGuiRender();
     private:
         const GLProgram* geometryProgram_;
-        const GLProgram* sceletalProgram; // = sceletal vertex shader + deffered geometry fragment shader
+        const GLProgram* skeletalProgram; // = sceletal vertex shader + deffered geometry fragment shader
         const GLProgram* lightingProgram_;
         const GLProgram* fixedColorProgram_;
         const GLProgram* toEnvMapProgram_;
@@ -67,7 +67,7 @@ namespace en
         const GLProgram* SSAOProgram_;
         const GLProgram* SSAOBlurProgram_;
 
-        std::vector<Skeletal*> sceletalRenderObjs;
+        std::vector<Skeletal*> skeletalRenderObjs;
         std::vector<RenderObj*> standardRenderObjs_;
         std::vector<RenderObj*> fixedColorRenderObjs_;
         std::vector<RenderObj*> splineRenderObjs_;
@@ -81,6 +81,7 @@ namespace en
 
         ssao ssao_;
         bool useSsao_ = true;
+
 
         GBuffer gBuffer_;
         uint32_t fullScreenVao_;

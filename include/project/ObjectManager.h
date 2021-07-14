@@ -52,6 +52,10 @@ namespace scene {
         std::vector<std::shared_ptr<en::Model>>& GetModels(){ return m_Models; }
         std::vector<std::shared_ptr<en::Skeletal>>& GetSceletals(){ return m_Skeletals; }
         std::vector<std::pair<std::shared_ptr<en::Spline3D>, std::shared_ptr<en::Spline3DRenderable>>>& GetSplines(){ return m_Splines; }
+        std::string GetNameOfSpline(en::Spline3D* spline);
+        std::shared_ptr<en::Spline3D> GetSplineByName(const std::string name);
+
+        bool AreSplinesDrawn();
     private:
         SceneManager& m_SceneManager; //TODO probably we should simply create a static instance of each manager
         EventManager& m_EventManager;

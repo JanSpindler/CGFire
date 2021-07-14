@@ -6,9 +6,9 @@
 using namespace particle;
 
 namespace scene{
-    class FireExpiringEvent : public Event{
+    class ExpireFlameEvent : public Event{
     public:
-        explicit FireExpiringEvent(en::SceneRenderer& sceneRenderer, std::shared_ptr<Flame> flame)
+        explicit ExpireFlameEvent(en::SceneRenderer& sceneRenderer, std::shared_ptr<Flame> flame)
                 : m_SceneRenderer(sceneRenderer),
                   m_Flame(std::move(flame)){}
         void OnAction() override{

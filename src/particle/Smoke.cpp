@@ -6,6 +6,43 @@
 
 
 namespace particle{
+        SmokeStream::SmokeStream(
+                const char name[32],
+                std::shared_ptr<en::Spline3D> spline,
+                const glm::vec3& positionVariation,
+                int particlesPerSecond,
+                float speed,
+                float speedVariation,
+                float buildUpTime,
+                float expiringTime)
+                : Spline(std::move(spline)),
+                  PositionVariation(positionVariation),
+                  Speed(speed),
+                  SpeedVariation(speedVariation),
+                  ParticlesPerSecond(particlesPerSecond),
+                  BuildUpTime(buildUpTime),
+                  ExpiringTime(expiringTime)
+        {
+            strcpy_s(Name, name);
+        }
+
+        void SmokeStream::startExpiring(){
+            if (Timer < BuildUpTime)
+                Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
+            else
+                Timer = 0.f;
+            BuildingUp = false; Expiring = true;
+        }
+
+
+        void SmokeStream::OnImGuiRender(){
+            ImGui::InputText("SmokeStream Name", Name, IM_ARRAYSIZE(Name));
+            ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
+            ImGui::DragFloat("Speed", &Speed, 0.5f, 0.f, 999.f);
+            ImGui::DragFloat("SpeedVariation", &SpeedVariation, 0.5f, 0.f, 999.f);
+            ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
+        }
+
 
     SmokeCreator::SmokeCreator(ParticleSystem& particleSystem)
             : m_ParticleSystem(particleSystem)
@@ -23,7 +60,7 @@ namespace particle{
         m_BaseSmokeProps.ColorEnd = { 1.f, 1.f, 1.f, 0.f };
         m_BaseSmokeProps.SizeBegin = 2.5f;
         m_BaseSmokeProps.SizeVariation = 1.5f;
-        m_BaseSmokeProps.SizeEnd = 7.0f;
+        m_BaseSmokeProps.SizeEnd = 15.0f;
         m_BaseSmokeProps.TexCoordAnimFrames = {4, 4};
         m_BaseSmokeProps.TexLooped = true;
 
@@ -106,9 +143,13 @@ namespace particle{
         ImGui::DragFloat("SizeVariation", &m_BaseSmokeProps.SizeVariation, 0.1f, 0.f, 999.f);
         ImGui::DragFloat("SizeEnd", &m_BaseSmokeProps.SizeEnd, 0.1f, 0.f, 999.f);
 
-
-        for (auto& smoke : m_SmokeStreams) {
-            smoke->OnImGuiRender();
+        for (int i = 0; i < m_SmokeStreams.size(); ++i){
+            ImGui::PushID(i);
+            if (ImGui::TreeNode((std::string("SmokeStream ") + std::to_string(i)).c_str())) {
+                m_SmokeStreams[i]->OnImGuiRender();
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
         }
         ImGui::End();
     }

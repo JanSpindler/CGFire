@@ -39,7 +39,8 @@ int main(int, char* argv[]) {
     FireCreator fireCreator(particleSystemFire);
 
     fireCreator.startFlame(std::make_shared<Flame>
-            (glm::vec3(0.f, 0.f, 0.f),
+            ("Fire Uno",
+                    glm::vec3(0.f, 0.f, 0.f),
              glm::vec3(1.f, 0.f, 1.f),
              30,
              5.f,
@@ -59,11 +60,12 @@ int main(int, char* argv[]) {
             { 10.0f, 10.0f, -5.0f },
             { 35.0f, 30.0f, -15.0f }
     };
-    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_NATURAL_CUBIC);
+    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_CATMULL_ROM);
     en::Spline3DRenderable splineRenderable(spline.get());
 
     smokeCreator.startSmokeStream(std::make_shared<SmokeStream>
-                                   (spline,
+                                   ("Rauch Uno",
+                                    spline,
                                     glm::vec3(1.f, 0.f, 1.f)));
 
     //Water
@@ -71,6 +73,7 @@ int main(int, char* argv[]) {
     WaterCreator waterCreator(particleSystemWater);
 
     waterCreator.startWaterJet(std::make_shared<WaterJet>(
+            "Water Uno",
             glm::vec3(2.f, 0.f, 1.f),
             glm::vec3(0.5f, 0.5f, 0.5f),
             glm::vec3(1.f, 0.5f, 0.f),

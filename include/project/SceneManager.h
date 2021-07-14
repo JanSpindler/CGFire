@@ -38,7 +38,7 @@ namespace scene {
 
 
         /**Initialization. Needs to be called when the scene (re-)starts*/
-        void restart(bool resetTime = true);
+        void Restart(bool resetTime = true);
 
         void onUpdate(float dt);
 
@@ -46,6 +46,7 @@ namespace scene {
 
         void onImGuiRender();
 
+        bool AreSplinesDrawn(){ return m_ShowSplines; }
     private:
         en::Camera& m_Cam;
         en::Window& m_Window;
@@ -54,9 +55,11 @@ namespace scene {
         particle::ParticleSystem m_ParticleSystemWater;
         particle::ParticleSystem m_ParticleSystemSmoke;
         particle::ParticleSystem m_ParticleSystemFire;
+
         particle::WaterCreator m_WaterCreator;
         particle::SmokeCreator m_SmokeCreator;
         particle::FireCreator m_FireCreator;
+        void ClearParticles();
 
 
         /****************Objects*/
@@ -77,17 +80,21 @@ namespace scene {
         bool m_AutoSave;
         float m_TimeSinceAutoSave = 0.f;
         float m_AutoSaveEveryXSeconds = 5.f;
+        void Save();
 
         //Auto reload Events--> Good for modelling the scene with actual data
         bool m_ReloadEventsPeriodically;
         float m_TimeSinceReloadEvents = 0.f;
-        float m_ReloadEventsEveryXSeconds = 1.f;
+        float m_ReloadEventsEveryXSeconds = 2.f;
+        void ReloadEvents();
 
         //Auto recalculate splines --> if splines did change (when modeling), we want to recalculate them every x seconds
         bool m_RecalculateSplinesPeriodically;
         float m_TimeSinceRecalculateSplines = 0.f;
         float m_RecalculateSplinesEveryXSeconds = 0.3f;
+        void RecalculateSplines();
 
+        bool m_ShowSplines = true;
 
 
         std::vector<std::pair<std::shared_ptr<en::Animator>, bool>> m_AnimatorsAnd;

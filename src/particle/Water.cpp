@@ -7,6 +7,51 @@
 
 namespace particle{
 
+    WaterJet::WaterJet(const char name[32],
+                       const glm::vec3& position,
+                      const glm::vec3& positionVariation,
+                      const glm::vec3& waterDirection,
+                      float speed,
+                      float speedVariationFactor,
+                      int particlesPerSecond,
+                      float buildUpTime,
+                      float expiringTime,
+                      float particleLifeTime,
+                      float particleLifeTimeVariation)
+            : Position(position),
+              PositionVariation(positionVariation),
+              WaterDirection(waterDirection),
+              Speed(speed),
+              SpeedVariationFactor(speedVariationFactor),
+              ParticlesPerSecond(particlesPerSecond),
+              BuildUpTime(buildUpTime),
+              ExpiringTime(expiringTime),
+              ParticleLifeTime(particleLifeTime),
+              ParticleLifeTimeVariation(particleLifeTimeVariation)
+    {
+        strcpy_s(Name, name);
+    }
+
+
+    void WaterJet::startExpiring(){
+        if (Timer < BuildUpTime)
+            Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
+        else
+            Timer = 0.f;
+        BuildingUp = false; Expiring = true; }
+
+    void WaterJet::OnImGuiRender(){
+        ImGui::InputText("WaterJet Name", Name, IM_ARRAYSIZE(Name));
+        ImGui::DragFloat3("Position", &Position.x, 0.5f);
+        ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
+        ImGui::DragFloat3("WaterDirection", &WaterDirection.x, 0.1f);
+        ImGui::DragFloat("Speed", &Speed, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SpeedVariation", &SpeedVariationFactor, 0.1f, 0.f, 999.f);
+        ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
+        ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
+    }
+
     WaterCreator::WaterCreator(ParticleSystem& particleSystem)
             : m_ParticleSystem(particleSystem)
     {
@@ -114,8 +159,13 @@ namespace particle{
         ImGui::DragFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation, 0.1f, 0.f, 999.f);
         ImGui::DragFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0.1f, 0.f, 999.f);
 
-        for (auto& waterJet : m_WaterJets) {
-            waterJet->OnImGuiRender();
+        for (int i = 0; i < m_WaterJets.size(); ++i){
+            ImGui::PushID(i);
+            if (ImGui::TreeNode((std::string("WaterJet ") + std::to_string(i)).c_str())) {
+                m_WaterJets[i]->OnImGuiRender();
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
         }
         ImGui::End();
     }

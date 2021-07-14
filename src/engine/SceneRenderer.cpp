@@ -15,7 +15,7 @@
 namespace en
 {
     SceneRenderer::SceneRenderer(int32_t width, int32_t height) :
-            sceletalRenderObjs({}),
+            skeletalRenderObjs({}),
             standardRenderObjs_({}),
             fixedColorRenderObjs_({}),
             dirLight_(nullptr),
@@ -31,7 +31,7 @@ namespace en
     }
 
     void SceneRenderer::Update(float deltaTime){
-        for (auto* c : sceletalRenderObjs) //update animation
+        for (auto* c : skeletalRenderObjs) //update animation
             c->Update(deltaTime);
     }
 
@@ -74,16 +74,16 @@ namespace en
     void SceneRenderer::AddSceletalRenderObj(Skeletal* renderObj)
     {
         RemoveSceletalRenderObj(renderObj);
-        sceletalRenderObjs.push_back(renderObj);
+        skeletalRenderObjs.push_back(renderObj);
     }
 
     void SceneRenderer::RemoveSceletalRenderObj(const Skeletal* renderObj)
     {
-        for (uint32_t i = 0; i < sceletalRenderObjs.size(); i++)
+        for (uint32_t i = 0; i < skeletalRenderObjs.size(); i++)
         {
-            if (sceletalRenderObjs[i] == renderObj)
+            if (skeletalRenderObjs[i] == renderObj)
             {
-                sceletalRenderObjs.erase(sceletalRenderObjs.begin() + i);
+                skeletalRenderObjs.erase(skeletalRenderObjs.begin() + i);
                 return;
             }
         }
@@ -192,7 +192,7 @@ namespace en
     }
 
     void SceneRenderer::RemoveAllObjects(){
-        sceletalRenderObjs.clear();
+        skeletalRenderObjs.clear();
         standardRenderObjs_.clear();
         fixedColorRenderObjs_.clear();
         splineRenderObjs_.clear();
@@ -229,7 +229,7 @@ namespace en
 
         const GLShader* sceletalVert = GLShader::Load("CGFire/sceletal.vert");
         const GLShader* sceletalFrag = GLShader::Load("CGFire/deferred_geometry.frag");
-        sceletalProgram = GLProgram::Load(sceletalVert, nullptr, sceletalFrag);
+        skeletalProgram = GLProgram::Load(sceletalVert, nullptr, sceletalFrag);
 
         const GLShader* lightVert = GLShader::Load("CGFire/deferred_lighting.vert");
         const GLShader* lightFrag = GLShader::Load("CGFire/deferred_lighting.frag");
@@ -349,7 +349,7 @@ namespace en
         dirShadowProgram_->SetUniformMat4("light_mat", false, &lightMat[0][0]);
         dirLight_->BindShadowBuffer();
         dirShadowProgram_->SetUniformB("use_bone", true);
-        for (RenderObj* renderObj : sceletalRenderObjs)
+        for (RenderObj* renderObj : skeletalRenderObjs)
             renderObj->RenderPosOnly(dirShadowProgram_);
         dirShadowProgram_->SetUniformB("use_bone", false);
         for (RenderObj* renderObj : standardRenderObjs_)
@@ -374,7 +374,7 @@ namespace en
 
             pointLight->BindShadowBuffer();
             pointShadowProgram_->SetUniformB("use_bone", true);
-            for (RenderObj* renderObj : sceletalRenderObjs)
+            for (RenderObj* renderObj : skeletalRenderObjs)
                 renderObj->RenderPosOnly(pointShadowProgram_);
             pointShadowProgram_->SetUniformB("use_bone", false);
             for (RenderObj* renderObj : standardRenderObjs_)
@@ -398,7 +398,7 @@ namespace en
         for (RenderObj* renderObj : standardRenderObjs_)
             renderObj->RenderAll(geometryProgram_);
         geometryProgram_->SetUniformB("use_bone", true);
-        for (RenderObj* renderObj : sceletalRenderObjs)
+        for (RenderObj* renderObj : skeletalRenderObjs)
             renderObj->RenderAll(geometryProgram_);
 
         /*characterProgram_->Use();
@@ -483,7 +483,7 @@ namespace en
                 reflectiveMap.BindCubeMapFace(face);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                for (RenderObj* renderObj : sceletalRenderObjs)
+                for (RenderObj* renderObj : skeletalRenderObjs)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
                 for (RenderObj* renderObj : standardRenderObjs_)
                     renderObj->RenderDiffuse(toEnvMapProgram_);
