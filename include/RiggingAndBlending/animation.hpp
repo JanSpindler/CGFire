@@ -20,6 +20,13 @@ namespace en{
         glm::mat4 transformation;
         std::string name;
     };
+    struct betterNode{
+        int parentid;
+        glm::mat4 transformation;
+        glm::mat4 currenttransform;
+        std::string name;
+        Bone* bone;
+    };
     class Animation{
         std::vector<Bone> bones;
         aiNodeStructure rootnode;
@@ -27,14 +34,17 @@ namespace en{
         float tickspersec;
         std::map<std::string, boneinfo> bonemap;
     public:
+        std::vector<betterNode> hierarchy;
         Animation(const std::string& animpath, Model *model);
         Bone* findbone(std::string& name);
         std::map<std::string, boneinfo> getbonemap();
         float gettickspersec() const;
         float getduration() const;
+        std::vector<betterNode> gethierarchy();
         aiNodeStructure getrootnode();
     private:
         void buildhierarchy(aiNodeStructure& dest, aiNode* source);
+        void buildbetterhierarchy(int parentindex, aiNode* source);
         void addbones(aiAnimation* anim, Model& model);
     };
 

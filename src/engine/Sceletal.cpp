@@ -37,8 +37,10 @@ namespace en{
 
         void Sceletal::Update(float deltaTime){
             auto current = m_Animator->getfinalbonetransforms();
-            for (int i = 0; i<current.size(); i++){
-                prevbonetransforms[i] = current[i];
+            if (blur) {
+                for (int i = 0; i < current.size(); i++) {
+                    prevbonetransforms[i] = current[i];
+                }
             }
             m_Animator->UpdateAnim(deltaTime);
         }

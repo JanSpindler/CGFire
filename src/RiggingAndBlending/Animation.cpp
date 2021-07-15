@@ -15,8 +15,9 @@ namespace en{
         assert(scene && scene->mRootNode && scene->HasAnimations());
         Duration = scene->mAnimations[0]->mDuration;
         tickspersec = scene->mAnimations[0]->mTicksPerSecond;
-        buildhierarchy(rootnode, scene->mRootNode);
+        //buildhierarchy(rootnode, scene->mRootNode);
         addbones(scene->mAnimations[0], *model);
+        buildbetterhierarchy(-1, scene->mRootNode);
 }
     void Animation::addbones(aiAnimation *anim, Model &model) {
         auto modelbonemap = model.getbonemap();
@@ -24,6 +25,7 @@ namespace en{
             aiNodeAnim* channel = anim->mChannels[i];
             //add code for bones missing from bonemap if necessary
             assert(modelbonemap.find(channel->mNodeName.C_Str())!= modelbonemap.end());
+            //modelbonemap.insert(std::pair<std::string, boneinfo>(bonename, newinfo))
             bones.emplace_back(modelbonemap[channel->mNodeName.C_Str()].boneid, channel, channel->mNodeName.C_Str());
             bonemap = modelbonemap;
         }
@@ -50,6 +52,21 @@ namespace en{
             dest.children.push_back(newnode);
         }
     }
+    void Animation::buildbetterhierarchy(int parentindex, aiNode* source) {
+        betterNode newnode;
+        newnode.name = source->mName.C_Str();
+        newnode.transformation = util::AssimptoGLM4x4(source->mTransformation);
+        newnode.parentid = parentindex;
+        newnode.bone = findbone(newnode.name);
+        newnode.currenttransform = glm::mat4(1.0f);
+        hierarchy.push_back(newnode);
+        assert(hierarchy[hierarchy.size()-1].name==newnode.name);
+        int parent= (hierarchy.size()-1);
+        for (int i =0; i< source->mNumChildren; i++){
+            buildbetterhierarchy(parent, source->mChildren[i]);
+        }
+    }
+
     Bone* Animation::findbone(std::string &name) {
         for (auto it = std::begin(bones); it != std::end(bones); it++){
             Bone bone = (*it);
@@ -58,5 +75,8 @@ namespace en{
             }
         }
         return nullptr;
+    }
+    std::vector<betterNode> Animation::gethierarchy() {
+        return hierarchy;
     }
 }

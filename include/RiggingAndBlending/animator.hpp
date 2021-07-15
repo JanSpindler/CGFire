@@ -17,6 +17,7 @@ namespace en{
 
 
         void BoneTransform(aiNodeStructure node, glm::mat4 parenttransform);
+        void BetterBoneTransform();
 
     public:
         explicit Animator(Animation* currentanim);

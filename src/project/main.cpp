@@ -13,6 +13,8 @@
 
 #include "project/SceneManager.h"
 
+double last = 0.0f;
+int framenum=0;
 
 int main(int, char* argv[]) {
     en::Window window(1200, 800, "CGFire");
@@ -53,6 +55,14 @@ int main(int, char* argv[]) {
 
         //Updates
         Scene.onUpdate(deltaTime);
+        double current = glfwGetTime();
+        framenum++;
+        if (current-last >= 1){
+            printf("%f ms/frame\n", (1000.0/double(framenum)));
+            framenum = 0;
+            last += 1.0;
+        }
+
 
         //UI
         bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
