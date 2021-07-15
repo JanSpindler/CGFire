@@ -20,10 +20,10 @@ namespace en{
         current = anim;
         currenttime = 0.0f;
     }
-    void Animator::BoneTransform(aiNodeStructure node, glm::mat4 parenttransform) {
+    void Animator::BoneTransform(aiNodeStructure& node, const glm::mat4& parenttransform) {
         //Log::Info("Transforming Node" + node.name);
         Bone* bone = current->findbone(node.name);
-        glm::mat4 nodetransform = node.transformation;
+        glm::mat4& nodetransform = node.transformation;
         //in case model is sideways GlobalInverseTransform = rootnode.transformation may need to be inverted?
         //if (node.name == "RootNode"){
         //    nodetransform = inverse(nodetransform);
@@ -36,7 +36,7 @@ namespace en{
         }
         //Log::Info("gotcurrent");
         glm::mat4 global = parenttransform * nodetransform;
-        auto boneinfomap = current->getbonemap();
+        auto& boneinfomap = current->getbonemap();
         //Log::Info("got bonemap");
         if (boneinfomap.find(node.name)!= boneinfomap.end()) {
             int index = boneinfomap[node.name].boneid;
@@ -54,10 +54,11 @@ namespace en{
         deltatime = dt;
         if(current){
             currenttime = fmod(currenttime + current->gettickspersec()*deltatime, current->getduration());
-            BoneTransform(current->getrootnode(), glm::mat4(1.0f));
+            auto idMat = glm::mat4(1.0f);
+            BoneTransform(current->getrootnode(), idMat);
         }
     }
-    std::vector<glm::mat4> Animator::getfinalbonetransforms() {
+    const std::vector<glm::mat4>& Animator::getfinalbonetransforms() {
         return finalbonetransforms;
     }
 }

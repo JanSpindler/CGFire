@@ -43,7 +43,7 @@ int main()
     const en::GLShader* fragShader = en::GLShader::Load("sceletaltest.frag");
     const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
-    en::Model vampiremodel("vampire/Pistol_Kneeling_Idle.dae", true);
+    en::Model vampiremodel("vampire/Vampire.dae", true);
     vampiremodel.SetName("vampire");
     en::Animation animation("vampire/Pistol_Kneeling_Idle.dae", &vampiremodel);
     en::Animator animator(&animation);

@@ -184,6 +184,7 @@ namespace scene {
                 ImGui::DragFloat("RotationAngle", &o.RotationAngle, 0.1f, 0.f, 6.28318530718f);
                 ImGui::DragFloat3("RotationAxisVector", &o.RotationAxis.x, 0.05f, 0.f, 1.f);
                 ImGui::DragFloat3("Scaling", &o.Scaling.x, 0.25f, 0.f, 999.f);
+                ImGui::Checkbox("Motion Blur", &o.blur);
             }
 
             if (ImGui::TreeNode("Events")) {

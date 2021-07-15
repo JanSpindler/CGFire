@@ -8,7 +8,7 @@
 #include "engine/Util.hpp"
 
 namespace en{
-    Bone::Bone(int ID, const aiNodeAnim *channel, std::string name) {
+    Bone::Bone(int ID, const aiNodeAnim *channel, const std::string& name) {
         boneid = ID;
         bonename = name;
         current = glm::mat4(1.0f);
@@ -35,7 +35,7 @@ namespace en{
             rotation.push_back(newquat);
         }
     }
-    glm::mat4 Bone::getcurrent() {
+    const glm::mat4& Bone::getcurrent() {
         return current;
     }
     void Bone::PerFrame(float animationtime) {
@@ -83,7 +83,7 @@ namespace en{
         assert(i>=0);
         return glm::scale(glm::mat4(1.0f), glm::mix(scale[i].bonevect, scale[i+1].bonevect, getscale(animationtime, scale[i].timestamp, scale[i+1].timestamp)));
     }
-    std::string Bone::getbonename() {
+    const std::string& Bone::getbonename() {
         return bonename;
     }
 }

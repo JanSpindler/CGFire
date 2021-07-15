@@ -28,7 +28,7 @@ namespace en{
             bonemap = modelbonemap;
         }
     }
-    std::map<std::string, boneinfo> Animation::getbonemap() {
+    std::map<std::string, boneinfo>& Animation::getbonemap() {
         return bonemap;
     }
     float Animation::gettickspersec() const {
@@ -37,7 +37,7 @@ namespace en{
     float Animation::getduration() const {
         return Duration;
     }
-    aiNodeStructure Animation::getrootnode() {
+    aiNodeStructure& Animation::getrootnode() {
         return rootnode;
     }
     void Animation::buildhierarchy(aiNodeStructure &dest, aiNode *source) {
@@ -50,11 +50,11 @@ namespace en{
             dest.children.push_back(newnode);
         }
     }
-    Bone* Animation::findbone(std::string &name) {
-        for (auto it = std::begin(bones); it != std::end(bones); it++){
-            Bone bone = (*it);
+    Bone* Animation::findbone(const std::string &name) {
+        for (auto it = bones.begin(); it != bones.end(); ++it){
+            Bone& bone = (*it);
             if (bone.getbonename()==name){
-                return &(*it);
+                return &bone;
             }
         }
         return nullptr;
