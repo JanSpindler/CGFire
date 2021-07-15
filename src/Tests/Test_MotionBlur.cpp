@@ -46,7 +46,8 @@ int main()
     const en::GLShader* fragShader = en::GLShader::Load("skeletalblur.frag");
     const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
-    en::Model vampiremodel("vampire/dancing_vampire.dae", true, "vampire");
+    en::Model vampiremodel("vampire/dancing_vampire.dae", true);
+    vampiremodel.SetName("vampire");
     en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
     en::Animator animator(&animation);
 
@@ -107,7 +108,8 @@ int main()
         //en::Log::Info(glm::to_string(motionblur.prevprojviewmodelmat)+"\n"+glm::to_string(motionblur.prevtransforms[0])+"\n"+glm::to_string(motionblur.currenttransforms[0]));
         vampiremodel.Render(program);
 
-        motionblur.doblur(renderprog);
+        /****Aufruf geht nimmer:****/
+        //motionblur.doblur(renderprog);
         motionblur.prevprojviewmodelmat = projMat*viewMat*vampiremodel.GetTransform();
     }
 

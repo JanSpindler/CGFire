@@ -43,13 +43,14 @@ int main()
     const en::GLShader* fragShader = en::GLShader::Load("sceletaltest.frag");
     const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
-    en::Model vampiremodel("vampire/Pistol_Kneeling_Idle.dae", true, "vampire");
+    en::Model vampiremodel("vampire/Pistol_Kneeling_Idle.dae", true);
+    vampiremodel.SetName("vampire");
     en::Animation animation("vampire/Pistol_Kneeling_Idle.dae", &vampiremodel);
     en::Animator animator(&animation);
 
     program->Use();
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f),
-                          glm::vec4(1.f, 1.0f, 0.0f, 1.0f), 5, 10);
+                          glm::vec4(1.f, 1.0f, 0.0f, 1.0f));
     dirLight.Use(program);
 
     while (window.IsOpen())

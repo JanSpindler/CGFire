@@ -1,4 +1,6 @@
 0,"sphere2","Aufgaben\sphere.obj"
 0,16.75,0,0,1,0,0,1,1,1
+1,"vampi","vampire\Vampire.dae","walk","vampire\Walking.dae"
+0,0,0,0,1,0,0,1,1,1
 2,"Spline Number one",0,32,0,0,0,0,0,6,3,0,12,7,7,18,10
 0,0,0,0,1,0,0,1,1,1
