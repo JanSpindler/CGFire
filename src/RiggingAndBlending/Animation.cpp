@@ -19,7 +19,7 @@ namespace en{
         addbones(scene->mAnimations[0], *model);
 }
     void Animation::addbones(aiAnimation *anim, Model &model) {
-        auto modelbonemap = model.getbonemap();
+        auto& modelbonemap = model.getbonemap();
         for (int i = 0; i<anim->mNumChannels;i++){
             aiNodeAnim* channel = anim->mChannels[i];
             //add code for bones missing from bonemap if necessary

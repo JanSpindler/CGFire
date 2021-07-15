@@ -23,6 +23,9 @@ namespace particle{
                 int particlesPerSecond = 14,
                 float speed = 4.f,
                 float speedVariation = 2.f,
+                float sizeBegin = 3.f,
+                float sizeEnd = 40.f,
+                float sizeVariationFactor = 0.1f,
                 float buildUpTime = 10.f,
                 float expiringTime = 20.f);
 
@@ -33,6 +36,9 @@ namespace particle{
         int ParticlesPerSecond;
         float Speed;
         float SpeedVariation;
+        float SizeBegin;
+        float SizeEnd;
+        float SizeVariationFactor;
         const float BuildUpTime; //the amount of time the fire takes to come to its peak
         const float ExpiringTime; //the amount of time the fire takes to expire
 

@@ -42,14 +42,14 @@ namespace particle{
 
     void WaterJet::OnImGuiRender(){
         ImGui::InputText("WaterJet Name", Name, IM_ARRAYSIZE(Name));
-        ImGui::DragFloat3("Position", &Position.x, 0.5f);
+        ImGui::DragFloat3("Position", &Position.x, 0.05f);
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
-        ImGui::DragFloat3("WaterDirection", &WaterDirection.x, 0.1f);
+        ImGui::DragFloat3("WaterDirection", &WaterDirection.x, 0.01f);
         ImGui::DragFloat("Speed", &Speed, 0.1f, 0.f, 999.f);
         ImGui::DragFloat("SpeedVariation", &SpeedVariationFactor, 0.1f, 0.f, 999.f);
         ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
-        ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
-        ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
+        ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.01f, 0.f, 999.f);
+        ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.001f, 0.f, 999.f);
     }
 
     WaterCreator::WaterCreator(ParticleSystem& particleSystem)
@@ -76,7 +76,7 @@ namespace particle{
         m_BaseWaterJetProps.ColorBegin = { 255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f };
         m_BaseWaterJetProps.ColorEnd = { 255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f };
         m_BaseWaterJetProps.SizeBegin = 1.f;
-        m_BaseWaterJetProps.SizeVariation = 0.9f;
+        m_BaseWaterJetProps.SizeVariationFactor = 0.1f;
         m_BaseWaterJetProps.SizeEnd = 0.7f;
         m_BaseWaterJetProps.TexCoordAnimFrames = {1, 1};
 
@@ -152,12 +152,12 @@ namespace particle{
         ImGui::Begin("Water");
         ImGui::TextColored(ImVec4(0, 1, 1, 1), "WaterJet Particle Props (General)");
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
-        ImGui::DragFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor, 0.01f, 0.f, 999.f);
+        ImGui::DragFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor, 0.001f, 0.f, 999.f);
         ImGui::ColorEdit4("ColorBegin", &m_BaseWaterJetProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseWaterJetProps.ColorEnd.x);
-        ImGui::DragFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin, 0.1f, 0.f, 999.f);
-        ImGui::DragFloat("SizeVariation", &m_BaseWaterJetProps.SizeVariation, 0.1f, 0.f, 999.f);
-        ImGui::DragFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin, 0.005f, 0.f, 999.f);
+        ImGui::DragFloat("SizeVariationFactor", &m_BaseWaterJetProps.SizeVariationFactor, 0.005f, 0.f, 1.f);
+        ImGui::DragFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0.005f, 0.f, 999.f);
 
         for (int i = 0; i < m_WaterJets.size(); ++i){
             ImGui::PushID(i);

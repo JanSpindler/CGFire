@@ -33,7 +33,7 @@ namespace en
         void RenderDiffuse(const GLProgram* program) override;
         void RenderAll(const GLProgram* program) override;
 
-        std::map<std::string, boneinfo> getbonemap();
+        std::map<std::string, boneinfo>& getbonemap();
         int getbonecount() const;
         const std::vector<Mesh*>& GetMeshes() const;
 

@@ -37,10 +37,10 @@ namespace particle{
 
     void Flame::OnImGuiRender(){
         ImGui::InputText("Flame Name", Name, IM_ARRAYSIZE(Name));
-        ImGui::DragFloat3("Position", &Position.x, 0.5f);
+        ImGui::DragFloat3("Position", &Position.x, 0.05f);
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
         ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999);
-        ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.01f, 0.f, 999.f);
         ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
     }
 
@@ -57,7 +57,7 @@ namespace particle{
         for (auto& file : sparkTextures){
             m_Textures.emplace_back(std::make_shared<en::GLPictureTex>(
                     en::GLPictureTex::WrapMode::CLAMP_TO_BORDER,
-                    en::GLPictureTex::FilterMode::NEAREST,
+                    en::GLPictureTex::FilterMode::LINEAR,
                     file, true));
         }
 
@@ -70,7 +70,7 @@ namespace particle{
         m_BaseFlameProps.ColorBegin = { 1.f, 1.f, 1.f, 1.0f };
         m_BaseFlameProps.ColorEnd = { 1.f, 1.f, 1.f, 0.3f };
         m_BaseFlameProps.SizeBegin = 1.f;
-        m_BaseFlameProps.SizeVariation = 0.9f;
+        m_BaseFlameProps.SizeVariationFactor = 0.1f;
         m_BaseFlameProps.SizeEnd = 0.8f;
         m_BaseFlameProps.TexCoordAnimFrames = {4, 4};
 
@@ -100,9 +100,8 @@ namespace particle{
             if (!flame->Expired) {
                 flame->SecondsSinceEmit += ts;
 
-                const float FREQUENCY = 0.1f;
                 if (flame->SecondsSinceEmit >
-                    FREQUENCY + FREQUENCY * (util::Random::Float() - 0.5f)) //small random variation of frequency
+                        Emit_Frequency + Emit_Frequency * (util::Random::Float() - 0.5f)) //small random variation of frequency
                 {
                     ParticleProps props = m_BaseFlameProps;
                     props.Position = flame->Position;
@@ -112,7 +111,7 @@ namespace particle{
 
                     props.SizeBegin = flameSizeFactor * m_BaseFlameProps.SizeBegin;
                     props.SizeEnd = flameSizeFactor * m_BaseFlameProps.SizeEnd;
-                    props.SizeVariation = flameSizeFactor * m_BaseFlameProps.SizeVariation;
+                    props.SizeVariationFactor = m_BaseFlameProps.SizeVariationFactor;
 
                     uint32_t numParticlesEmitted = static_cast<uint32_t>(
                             std::ceil(flameSizeFactor * static_cast<float>(flame->ParticlesPerEmit)));
@@ -140,14 +139,14 @@ namespace particle{
         ImGui::Begin("Fire");
         ImGui::TextColored(ImVec4(0, 1, 1, 1), "Flame Particle Props (General)");
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
-        ImGui::DragFloat3("Velocity", &m_BaseFlameProps.Velocity.x, 0.5f, 0.f);
-        ImGui::DragFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, 0.5f, 0.f, 999.f);
-        ImGui::DragFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0.01f, 0.f, 999.f);
+        ImGui::DragFloat3("Velocity", &m_BaseFlameProps.Velocity.x, 0.05f, 0.f);
+        ImGui::DragFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, 0.05f, 0.f, 999.f);
+        ImGui::DragFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0.001f, 0.f, 999.f);
         ImGui::ColorEdit4("ColorBegin", &m_BaseFlameProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseFlameProps.ColorEnd.x);
-        ImGui::DragFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0.1f, 0.f, 999.f);
-        ImGui::DragFloat("SizeVariation", &m_BaseFlameProps.SizeVariation, 0.1f, 0.f, 999.f);
-        ImGui::DragFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0.1f, 0.f, 999.f);
+        ImGui::DragFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0.01f, 0.f, 999.f);
+        ImGui::DragFloat("SizeVariationFactor", &m_BaseFlameProps.SizeVariationFactor, 0.005f, 0.f, 1.f);
+        ImGui::DragFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0.01f, 0.f, 999.f);
 
         for (int i = 0; i < m_Flames.size(); ++i){
             ImGui::PushID(i);

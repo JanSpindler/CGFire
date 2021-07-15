@@ -8,7 +8,7 @@
 #include "engine/config.hpp"
 #include "util/assimptoglmmatrix.h"
 #include <glm/gtx/string_cast.hpp>
-
+#include <iostream>
 namespace en
 {
     Model::Model(const std::string& path, bool flipUv)
@@ -29,6 +29,7 @@ namespace en
         Log::Info("model has " + std::to_string(scene->mNumMeshes) + " meshes");
         LoadMaterials(scene);
         ProcessNode(scene->mRootNode, scene);
+
     }
 
     Model::~Model()
@@ -192,6 +193,8 @@ namespace en
             material = new Material(diffuseTex, specularTex, diffuseColor, specularColor, shininess);
             materials_.insert(std::pair<const aiMaterial*, Material*>(aiMat, material));
         }
+
+
     }
 
     void Model::ProcessNode(aiNode* node, const aiScene* scene)
@@ -210,7 +213,7 @@ namespace en
             ProcessNode(node->mChildren[i], scene);
     }
 
-std::map<std::string, boneinfo> Model::getbonemap() {
+    std::map<std::string, boneinfo>& Model::getbonemap() {
         return bonemap;
     }
     int Model::getbonecount() const { return bonecount;}
@@ -286,7 +289,7 @@ std::map<std::string, boneinfo> Model::getbonemap() {
 
         for (unsigned int i = 0; i < mesh->mNumFaces; i++)
         {
-            aiFace face = mesh->mFaces[i];
+            aiFace& face = mesh->mFaces[i];
             for (unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);
         }

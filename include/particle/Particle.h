@@ -18,7 +18,7 @@ namespace particle{
         glm::vec4 ColorBegin, ColorEnd;
         float SizeBegin, SizeEnd;
         //for random variable r between -0.5 and 0.5, the size will be varied by r * SizeVariation
-        float SizeVariation;
+        float SizeVariationFactor;
         float LifeTime = 1.0f; // in Seconds
         float LifeTimeVariation = 0.f;
         en::GLPictureTex* Texture = nullptr;

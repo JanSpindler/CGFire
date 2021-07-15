@@ -50,12 +50,16 @@ namespace scene {
             int ParticlesPerSecond = std::stoi(data[5]);
             float Speed = std::stof(data[6]);
             float SpeedVariation = std::stof(data[7]);
-            float BuildUpTime = std::stof(data[8]);
-            float ExpiringTime = std::stof(data[9]);
+            float SizeBegin = std::stof(data[8]);
+            float SizeEnd = std::stof(data[9]);
+            float SizeVariationFactor = std::stof(data[10]);
+            float BuildUpTime = std::stof(data[11]);
+            float ExpiringTime = std::stof(data[12]);
 
             m_SmokeStream = std::make_shared<SmokeStream>(Name.c_str(), m_ObjectManager.GetSplineByName(SplineName),
                                                           PositionVariation, ParticlesPerSecond,
-                                                          Speed, SpeedVariation, BuildUpTime, ExpiringTime);
+                                                          Speed, SpeedVariation, SizeBegin, SizeEnd, SizeVariationFactor,
+                                                          BuildUpTime, ExpiringTime);
 
             this->UpdateDescription();
         }
@@ -67,6 +71,9 @@ namespace scene {
                 << m_SmokeStream->ParticlesPerSecond
                 << m_SmokeStream->Speed
                 << m_SmokeStream->SpeedVariation
+                << m_SmokeStream->SizeBegin
+                << m_SmokeStream->SizeEnd
+                << m_SmokeStream->SizeVariationFactor
                 << m_SmokeStream->BuildUpTime
                 << m_SmokeStream->ExpiringTime;
         }

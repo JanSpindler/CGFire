@@ -65,13 +65,13 @@ namespace particle{
             m_ParticleSystem.clear();
         }
     private:
-
         ParticleSystem& m_ParticleSystem;
         std::vector<std::shared_ptr<en::GLPictureTex>> m_Textures; //the variety of textures we use for fire
         ParticleProps m_BaseFlameProps;
 
         std::vector<std::shared_ptr<Flame>> m_Flames; //holds references to the flames
 
+        float Emit_Frequency = 0.1f;
 
     };
 }
