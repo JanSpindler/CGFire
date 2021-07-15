@@ -50,6 +50,8 @@ namespace particle{
             ImGui::DragFloat("SizeBegin", &SizeBegin, 0.005f);
             ImGui::DragFloat("SizeEnd", &SizeEnd, 0.005f);
             ImGui::DragFloat("SizeVariationFactor", &SizeVariationFactor, 0.005f, 0.f, 1.f);
+            ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 10.f);
+            ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 10.f);
         }
 
 

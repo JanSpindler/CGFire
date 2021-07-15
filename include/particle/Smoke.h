@@ -39,8 +39,8 @@ namespace particle{
         float SizeBegin;
         float SizeEnd;
         float SizeVariationFactor;
-        const float BuildUpTime; //the amount of time the fire takes to come to its peak
-        const float ExpiringTime; //the amount of time the fire takes to expire
+        float BuildUpTime; //the amount of time the fire takes to come to its peak
+        float ExpiringTime; //the amount of time the fire takes to expire
 
 
         void startExpiring();

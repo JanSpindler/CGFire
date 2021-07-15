@@ -76,11 +76,15 @@ namespace scene {
     }
 
 
-    void EventManager::SaveToFile(){
+    void EventManager::SaveToFile(const std::string& folderName){
         //save the scene events
 
         using namespace util;
-        CSVWriter csv(SCENE_DATA_ROOT + SceneEventDataFileName);
+        std::string folderPath = SCENE_DATA_ROOT + (folderName.empty() ? "" : folderName + "/");
+        std::string path = folderPath + SceneEventDataFileName;
+        if (!std::filesystem::exists(folderPath))
+            std::filesystem::create_directory(folderPath);
+        CSVWriter csv(path);
 
         this->SortEvents();
 
@@ -246,7 +250,7 @@ namespace scene {
                 }
 
                 ImGui::SameLine();
-                if (ImGui::Button("Delet")) {
+                if (ImGui::Button("Delete")) {
                     //Delete Event
                     deleteEvent = i;
                 }

@@ -40,7 +40,7 @@ namespace scene {
 
         explicit ObjectManager(SceneManager& sceneManager, EventManager& eventManager);
 
-        void SaveToFile();
+        void SaveToFile(const std::string& folderName = "");
 
 
         void OnImGuiRender();

@@ -80,7 +80,7 @@ namespace scene {
         bool m_AutoSave;
         float m_TimeSinceAutoSave = 0.f;
         float m_AutoSaveEveryXSeconds = 5.f;
-        void Save();
+        void Save(const std::string& folderName = "");
 
         //Auto reload Events--> Good for modelling the scene with actual data
         bool m_ReloadEventsPeriodically;

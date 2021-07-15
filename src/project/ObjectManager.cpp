@@ -91,11 +91,15 @@ namespace scene {
 
     }
 
-    void ObjectManager::SaveToFile() {
+    void ObjectManager::SaveToFile(const std::string& folderName) {
         //save the scene objects
 
         using namespace util;
-        CSVWriter csv(SCENE_DATA_ROOT + SceneObjectDataFileName);
+        std::string folderPath = SCENE_DATA_ROOT + (folderName.empty() ? "" : folderName + "/");
+        std::string path = folderPath + SceneObjectDataFileName;
+        if (!std::filesystem::exists(folderPath))
+            std::filesystem::create_directory(folderPath);
+        CSVWriter csv(path);
 
         for (auto &o : m_Models) {
             csv << static_cast<int>(ObjectType::Model)
@@ -143,7 +147,7 @@ namespace scene {
         if (ImGui::Button("Delete")){
             ImGui::OpenPopup("Are you sure?");
         }
-        if (ImGui::BeginPopupModal("Are you sure?", nullptr)) {
+        if (ImGui::BeginPopupModal("Are you sure?")) {
             ImGui::Text("Delete %s?", o.GetName().c_str());
             if (ImGui::Button("No"))
                 ImGui::CloseCurrentPopup();
@@ -159,7 +163,7 @@ namespace scene {
             strcpy_s(s_RenameString,  o.GetName().c_str());
             ImGui::OpenPopup("Rename Object");
         }
-        if (ImGui::BeginPopupModal("Rename Object", nullptr)) {
+        if (ImGui::BeginPopupModal("Rename Object")) {
 
             ImGui::Text("Choose Name:", o.GetName().c_str());
             ImGui::InputText("##editobjname", s_RenameString, IM_ARRAYSIZE(s_RenameString));

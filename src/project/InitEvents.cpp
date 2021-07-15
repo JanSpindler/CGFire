@@ -5,14 +5,15 @@
 #include "project/InitEvents.h"
 
 #include <particle/Fire.h>
-#include <particle/Fire.h>
-#include <particle/Fire.h>
+#include <particle/Water.h>
+#include <particle/Smoke.h>
 
 
 #include <project/Events/ShowRenderObjEvent.h>
 #include <project/Events/PlayAnimationEvent.h>
 #include <project/Events/CreateFlameEvent.h>
 #include <project/Events/CreateSmokeStreamEvent.h>
+#include <project/Events/CreateWaterJetEvent.h>
 
 namespace scene {
     std::vector<std::unique_ptr<scene::Event>> DummyEventsOfAllTypes;
@@ -30,5 +31,6 @@ namespace scene {
 
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::CreateFlameEvent> (sceneRenderer, fireCreator));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::CreateSmokeStreamEvent> (sceneRenderer, smokeCreator, objectManager));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::CreateWaterJetEvent> (sceneRenderer, waterCreator));
     }
 }

@@ -40,6 +40,8 @@ namespace particle{
         ImGui::DragFloat3("Position", &Position.x, 0.05f);
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
         ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999);
+        ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 10.f);
+        ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 10.f);
         ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.01f, 0.f, 999.f);
         ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
     }
@@ -64,8 +66,8 @@ namespace particle{
 
         m_ParticleSystem.InitializeTextures(m_Textures);
 
-        m_BaseFlameProps.Velocity = { 0.0f, 10.0f, 0.0f };
-        m_BaseFlameProps.VelocityVariation = { 10.0f, 10.0f, 10.0f };
+        m_BaseFlameProps.Velocity = { 0.0f, 8.0f, 0.0f };
+        m_BaseFlameProps.VelocityVariation = { 8.0f, 10.0f, 8.0f };
         m_BaseFlameProps.GravityFactor = 0.1f; // we barely want gravity to work on fire
         m_BaseFlameProps.ColorBegin = { 1.f, 1.f, 1.f, 1.0f };
         m_BaseFlameProps.ColorEnd = { 1.f, 1.f, 1.f, 0.3f };

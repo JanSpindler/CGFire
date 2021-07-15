@@ -28,8 +28,8 @@ namespace particle{
         glm::vec3 Position;
         glm::vec3 PositionVariation;
         int ParticlesPerEmit;
-        const float BuildUpTime; //the amount of time the fire takes to come to its peak
-        const float ExpiringTime; //the amount of time the fire takes to expire
+        float BuildUpTime; //the amount of time the fire takes to come to its peak
+        float ExpiringTime; //the amount of time the fire takes to expire
         float ParticleLifeTime;
         float ParticleLifeTimeVariation;
 

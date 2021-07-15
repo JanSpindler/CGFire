@@ -75,9 +75,9 @@ namespace scene {
         m_SceneRenderer.Update(dt);
     }
 
-    void SceneManager::Save(){
-        m_ObjectManager.SaveToFile();
-        m_EventManager.SaveToFile();
+    void SceneManager::Save(const std::string& folderName){
+        m_ObjectManager.SaveToFile(folderName);
+        m_EventManager.SaveToFile(folderName);
     }
 
     void SceneManager::ReloadEvents(){
@@ -128,6 +128,30 @@ namespace scene {
         ImGui::SameLine();
         if (ImGui::Button("Save Now")){
             this->Save();
+        }
+        ImGui::SameLine();
+
+        static char s_Filename[32] = "";
+        if (ImGui::Button("Save Scene as...")){
+            ImGui::OpenPopup("Save Scene As");
+            strcpy_s(s_Filename, "");
+        }
+        if (ImGui::BeginPopupModal("Save Scene As")){
+
+            ImGui::InputText("Folder", s_Filename, IM_ARRAYSIZE(s_Filename));
+            std::string saveAs_Name(s_Filename);
+            if (!saveAs_Name.empty()){
+                if (ImGui::Button("Save")) {
+                    this->Save(saveAs_Name);
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+            }
+
+            if (ImGui::Button("Abort")) {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
         }
 
         ImGui::Checkbox("Auto-Reload Events every", &m_ReloadEventsPeriodically);

@@ -48,6 +48,8 @@ namespace particle{
         ImGui::DragFloat("Speed", &Speed, 0.1f, 0.f, 999.f);
         ImGui::DragFloat("SpeedVariation", &SpeedVariationFactor, 0.1f, 0.f, 999.f);
         ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
+        ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 10.f);
+        ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 10.f);
         ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.01f, 0.f, 999.f);
         ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.001f, 0.f, 999.f);
     }

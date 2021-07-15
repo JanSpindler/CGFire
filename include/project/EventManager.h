@@ -40,7 +40,7 @@ namespace scene {
         ~EventManager();
 
 
-        void SaveToFile();
+        void SaveToFile(const std::string& folderName = "");
 
 
         void OnResetTime();
