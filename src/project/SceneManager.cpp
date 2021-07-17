@@ -6,12 +6,11 @@ namespace scene {
     SceneManager::SceneManager(en::Camera &cam, en::Window& window)
             : m_Cam(cam),
               m_Window(window),
-              m_ParticleSystemWater(3000, cam, false),
-              m_ParticleSystemSmoke(4000, cam, false),
-              m_ParticleSystemFire(3000, cam, true),
-              m_WaterCreator(m_ParticleSystemWater),
-              m_SmokeCreator(m_ParticleSystemSmoke),
-              m_FireCreator(m_ParticleSystemFire),
+              m_ParticleSystemAdditiveBlendingOff(6000, cam, false),
+              m_ParticleSystemAdditiveBlendingOn(3000, cam, true),
+              m_WaterCreator(m_ParticleSystemAdditiveBlendingOff),
+              m_SmokeCreator(m_ParticleSystemAdditiveBlendingOff),
+              m_FireCreator(m_ParticleSystemAdditiveBlendingOn),
               m_SceneRenderer(1000, 800),
               m_ObjectManager(*this, m_EventManager),
               m_EventManager(*this, m_SceneRenderer, m_ObjectManager, m_FireCreator, m_WaterCreator, m_SmokeCreator)
@@ -23,8 +22,6 @@ namespace scene {
         initObjects();
     }
 
-
-    /**Initialization. Needs to be called when the scene (re-)starts*/
     void SceneManager::Restart(bool resetTime) {
         ReloadEvents();
 
@@ -63,14 +60,15 @@ namespace scene {
 
         m_SceneRenderer.Resize(m_Window.GetWidth(), m_Window.GetHeight()); // TODO: maybe something more performant
 
-        m_ParticleSystemWater.OnUpdate(dt);
-        m_ParticleSystemSmoke.OnUpdate(dt);
-        m_ParticleSystemFire.OnUpdate(dt);
+        m_ParticleSystemAdditiveBlendingOff.OnUpdate(dt);
+        m_ParticleSystemAdditiveBlendingOn.OnUpdate(dt);
         m_WaterCreator.onUpdate(dt);
         m_SmokeCreator.onUpdate(dt);
         m_FireCreator.onUpdate(dt);
 
+        m_ObjectManager.OnUpdate(m_SceneTime);
         m_EventManager.OnUpdate(m_SceneTime);
+
 
         m_SceneRenderer.Update(dt);
     }
@@ -84,6 +82,7 @@ namespace scene {
         m_SceneRenderer.RemoveAllObjects();
         ClearParticles();
 
+        m_ObjectManager.OnResetTime();
         m_EventManager.OnResetTime();
     }
 
@@ -93,9 +92,8 @@ namespace scene {
 
     void SceneManager::OnRender(){
         m_SceneRenderer.Render(&m_Window, &m_Cam);
-        m_ParticleSystemWater.OnRender();
-        m_ParticleSystemSmoke.OnRender();
-        m_ParticleSystemFire.OnRender();
+        m_ParticleSystemAdditiveBlendingOff.OnRender();
+        m_ParticleSystemAdditiveBlendingOn.OnRender();
     }
 
     void SceneManager::onImGuiRender() {

@@ -60,10 +60,14 @@ namespace particle{
         /** Adds a flame the list. Don't destroy Flames while FireCreator is alive!*/
         void startFlame(std::shared_ptr<Flame> flame);
 
+        void startExpiringFlameOfName(const std::string& name);
+
         void clear(){
             m_Flames.clear();
             m_ParticleSystem.clear();
         }
+
+
     private:
         ParticleSystem& m_ParticleSystem;
         std::vector<std::shared_ptr<en::GLPictureTex>> m_Textures; //the variety of textures we use for fire

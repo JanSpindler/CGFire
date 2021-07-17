@@ -20,7 +20,7 @@ namespace en{
 }
     void Animation::addbones(aiAnimation *anim, Model &model) {
         auto& modelbonemap = model.getbonemap();
-        for (int i = 0; i<anim->mNumChannels;i++){
+        for (size_t i = 0; i<anim->mNumChannels;i++){
             aiNodeAnim* channel = anim->mChannels[i];
             //add code for bones missing from bonemap if necessary
             assert(modelbonemap.find(channel->mNodeName.C_Str())!= modelbonemap.end());

@@ -35,8 +35,8 @@ int main(int, char* argv[]) {
     using namespace particle;
 
     //Fire
-    ParticleSystem particleSystemFire(3000, cam, true);
-    FireCreator fireCreator(particleSystemFire);
+    ParticleSystem particleSystemAdditive(3000, cam, true);
+    FireCreator fireCreator(particleSystemAdditive);
 
     fireCreator.startFlame(std::make_shared<Flame>
             ("Fire Uno",
@@ -48,8 +48,8 @@ int main(int, char* argv[]) {
              1.f,
              0.2f));
 
-    ParticleSystem particleSystemSmoke(4000, cam, false);
-    SmokeCreator smokeCreator(particleSystemSmoke);
+    ParticleSystem particleSystemNoAdditive(4000, cam, false);
+    SmokeCreator smokeCreator(particleSystemNoAdditive);
 
     const en::GLShader* fixedColorVert = en::GLShader::Load("CGFire/fixed_color.vert");
     const en::GLShader* fixedColorFrag = en::GLShader::Load("CGFire/fixed_color.frag");
@@ -69,8 +69,7 @@ int main(int, char* argv[]) {
                                     glm::vec3(1.f, 0.f, 1.f)));
 
     //Water
-    ParticleSystem particleSystemWater(3000, cam, false);
-    WaterCreator waterCreator(particleSystemWater);
+    WaterCreator waterCreator(particleSystemNoAdditive);
 
     waterCreator.startWaterJet(std::make_shared<WaterJet>(
             "Water Uno",
@@ -96,11 +95,10 @@ int main(int, char* argv[]) {
 
         //Updates
         fireCreator.onUpdate(deltaTime);
-        particleSystemFire.OnUpdate(deltaTime);
+        particleSystemAdditive.OnUpdate(deltaTime);
         waterCreator.onUpdate(deltaTime);
-        particleSystemWater.OnUpdate(deltaTime);
         smokeCreator.onUpdate(deltaTime);
-        particleSystemSmoke.OnUpdate(deltaTime);
+        particleSystemNoAdditive.OnUpdate(deltaTime);
 
 
         //UI
@@ -117,9 +115,9 @@ int main(int, char* argv[]) {
 
         window.UseViewport();
 
-        particleSystemWater.OnRender();
-        particleSystemSmoke.OnRender();
-        particleSystemFire.OnRender();
+        particleSystemAdditive.OnRender();
+        particleSystemNoAdditive.OnRender();
+
 
         if (renderImGui)
             imgui_render();

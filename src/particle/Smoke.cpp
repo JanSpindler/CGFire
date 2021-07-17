@@ -167,4 +167,12 @@ namespace particle{
         smoke->BuildingUp = true;
         m_SmokeStreams.emplace_back(smoke);
     }
+
+    void SmokeCreator::startExpiringSmokeStreamOfName(const std::string& name){
+        for (auto& s : m_SmokeStreams){
+            if (std::string(s->Name) == name){
+                s->startExpiring();
+            }
+        }
+    }
 }

@@ -283,7 +283,7 @@ namespace scene {
         /******Splines****/
         ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Spline ROs:");
         for (auto it = m_Splines.begin(); it != m_Splines.end(); ++it) {
-            tSpline tuple = *it;
+            spline_t tuple = *it;
             auto o = tuple.second.get();
 
             auto cloneOrDeleteHappened = OnImGuiObjectRender(ObjectType::Spline, *o);
@@ -663,18 +663,18 @@ namespace scene {
         m_AllRenderObjects.emplace_back(skeletal.get());
         return skeletal;
     }
-    tSpline ObjectManager::LoadSpline(const std::string& name,
-                                      bool loop,
-                                      uint32_t resolution,
-                                      uint8_t type,
-                                      const std::vector<glm::vec3>& controlPoints){
+    spline_t ObjectManager::LoadSpline(const std::string& name,
+                                       bool loop,
+                                       uint32_t resolution,
+                                       uint8_t type,
+                                       const std::vector<glm::vec3>& controlPoints){
         if (DoesObjNameExistAlready(name))
             return std::make_pair(nullptr, nullptr);
         auto spline3d = std::make_shared<en::Spline3D>(controlPoints, loop, resolution, type);
         auto splineRenderable = std::make_shared<en::Spline3DRenderable>(spline3d.get());
         splineRenderable->SetName(name);
 
-        tSpline spline = std::make_pair(spline3d, splineRenderable);
+        spline_t spline = std::make_pair(spline3d, splineRenderable);
         m_Splines.emplace_back(spline);
         m_AllRenderObjects.emplace_back(splineRenderable.get());
         return spline;
@@ -705,5 +705,62 @@ namespace scene {
 
     bool ObjectManager::AreSplinesDrawn() {
         return m_SceneManager.AreSplinesDrawn();
+    }
+
+    void ObjectManager::ConnectObjectToSpline(en::RenderObj* obj, en::Spline3D* spline){
+        //TODO sobald Jan es gepusht hat
+    }
+
+    void ObjectManager::UpdateObjectToSplineConnections(float dt){
+        //TODO sobald Jan es gepusht hat
+    }
+
+    void ObjectManager::ConnectObjectRelativeToObject(en::RenderObj* carried, en::RenderObj* carry,
+                                                           const glm::vec3& pos,
+                                                           const glm::vec3& rotAxis, float rotAngle){
+        m_ObjectToObjectConnections.emplace_back(carried, carry, pos, rotAxis, rotAngle);
+    }
+    void ObjectManager::UpdateObjectToObjectConnections(){
+        for (auto& c : m_ObjectToObjectConnections){
+            en::RenderObj* carried = std::get<0>(c);
+            en::RenderObj* carry = std::get<1>(c);
+            const glm::vec3& relativePos = std::get<2>(c);
+            const glm::vec3& relativeRotAxis = std::get<3>(c);
+            float relativeRotAngle = std::get<4>(c);
+
+            carried->Position = carry->Position + relativePos;
+            //TODO: carried-> ROtation = Carry Rotation + relative Rotation
+        }
+    }
+
+    void ObjectManager::DisconnectObjectFromOthers(en::RenderObj* obj){
+        {
+            auto it = m_ObjectToObjectConnections.begin();
+            while (it != m_ObjectToObjectConnections.end()) {
+                if (obj == std::get<0>(*it)) { // if obj is carried by connection c
+                    it = m_ObjectToObjectConnections.erase(it);
+                } else
+                    it++;
+            }
+        }
+        {
+            auto it = m_ObjectToSplineConnections.begin();
+            while (it != m_ObjectToSplineConnections.end()) {
+                if (obj == it->first) { // if obj is carried by connection c
+                    it = m_ObjectToSplineConnections.erase(it);
+                } else
+                    it++;
+            }
+        }
+    }
+
+    void ObjectManager::OnUpdate(float dt) {
+        UpdateObjectToSplineConnections(dt);
+        UpdateObjectToObjectConnections();
+    }
+
+    void ObjectManager::OnResetTime(){
+        m_ObjectToObjectConnections.clear();
+        m_ObjectToSplineConnections.clear();
     }
 }

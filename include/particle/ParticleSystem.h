@@ -54,8 +54,5 @@ namespace particle {
 
         //Renderer
         ParticleSystemRenderer m_BatchRenderer;
-
-
-
     };
 }

@@ -52,9 +52,8 @@ namespace scene {
         en::Window& m_Window;
 
         /****************Particle Systems*/
-        particle::ParticleSystem m_ParticleSystemWater;
-        particle::ParticleSystem m_ParticleSystemSmoke;
-        particle::ParticleSystem m_ParticleSystemFire;
+        particle::ParticleSystem m_ParticleSystemAdditiveBlendingOff;
+        particle::ParticleSystem m_ParticleSystemAdditiveBlendingOn;
 
         particle::WaterCreator m_WaterCreator;
         particle::SmokeCreator m_SmokeCreator;

@@ -65,6 +65,8 @@ namespace particle{
         /** Adds a flame the list. Don't destroy Flames while FireCreator is alive!*/
         void startSmokeStream(std::shared_ptr<SmokeStream> smoke);
 
+        void startExpiringSmokeStreamOfName(const std::string& name);
+
         void clear(){
             m_SmokeStreams.clear();
             m_ParticleSystem.clear();

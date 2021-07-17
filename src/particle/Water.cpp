@@ -5,19 +5,19 @@
 #include "particle/Water.h"
 
 
-namespace particle{
+namespace particle {
 
     WaterJet::WaterJet(const char name[32],
-                       const glm::vec3& position,
-                      const glm::vec3& positionVariation,
-                      const glm::vec3& waterDirection,
-                      float speed,
-                      float speedVariationFactor,
-                      int particlesPerSecond,
-                      float buildUpTime,
-                      float expiringTime,
-                      float particleLifeTime,
-                      float particleLifeTimeVariation)
+                       const glm::vec3 &position,
+                       const glm::vec3 &positionVariation,
+                       const glm::vec3 &waterDirection,
+                       float speed,
+                       float speedVariationFactor,
+                       int particlesPerSecond,
+                       float buildUpTime,
+                       float expiringTime,
+                       float particleLifeTime,
+                       float particleLifeTimeVariation)
             : Position(position),
               PositionVariation(positionVariation),
               WaterDirection(waterDirection),
@@ -27,20 +27,21 @@ namespace particle{
               BuildUpTime(buildUpTime),
               ExpiringTime(expiringTime),
               ParticleLifeTime(particleLifeTime),
-              ParticleLifeTimeVariation(particleLifeTimeVariation)
-    {
+              ParticleLifeTimeVariation(particleLifeTimeVariation) {
         strcpy_s(Name, name);
     }
 
 
-    void WaterJet::startExpiring(){
+    void WaterJet::startExpiring() {
         if (Timer < BuildUpTime)
-            Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
+            Timer = (1.f - (Timer / BuildUpTime)) * ExpiringTime;
         else
             Timer = 0.f;
-        BuildingUp = false; Expiring = true; }
+        BuildingUp = false;
+        Expiring = true;
+    }
 
-    void WaterJet::OnImGuiRender(){
+    void WaterJet::OnImGuiRender() {
         ImGui::InputText("WaterJet Name", Name, IM_ARRAYSIZE(Name));
         ImGui::DragFloat3("Position", &Position.x, 0.05f);
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
@@ -54,16 +55,15 @@ namespace particle{
         ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.001f, 0.f, 999.f);
     }
 
-    WaterCreator::WaterCreator(ParticleSystem& particleSystem)
-            : m_ParticleSystem(particleSystem)
-    {
+    WaterCreator::WaterCreator(ParticleSystem &particleSystem)
+            : m_ParticleSystem(particleSystem) {
 
-        std::vector<std::string> waterTextures(17);
-        for (int i = 0; i < 17; i++){
-            waterTextures[i] = DATA_ROOT + "water/water" + std::to_string(i) + ".png";
+        std::vector<std::string> waterTextures(8);
+        for (size_t i = 0; i < 8; i++) {
+            waterTextures[i] = DATA_ROOT + "water/watersprite" + std::to_string(i) + ".png";
         }
         // load textures
-        for (auto& file : waterTextures){
+        for (auto &file : waterTextures) {
             m_Textures.emplace_back(std::make_shared<en::GLPictureTex>(
                     en::GLPictureTex::WrapMode::CLAMP_TO_BORDER,
                     en::GLPictureTex::FilterMode::NEAREST,
@@ -74,31 +74,31 @@ namespace particle{
         m_ParticleSystem.InitializeTextures(m_Textures);
 
         m_BaseWaterJetProps.VelocityVariation = {0.f, 0.f, 0.f};
-        m_BaseWaterJetProps.GravityFactor = 10.f;
-        m_BaseWaterJetProps.ColorBegin = { 255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f };
-        m_BaseWaterJetProps.ColorEnd = { 255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f };
+        m_BaseWaterJetProps.GravityFactor = 8.f;
+        m_BaseWaterJetProps.ColorBegin = {255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f};
+        m_BaseWaterJetProps.ColorEnd = {255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f};
         m_BaseWaterJetProps.SizeBegin = 1.f;
         m_BaseWaterJetProps.SizeVariationFactor = 0.1f;
-        m_BaseWaterJetProps.SizeEnd = 0.7f;
-        m_BaseWaterJetProps.TexCoordAnimFrames = {1, 1};
+        m_BaseWaterJetProps.SizeEnd = 3.5f;
+        m_BaseWaterJetProps.TexCoordAnimFrames = {4, 4};
 
     }
-    void WaterCreator::onUpdate(float ts){
+
+    void WaterCreator::onUpdate(float ts) {
         //For all water jets emit new particles
-        for (auto& waterJet : m_WaterJets) {
+        for (auto &waterJet : m_WaterJets) {
             float sizeFactor = 1.f; //will be set to less than 1 if the waterJet is building up or expiring
-            if (waterJet->BuildingUp){
+            if (waterJet->BuildingUp) {
                 waterJet->Timer += ts;
                 sizeFactor = waterJet->Timer / waterJet->BuildUpTime;
                 if (waterJet->Timer > waterJet->BuildUpTime) {
                     waterJet->BuildingUp = false;
                     sizeFactor = 1.f;
                 }
-            }
-            else if (waterJet->Expiring){
+            } else if (waterJet->Expiring) {
                 waterJet->Timer += ts;
                 sizeFactor = 1.f - (waterJet->Timer / waterJet->ExpiringTime);
-                if (waterJet->Timer > waterJet->ExpiringTime){
+                if (waterJet->Timer > waterJet->ExpiringTime) {
                     waterJet->Expired = true;
                     sizeFactor = 1.f;
                 }
@@ -120,10 +120,10 @@ namespace particle{
                             // that should have been created in between the update calls
                             float dTime = i * FREQUENCY;
                             props.Velocity = sizeFactor
-                                    * ((util::Random::Float() - 0.5f) * waterJet->SpeedVariationFactor + 1)
-                                    * waterJet->Speed
-                                    * waterJet->WaterDirection
-                                    + dTime * props.GravityFactor * glm::vec3(0.f, -9.81f, 0.f);
+                                             * ((util::Random::Float() - 0.5f) * waterJet->SpeedVariationFactor + 1)
+                                             * waterJet->Speed
+                                             * waterJet->WaterDirection
+                                             + dTime * props.GravityFactor * glm::vec3(0.f, -9.81f, 0.f);
                             props.Position = waterJet->Position + dTime * props.Velocity;
                             props.PositionVariation = waterJet->PositionVariation;
 
@@ -150,7 +150,7 @@ namespace particle{
 
     }
 
-    void WaterCreator::onImGuiRender(){
+    void WaterCreator::onImGuiRender() {
         ImGui::Begin("Water");
         ImGui::TextColored(ImVec4(0, 1, 1, 1), "WaterJet Particle Props (General)");
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
@@ -161,7 +161,7 @@ namespace particle{
         ImGui::DragFloat("SizeVariationFactor", &m_BaseWaterJetProps.SizeVariationFactor, 0.005f, 0.f, 1.f);
         ImGui::DragFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0.005f, 0.f, 999.f);
 
-        for (int i = 0; i < m_WaterJets.size(); ++i){
+        for (int i = 0; i < m_WaterJets.size(); ++i) {
             ImGui::PushID(i);
             if (ImGui::TreeNode((std::string("WaterJet ") + std::to_string(i)).c_str())) {
                 m_WaterJets[i]->OnImGuiRender();
@@ -172,11 +172,19 @@ namespace particle{
         ImGui::End();
     }
 
-    void WaterCreator::startWaterJet(std::shared_ptr<WaterJet> waterJet){
+    void WaterCreator::startWaterJet(std::shared_ptr<WaterJet> waterJet) {
         waterJet->Expiring = false;
         waterJet->Timer = 0.f;
         waterJet->Expired = false;
         waterJet->BuildingUp = true;
         m_WaterJets.emplace_back(waterJet);
+    }
+
+    void WaterCreator::startExpiringWaterJetOfName(const std::string &name) {
+        for (auto &w : m_WaterJets) {
+            if (std::string(w->Name) == name) {
+                w->startExpiring();
+            }
+        }
     }
 }

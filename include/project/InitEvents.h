@@ -22,16 +22,23 @@ namespace scene {
     class ObjectManager;
 
     /************************ATTENTION*************/
-    /****Here add for each new event the type, AT THE BOTTOM of the list only!*****/
+    /****Here add for each new event the type, AT THE BOTTOM of the list only!
+     * Careful with changing EventType values*****/
     enum class EventType {
-        ShowRenderObjEvent,
-        PlayAnimationEvent,
-        CreateFlameEvent,
-        ExpireFlameEvent,
-        CreateSmokeStreamEvent,
-        ExpireSmokeStreamEvent,
-        CreateWaterJetEvent,
-        ExpireWaterJetEvent
+        ShowRenderObjEvent = 0,
+        PlayAnimationEvent = 1,
+        CreateFlameEvent = 2,
+        ExpireFlameEvent = 3,
+        CreateSmokeStreamEvent = 4,
+        ExpireSmokeStreamEvent = 5,
+        CreateWaterJetEvent = 6,
+        ExpireWaterJetEvent = 7,
+        ConnectCamToSplineEvent  = 8,
+        ConnectObjectRelativeToObjectEvent  = 9,
+        ConnectObjectToSplineEvent = 10,
+        ConnectWaterRelativeToObjectEvent = 11,
+        DisconnectObjectFromAllObjectsEvent = 12,
+        SetObjectTransformEvent = 13
     };
 
     //For creating new events, I use a list of dummy events. Each new event type must have a dummy event

@@ -51,7 +51,7 @@ namespace particle{
     {
 
         std::vector<std::string> sparkTextures(32);
-        for (int i = 0; i < 32; i++){
+        for (size_t i = 0; i < 32; i++){
             sparkTextures[i] = DATA_ROOT + "fire/fire(" + std::to_string(i) + ").png";
         }
 
@@ -150,7 +150,7 @@ namespace particle{
         ImGui::DragFloat("SizeVariationFactor", &m_BaseFlameProps.SizeVariationFactor, 0.005f, 0.f, 1.f);
         ImGui::DragFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0.01f, 0.f, 999.f);
 
-        for (int i = 0; i < m_Flames.size(); ++i){
+        for (size_t i = 0; i < m_Flames.size(); ++i){
             ImGui::PushID(i);
             if (ImGui::TreeNode((std::string("Flame ") + std::to_string(i)).c_str())) {
                 m_Flames[i]->OnImGuiRender();
@@ -168,5 +168,13 @@ namespace particle{
         flame->Expired = false;
         flame->BuildingUp = true;
         m_Flames.emplace_back(flame);
+    }
+
+    void FireCreator::startExpiringFlameOfName(const std::string& name){
+        for (auto& f : m_Flames){
+            if (std::string(f->Name) == name){
+                f->startExpiring();
+            }
+        }
     }
 }

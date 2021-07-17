@@ -61,6 +61,8 @@ namespace particle{
         /** Adds a water jet to the list. Don't destroy WaterJets while WaterCreator is alive!*/
         void startWaterJet(std::shared_ptr<WaterJet> waterJet);
 
+        void startExpiringWaterJetOfName(const std::string& name);
+
         void clear(){
             m_WaterJets.clear();
             m_ParticleSystem.clear();
