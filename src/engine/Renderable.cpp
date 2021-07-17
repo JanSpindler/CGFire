@@ -42,6 +42,7 @@ namespace en
 
     void RenderObj::SetMatrices(const GLProgram *program)
     {
+
         t_ = glm::scale(glm::rotate(glm::translate(glm::mat4(1.f), Position), RotationAngle, RotationAxis), Scaling) ;
 
         program->SetUniformMat4("model_mat", false, &t_[0][0]);

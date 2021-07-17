@@ -28,6 +28,7 @@ namespace scene {
             e->m_ObjCarry = m_ObjCarry;
             e->m_RelativePosition = m_RelativePosition;
             e->m_RelativeRotationAxis = m_RelativeRotationAxis;
+            e->m_RelativeRotationAngle = m_RelativeRotationAngle;
 
             return e;
         }
@@ -50,7 +51,8 @@ namespace scene {
         void SaveSpecificDataToCSV(util::CSVWriter& csv) override{
             csv << m_ObjCarried->GetName() << m_ObjCarry->GetName()
                 << m_RelativePosition.x << m_RelativePosition.y << m_RelativePosition.z
-                << m_RelativeRotationAxis.x << m_RelativeRotationAxis.y << m_RelativeRotationAxis.z << m_RelativeRotationAngle;
+                << m_RelativeRotationAxis.x << m_RelativeRotationAxis.y << m_RelativeRotationAxis.z
+                << m_RelativeRotationAngle;
         }
 
         void OnAction() override {

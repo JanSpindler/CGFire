@@ -7,6 +7,9 @@
 #include "particle/ParticleSystem.h"
 #include <framework/imgui_util.hpp>
 
+namespace en{
+    class RenderObj;
+}
 namespace particle{
 
     class WaterJet{
@@ -66,12 +69,27 @@ namespace particle{
         void clear(){
             m_WaterJets.clear();
             m_ParticleSystem.clear();
+            m_WaterJetToObjectConnections.clear();
         }
+
+
+
+        void ConnectWaterJetRelativeToObject(const std::string& waterJetName, en::RenderObj* obj,
+                                             const glm::vec3& relativePos, const glm::vec3& relativeRotAxis,
+                                             float relativeRotAngle);
+
     private:
         ParticleSystem& m_ParticleSystem;
         std::vector<std::shared_ptr<en::GLPictureTex>> m_Textures; //the variety of textures we use for water
         ParticleProps m_BaseWaterJetProps;
         std::vector<std::shared_ptr<WaterJet>> m_WaterJets; //references to the water jets
+
+        WaterJet* GetWaterJetByName(const std::string& name);
+
+
+        typedef std::tuple<WaterJet*, en::RenderObj*, glm::vec3, glm::vec3, float> WaterJetToObjectConnection_t;
+        std::list<WaterJetToObjectConnection_t> m_WaterJetToObjectConnections;
+        void UpdateWaterJetToObjectConnections();
 
     };
 }

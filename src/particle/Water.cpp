@@ -3,6 +3,7 @@
 //
 
 #include "particle/Water.h"
+#include <glm/gtx/quaternion.hpp>
 
 
 namespace particle {
@@ -145,9 +146,16 @@ namespace particle {
             }
         }
         //Remove expired water jets
-        m_WaterJets.erase(std::remove_if(m_WaterJets.begin(), m_WaterJets.end(),
-                                         [](std::shared_ptr<WaterJet> f) { return f->Expired; }), m_WaterJets.end());
+        auto it = m_WaterJets.begin();
+        while(it != m_WaterJets.end()){
+            if ((*it)->Expired){
+                it = m_WaterJets.erase(it);
+            }
+            else
+                ++it;
+        }
 
+        UpdateWaterJetToObjectConnections();
     }
 
     void WaterCreator::onImGuiRender() {
@@ -181,10 +189,52 @@ namespace particle {
     }
 
     void WaterCreator::startExpiringWaterJetOfName(const std::string &name) {
-        for (auto &w : m_WaterJets) {
-            if (std::string(w->Name) == name) {
-                w->startExpiring();
+        auto w = GetWaterJetByName(name);
+        if (w != nullptr)
+            w->startExpiring();
+    }
+
+    WaterJet* WaterCreator::GetWaterJetByName(const std::string& name){
+        // This loop is ok for us. We don't use more than a couple Water Jets
+        for (auto& w : m_WaterJets){
+            if (std::string(w->Name) == name){
+                return w.get();
             }
+        }
+        return nullptr;
+    }
+
+    void WaterCreator::ConnectWaterJetRelativeToObject(const std::string& waterJetName, en::RenderObj* obj,
+                                                       const glm::vec3& relativePos, const glm::vec3& relativeRotAxis,
+                                                       float relativeRotAngle){
+
+        auto w = GetWaterJetByName(waterJetName);
+        if (w != nullptr){
+            m_WaterJetToObjectConnections.emplace_back(w, obj, relativePos, relativeRotAxis, relativeRotAngle);
+        }
+    }
+
+    void WaterCreator::UpdateWaterJetToObjectConnections(){
+        for (auto& c : m_WaterJetToObjectConnections){
+            WaterJet* waterJet = std::get<0>(c);
+            en::RenderObj* carry = std::get<1>(c);
+            const glm::vec3& relativePos = std::get<2>(c);
+            const glm::vec3& relativeRotAxis = std::get<3>(c);
+            float relativeRotAngle = std::get<4>(c);
+
+            waterJet->Position = carry->Position + relativePos;
+
+            //TODO: Rotation
+            glm::quat qObject = glm::angleAxis( glm::degrees(carry->RotationAngle),
+                                                glm::normalize(carry->RotationAxis));
+            glm::quat qRelative = glm::angleAxis( glm::degrees(relativeRotAngle),
+                                                  glm::normalize(relativeRotAxis));
+
+            auto rot = qObject * qRelative;
+
+            glm::eulerAngles(rot);
+
+            glm::a
         }
     }
 }
