@@ -45,7 +45,7 @@ namespace en
     {
 
         auto trans = glm::translate(glm::mat4(1.f), Position);
-        auto rot = glm::eulerAngleYXZ(EulerAngles.y, EulerAngles.x, EulerAngles.z);
+        auto rot = glm::toMat4(Quaternion);
         auto scale = glm::scale(glm::mat4(1.f), Scaling);
         t_ =  trans * rot * scale;
 

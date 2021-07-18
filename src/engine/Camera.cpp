@@ -37,11 +37,11 @@ namespace en
         return this->GetProjMat() * this->GetViewMat();;
     }
 
-    glm::vec3 Camera::GetPos() const
+    const glm::vec3& Camera::GetPos() const
     {
         return pos_;
     }
-    glm::vec3 Camera::GetViewDir() const {
+    const glm::vec3& Camera::GetViewDir() const {
         return viewDir_;
     }
 

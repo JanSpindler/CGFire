@@ -205,11 +205,11 @@ namespace particle {
     }
 
     void WaterCreator::ConnectWaterJetRelativeToObject(const std::string& waterJetName, en::RenderObj* obj,
-                                                       const glm::vec3& relativePos, const glm::vec3& eulerAngles){
+                                                       const glm::vec3& relativePos, const glm::quat& quaternion){
 
         auto w = GetWaterJetByName(waterJetName);
         if (w != nullptr){
-            m_WaterJetToObjectConnections.emplace_back(w, obj, relativePos, eulerAngles);
+            m_WaterJetToObjectConnections.emplace_back(w, obj, relativePos, quaternion);
         }
     }
 
@@ -218,21 +218,10 @@ namespace particle {
             WaterJet* waterJet = std::get<0>(c);
             en::RenderObj* carry = std::get<1>(c);
             const glm::vec3& relativePos = std::get<2>(c);
-            const glm::vec3& eulerAngles = std::get<3>(c);
+            const glm::quat& relativeRot = std::get<3>(c);
 
-            waterJet->Position = carry->Position + relativePos;
-
-
-//            //TODO: Rotation
-//            glm::quat qObject(carry->EulerAngles);
-//            glm::quat qRelative = glm::angleAxis( glm::degrees(relativeRotAngle),
-//                                                  glm::normalize(relativeRotAxis));
-//
-//            auto rot = qObject * qRelative;
-//
-//            glm::eulerAngles(rot);
-//
-//            glm::a
+            waterJet->Position = carry->Position + carry->Quaternion * relativePos;
+            waterJet->WaterDirection = (carry->Quaternion * relativeRot) * glm::vec3(0.f, 0.f, -1.f);
         }
     }
 }

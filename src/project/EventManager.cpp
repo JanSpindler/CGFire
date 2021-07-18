@@ -13,19 +13,21 @@
 #include "particle/Fire.h"
 
 namespace scene {
-    EventManager::EventManager(SceneManager& sceneManager,
+    EventManager::EventManager(en::Camera& camera,
+                               SceneManager& sceneManager,
                                en::SceneRenderer &sceneRenderer,
                           scene::ObjectManager& objectManager,
                                particle::FireCreator& fireCreator,
                                particle::WaterCreator& waterCreator,
                                particle::SmokeCreator& smokeCreator)
             :
+            m_Camera(camera),
             m_SceneManager(sceneManager),
             m_SceneRenderer(sceneRenderer),
             m_ObjectManager(objectManager)
     {
 
-        scene::InitDummyEvents(m_SceneRenderer, m_ObjectManager, fireCreator, waterCreator, smokeCreator);
+        scene::InitDummyEvents(m_Camera, m_SceneRenderer, m_ObjectManager, fireCreator, waterCreator, smokeCreator);
 
 
 

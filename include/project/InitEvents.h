@@ -9,6 +9,7 @@
 
 namespace en {
     class SceneRenderer;
+    class Camera;
 }
 namespace particle {
     class FireCreator;
@@ -38,7 +39,8 @@ namespace scene {
         ConnectObjectToSplineEvent = 10,
         ConnectWaterRelativeToObjectEvent = 11,
         DisconnectObjectFromAllObjectsEvent = 12,
-        SetObjectTransformEvent = 13
+        SetObjectTransformEvent = 13,
+        SetCamTransformEvent = 14
     };
 
     //For creating new events, I use a list of dummy events. Each new event type must have a dummy event
@@ -46,7 +48,8 @@ namespace scene {
 
     /************************ATTENTION*************/
     /******We need to add for each event type one dummy event here (in .cpp)!******/
-    void InitDummyEvents(en::SceneRenderer &sceneRenderer,
+    void InitDummyEvents(en::Camera& cam,
+                         en::SceneRenderer &sceneRenderer,
                          ObjectManager &objectManager,
                          particle::FireCreator& fireCreator,
                          particle::WaterCreator& waterCreator,

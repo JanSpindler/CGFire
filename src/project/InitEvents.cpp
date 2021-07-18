@@ -23,12 +23,14 @@
 #include <project/Events/ConnectWaterRelativeToObjectEvent.h>
 #include <project/Events/DisconnectObjectFromAllObjectsEvent.h>
 #include <project/Events/SetObjectTransformEvent.h>
+#include <project/Events/SetCamTransformEvent.h>
 
 
 namespace scene {
     std::vector<std::unique_ptr<scene::Event>> DummyEventsOfAllTypes;
 
-    void InitDummyEvents(en::SceneRenderer &sceneRenderer,
+    void InitDummyEvents(en::Camera& cam,
+                         en::SceneRenderer &sceneRenderer,
                          ObjectManager &objectManager,
                          particle::FireCreator& fireCreator,
                          particle::WaterCreator& waterCreator,
@@ -50,5 +52,8 @@ namespace scene {
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectObjectRelativeToObjectEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::DisconnectObjectFromAllObjectsEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetObjectTransformEvent>(objectManager));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetCamTransformEvent>(cam));
+
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectWaterRelativeToObjectEvent>(objectManager, waterCreator));
     }
 }

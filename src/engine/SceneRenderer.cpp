@@ -437,7 +437,7 @@ namespace en
         dirLight_->Use(lightingProgram_);
         dirLight_->UseShadow(lightingProgram_);
 
-        const int32_t pointLightCount = std::min((int)pointLights_.size(), 8);
+        const uint32_t pointLightCount = std::min((int)pointLights_.size(), 8);
         lightingProgram_->SetUniformI("point_light_count", pointLightCount);
         for (uint32_t i = 0; i < pointLightCount; i++)
         {

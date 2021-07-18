@@ -75,7 +75,7 @@ namespace particle{
 
 
         void ConnectWaterJetRelativeToObject(const std::string& waterJetName, en::RenderObj* obj,
-                                             const glm::vec3& relativePos, const glm::vec3& eulerAngles);
+                                             const glm::vec3& relativePos, const glm::quat& quaternion);
 
     private:
         ParticleSystem& m_ParticleSystem;
@@ -86,7 +86,7 @@ namespace particle{
         WaterJet* GetWaterJetByName(const std::string& name);
 
 
-        typedef std::tuple<WaterJet*, en::RenderObj*, glm::vec3, glm::vec3> WaterJetToObjectConnection_t;
+        typedef std::tuple<WaterJet*, en::RenderObj*, glm::vec3, glm::quat> WaterJetToObjectConnection_t;
         std::list<WaterJetToObjectConnection_t> m_WaterJetToObjectConnections;
         void UpdateWaterJetToObjectConnections();
 

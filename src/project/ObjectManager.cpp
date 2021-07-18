@@ -6,6 +6,7 @@
 #include "framework/imgui_util.hpp"
 #include "project/EventManager.h" // when objects are deleted, the EventManager is informed
 #include "project/SceneManager.h"
+#include "util/ImGuiDrawing.h"
 
 namespace scene {
     ObjectManager::ObjectManager(SceneManager& sceneManager, EventManager& eventManager)
@@ -185,7 +186,14 @@ namespace scene {
         if (isOpen) {
             if (type != ObjectType::Spline) {
                 ImGui::DragFloat3("Position", &o.Position.x, 0.25f);
-                ImGui::DragFloat3("EulerAngles", &o.EulerAngles.x, 0.05f, 0.f, 6.28318530718f);
+                //ImGui::DragFloat3("Quaternion", &o.EulerAngles.x, 0.05f, 0.f, 6.28318530718f);
+
+
+                //Draw Rotation Buttons
+                util::DrawImGuiQuaternionRotationUI(o.Quaternion);
+
+
+
                 ImGui::DragFloat3("Scaling", &o.Scaling.x, 0.25f, 0.f, 999.f);
                 ImGui::Checkbox("Motion Blur", &o.blur);
             }
@@ -327,7 +335,7 @@ namespace scene {
     void ObjectManager::SaveRenderObjDataToCSV(util::CSVWriter &writer, en::RenderObj &o) {
         using namespace util;
         writer << o.Position.x << o.Position.y << o.Position.z
-               << o.EulerAngles.x << o.EulerAngles.y << o.EulerAngles.z
+               << o.Quaternion.w <<o.Quaternion.x << o.Quaternion.y << o.Quaternion.z
                << o.Scaling.x << o.Scaling.y << o.Scaling.z << endrow;
     }
 
@@ -335,12 +343,13 @@ namespace scene {
         o.Position.x = std::stof(str[0]);
         o.Position.y = std::stof(str[1]);
         o.Position.z = std::stof(str[2]);
-        o.EulerAngles.x = std::stof(str[3]);
-        o.EulerAngles.y = std::stof(str[4]);
-        o.EulerAngles.z = std::stof(str[5]);
-        o.Scaling.x = std::stof(str[6]);
-        o.Scaling.y = std::stof(str[7]);
-        o.Scaling.z = std::stof(str[8]);
+        o.Quaternion.w = std::stof(str[3]);
+        o.Quaternion.x = std::stof(str[4]);
+        o.Quaternion.y = std::stof(str[5]);
+        o.Quaternion.z = std::stof(str[6]);
+        o.Scaling.x = std::stof(str[7]);
+        o.Scaling.y = std::stof(str[8]);
+        o.Scaling.z = std::stof(str[9]);
     }
 
     void ObjectManager::OnImGuiAddObjectRender(ObjectType type) {
@@ -714,18 +723,18 @@ namespace scene {
 
     void ObjectManager::ConnectObjectRelativeToObject(en::RenderObj* carried, en::RenderObj* carry,
                                                            const glm::vec3& pos,
-                                                           const glm::vec3& eulerAngles){
-        m_ObjectToObjectConnections.emplace_back(carried, carry, pos, eulerAngles);
+                                                           const glm::quat& rot){
+        m_ObjectToObjectConnections.emplace_back(carried, carry, pos, rot);
     }
     void ObjectManager::UpdateObjectToObjectConnections(){
         for (auto& c : m_ObjectToObjectConnections){
             en::RenderObj* carried = std::get<0>(c);
             en::RenderObj* carry = std::get<1>(c);
             const glm::vec3& relativePos = std::get<2>(c);
-            const glm::vec3& relativeEulerAngles = std::get<3>(c);
+            const glm::quat& relativeRot = std::get<3>(c);
 
-            carried->Position = carry->Position + relativePos;
-            //TODO: carried-> ROtation = Carry Rotation + relative Rotation
+            carried->Quaternion = carry->Quaternion* relativeRot;
+            carried->Position = carry->Position + carry->Quaternion*relativePos;
         }
     }
 

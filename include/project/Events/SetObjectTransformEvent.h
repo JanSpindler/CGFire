@@ -6,7 +6,7 @@
 #include "project/SceneEvent.h"
 #include "project/ObjectManager.h"
 #include "engine/render/SceneRenderer.hpp"
-
+#include "util/ImGuiDrawing.h"
 
 namespace scene {
 
@@ -30,7 +30,7 @@ namespace scene {
             e->m_ChangeRotation = m_ChangeRotation;
             e->m_ChangeScaling = m_ChangeScaling;
             e->m_Position = m_Position;
-            e->m_EulerAngles = m_EulerAngles;
+            e->m_Rotation = m_Rotation;
             e->m_Scaling = m_Scaling;
 
 
@@ -51,8 +51,8 @@ namespace scene {
             m_ChangeScaling = static_cast<bool>(std::stoi(data[3]));
 
             m_Position = glm::vec3(std::stof(data[4]), std::stof(data[5]), std::stof(data[6]));
-            m_EulerAngles = glm::vec3(std::stof(data[7]), std::stof(data[8]), std::stof(data[9]));
-            m_Scaling = glm::vec3(std::stof(data[10]), std::stof(data[11]), std::stof(data[12]));
+            m_Rotation = glm::quat(std::stof(data[7]), std::stof(data[8]), std::stof(data[9]), std::stof(data[10]));
+            m_Scaling = glm::vec3(std::stof(data[11]), std::stof(data[12]), std::stof(data[13]));
 
             this->UpdateDescription();
         }
@@ -61,7 +61,7 @@ namespace scene {
             csv << m_Obj->GetName()
                 << m_ChangePos << m_ChangeRotation << m_ChangeScaling
                 << m_Position.x << m_Position.y << m_Position.z
-                << m_EulerAngles.x << m_EulerAngles.y << m_EulerAngles.z
+                << m_Rotation.w << m_Rotation.x << m_Rotation.y << m_Rotation.z
                     << m_Scaling.x << m_Scaling.y << m_Scaling.z;
 
         }
@@ -70,7 +70,7 @@ namespace scene {
             if (m_ChangePos)
                 m_Obj->Position = m_Position;
             if (m_ChangeRotation)
-                m_Obj->EulerAngles = m_EulerAngles;
+                m_Obj->Quaternion = m_Rotation;
             if (m_ChangeScaling)
                 m_Obj->Scaling = m_Scaling;
         }
@@ -118,7 +118,7 @@ namespace scene {
             ImGui::Checkbox("Change Rotation", &m_ChangeRotation);
             if (m_ChangeRotation) {
                 ImGui::SameLine();
-                ImGui::DragFloat3("##change euler angles", &m_EulerAngles.x, 0.005f, 0.f, 6.28318530718f);
+                util::DrawImGuiQuaternionRotationUI(m_Rotation);
             }
 
             ImGui::Checkbox("Change Scaling", &m_ChangeScaling);
@@ -143,7 +143,7 @@ namespace scene {
                 m_Description = "Changes Transform of \'"
                         + m_Obj->GetName() + "\' ("
                         + (m_ChangePos ? "Position/" : "")
-                        + (m_ChangeRotation ? "EulerAngles/" : "")
+                        + (m_ChangeRotation ? "Rotation/" : "")
                         + (m_ChangeScaling ? "Scaling" : "")
                         +")";
 
@@ -159,7 +159,7 @@ namespace scene {
         bool m_ChangeScaling = false;
 
         glm::vec3 m_Position = glm::vec3(0.f, 0.f, 0.f);
-        glm::vec3 m_EulerAngles = glm::vec3(0.f, 0.f, 0.f);
+        glm::quat m_Rotation = glm::quat();
         glm::vec3 m_Scaling = glm::vec3(1.f, 1.f, 1.f);
     };
 }

@@ -30,7 +30,8 @@ namespace scene {
         const std::string SceneEventDataFileName = "sceneevents.csv"; //this should always be the most recent edit
         const std::string SceneEventDataAutoCopyBeforeStartFileName = "autocopylaststart_sceneevents.csv";
     public:
-        explicit EventManager(SceneManager& sceneManager,
+        explicit EventManager(en::Camera& camera,
+                              SceneManager& sceneManager,
                               en::SceneRenderer &sceneRenderer,
                               scene::ObjectManager& objectManager,
                               particle::FireCreator& fireCreator,
@@ -57,6 +58,7 @@ namespace scene {
 
         void OnCreateNewObj(ObjectType type, en::RenderObj* obj);
     private:
+        en::Camera& m_Camera;
         SceneManager& m_SceneManager;
         en::SceneRenderer& m_SceneRenderer;
         scene::ObjectManager& m_ObjectManager;

@@ -8,6 +8,8 @@
 
 #include "engine/Render/GLShader.hpp"
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace en
 {
@@ -36,7 +38,8 @@ namespace en
     public:
         int ID;
         glm::vec3 Position = glm::vec3(0.f, 0.f, 0.f);
-        glm::vec3 EulerAngles = glm::vec3(0.f, 0.f, 0.f);
+        //glm::vec3 EulerAngles = glm::vec3(0.f, 0.f, 0.f);
+        glm::quat Quaternion = glm::angleAxis(0.f, glm::vec3(0.f, 1.f, 0.f));
         glm::vec3 Scaling = glm::vec3(1.f, 1.f, 1.f);
         glm::mat4 prevM;
         bool blur = false;

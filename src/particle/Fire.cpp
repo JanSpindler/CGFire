@@ -151,7 +151,7 @@ namespace particle{
         ImGui::DragFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0.01f, 0.f, 999.f);
 
         for (size_t i = 0; i < m_Flames.size(); ++i){
-            ImGui::PushID(i);
+            ImGui::PushID(static_cast<int>(i));
             if (ImGui::TreeNode((std::string("Flame ") + std::to_string(i)).c_str())) {
                 m_Flames[i]->OnImGuiRender();
                 ImGui::TreePop();

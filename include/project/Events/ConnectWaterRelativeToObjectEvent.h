@@ -7,6 +7,7 @@
 #include "project/ObjectManager.h"
 #include "engine/render/SceneRenderer.hpp"
 #include "particle/Water.h"
+#include "util/ImGuiDrawing.h"
 
 
 namespace scene {
@@ -30,7 +31,7 @@ namespace scene {
             e->m_Obj = m_Obj;
             strcpy_s(e->m_WaterName, m_WaterName);
             e->m_RelativePosition = m_RelativePosition;
-            e->m_RelativeEulerAngles = m_RelativeEulerAngles;
+            e->m_RelativeRotation = m_RelativeRotation;
 
             return e;
         }
@@ -40,7 +41,7 @@ namespace scene {
             std::string objName = data[0];
             std::string waterName = data[1];
             m_RelativePosition = glm::vec3(std::stof(data[2]), std::stof(data[3]),std::stof(data[4]));
-            m_RelativeEulerAngles = glm::vec3(std::stof(data[5]), std::stof(data[6]), std::stof(data[7]));
+            m_RelativeRotation = glm::quat(std::stof(data[5]), std::stof(data[6]), std::stof(data[7]), std::stof(data[8]));
 
             m_Obj = m_ObjectManager.GetRenderObj(objName);
             strcpy_s(m_WaterName, waterName.c_str());
@@ -52,11 +53,12 @@ namespace scene {
         void SaveSpecificDataToCSV(util::CSVWriter& csv) override{
             csv << m_Obj->GetName() << m_WaterName
                 << m_RelativePosition.x << m_RelativePosition.y << m_RelativePosition.z
-                << m_RelativeEulerAngles.x << m_RelativeEulerAngles.y << m_RelativeEulerAngles.z;
+                << m_RelativeRotation.w << m_RelativeRotation.x << m_RelativeRotation.y << m_RelativeRotation.z;
         }
 
         void OnAction() override {
-            m_WaterCreator.ConnectWaterJetRelativeToObject(m_WaterName, m_Obj, m_RelativePosition, m_RelativeEulerAngles);
+            m_WaterCreator.ConnectWaterJetRelativeToObject(
+                    m_WaterName, m_Obj, m_RelativePosition, m_RelativeRotation);
         }
 
 
@@ -90,10 +92,15 @@ namespace scene {
                 ImGui::EndCombo();
             }
 
+            if (ImGui::InputText("Water Jet Name", m_WaterName, IM_ARRAYSIZE(m_WaterName))){
+                UpdateDescription();
+            }
 
 
             ImGui::DragFloat3("Relative Position", &m_RelativePosition.x, 0.005f);
-            ImGui::DragFloat3("Relative Euler Angles", &m_RelativeEulerAngles.x, 0.005f, 0.f, 6.28318530718f);
+
+            //Draw Rotation Buttons
+            util::DrawImGuiQuaternionRotationUI(m_RelativeRotation);
 
 
             bool optionsOk = m_Obj != nullptr;
@@ -121,6 +128,6 @@ namespace scene {
         char m_WaterName[32] = "";
 
         glm::vec3 m_RelativePosition = glm::vec3(0.f, 0.f, 0.f);
-        glm::vec3 m_RelativeEulerAngles = glm::vec3(0.f, 0.f, 0.f);
+        glm::quat m_RelativeRotation = glm::angleAxis(0.f, glm::vec3(0.f, 1.f, 0.f));
     };
 }

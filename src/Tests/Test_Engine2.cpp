@@ -121,10 +121,10 @@ int main()
         en::Input::HandleUserCamInput(&window, &cam, deltaTime);
 
         // Physics
-        pointLight.RotationAngle += deltaTime * -0.5f;
+        pointLight.EulerAngles.y += deltaTime * -0.5f;
 //        backpackModel.RotationAngle += deltaTime * 1.0f;
 //        dragonModel.RotationAngle += deltaTime * 0.2f;
-        reflectModel.RotationAngle += deltaTime * 0.4f;
+        reflectModel.EulerAngles.z += deltaTime * 0.4f;
 
         //UI
         bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);

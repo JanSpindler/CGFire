@@ -13,7 +13,7 @@ namespace scene {
               m_FireCreator(m_ParticleSystemAdditiveBlendingOn),
               m_SceneRenderer(1000, 800),
               m_ObjectManager(*this, m_EventManager),
-              m_EventManager(*this, m_SceneRenderer, m_ObjectManager, m_FireCreator, m_WaterCreator, m_SmokeCreator)
+              m_EventManager(m_Cam, *this, m_SceneRenderer, m_ObjectManager, m_FireCreator, m_WaterCreator, m_SmokeCreator)
     {
         m_AutoSave =  true;
         m_ReloadEventsPeriodically = true;
@@ -185,6 +185,10 @@ namespace scene {
                            "and press \"-\" to disable UI (\"+\" to enable), \n"
                            "if you want to play the scene correctly");
 
+        ImGui::SameLine();
+        ImGui::Text("Cam Position: %f/%f/%f\n ViewDirection: %f/%f/%f",
+                    m_Cam.GetPos().x,m_Cam.GetPos().y, m_Cam.GetPos().z,
+                    m_Cam.GetViewDir().x, m_Cam.GetViewDir().y, m_Cam.GetViewDir().z);
         ImGui::End();
 
         m_ObjectManager.OnImGuiRender();
