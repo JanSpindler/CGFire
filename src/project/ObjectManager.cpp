@@ -185,8 +185,7 @@ namespace scene {
         if (isOpen) {
             if (type != ObjectType::Spline) {
                 ImGui::DragFloat3("Position", &o.Position.x, 0.25f);
-                ImGui::DragFloat("RotationAngle", &o.RotationAngle, 0.1f, 0.f, 6.28318530718f);
-                ImGui::DragFloat3("RotationAxisVector", &o.RotationAxis.x, 0.05f, 0.f, 1.f);
+                ImGui::DragFloat3("EulerAngles", &o.EulerAngles.x, 0.05f, 0.f, 6.28318530718f);
                 ImGui::DragFloat3("Scaling", &o.Scaling.x, 0.25f, 0.f, 999.f);
                 ImGui::Checkbox("Motion Blur", &o.blur);
             }
@@ -328,8 +327,7 @@ namespace scene {
     void ObjectManager::SaveRenderObjDataToCSV(util::CSVWriter &writer, en::RenderObj &o) {
         using namespace util;
         writer << o.Position.x << o.Position.y << o.Position.z
-               << o.RotationAxis.x << o.RotationAxis.y << o.RotationAxis.z
-               << o.RotationAngle
+               << o.EulerAngles.x << o.EulerAngles.y << o.EulerAngles.z
                << o.Scaling.x << o.Scaling.y << o.Scaling.z << endrow;
     }
 
@@ -337,13 +335,12 @@ namespace scene {
         o.Position.x = std::stof(str[0]);
         o.Position.y = std::stof(str[1]);
         o.Position.z = std::stof(str[2]);
-        o.RotationAxis.x = std::stof(str[3]);
-        o.RotationAxis.y = std::stof(str[4]);
-        o.RotationAxis.z = std::stof(str[5]);
-        o.RotationAngle = std::stof(str[6]);
-        o.Scaling.x = std::stof(str[7]);
-        o.Scaling.y = std::stof(str[8]);
-        o.Scaling.z = std::stof(str[9]);
+        o.EulerAngles.x = std::stof(str[3]);
+        o.EulerAngles.y = std::stof(str[4]);
+        o.EulerAngles.z = std::stof(str[5]);
+        o.Scaling.x = std::stof(str[6]);
+        o.Scaling.y = std::stof(str[7]);
+        o.Scaling.z = std::stof(str[8]);
     }
 
     void ObjectManager::OnImGuiAddObjectRender(ObjectType type) {
@@ -717,16 +714,15 @@ namespace scene {
 
     void ObjectManager::ConnectObjectRelativeToObject(en::RenderObj* carried, en::RenderObj* carry,
                                                            const glm::vec3& pos,
-                                                           const glm::vec3& rotAxis, float rotAngle){
-        m_ObjectToObjectConnections.emplace_back(carried, carry, pos, rotAxis, rotAngle);
+                                                           const glm::vec3& eulerAngles){
+        m_ObjectToObjectConnections.emplace_back(carried, carry, pos, eulerAngles);
     }
     void ObjectManager::UpdateObjectToObjectConnections(){
         for (auto& c : m_ObjectToObjectConnections){
             en::RenderObj* carried = std::get<0>(c);
             en::RenderObj* carry = std::get<1>(c);
             const glm::vec3& relativePos = std::get<2>(c);
-            const glm::vec3& relativeRotAxis = std::get<3>(c);
-            float relativeRotAngle = std::get<4>(c);
+            const glm::vec3& relativeEulerAngles = std::get<3>(c);
 
             carried->Position = carry->Position + relativePos;
             //TODO: carried-> ROtation = Carry Rotation + relative Rotation

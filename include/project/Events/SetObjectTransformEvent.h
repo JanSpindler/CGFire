@@ -27,12 +27,10 @@ namespace scene {
 
             e->m_Obj = m_Obj;
             e->m_ChangePos = m_ChangePos;
-            e->m_ChangeRotationAxis = m_ChangeRotationAxis;
-            e->m_ChangeRotationAngle = m_ChangeRotationAngle;
+            e->m_ChangeRotation = m_ChangeRotation;
             e->m_ChangeScaling = m_ChangeScaling;
             e->m_Position = m_Position;
-            e->m_RotationAxis = m_RotationAxis;
-            e->m_RotationAngle = m_RotationAngle;
+            e->m_EulerAngles = m_EulerAngles;
             e->m_Scaling = m_Scaling;
 
 
@@ -49,24 +47,21 @@ namespace scene {
             m_Obj = m_ObjectManager.GetRenderObj(objName);
 
             m_ChangePos = static_cast<bool>(std::stoi(data[1]));
-            m_ChangeRotationAxis = static_cast<bool>(std::stoi(data[2]));
-            m_ChangeRotationAngle = static_cast<bool>(std::stoi(data[3]));
-            m_ChangeScaling = static_cast<bool>(std::stoi(data[4]));
+            m_ChangeRotation = static_cast<bool>(std::stoi(data[2]));
+            m_ChangeScaling = static_cast<bool>(std::stoi(data[3]));
 
-            m_Position = glm::vec3(std::stof(data[6]), std::stof(data[7]), std::stof(data[8]));
-            m_RotationAxis = glm::vec3(std::stof(data[9]), std::stof(data[10]), std::stof(data[11]));
-            m_RotationAngle = std::stof(data[12]);
-            m_Scaling = glm::vec3(std::stof(data[13]), std::stof(data[14]), std::stof(data[15]));
+            m_Position = glm::vec3(std::stof(data[4]), std::stof(data[5]), std::stof(data[6]));
+            m_EulerAngles = glm::vec3(std::stof(data[7]), std::stof(data[8]), std::stof(data[9]));
+            m_Scaling = glm::vec3(std::stof(data[10]), std::stof(data[11]), std::stof(data[12]));
 
             this->UpdateDescription();
         }
 
         void SaveSpecificDataToCSV(util::CSVWriter& csv) override{
             csv << m_Obj->GetName()
-                    << m_ChangePos << m_ChangeRotationAxis << m_ChangeRotationAngle << m_ChangeScaling
-                    << m_Position.x << m_Position.y << m_Position.z
-                    << m_RotationAxis.x << m_RotationAxis.y << m_RotationAxis.z
-                    << m_RotationAngle
+                << m_ChangePos << m_ChangeRotation << m_ChangeScaling
+                << m_Position.x << m_Position.y << m_Position.z
+                << m_EulerAngles.x << m_EulerAngles.y << m_EulerAngles.z
                     << m_Scaling.x << m_Scaling.y << m_Scaling.z;
 
         }
@@ -74,10 +69,8 @@ namespace scene {
         void OnAction() override {
             if (m_ChangePos)
                 m_Obj->Position = m_Position;
-            if (m_ChangeRotationAxis)
-                m_Obj->RotationAxis = m_RotationAxis;
-            if (m_ChangeRotationAngle)
-                m_Obj->RotationAngle = m_RotationAngle;
+            if (m_ChangeRotation)
+                m_Obj->EulerAngles = m_EulerAngles;
             if (m_ChangeScaling)
                 m_Obj->Scaling = m_Scaling;
         }
@@ -104,8 +97,7 @@ namespace scene {
                         s_ObjSelection = o->GetName();
                         if (m_Obj != o){
                             m_ChangePos = false;
-                            m_ChangeRotationAxis = false;
-                            m_ChangeRotationAngle = false;
+                            m_ChangeRotation = false;
                             m_ChangeScaling = false;
                         }
                         m_Obj = o;
@@ -123,16 +115,12 @@ namespace scene {
                 ImGui::SameLine();
                 ImGui::DragFloat3("##change pos", &m_Position.x, 0.005f);
             }
-            ImGui::Checkbox("Change Rotation Axis", &m_ChangeRotationAxis);
-            if (m_ChangeRotationAxis) {
+            ImGui::Checkbox("Change Rotation", &m_ChangeRotation);
+            if (m_ChangeRotation) {
                 ImGui::SameLine();
-                ImGui::DragFloat3("##change rot axis", &m_RotationAxis.x, 0.005f);
+                ImGui::DragFloat3("##change euler angles", &m_EulerAngles.x, 0.005f, 0.f, 6.28318530718f);
             }
-            ImGui::Checkbox("Change Rotation Angle", &m_ChangeRotationAngle);
-            if (m_ChangeRotationAngle) {
-                ImGui::SameLine();
-                ImGui::DragFloat("##change rot angle", &m_RotationAngle, 0.005f, 0.f, 6.28318530718f);
-            }
+
             ImGui::Checkbox("Change Scaling", &m_ChangeScaling);
             if (m_ChangeScaling) {
                 ImGui::SameLine();
@@ -155,8 +143,7 @@ namespace scene {
                 m_Description = "Changes Transform of \'"
                         + m_Obj->GetName() + "\' ("
                         + (m_ChangePos ? "Position/" : "")
-                        + (m_ChangeRotationAxis ? "RotAxis/" : "")
-                        + (m_ChangeRotationAngle ? "RotAngle/" : "")
+                        + (m_ChangeRotation ? "EulerAngles/" : "")
                         + (m_ChangeScaling ? "Scaling" : "")
                         +")";
 
@@ -168,13 +155,11 @@ namespace scene {
         RenderObj* m_Obj = nullptr;
 
         bool m_ChangePos = false;
-        bool m_ChangeRotationAxis = false;
-        bool m_ChangeRotationAngle = false;
+        bool m_ChangeRotation = false;
         bool m_ChangeScaling = false;
 
         glm::vec3 m_Position = glm::vec3(0.f, 0.f, 0.f);
-        glm::vec3 m_RotationAxis = glm::vec3(0.f, 1.f, 0.f);
-        float m_RotationAngle = 0.f;
+        glm::vec3 m_EulerAngles = glm::vec3(0.f, 0.f, 0.f);
         glm::vec3 m_Scaling = glm::vec3(1.f, 1.f, 1.f);
     };
 }

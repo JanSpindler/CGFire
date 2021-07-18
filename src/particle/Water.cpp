@@ -205,12 +205,11 @@ namespace particle {
     }
 
     void WaterCreator::ConnectWaterJetRelativeToObject(const std::string& waterJetName, en::RenderObj* obj,
-                                                       const glm::vec3& relativePos, const glm::vec3& relativeRotAxis,
-                                                       float relativeRotAngle){
+                                                       const glm::vec3& relativePos, const glm::vec3& eulerAngles){
 
         auto w = GetWaterJetByName(waterJetName);
         if (w != nullptr){
-            m_WaterJetToObjectConnections.emplace_back(w, obj, relativePos, relativeRotAxis, relativeRotAngle);
+            m_WaterJetToObjectConnections.emplace_back(w, obj, relativePos, eulerAngles);
         }
     }
 
@@ -219,22 +218,21 @@ namespace particle {
             WaterJet* waterJet = std::get<0>(c);
             en::RenderObj* carry = std::get<1>(c);
             const glm::vec3& relativePos = std::get<2>(c);
-            const glm::vec3& relativeRotAxis = std::get<3>(c);
-            float relativeRotAngle = std::get<4>(c);
+            const glm::vec3& eulerAngles = std::get<3>(c);
 
             waterJet->Position = carry->Position + relativePos;
 
-            //TODO: Rotation
-            glm::quat qObject = glm::angleAxis( glm::degrees(carry->RotationAngle),
-                                                glm::normalize(carry->RotationAxis));
-            glm::quat qRelative = glm::angleAxis( glm::degrees(relativeRotAngle),
-                                                  glm::normalize(relativeRotAxis));
 
-            auto rot = qObject * qRelative;
-
-            glm::eulerAngles(rot);
-
-            glm::a
+//            //TODO: Rotation
+//            glm::quat qObject(carry->EulerAngles);
+//            glm::quat qRelative = glm::angleAxis( glm::degrees(relativeRotAngle),
+//                                                  glm::normalize(relativeRotAxis));
+//
+//            auto rot = qObject * qRelative;
+//
+//            glm::eulerAngles(rot);
+//
+//            glm::a
         }
     }
 }

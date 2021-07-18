@@ -17,9 +17,13 @@
 #include <project/Events/ExpireFlameEvent.h>
 #include <project/Events/ExpireWaterJetEvent.h>
 #include <project/Events/ExpireSmokeStreamEvent.h>
+#include <project/Events/ConnectCamToSplineEvent.h>
 #include <project/Events/ConnectObjectRelativeToObjectEvent.h>
+#include <project/Events/ConnectObjectToSplineEvent.h>
+#include <project/Events/ConnectWaterRelativeToObjectEvent.h>
 #include <project/Events/DisconnectObjectFromAllObjectsEvent.h>
 #include <project/Events/SetObjectTransformEvent.h>
+
 
 namespace scene {
     std::vector<std::unique_ptr<scene::Event>> DummyEventsOfAllTypes;

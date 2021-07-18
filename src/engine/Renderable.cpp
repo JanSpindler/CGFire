@@ -4,6 +4,7 @@
 
 #include "engine/render/Renderable.hpp"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 #include <framework/imgui_util.hpp>
 
 namespace en
@@ -43,7 +44,10 @@ namespace en
     void RenderObj::SetMatrices(const GLProgram *program)
     {
 
-        t_ = glm::scale(glm::rotate(glm::translate(glm::mat4(1.f), Position), RotationAngle, RotationAxis), Scaling) ;
+        auto trans = glm::translate(glm::mat4(1.f), Position);
+        auto rot = glm::eulerAngleYXZ(EulerAngles.y, EulerAngles.x, EulerAngles.z);
+        auto scale = glm::scale(glm::mat4(1.f), Scaling);
+        t_ =  trans * rot * scale;
 
         program->SetUniformMat4("model_mat", false, &t_[0][0]);
         glm::mat3 normalMat = glm::mat3(glm::transpose(glm::inverse(t_)));

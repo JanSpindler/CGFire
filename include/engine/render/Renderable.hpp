@@ -36,8 +36,7 @@ namespace en
     public:
         int ID;
         glm::vec3 Position = glm::vec3(0.f, 0.f, 0.f);
-        float RotationAngle = 0.f;
-        glm::vec3 RotationAxis = glm::vec3(0.f, 1.f, 0.f);
+        glm::vec3 EulerAngles = glm::vec3(0.f, 0.f, 0.f);
         glm::vec3 Scaling = glm::vec3(1.f, 1.f, 1.f);
         glm::mat4 prevM;
         bool blur = false;

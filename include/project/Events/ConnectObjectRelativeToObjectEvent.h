@@ -27,19 +27,17 @@ namespace scene {
             e->m_ObjCarried = m_ObjCarried;
             e->m_ObjCarry = m_ObjCarry;
             e->m_RelativePosition = m_RelativePosition;
-            e->m_RelativeRotationAxis = m_RelativeRotationAxis;
-            e->m_RelativeRotationAngle = m_RelativeRotationAngle;
+            e->m_RelativeEulerAngles = m_RelativeEulerAngles;
 
             return e;
         }
 
         void LoadDataFromStrings(const std::vector<std::string>& data) override{
-            //<specific data>: objCarryName objCarriedName 3fPosition 3fRotationAxis 1fRotationAngle
+            //<specific data>: objCarryName objCarriedName 3fPosition 3fEulerAngles
             std::string objCarryName = data[0];
             std::string objCarriedName = data[1];
             m_RelativePosition = glm::vec3(std::stof(data[2]), std::stof(data[3]),std::stof(data[4]));
-            m_RelativeRotationAxis = glm::vec3(std::stof(data[5]), std::stof(data[6]), std::stof(data[7]));
-            m_RelativeRotationAngle = std::stof(data[8]);
+            m_RelativeEulerAngles = glm::vec3(std::stof(data[5]), std::stof(data[6]), std::stof(data[7]));
 
             m_ObjCarried = m_ObjectManager.GetRenderObj(objCarriedName);
             m_ObjCarry = m_ObjectManager.GetRenderObj(objCarryName);
@@ -51,13 +49,12 @@ namespace scene {
         void SaveSpecificDataToCSV(util::CSVWriter& csv) override{
             csv << m_ObjCarried->GetName() << m_ObjCarry->GetName()
                 << m_RelativePosition.x << m_RelativePosition.y << m_RelativePosition.z
-                << m_RelativeRotationAxis.x << m_RelativeRotationAxis.y << m_RelativeRotationAxis.z
-                << m_RelativeRotationAngle;
+                << m_RelativeEulerAngles.x << m_RelativeEulerAngles.y << m_RelativeEulerAngles.z;
         }
 
         void OnAction() override {
             m_ObjectManager.ConnectObjectRelativeToObject(m_ObjCarried, m_ObjCarry, m_RelativePosition,
-                                                          m_RelativeRotationAxis, m_RelativeRotationAngle);
+                                                          m_RelativeEulerAngles);
         }
 
 
@@ -125,8 +122,7 @@ namespace scene {
 
 
             ImGui::DragFloat3("Relative Position", &m_RelativePosition.x, 0.005f);
-            ImGui::DragFloat("Relative Rotation Angle", &m_RelativeRotationAngle, 1., 0.f, 6.28318530718f);
-            ImGui::DragFloat3("Relative Rotation Axis", &m_RelativeRotationAxis.x, 0.005f);
+            ImGui::DragFloat3("Relative Euler Angles", &m_RelativeEulerAngles.x, 0.005f, 0.f, 6.28318530718f);
 
 
             bool optionsOk = m_ObjCarried != nullptr && m_ObjCarry != nullptr;
@@ -153,7 +149,6 @@ namespace scene {
         RenderObj* m_ObjCarry = nullptr;
 
         glm::vec3 m_RelativePosition = glm::vec3(0.f, 0.f, 0.f);
-        glm::vec3 m_RelativeRotationAxis = glm::vec3(0.f, 0.f, 0.f);
-        float m_RelativeRotationAngle = 0.f;
+        glm::vec3 m_RelativeEulerAngles = glm::vec3(0.f, 0.f, 0.f);
     };
 }

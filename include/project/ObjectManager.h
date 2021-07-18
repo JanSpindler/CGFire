@@ -61,7 +61,7 @@ namespace scene {
 
         void ConnectObjectToSpline(en::RenderObj* obj, en::Spline3D* spline);
         void ConnectObjectRelativeToObject(en::RenderObj* carried, en::RenderObj* carry,
-                                           const glm::vec3& pos, const glm::vec3& rotAxis, float rotAngle);
+                                           const glm::vec3& pos, const glm::vec3& eulerAngles);
         void DisconnectObjectFromOthers(en::RenderObj* obj);
 
         void OnResetTime();
@@ -109,7 +109,7 @@ namespace scene {
         std::list<std::pair<en::RenderObj*, en::Spline3D*>> m_ObjectToSplineConnections;
         void UpdateObjectToSplineConnections(float dt);
 
-        typedef std::tuple<en::RenderObj*, en::RenderObj*, glm::vec3, glm::vec3, float> ObjectToObjectConnection_t;
+        typedef std::tuple<en::RenderObj*, en::RenderObj*, glm::vec3, glm::vec3> ObjectToObjectConnection_t;
         std::list<ObjectToObjectConnection_t> m_ObjectToObjectConnections;
         void UpdateObjectToObjectConnections();
 
