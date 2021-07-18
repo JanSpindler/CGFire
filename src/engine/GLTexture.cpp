@@ -121,6 +121,11 @@ namespace en
         glBindTexture(GL_TEXTURE_2D, handle_);
     }
 
+    void GLDepthTex::Unbind() const
+    {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     void GLDepthTex::BindToFramebuffer() const
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, handle_, 0);

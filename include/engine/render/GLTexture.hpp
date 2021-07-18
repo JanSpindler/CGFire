@@ -55,6 +55,7 @@ namespace en
         GLDepthTex(uint32_t width, uint32_t height);
 
         void BindTex() const override;
+        void Unbind() const;
         void BindToFramebuffer() const;
 
     private:

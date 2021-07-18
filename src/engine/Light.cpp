@@ -93,6 +93,7 @@ namespace en
 
     void DirLight::UnbindShadowBuffer() const
     {
+        depthTex_.Unbind();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 

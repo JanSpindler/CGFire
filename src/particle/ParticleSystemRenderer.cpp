@@ -142,7 +142,8 @@ namespace particle {
 
 
         //bind textures
-        for (int i = 0; i < m_CurrentMaxTextureSlotIDPlusOne; i++) {
+        int maxTexSlot = std::min(1, (int32_t)m_CurrentMaxTextureSlotIDPlusOne);
+        for (int i = 0; i < maxTexSlot; i++) {
             glActiveTexture(GL_TEXTURE0 + i);
             m_MapSlotToTexture[i]->BindTex();
         }
@@ -185,7 +186,7 @@ namespace particle {
         glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
         float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
 
-        uint8_t textureSlot = m_MapTextureToSlot[particle.Texture];
+        uint8_t textureSlot = m_MapTextureToSlot[particle.Texture] % 1;
 
 
         //calculate the texture position in the sprite sheet

@@ -42,6 +42,7 @@ namespace en
         float* skyboxViewMatP = &skyboxViewMat[0][0];
         float* projMatP = &projMat[0][0];
 
+        glEnable(GL_DEPTH_TEST);
         RenderDirShadow();
         RenderPointShadows();
         RenderReflectiveMaps();
