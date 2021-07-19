@@ -96,7 +96,7 @@ namespace scene{
 
 
         this->createEvent(MakeSharedEvent(RenderObjCreationEvent,
-                                          (m_SceneRenderer, m_CamSplineRenderable, RenderObjType::Spline)),
+                                          (m_SceneRenderer, m_CamSpline, RenderObjType::Spline)),
                           0.f);
 
 
@@ -118,19 +118,18 @@ namespace scene{
         m_DirLight = std::make_shared<en::DirLight>(glm::vec3(0.743f, -0.287f, -0.605f), glm::vec3(1.f));
         m_SceneRenderer.SetDirLight(m_DirLight.get());
 
-        m_DummyPositionFinder = std::make_shared<en::Model>("cube.obj", true, "Positioning Dummy");
+        m_DummyPositionFinder = std::make_shared<en::Model>("cube.obj", true, true, "Positioning Dummy");
         m_DummyPositionFinder->Position = glm::vec3(0.0f, 0.0f, 0.0f);
         m_DummyPositionFinder->Scaling = glm::vec3(0.4f, 0.4f, 0.4f);
 
-        m_ModelHouse = std::make_shared<en::Model>("scene/house/EdificioJoinedNoTex.obj", false, "House");
+        m_ModelHouse = std::make_shared<en::Model>("scene/house/Edificio.dae", false, true, "House");
         m_ModelHouse->Position = glm::vec3(-10.f, -12.0f, -27.45f);
         m_ModelHouse->Scaling = glm::vec3(3.f, 3.f, 3.f);
         m_ModelHouse->RotationAngle = 4.675f;
 
-        m_ModelFloor = std::make_shared<en::Model>("scene/ground/ground.obj", true, "floor");
+        m_ModelFloor = std::make_shared<en::Model>("scene/ground/ground.obj", true, true, "floor");
         m_ModelFloor->Position = glm::vec3(0.0f, -25.0f, 0.0f);
         m_ModelFloor->Scaling = glm::vec3(1.0f, 1.0f, 1.0f);
-
 
         m_Vampire1 = std::make_shared<en::Sceletal>("vampire/Vampire.dae", "vampire1");
         //m_Vampire1->AddAnimation("vampire/Jumping_Down.dae", "jump_down");
@@ -138,7 +137,7 @@ namespace scene{
         m_Vampire1->Position = glm::vec3(40.0f, -15.f, 25.0f);
         m_Vampire1->Scaling = glm::vec3(1.5f, 1.5f, 1.5f);
 
-        m_ModelCar = std::make_shared<en::Model>("scene/car/truck.obj", true, "Car");
+        m_ModelCar = std::make_shared<en::Model>("scene/car/truck.obj", true, true, "Car");
         m_ModelCar->Position = glm::vec3(20.0f, 0.f, 20.0f);
         m_ModelCar->Scaling = glm::vec3(8.0f, 8.f, 8.0f);
 
@@ -153,7 +152,5 @@ namespace scene{
                 { 5.0f, 0.0f, -5.0f }
         };
         m_CamSpline = std::make_shared<en::Spline3D>(splinePoints, false, 32, en::Spline3D::TYPE_CATMULL_ROM);
-        m_CamSplineRenderable = std::make_shared<en::Spline3DRenderable>(m_CamSpline.get());
-
     }
 }

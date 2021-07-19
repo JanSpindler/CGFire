@@ -50,17 +50,17 @@ int main()
     };
     en::Spline3D spline(splinePoints, false, 32, en::Spline3D::TYPE_NATURAL_CUBIC);
 
-    en::Model floorModel("cube.obj", true, "floor");
+    en::Model floorModel("cube.obj", true, true, "floor");
     floorModel.Position = glm::vec3(0.0f, -5.0f, 0.0f);
     floorModel.Scaling = glm::vec3(50.0f, 1.0f, 50.0f);
 
-    en::Model houseModel("scene/house/Edificio.dae", false, "house");
+    en::Model houseModel("scene/house/Edificio.dae", false, true, "house");
     houseModel.Position =glm::vec3(40.0f, 0.0f, 20.0f);
 
-    en::Model roboModel("vampire/Jumping_Down.dae", false, "rob");
+    en::Model roboModel("vampire/Jumping_Down.dae", false, false, "rob");
     roboModel.Position =glm::vec3(10.0f, 0.0f, 40.0f);
 
-    en::Model reflectModel("hd_sphere.obj", false, "reflect sphere");
+    en::Model reflectModel("hd_sphere.obj", false, true, "reflect sphere");
     reflectModel.Position = glm::vec3(0.0f, 0.0, -8.0f);
 
     en::BackgroundTerrain terrain(100, 20.0f, -4.0f, 1.0f, 128.0f, 0.0f);

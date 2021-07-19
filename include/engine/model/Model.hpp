@@ -25,7 +25,7 @@ namespace en
     class Model : public RenderObj
     {
     public:
-        Model(const std::string& path, bool flipUv, const std::string& name);
+        Model(const std::string& path, bool flipUv, bool subtransform, const std::string& name);
         ~Model();
 
         void Render(const GLProgram* program) override;
@@ -47,8 +47,8 @@ namespace en
         int bonecount = 0;
 
         void LoadMaterials(const aiScene* scene);
-        void ProcessNode(aiNode* node, const aiScene* scene);
-        Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene);
+        void ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentT, bool subtransform);
+        Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 t);
         void BoneweightforVertices(std::vector<Vertex>& vertices, aiMesh* mesh);
     };
 }

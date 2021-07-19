@@ -196,7 +196,6 @@ namespace scene {
 //        std::shared_ptr<en::Model> m_ReflectModel;
 
         std::shared_ptr<en::Spline3D> m_CamSpline;
-        std::shared_ptr<en::Spline3DRenderable> m_CamSplineRenderable;
 
         //This is where all objects are loaded at the start of the program
         void initObjects();
