@@ -62,8 +62,9 @@ namespace particle {
         GLuint m_QuadIndexCount; // Current Quad index
         Vertex* m_QuadDataPtr; // Pointer to current quad
 
-        std::unordered_map<en::GLPictureTex*, uint8_t> m_MapTextureToSlot;
-        std::unordered_map<uint8_t, en::GLPictureTex*> m_MapSlotToTexture;
+        typedef unsigned int textureHandle_t;
+        std::unordered_map<textureHandle_t, uint8_t> m_MapTextureToSlot;
+        std::unordered_map<uint8_t, textureHandle_t> m_MapSlotToTexture;
         uint8_t m_CurrentMaxTextureSlotIDPlusOne = 0;
 
         /***The Quad, rotated to fit the current camera setup.

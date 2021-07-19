@@ -6,6 +6,54 @@
 
 
 namespace particle{
+        SmokeStream::SmokeStream(
+                const char name[32],
+                std::shared_ptr<en::Spline3D> spline,
+                const glm::vec3& positionVariation,
+                int particlesPerSecond,
+                float speed,
+                float speedVariation,
+                float sizeBegin,
+                float sizeEnd,
+                float sizeVariationFactor,
+                float buildUpTime,
+                float expiringTime)
+                : Spline(std::move(spline)),
+                  PositionVariation(positionVariation),
+                  Speed(speed),
+                  SpeedVariation(speedVariation),
+                  SizeBegin(sizeBegin),
+                  SizeEnd(sizeEnd),
+                  SizeVariationFactor(sizeVariationFactor),
+                  ParticlesPerSecond(particlesPerSecond),
+                  BuildUpTime(buildUpTime),
+                  ExpiringTime(expiringTime)
+        {
+            strcpy_s(Name, name);
+        }
+
+        void SmokeStream::startExpiring(){
+            if (Timer < BuildUpTime)
+                Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
+            else
+                Timer = 0.f;
+            BuildingUp = false; Expiring = true;
+        }
+
+
+        void SmokeStream::OnImGuiRender(){
+            ImGui::InputText("SmokeStream Name", Name, IM_ARRAYSIZE(Name));
+            ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.005f);
+            ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
+            ImGui::DragFloat("Speed", &Speed, 0.005f, 0.f, 999.f);
+            ImGui::DragFloat("SpeedVariation", &SpeedVariation, 0.005f, 0.f, 999.f);
+            ImGui::DragFloat("SizeBegin", &SizeBegin, 0.005f);
+            ImGui::DragFloat("SizeEnd", &SizeEnd, 0.005f);
+            ImGui::DragFloat("SizeVariationFactor", &SizeVariationFactor, 0.005f, 0.f, 1.f);
+            ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 10.f);
+            ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 10.f);
+        }
+
 
     SmokeCreator::SmokeCreator(ParticleSystem& particleSystem)
             : m_ParticleSystem(particleSystem)
@@ -21,9 +69,6 @@ namespace particle{
 
         m_BaseSmokeProps.ColorBegin = { 0.33, 0.33f, 0.33f, 0.5f };
         m_BaseSmokeProps.ColorEnd = { 1.f, 1.f, 1.f, 0.f };
-        m_BaseSmokeProps.SizeBegin = 2.5f;
-        m_BaseSmokeProps.SizeVariation = 1.5f;
-        m_BaseSmokeProps.SizeEnd = 7.0f;
         m_BaseSmokeProps.TexCoordAnimFrames = {4, 4};
         m_BaseSmokeProps.TexLooped = true;
 
@@ -61,10 +106,6 @@ namespace particle{
                         ParticleProps props = m_BaseSmokeProps;
 
                         for (size_t i = 0; i < numParticlesToEmit; ++i) {
-                            //Calculate ahead the position and velocity of the particles
-                            // that should have been created in between the update calls
-                            float dTime = i * FREQUENCY;
-
                             props.Spline = smoke->Spline.get();
                             props.PositionVariation = smoke->PositionVariation;
 
@@ -72,6 +113,10 @@ namespace particle{
                             // so the particle system will read it in the case that the spline is not nullptr
                             props.Velocity.x = smoke->Speed;
                             props.Velocity.y = smoke->SpeedVariation;
+
+                            props.SizeBegin = smoke->SizeBegin;
+                            props.SizeEnd = smoke->SizeEnd;
+                            props.SizeVariationFactor = smoke->SizeVariationFactor;
 
                             //use random texture
                             uint32_t randTextureID = util::Random::Uint32(0,
@@ -102,13 +147,14 @@ namespace particle{
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
         ImGui::ColorEdit4("ColorBegin", &m_BaseSmokeProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseSmokeProps.ColorEnd.x);
-        ImGui::DragFloat("SizeBegin", &m_BaseSmokeProps.SizeBegin, 0.1f, 0.f, 999.f);
-        ImGui::DragFloat("SizeVariation", &m_BaseSmokeProps.SizeVariation, 0.1f, 0.f, 999.f);
-        ImGui::DragFloat("SizeEnd", &m_BaseSmokeProps.SizeEnd, 0.1f, 0.f, 999.f);
 
-
-        for (auto& smoke : m_SmokeStreams) {
-            smoke->OnImGuiRender();
+        for (int i = 0; i < m_SmokeStreams.size(); ++i){
+            ImGui::PushID(i);
+            if (ImGui::TreeNode((std::string("SmokeStream ") + std::to_string(i)).c_str())) {
+                m_SmokeStreams[i]->OnImGuiRender();
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
         }
         ImGui::End();
     }
@@ -120,5 +166,13 @@ namespace particle{
         smoke->Expired = false;
         smoke->BuildingUp = true;
         m_SmokeStreams.emplace_back(smoke);
+    }
+
+    void SmokeCreator::startExpiringSmokeStreamOfName(const std::string& name){
+        for (auto& s : m_SmokeStreams){
+            if (std::string(s->Name) == name){
+                s->startExpiring();
+            }
+        }
     }
 }

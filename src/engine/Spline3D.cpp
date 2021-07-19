@@ -11,7 +11,9 @@ namespace en
 {
     Spline3DIterator::Spline3DIterator(uint32_t lP, float lI) :
         lastPoint(lP),
-        lastInterp(lI)
+        lastInterp(lI),
+        resolution_(resolution),
+        type_(type)
     {
     }
 
@@ -170,6 +172,13 @@ namespace en
     float Spline3D::GetTotalLength() const
     {
         return totalLength_;
+    }
+
+    uint32_t Spline3D::GetResolution() const{
+        return resolution_;
+    }
+    uint8_t Spline3D::GetType() const{
+        return type_;
     }
 
 
@@ -436,5 +445,47 @@ namespace en
         glBindVertexArray(pointVao_);
         glDrawArrays(GL_POINTS, 0, controlPoints_.size());
         glBindVertexArray(0);
+    }
+
+
+    bool Spline3D::IsRenderObjTypePossible(en::RenderObjType type) const{
+        switch(type){
+            case RenderObjType::Spline:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    void Spline3D::OnImGuiRender(){
+        ImGui::Checkbox("loop", &loop_);
+
+        ImGui::DragInt("Resolution", &resolution_, 1, 1, 150);
+
+        ImGui::Combo("Type ", &type_, "CATMULL_ROM\0NATURAL_CUBIC\0");
+
+        int i = 0;
+        for (auto it = controlPoints_.begin(); it != controlPoints_.end(); ++it){
+            ImGui::PushID(i);
+            ImGui::DragFloat3("", &(*it).x);
+            ImGui::SameLine();
+            if(ImGui::Button("Clone")){
+                controlPoints_.insert(it, (*it));
+                ImGui::PopID();
+                break;
+
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Delete")){
+                if (controlPoints_.size() > 4) {
+                    controlPoints_.erase(it);
+                    ImGui::PopID();
+                    break;
+                }
+            }
+
+            ImGui::PopID();
+            i++;
+        }
     }
 }

@@ -17,6 +17,7 @@
 #include "util/UserCamMovement.h"
 
 
+
 int main(int, char* argv[]) {
     en::Window window(1200, 800, "CGFire");
     init_imgui(window.GetHandle());
@@ -30,16 +31,18 @@ int main(int, char* argv[]) {
             0.01f,
             1000.0f);
 
+    sound::SoundManager soundManager(cam);
 
     // Particles
     using namespace particle;
 
     //Fire
-    ParticleSystem particleSystemFire(3000, cam, true);
-    FireCreator fireCreator(particleSystemFire);
+    ParticleSystem particleSystemAdditive(3000, cam, true);
+    FireCreator fireCreator(particleSystemAdditive, soundManager);
 
     fireCreator.startFlame(std::make_shared<Flame>
-            (glm::vec3(0.f, 0.f, 0.f),
+            ("Fire Uno",
+                    glm::vec3(0.f, 0.f, 0.f),
              glm::vec3(1.f, 0.f, 1.f),
              30,
              5.f,
@@ -47,8 +50,8 @@ int main(int, char* argv[]) {
              1.f,
              0.2f));
 
-    ParticleSystem particleSystemSmoke(4000, cam, false);
-    SmokeCreator smokeCreator(particleSystemSmoke);
+    ParticleSystem particleSystemNoAdditive(7000, cam, false);
+    SmokeCreator smokeCreator(particleSystemNoAdditive);
 
     const en::GLShader* fixedColorVert = en::GLShader::Load("CGFire/fixed_color.vert");
     const en::GLShader* fixedColorFrag = en::GLShader::Load("CGFire/fixed_color.frag");
@@ -59,18 +62,19 @@ int main(int, char* argv[]) {
             { 10.0f, 10.0f, -5.0f },
             { 35.0f, 30.0f, -15.0f }
     };
-    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_NATURAL_CUBIC);
+    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_CATMULL_ROM);
     en::Spline3DRenderable splineRenderable(spline.get());
 
     smokeCreator.startSmokeStream(std::make_shared<SmokeStream>
-                                   (spline,
+                                   ("Rauch Uno",
+                                    spline,
                                     glm::vec3(1.f, 0.f, 1.f)));
 
     //Water
-    ParticleSystem particleSystemWater(3000, cam, false);
-    WaterCreator waterCreator(particleSystemWater);
+    WaterCreator waterCreator(particleSystemNoAdditive, soundManager);
 
     waterCreator.startWaterJet(std::make_shared<WaterJet>(
+            "Water Uno",
             glm::vec3(2.f, 0.f, 1.f),
             glm::vec3(0.5f, 0.5f, 0.5f),
             glm::vec3(1.f, 0.5f, 0.f),
@@ -90,14 +94,15 @@ int main(int, char* argv[]) {
         float deltaTime = (float)en::Time::GetDeltaTime();
         util::HandleUserCamMovement(window, cam, deltaTime);
 
+        sf::Listener::setPosition(cam.GetPos().x, cam.GetPos().y, cam.GetPos().z);
+        sf::Listener::setDirection(cam.GetViewDir().x, cam.GetViewDir().y, cam.GetViewDir().z);
 
         //Updates
         fireCreator.onUpdate(deltaTime);
-        particleSystemFire.OnUpdate(deltaTime);
+        particleSystemAdditive.OnUpdate(deltaTime);
         waterCreator.onUpdate(deltaTime);
-        particleSystemWater.OnUpdate(deltaTime);
         smokeCreator.onUpdate(deltaTime);
-        particleSystemSmoke.OnUpdate(deltaTime);
+        particleSystemNoAdditive.OnUpdate(deltaTime);
 
 
         //UI
@@ -114,9 +119,9 @@ int main(int, char* argv[]) {
 
         window.UseViewport();
 
-        particleSystemWater.OnRender();
-        particleSystemSmoke.OnRender();
-        particleSystemFire.OnRender();
+        particleSystemAdditive.OnRender();
+        particleSystemNoAdditive.OnRender();
+
 
         if (renderImGui)
             imgui_render();

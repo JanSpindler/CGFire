@@ -8,6 +8,7 @@
 #include <vector>
 #include "render/Renderable.hpp"
 #include <glm/glm.hpp>
+#include "framework/imgui_util.hpp"
 
 namespace en
 {
@@ -47,6 +48,11 @@ namespace en
         bool IsLooped() const;
         float GetTotalLength() const;
 
+        uint32_t GetResolution() const;
+        uint8_t GetType() const;
+
+        void OnImGuiRender();
+
     private:
         uint32_t pointVao_;
         uint32_t lineVao_;
@@ -54,8 +60,8 @@ namespace en
         std::vector<glm::vec3> controlPoints_;
         std::vector<glm::vec3> points_;
         bool loop_;
-        uint32_t resolution_;
-        uint8_t type_;
+        int resolution_;
+        int type_;
         float totalLength_;
         std::vector<float> segmentLengths_;
 

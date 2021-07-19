@@ -38,6 +38,7 @@ namespace particle {
         void clear(){
             for (auto& p : m_ParticlePool)
                 p.Active = false;
+            m_ActiveParticleCount = 0;
         }
 
         uint32_t getActiveParticleCount() const { return m_ActiveParticleCount; }
@@ -53,8 +54,5 @@ namespace particle {
 
         //Renderer
         ParticleSystemRenderer m_BatchRenderer;
-
-
-
     };
 }

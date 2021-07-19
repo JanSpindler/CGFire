@@ -7,90 +7,64 @@
 #include "particle/ParticleSystem.h"
 #include <framework/imgui_util.hpp>
 
+#include <sound/SoundManager.h>
+
+namespace en{
+    class RenderObj;
+}
 namespace particle{
 
-    static int NumWaterJets = 0;
     class WaterJet{
         friend class WaterCreator;
     public:
 
-        explicit WaterJet(const glm::vec3& position,
-                          const glm::vec3& positionVariation,
-                          const glm::vec3& waterDirection,
-                          float speed,
-                          float speedVariationFactor,
-                       int particlesPerSecond = 50,
+        explicit WaterJet(
+                        const char name[32] = "WaterNoName",
+                        const glm::vec3& position = glm::vec3(2.f, 0.f, 1.f),
+                        const glm::vec3& positionVariation = glm::vec3(0.5f, 0.5f, 0.5f),
+                        const glm::vec3& waterDirection = glm::vec3(1.f, 0.5f, 0.f),
+                        float speed = 100.f,
+                        float speedVariationFactor = 0.1f,
+                       int particlesPerSecond = 200,
                        float buildUpTime = 3.f,
                        float expiringTime = 1.f,
                        float particleLifeTime = 5.f,
-                       float particleLifeTimeVariation = 0.2f)
-                : Position(position),
-                  PositionVariation(positionVariation),
-                  WaterDirection(waterDirection),
-                  Speed(speed),
-                  SpeedVariationFactor(speedVariationFactor),
-                  ParticlesPerSecond(particlesPerSecond),
-                  BuildUpTime(buildUpTime),
-                  ExpiringTime(expiringTime),
-                  ParticleLifeTime(particleLifeTime),
-                  ParticleLifeTimeVariation(particleLifeTimeVariation)
-        {
-            ID = NumWaterJets++;
+                       float particleLifeTimeVariation = 0.2f);
+
+
+        ~WaterJet(){
+            Sound.stop();
         }
 
-
-        void startExpiring(){
-            if (Timer < BuildUpTime)
-                Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
-            else
-                Timer = 0.f;
-            BuildingUp = false; Expiring = true; }
-
-        uint32_t ID;
+        //Relevant Data
+        char Name[32];
         glm::vec3 Position;
         glm::vec3 PositionVariation;
         glm::vec3 WaterDirection; // the direction of the water coming out of the source
         float Speed;
         float SpeedVariationFactor; //percentage-range of varying speed
-
         int ParticlesPerSecond;
+        float BuildUpTime; //the amount of time the fire takes to come to its peak
+        float ExpiringTime; //the amount of time the fire takes to expire
         float ParticleLifeTime;
         float ParticleLifeTimeVariation;
 
-        void OnImGuiRender(){
-            std::string strID = "WaterJet" + std::to_string(ID);
-            ImGui::PushID(strID.c_str());
-            if (ImGui::TreeNode(strID.c_str())) {
-                ImGui::DragFloat3("Position", &Position.x, 0.5f);
-                ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
-                ImGui::DragFloat3("WaterDirection", &WaterDirection.x, 0.1f);
-                ImGui::DragFloat("Speed", &Speed, 0.1f, 0.f, 999.f);
-                ImGui::DragFloat("SpeedVariation", &SpeedVariationFactor, 0.1f, 0.f, 999.f);
-                ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999.f);
-                ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.1f, 0.f, 999.f);
-                ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
-                ImGui::TreePop();
-            }
-            ImGui::PopID();
-        }
+        void startExpiring();
+        void OnImGuiRender();
 
     private:
-        const float BuildUpTime; //the amount of time the fire takes to come to its peak
-        const float ExpiringTime; //the amount of time the fire takes to expire
-
         bool BuildingUp = true;
         bool Expiring = false; //if set true, the fire will start to expire
         bool Expired = false; //if set true, it is done completely
-
         float SecondsSinceEmit = 0.f; //internal emit timer
-
         float Timer = 0.f;
 
+        sf::Sound Sound;
     };
 
     class WaterCreator{
     public:
-        WaterCreator(ParticleSystem& particleSystem);
+        WaterCreator(ParticleSystem& particleSystem, sound::SoundManager& soundManager);
 
         void onUpdate(float ts);
         void onImGuiRender();
@@ -98,15 +72,38 @@ namespace particle{
         /** Adds a water jet to the list. Don't destroy WaterJets while WaterCreator is alive!*/
         void startWaterJet(std::shared_ptr<WaterJet> waterJet);
 
+        void startExpiringWaterJetOfName(const std::string& name);
+
         void clear(){
             m_WaterJets.clear();
             m_ParticleSystem.clear();
+            m_WaterJetToObjectConnections.clear();
         }
+
+
+
+        void ConnectWaterJetRelativeToObject(const std::string& waterJetName, en::RenderObj* obj,
+                                             const glm::vec3& relativePos, const glm::quat& quaternion);
+
     private:
         ParticleSystem& m_ParticleSystem;
         std::vector<std::shared_ptr<en::GLPictureTex>> m_Textures; //the variety of textures we use for water
         ParticleProps m_BaseWaterJetProps;
         std::vector<std::shared_ptr<WaterJet>> m_WaterJets; //references to the water jets
 
+        WaterJet* GetWaterJetByName(const std::string& name);
+
+
+        typedef std::tuple<WaterJet*, en::RenderObj*, glm::vec3, glm::quat> WaterJetToObjectConnection_t;
+        std::list<WaterJetToObjectConnection_t> m_WaterJetToObjectConnections;
+        void UpdateWaterJetToObjectConnections();
+
+
+        sound::SoundManager& m_SoundManager;
+        std::vector<std::shared_ptr<sf::SoundBuffer>> m_SoundBuffers;
+
+        float m_SndVolume = 50.f;
+        float m_SndAttenuation = 0.5f;
+        float m_SndMinDistance = 5.f;
     };
 }

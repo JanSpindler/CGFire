@@ -98,8 +98,8 @@ namespace particle {
     void ParticleSystemRenderer::InitializeTextures(std::vector<std::shared_ptr<en::GLPictureTex>>& textures){
         //Create the bidirectional mapping from textures to their IDs in the shader
         for (auto& tex : textures){
-            m_MapSlotToTexture[m_CurrentMaxTextureSlotIDPlusOne] = tex.get();
-            m_MapTextureToSlot[tex.get()] = m_CurrentMaxTextureSlotIDPlusOne;
+            m_MapSlotToTexture[m_CurrentMaxTextureSlotIDPlusOne] = tex->getHandle();
+            m_MapTextureToSlot[tex->getHandle()] = m_CurrentMaxTextureSlotIDPlusOne;
             m_CurrentMaxTextureSlotIDPlusOne++;
             assert(m_CurrentMaxTextureSlotIDPlusOne <= m_MaxTexturesSlots);
 
@@ -145,7 +145,9 @@ namespace particle {
         int maxTexSlot = 1;//m_CurrentMaxTextureSlotIDPlusOne;
         for (int i = 0; i < maxTexSlot; i++) {
             glActiveTexture(GL_TEXTURE0 + i);
-            m_MapSlotToTexture[i]->BindTex();
+
+            glBindTexture(GL_TEXTURE_2D, m_MapSlotToTexture[i]);
+            //m_MapSlotToTexture[i]->BindTex();
         }
 
         glUseProgram(m_Shader);
@@ -182,11 +184,11 @@ namespace particle {
         else //Smoke
             life = 1.f - particle.LifeTime; // in ParticleSystem we saved the parameter t of the spline in LifeTime
 
-
         glm::vec4 color = glm::lerp(particle.ColorEnd, particle.ColorBegin, life);
         float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
 
         uint8_t textureSlot = 0;//m_MapTextureToSlot[particle.Texture];
+        //uint8_t textureSlot = m_MapTextureToSlot[particle.Texture->getHandle()];
 
 
         //calculate the texture position in the sprite sheet

@@ -1,0 +1,1 @@
+Um 3d Sounds verwenden zu können, müssen es .wav dateien mit MONO Spur sein (NICHT Stereo). z.B. Audacity kann Stereo in Mono umwandeln

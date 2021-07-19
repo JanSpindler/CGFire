@@ -108,8 +108,8 @@ namespace particle {
         p.LifeTime = pProps.LifeTime + (util::Random::Float() - 0.5f) * pProps.LifeTimeVariation;
         p.LifeRemaining = p.LifeTime;
 
-        p.SizeBegin = pProps.SizeBegin + (util::Random::Float() - 0.5f) * pProps.SizeVariation;
-        p.SizeEnd = pProps.SizeEnd;
+        p.SizeBegin = (1.f + ((util::Random::Float() - 0.5f) * pProps.SizeVariationFactor)) * pProps.SizeBegin;
+        p.SizeEnd = (1.f + ((util::Random::Float() - 0.5f) * pProps.SizeVariationFactor)) * pProps.SizeEnd;
 
         p.Texture = pProps.Texture;
         p.TexCoord = pProps.TexCoord;

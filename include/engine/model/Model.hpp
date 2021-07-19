@@ -41,8 +41,13 @@ namespace en
         int getbonecount() const;
         const std::vector<Mesh*>& GetMeshes() const;
 
+
+        const std::string& GetPathName() const;
+        bool IsRenderObjTypePossible(RenderObjType type) const override;
+
     private:
         std::vector<Mesh*> meshes_;
+        std::string pathName_;
         std::string directory_;
         std::unordered_map<const aiMaterial*, Material*> materials_;
         std::unordered_map<std::string, GLPictureTex*> textures_;

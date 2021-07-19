@@ -19,8 +19,8 @@ namespace en{
         addbones(scene->mAnimations[0], *model);
 }
     void Animation::addbones(aiAnimation *anim, Model &model) {
-        auto modelbonemap = model.getbonemap();
-        for (int i = 0; i<anim->mNumChannels;i++){
+        auto& modelbonemap = model.getbonemap();
+        for (size_t i = 0; i<anim->mNumChannels;i++){
             aiNodeAnim* channel = anim->mChannels[i];
             //add code for bones missing from bonemap if necessary
             assert(modelbonemap.find(channel->mNodeName.C_Str())!= modelbonemap.end());
@@ -32,18 +32,15 @@ namespace en{
     std::map<std::string, boneinfo>& Animation::getbonemap() {
         return bonemap;
     }
-
     float Animation::gettickspersec() const {
         return tickspersec;
     }
     float Animation::getduration() const {
         return Duration;
     }
-
     aiNodeStructure& Animation::getrootnode() {
         return rootnode;
     }
-
     void Animation::buildhierarchy(aiNodeStructure &dest, aiNode *source) {
         dest.name = source->mName.C_Str();
         dest.transformation = util::AssimptoGLM4x4(source->mTransformation);
@@ -54,11 +51,11 @@ namespace en{
             dest.children.push_back(newnode);
         }
     }
-    Bone* Animation::findbone(const std::string& name) {
-        for (auto it = std::begin(bones); it != std::end(bones); it++){
-            Bone bone = (*it);
+    Bone* Animation::findbone(const std::string &name) {
+        for (auto it = bones.begin(); it != bones.end(); ++it){
+            Bone& bone = (*it);
             if (bone.getbonename()==name){
-                return &(*it);
+                return &bone;
             }
         }
         return nullptr;

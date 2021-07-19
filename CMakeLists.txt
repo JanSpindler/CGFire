@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+
+
 include_directories(include/)
 
 
@@ -51,13 +53,26 @@ include_directories(vendor/imgui/)
 include_directories(vendor/stb/)
 
 
+#Sound library "AudioFile" - header only and .wav, .aiff only
+include_directories(vendor/AudioFile)
+
+
+#SFML for sound
+set(SFML_BUILD_AUDIO TRUE)
+set(SFML_BUILD_GRAPHICS FALSE)
+set(SFML_BUILD_WINDOW FALSE)
+set(SFML_BUILD_NETWORK FALSE)
+add_subdirectory(vendor/SFML)
+include_directories(vendor/SFML/include)
+
 #in dieser Variable befinden sich alle zu linkenden Vendor Bibliotheken
 set(VENDOR_LIBRARIES
         assimp
         gladLibrary
         glfw
         ${GLFW_LIBRARIES}
-        imGUILibrary)
+        imGUILibrary
+        sfml-audio)
 
 
 
@@ -76,7 +91,8 @@ file(GLOB_RECURSE engineSOURCES
         src/util/*.cpp
         src/RiggingAndBlending/*.cpp
         src/MotionBlur/*.cpp
-        src/ssao/*.cpp)
+        src/ssao/*.cpp
+        src/sound/*.cpp)
 add_library(engineLibrary STATIC ${engineSOURCES})
 target_link_libraries(engineLibrary frameworkLibrary)
 

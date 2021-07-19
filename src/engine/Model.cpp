@@ -12,7 +12,8 @@
 namespace en
 {
     Model::Model(const std::string& path, bool flipUv, bool subtransform, const std::string& name)
-    : RenderObj(name)
+    : RenderObj(name),
+      pathName_(path)
     {
         flipUv_ = flipUv;
 
@@ -24,7 +25,7 @@ namespace en
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
             Log::Error(std::string("Assimp Error - ") + importer.GetErrorString(), true);
 
-        directory_ = realPath.substr(0, realPath.find_last_of('/'));
+        directory_ = realPath.substr(0, std::max(realPath.find_last_of('/'), realPath.find_last_of('\\')));
 
         Log::Info("model has " + std::to_string(scene->mNumMeshes) + " meshes");
         LoadMaterials(scene);
@@ -93,6 +94,21 @@ namespace en
     const std::vector<Mesh*>& Model::GetMeshes() const
     {
         return meshes_;
+    }
+
+    const std::string& Model::GetPathName() const{
+        return pathName_;
+    }
+
+    bool Model::IsRenderObjTypePossible(en::RenderObjType type) const{
+        switch(type){
+            case RenderObjType::Standard:
+            case RenderObjType::FixedColor:
+            case RenderObjType::Reflective:
+                return true;
+            default:
+                return false;
+        }
     }
 
     void Model::LoadMaterials(const aiScene *scene)
@@ -232,7 +248,7 @@ namespace en
             ProcessNode(node->mChildren[i], scene, totalT, subtransform);
     }
 
-std::map<std::string, boneinfo> Model::getbonemap() {
+    std::map<std::string, boneinfo>& Model::getbonemap() {
         return bonemap;
     }
     int Model::getbonecount() const { return bonecount;}
@@ -313,7 +329,7 @@ std::map<std::string, boneinfo> Model::getbonemap() {
 
         for (unsigned int i = 0; i < mesh->mNumFaces; i++)
         {
-            aiFace face = mesh->mFaces[i];
+            aiFace& face = mesh->mFaces[i];
             for (unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);
         }
