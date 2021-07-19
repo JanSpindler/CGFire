@@ -11,13 +11,32 @@
 
 namespace en
 {
-    class Spline3D
+    struct Spline3DIterator
+    {
+        uint32_t lastPoint;
+        float lastInterp;
+
+        Spline3DIterator(uint32_t lP, float lI);
+    };
+
+    class Spline3D : public RenderObj
     {
     public:
         static const uint8_t TYPE_CATMULL_ROM = 0;
         static const uint8_t TYPE_NATURAL_CUBIC = 1;
 
         Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type);
+        void Recreate(const std::vector<glm::vec3>& controlPoints);
+
+        void Render(const GLProgram* program); // Deprecated
+        void RenderPosOnly(const GLProgram* program);
+        void RenderDiffuse(const GLProgram* program);
+        void RenderAll(const GLProgram* program);
+        void OnImGuiRender();
+
+        glm::vec3 IterateRelative(Spline3DIterator* iterator, float t) const;
+        glm::vec3 IterateAbsolute(float t) const;
+        glm::vec3 GetSegmentDir(uint32_t segmentIndex) const;
 
         unsigned int GetControlPointCount() const;
         const std::vector<glm::vec3>& GetControlPoints() const;
@@ -29,9 +48,14 @@ namespace en
         float GetTotalLength() const;
 
     private:
+        uint32_t pointVao_;
+        uint32_t lineVao_;
+
         std::vector<glm::vec3> controlPoints_;
         std::vector<glm::vec3> points_;
         bool loop_;
+        uint32_t resolution_;
+        uint8_t type_;
         float totalLength_;
         std::vector<float> segmentLengths_;
 
@@ -45,26 +69,10 @@ namespace en
                 const std::vector<float>& y,
                 const std::vector<float>& m);
         static float NaturalCubic(glm::vec4 coef, float x);
-    };
 
-    class Spline3DRenderable : public RenderObj
-    {
-    public:
-        Spline3DRenderable(const Spline3D* spline);
-
-        void Render(const GLProgram* program); // Deprecated
-        void RenderPosOnly(const GLProgram* program);
-        void RenderDiffuse(const GLProgram* program);
-        void RenderAll(const GLProgram* program);
-
-        void OnImGuiRender();
-    private:
-        const Spline3D* spline_;
-        unsigned int lineVao_;
-        unsigned int pointVao_;
-
-        void RenderLines() const;
+        void GenVao();
         void RenderPoints() const;
+        void RenderLines() const;
     };
 }
 

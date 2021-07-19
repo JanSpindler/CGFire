@@ -5,10 +5,21 @@
 #include "engine/gr_include.hpp"
 #include "engine/Spline3D.hpp"
 #include "engine/Util.hpp"
+#include <glm/gtx/compatibility.hpp>
 
 namespace en
 {
-    Spline3D::Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type)
+    Spline3DIterator::Spline3DIterator(uint32_t lP, float lI) :
+        lastPoint(lP),
+        lastInterp(lI)
+    {
+    }
+
+    Spline3D::Spline3D(const std::vector<glm::vec3>& controlPoints, bool loop, uint32_t resolution, uint8_t type) :
+        controlPoints_(controlPoints),
+        loop_(loop),
+        resolution_(resolution),
+        type_(type)
     {
         controlPoints_ = controlPoints;
         loop_ = loop;
@@ -22,6 +33,113 @@ namespace en
                 ConstructNaturalCubic(resolution);
                 break;
         }
+
+        GenVao();
+    }
+
+    void Spline3D::Recreate(const std::vector<glm::vec3>& controlPoints)
+    {
+        glDeleteVertexArrays(1, &lineVao_);
+        glDeleteVertexArrays(1, &pointVao_);
+        controlPoints_ = controlPoints;
+
+        switch (type_)
+        {
+            case TYPE_CATMULL_ROM:
+                ConstructCatmullRom(resolution_);
+                break;
+            case TYPE_NATURAL_CUBIC:
+                ConstructNaturalCubic(resolution_);
+                break;
+        }
+
+        GenVao();
+    }
+
+    void Spline3D::Render(const GLProgram *program) // Deprecated
+    {
+        // TODO:
+    }
+
+    void Spline3D::RenderPosOnly(const GLProgram *program)
+    {
+        RenderObj::RenderPosOnly(program);
+        // This call is used for shadow mapping
+        // Point shadow mapping used Triangled in the Geometry Shader
+        // Therefore method must not draw any non Triangle primitives
+    }
+
+    void Spline3D::RenderDiffuse(const GLProgram *program)
+    {
+        RenderObj::RenderDiffuse(program);
+        program->SetUniformVec4f("diffuse_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        RenderLines();
+        program->SetUniformVec4f("diffuse_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        RenderPoints();
+    }
+
+    void Spline3D::RenderAll(const GLProgram *program)
+    {
+        RenderObj::RenderAll(program);
+        RenderDiffuse(program);
+    }
+
+    void Spline3D::OnImGuiRender()
+    {
+        //RenderObj::OnImGuiRender();
+
+        //TODO Spline verstellbar machen mittels slider + update button
+    }
+
+    glm::vec3 Spline3D::IterateRelative(Spline3DIterator* iterator, float t) const
+    {
+        if (t == 0.0f)
+            Log::Error("t must be greater than 0.0 to iterate Spline", true);
+        if (t < 0.0f)
+            Log::Error("Spline3D iteration does not support negative t", true);
+        if (iterator->lastPoint < 0 || iterator->lastPoint >= points_.size())
+            Log::Error("i->lastPoint exceeded bounds", true);
+
+        t += iterator->lastInterp;
+
+        uint32_t i = iterator->lastPoint;
+        while (t > segmentLengths_[i])
+        {
+            t -= segmentLengths_[i];
+            i++;
+            i %= segmentLengths_.size();
+        }
+
+        iterator->lastInterp = t;
+        iterator->lastPoint = i;
+        return glm::lerp(points_[i], points_[i + 1], t / segmentLengths_[i]);
+    }
+
+    glm::vec3 Spline3D::IterateAbsolute(float t) const
+    {
+        if (t < 0.0f)
+            Log::Error("t cannot be negative", true);
+
+        while (t > totalLength_)
+            t -= totalLength_;
+
+        uint32_t i = 0;
+        while (t > segmentLengths_[i])
+        {
+            t -= segmentLengths_[i];
+            i++;
+        }
+        if (i == points_.size() - 1)
+            i = 0;
+
+        t /= segmentLengths_[i];
+        return glm::lerp(points_[i], points_[i + 1], t);
+    }
+
+    glm::vec3 Spline3D::GetSegmentDir(uint32_t segmentIndex) const
+    {
+        segmentIndex %= segmentLengths_.size();
+        return glm::normalize(points_[segmentIndex + 1] - points_[segmentIndex]);
     }
 
     unsigned int Spline3D::GetControlPointCount() const
@@ -275,10 +393,8 @@ namespace en
         return part0 + part1 + part2 + part3;
     }
 
-    Spline3DRenderable::Spline3DRenderable(const Spline3D *spline)
+    void Spline3D::GenVao()
     {
-        spline_ = spline;
-
         // Line
         glGenVertexArrays(1, &lineVao_);
         glBindVertexArray(lineVao_);
@@ -286,7 +402,6 @@ namespace en
         unsigned int vbo;
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        const std::vector<glm::vec3>& points_ = spline_->GetPoints();
         glBufferData(GL_ARRAY_BUFFER, points_.size() * sizeof(glm::vec3), points_.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
@@ -300,8 +415,7 @@ namespace en
 
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        const std::vector<glm::vec3>& controlPoints = spline_->GetControlPoints();
-        glBufferData(GL_ARRAY_BUFFER, controlPoints.size() * sizeof(glm::vec3), controlPoints.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, controlPoints_.size() * sizeof(glm::vec3), controlPoints_.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
@@ -309,52 +423,18 @@ namespace en
         glBindVertexArray(0);
     }
 
-    void Spline3DRenderable::Render(const GLProgram *program) // Deprecated
-    {
-        // TODO:
-    }
-
-    void Spline3DRenderable::RenderPosOnly(const GLProgram *program)
-    {
-        RenderObj::RenderPosOnly(program);
-        // This call is used for shadow mapping
-        // Point shadow mapping used Triangled in the Geometry Shader
-        // Therefore method must not draw any non Triangle primitives
-    }
-
-    void Spline3DRenderable::RenderDiffuse(const GLProgram *program)
-    {
-        RenderObj::RenderDiffuse(program);
-        program->SetUniformVec4f("diffuse_color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        RenderLines();
-        program->SetUniformVec4f("diffuse_color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        RenderPoints();
-    }
-
-    void Spline3DRenderable::RenderAll(const GLProgram *program)
-    {
-        RenderObj::RenderAll(program);
-        RenderDiffuse(program);
-    }
-
-    void Spline3DRenderable::RenderLines() const
+    void Spline3D::RenderLines() const
     {
         glBindVertexArray(lineVao_);
-        glDrawArrays(GL_LINE_STRIP, 0, spline_->GetPointCount());
+        glDrawArrays(GL_LINE_STRIP, 0, points_.size());
         glBindVertexArray(0);
     }
 
-    void Spline3DRenderable::RenderPoints() const
+    void Spline3D::RenderPoints() const
     {
         glPointSize(8.0f);
         glBindVertexArray(pointVao_);
-        glDrawArrays(GL_POINTS, 0, spline_->GetControlPointCount());
+        glDrawArrays(GL_POINTS, 0, controlPoints_.size());
         glBindVertexArray(0);
-    }
-
-    void Spline3DRenderable::OnImGuiRender(){
-        //RenderObj::OnImGuiRender();
-
-        //TODO Spline verstellbar machen mittels slider + update button
     }
 }
