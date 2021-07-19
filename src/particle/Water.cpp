@@ -56,9 +56,11 @@ namespace particle {
         ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.001f, 0.f, 999.f);
     }
 
-    WaterCreator::WaterCreator(ParticleSystem &particleSystem)
-            : m_ParticleSystem(particleSystem) {
+    WaterCreator::WaterCreator(ParticleSystem &particleSystem, sound::SoundManager& soundManager)
+            : m_ParticleSystem(particleSystem),
+            m_SoundManager(soundManager){
 
+        // TEXTURES
         std::vector<std::string> waterTextures(8);
         for (size_t i = 0; i < 8; i++) {
             waterTextures[i] = DATA_ROOT + "water/watersprite" + std::to_string(i) + ".png";
@@ -73,6 +75,18 @@ namespace particle {
 
 
         m_ParticleSystem.InitializeTextures(m_Textures);
+
+
+        // AUDIO
+        std::vector<std::string> audioFiles(1);
+        for (size_t i = 0; i < 1; i++){
+            audioFiles[i] = "water/waterjet" + std::to_string(i) + ".wav";
+        }
+
+        // get relevant buffers from sound manager
+        for (auto& file : audioFiles){
+            m_SoundBuffers.emplace_back(m_SoundManager.GetSoundBufferFromFile(file));
+        }
 
         m_BaseWaterJetProps.VelocityVariation = {0.f, 0.f, 0.f};
         m_BaseWaterJetProps.GravityFactor = 8.f;
@@ -96,6 +110,7 @@ namespace particle {
                     waterJet->BuildingUp = false;
                     sizeFactor = 1.f;
                 }
+                waterJet->Sound.setVolume(sizeFactor * m_SndVolume);
             } else if (waterJet->Expiring) {
                 waterJet->Timer += ts;
                 sizeFactor = 1.f - (waterJet->Timer / waterJet->ExpiringTime);
@@ -103,6 +118,8 @@ namespace particle {
                     waterJet->Expired = true;
                     sizeFactor = 1.f;
                 }
+
+                waterJet->Sound.setVolume(sizeFactor * m_SndVolume);
             }
 
 
@@ -169,6 +186,23 @@ namespace particle {
         ImGui::DragFloat("SizeVariationFactor", &m_BaseWaterJetProps.SizeVariationFactor, 0.005f, 0.f, 1.f);
         ImGui::DragFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0.005f, 0.f, 999.f);
 
+        if (ImGui::DragFloat("SoundVolume", &m_SndVolume, 1.f, 0.f, 100.f)){
+            for (auto& f : m_WaterJets){
+                f->Sound.setVolume(m_SndVolume);
+            }
+        }
+        if (ImGui::DragFloat("SoundAttenuation", &m_SndAttenuation, 0.1f, 0.f, 30.f)){
+            for (auto& f : m_WaterJets){
+                f->Sound.setAttenuation(m_SndAttenuation);
+            }
+        }
+        if (ImGui::DragFloat("SoundMinDistance", &m_SndMinDistance, 0.1f, 0.f, 99999.f)){
+            for (auto& f : m_WaterJets){
+                f->Sound.setMinDistance(m_SndMinDistance);
+            }
+        }
+
+
         for (int i = 0; i < m_WaterJets.size(); ++i) {
             ImGui::PushID(i);
             if (ImGui::TreeNode((std::string("WaterJet ") + std::to_string(i)).c_str())) {
@@ -186,6 +220,15 @@ namespace particle {
         waterJet->Expired = false;
         waterJet->BuildingUp = true;
         m_WaterJets.emplace_back(waterJet);
+
+        auto& s = waterJet->Sound;
+        s.setBuffer(*m_SoundBuffers[util::Random::Uint32(0, static_cast<uint32_t>(m_SoundBuffers.size())-1)]);
+
+        s.setLoop(true);
+        s.setPosition(waterJet->Position.x, waterJet->Position.y, waterJet->Position.z);
+        s.setAttenuation(m_SndAttenuation);
+        s.setMinDistance(m_SndMinDistance);
+        s.play();
     }
 
     void WaterCreator::startExpiringWaterJetOfName(const std::string &name) {

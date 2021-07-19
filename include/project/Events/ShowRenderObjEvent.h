@@ -22,6 +22,10 @@ namespace scene {
         : m_SceneRenderer(sceneRenderer),
           m_ObjectManager(objectManager){}
 
+          ~ShowRenderObjEvent(){
+
+        }
+
 
           //This constructor is only here for automatic creation of this event when a RenderObj has been created.
           //So, this should only be used by EventManager in OnCreateNewObj()

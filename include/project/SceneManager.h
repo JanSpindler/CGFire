@@ -27,6 +27,7 @@
 #include "ObjToSplineConnector.h"
 #include "ObjectManager.h"
 #include "EventManager.h"
+#include <sound/SoundManager.h>
 
 
 namespace scene {
@@ -50,6 +51,9 @@ namespace scene {
     private:
         en::Camera& m_Cam;
         en::Window& m_Window;
+
+        /*************Sound**/
+        sound::SoundManager m_SoundManager;
 
         /****************Particle Systems*/
         particle::ParticleSystem m_ParticleSystemAdditiveBlendingOff;

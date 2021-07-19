@@ -8,12 +8,13 @@ namespace scene {
               m_Window(window),
               m_ParticleSystemAdditiveBlendingOff(6000, cam, false),
               m_ParticleSystemAdditiveBlendingOn(3000, cam, true),
-              m_WaterCreator(m_ParticleSystemAdditiveBlendingOff),
+              m_SoundManager(m_Cam),
+              m_WaterCreator(m_ParticleSystemAdditiveBlendingOff, m_SoundManager),
               m_SmokeCreator(m_ParticleSystemAdditiveBlendingOff),
-              m_FireCreator(m_ParticleSystemAdditiveBlendingOn),
+              m_FireCreator(m_ParticleSystemAdditiveBlendingOn, m_SoundManager),
               m_SceneRenderer(1000, 800),
               m_ObjectManager(*this, m_EventManager),
-              m_EventManager(m_Cam, *this, m_SceneRenderer, m_ObjectManager, m_FireCreator, m_WaterCreator, m_SmokeCreator)
+              m_EventManager(m_Cam, *this, m_SceneRenderer, m_SoundManager, m_ObjectManager, m_FireCreator, m_WaterCreator, m_SmokeCreator)
     {
         m_AutoSave =  true;
         m_ReloadEventsPeriodically = true;
@@ -66,6 +67,8 @@ namespace scene {
         m_SmokeCreator.onUpdate(dt);
         m_FireCreator.onUpdate(dt);
 
+        m_SoundManager.OnUpdate();
+
         m_ObjectManager.OnUpdate(m_SceneTime);
         m_EventManager.OnUpdate(m_SceneTime);
 
@@ -79,6 +82,7 @@ namespace scene {
     }
 
     void SceneManager::ReloadEvents(){
+        m_SoundManager.OnResetTime();
         m_SceneRenderer.RemoveAllObjects();
         ClearParticles();
 
@@ -189,6 +193,8 @@ namespace scene {
         ImGui::Text("Cam Position: %f/%f/%f\n ViewDirection: %f/%f/%f",
                     m_Cam.GetPos().x,m_Cam.GetPos().y, m_Cam.GetPos().z,
                     m_Cam.GetViewDir().x, m_Cam.GetViewDir().y, m_Cam.GetViewDir().z);
+
+        m_SoundManager.OnImGuiRender();
         ImGui::End();
 
         m_ObjectManager.OnImGuiRender();

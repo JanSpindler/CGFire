@@ -21,6 +21,7 @@ namespace particle {
 namespace scene {
     class SceneManager;
     class ObjectManager;
+    class SoundManager;
     enum class ObjectType;
 
 
@@ -33,6 +34,7 @@ namespace scene {
         explicit EventManager(en::Camera& camera,
                               SceneManager& sceneManager,
                               en::SceneRenderer &sceneRenderer,
+                              sound::SoundManager& soundManager,
                               scene::ObjectManager& objectManager,
                               particle::FireCreator& fireCreator,
                               particle::WaterCreator& waterCreator,

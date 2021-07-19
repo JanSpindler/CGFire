@@ -1,9 +1,6 @@
 ////
 ////Created by vincent on 15.07.2021.
 ////
-////
-////Created by vincent on 08.07.2021.
-////
 //#pragma once
 //#include "project/InitEvents.h"
 //#include "project/SceneEvent.h"

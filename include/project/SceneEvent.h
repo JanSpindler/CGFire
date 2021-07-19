@@ -16,11 +16,13 @@ namespace scene{
     //Abstract base class for events
     class Event{
     public:
+        virtual ~Event() = default;
         virtual EventType GetTypeID() = 0;
 
         //Returns a copy. This is used to create new events from the dummy events
         virtual Event* Clone() = 0;
 
+        virtual void OnResetTime(){ }
         virtual void OnAction() = 0; //the thing that happens
         virtual bool OnImGuiRender() = 0; //used to create a new event. Returns true when the options are good to go
         virtual void LoadDataFromStrings(const std::vector<std::string>& data) = 0;

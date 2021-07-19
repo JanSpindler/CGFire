@@ -17,6 +17,7 @@
 #include "util/UserCamMovement.h"
 
 
+
 int main(int, char* argv[]) {
     en::Window window(1200, 800, "CGFire");
     init_imgui(window.GetHandle());
@@ -30,13 +31,14 @@ int main(int, char* argv[]) {
             0.01f,
             1000.0f);
 
+    sound::SoundManager soundManager(cam);
 
     // Particles
     using namespace particle;
 
     //Fire
     ParticleSystem particleSystemAdditive(3000, cam, true);
-    FireCreator fireCreator(particleSystemAdditive);
+    FireCreator fireCreator(particleSystemAdditive, soundManager);
 
     fireCreator.startFlame(std::make_shared<Flame>
             ("Fire Uno",
@@ -48,7 +50,7 @@ int main(int, char* argv[]) {
              1.f,
              0.2f));
 
-    ParticleSystem particleSystemNoAdditive(4000, cam, false);
+    ParticleSystem particleSystemNoAdditive(7000, cam, false);
     SmokeCreator smokeCreator(particleSystemNoAdditive);
 
     const en::GLShader* fixedColorVert = en::GLShader::Load("CGFire/fixed_color.vert");
@@ -69,7 +71,7 @@ int main(int, char* argv[]) {
                                     glm::vec3(1.f, 0.f, 1.f)));
 
     //Water
-    WaterCreator waterCreator(particleSystemNoAdditive);
+    WaterCreator waterCreator(particleSystemNoAdditive, soundManager);
 
     waterCreator.startWaterJet(std::make_shared<WaterJet>(
             "Water Uno",
@@ -92,6 +94,8 @@ int main(int, char* argv[]) {
         float deltaTime = (float)en::Time::GetDeltaTime();
         util::HandleUserCamMovement(window, cam, deltaTime);
 
+        sf::Listener::setPosition(cam.GetPos().x, cam.GetPos().y, cam.GetPos().z);
+        sf::Listener::setDirection(cam.GetViewDir().x, cam.GetViewDir().y, cam.GetViewDir().z);
 
         //Updates
         fireCreator.onUpdate(deltaTime);

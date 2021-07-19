@@ -7,6 +7,8 @@
 #include "particle/ParticleSystem.h"
 #include <framework/imgui_util.hpp>
 
+#include <sound/SoundManager.h>
+
 namespace en{
     class RenderObj;
 }
@@ -30,6 +32,10 @@ namespace particle{
                        float particleLifeTimeVariation = 0.2f);
 
 
+        ~WaterJet(){
+            Sound.stop();
+        }
+
         //Relevant Data
         char Name[32];
         glm::vec3 Position;
@@ -52,11 +58,13 @@ namespace particle{
         bool Expired = false; //if set true, it is done completely
         float SecondsSinceEmit = 0.f; //internal emit timer
         float Timer = 0.f;
+
+        sf::Sound Sound;
     };
 
     class WaterCreator{
     public:
-        WaterCreator(ParticleSystem& particleSystem);
+        WaterCreator(ParticleSystem& particleSystem, sound::SoundManager& soundManager);
 
         void onUpdate(float ts);
         void onImGuiRender();
@@ -90,5 +98,12 @@ namespace particle{
         std::list<WaterJetToObjectConnection_t> m_WaterJetToObjectConnections;
         void UpdateWaterJetToObjectConnections();
 
+
+        sound::SoundManager& m_SoundManager;
+        std::vector<std::shared_ptr<sf::SoundBuffer>> m_SoundBuffers;
+
+        float m_SndVolume = 50.f;
+        float m_SndAttenuation = 0.5f;
+        float m_SndMinDistance = 5.f;
     };
 }

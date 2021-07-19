@@ -64,9 +64,9 @@ int main()
     houseModel.SetName("house");
     houseModel.Position =glm::vec3(40.0f, 0.0f, 20.0f);
 
-    en::Model roboModel("vampire/Jumping_Down.dae", false);
-    roboModel.SetName("rob");
-    roboModel.Position =glm::vec3(10.0f, 0.0f, 40.0f);
+    en::Model vampModel("vampire/Vampire.dae", false);
+    vampModel.SetName("rob");
+    vampModel.Position =glm::vec3(10.0f, 0.0f, 40.0f);
 
     en::Model reflectModel("hd_sphere.obj", false);
     reflectModel.SetName("reflect sphere");
@@ -95,7 +95,7 @@ int main()
     sceneRenderer.AddStandardRenderObj(&floorModel);
 //    sceneRenderer.AddStandardRenderObj(&dragonModel);
     sceneRenderer.AddStandardRenderObj(&houseModel);
-    sceneRenderer.AddStandardRenderObj(&roboModel);
+    sceneRenderer.AddStandardRenderObj(&vampModel);
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
@@ -121,10 +121,12 @@ int main()
         en::Input::HandleUserCamInput(&window, &cam, deltaTime);
 
         // Physics
-        pointLight.EulerAngles.y += deltaTime * -0.5f;
+        pointLight.Quaternion = glm::rotate(pointLight.Quaternion,
+                            deltaTime * -0.5f, glm::vec3(1.f, 1.f, 0.f));
 //        backpackModel.RotationAngle += deltaTime * 1.0f;
 //        dragonModel.RotationAngle += deltaTime * 0.2f;
-        reflectModel.EulerAngles.z += deltaTime * 0.4f;
+        reflectModel.Quaternion = glm::rotate(reflectModel.Quaternion,
+                                            deltaTime * 0.4f, glm::vec3(0.f, 1.f, 0.f));
 
         //UI
         bool renderImGui = !en::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);

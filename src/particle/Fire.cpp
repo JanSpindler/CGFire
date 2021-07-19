@@ -24,6 +24,7 @@ namespace particle{
               ParticleLifeTimeVariation(particleLifeTimeVariation)
     {
         strcpy_s(Name, name);
+
     }
 
 
@@ -37,7 +38,9 @@ namespace particle{
 
     void Flame::OnImGuiRender(){
         ImGui::InputText("Flame Name", Name, IM_ARRAYSIZE(Name));
-        ImGui::DragFloat3("Position", &Position.x, 0.05f);
+        if (ImGui::DragFloat3("Position", &Position.x, 0.05f)){
+            Sound.setPosition(Position.x, Position.y, Position.z);
+        }
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
         ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999);
         ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 10.f);
@@ -46,28 +49,41 @@ namespace particle{
         ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
     }
 
-    FireCreator::FireCreator(ParticleSystem& particleSystem)
-            : m_ParticleSystem(particleSystem)
+    FireCreator::FireCreator(ParticleSystem& particleSystem, sound::SoundManager& soundManager)
+            : m_ParticleSystem(particleSystem),
+            m_SoundManager(soundManager)
     {
 
+        // TEXTURES
         std::vector<std::string> sparkTextures(32);
         for (size_t i = 0; i < 32; i++){
             sparkTextures[i] = DATA_ROOT + "fire/fire(" + std::to_string(i) + ").png";
         }
-
-        // load textures
+        // load
         for (auto& file : sparkTextures){
             m_Textures.emplace_back(std::make_shared<en::GLPictureTex>(
                     en::GLPictureTex::WrapMode::CLAMP_TO_BORDER,
                     en::GLPictureTex::FilterMode::LINEAR,
                     file, true));
         }
-
-
         m_ParticleSystem.InitializeTextures(m_Textures);
 
+
+        // AUDIO
+        std::vector<std::string> audioFiles(3);
+        for (size_t i = 0; i < 3; i++){
+            audioFiles[i] = "fire/fire" + std::to_string(i) + ".wav";
+        }
+
+        // get relevant buffers from sound manager
+        for (auto& file : audioFiles){
+            m_SoundBuffers.emplace_back(m_SoundManager.GetSoundBufferFromFile(file));
+        }
+
+
+
         m_BaseFlameProps.Velocity = { 0.0f, 8.0f, 0.0f };
-        m_BaseFlameProps.VelocityVariation = { 8.0f, 10.0f, 8.0f };
+        m_BaseFlameProps.VelocityVariation = { 4.5f, 10.0f, 4.5f };
         m_BaseFlameProps.GravityFactor = 0.1f; // we barely want gravity to work on fire
         m_BaseFlameProps.ColorBegin = { 1.f, 1.f, 1.f, 1.0f };
         m_BaseFlameProps.ColorEnd = { 1.f, 1.f, 1.f, 0.3f };
@@ -89,6 +105,7 @@ namespace particle{
                     flame->BuildingUp = false;
                     flameSizeFactor = 1.f;
                 }
+                flame->Sound.setVolume(flameSizeFactor * m_SndVolume);
             }
             else if (flame->Expiring){
                 flame->Timer += ts;
@@ -97,6 +114,7 @@ namespace particle{
                     flame->Expired = true;
                     flameSizeFactor = 1.f;
                 }
+                flame->Sound.setVolume(flameSizeFactor * m_SndVolume);
             }
 
             if (!flame->Expired) {
@@ -150,6 +168,23 @@ namespace particle{
         ImGui::DragFloat("SizeVariationFactor", &m_BaseFlameProps.SizeVariationFactor, 0.005f, 0.f, 1.f);
         ImGui::DragFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0.01f, 0.f, 999.f);
 
+        if (ImGui::DragFloat("SoundVolume", &m_SndVolume, 1.f, 0.f, 100.f)){
+            for (auto& f : m_Flames){
+                f->Sound.setVolume(m_SndVolume);
+            }
+        }
+        if (ImGui::DragFloat("SoundAttenuation", &m_SndAttenuation, 0.1f, 0.f, 30.f)){
+            for (auto& f : m_Flames){
+                f->Sound.setAttenuation(m_SndAttenuation);
+            }
+        }
+        if (ImGui::DragFloat("SoundMinDistance", &m_SndMinDistance, 0.1f, 0.f, 99999.f)){
+            for (auto& f : m_Flames){
+                f->Sound.setMinDistance(m_SndMinDistance);
+            }
+        }
+
+
         for (size_t i = 0; i < m_Flames.size(); ++i){
             ImGui::PushID(static_cast<int>(i));
             if (ImGui::TreeNode((std::string("Flame ") + std::to_string(i)).c_str())) {
@@ -168,6 +203,15 @@ namespace particle{
         flame->Expired = false;
         flame->BuildingUp = true;
         m_Flames.emplace_back(flame);
+
+        auto& s = flame->Sound;
+        s.setBuffer(*m_SoundBuffers[util::Random::Uint32(0, static_cast<uint32_t>(m_SoundBuffers.size())-1)]);
+
+        s.setLoop(true);
+        s.setPosition(flame->Position.x, flame->Position.y, flame->Position.z);
+        s.setAttenuation(m_SndAttenuation);
+        s.setMinDistance(m_SndMinDistance);
+        s.play();
     }
 
     void FireCreator::startExpiringFlameOfName(const std::string& name){

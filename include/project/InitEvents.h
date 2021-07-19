@@ -17,10 +17,14 @@ namespace particle {
     class SmokeCreator;
 }
 
+namespace sound{
+    class SoundManager;
+}
 namespace scene {
     class Event;
 
     class ObjectManager;
+
 
     /************************ATTENTION*************/
     /****Here add for each new event the type, AT THE BOTTOM of the list only!
@@ -40,7 +44,9 @@ namespace scene {
         ConnectWaterRelativeToObjectEvent = 11,
         DisconnectObjectFromAllObjectsEvent = 12,
         SetObjectTransformEvent = 13,
-        SetCamTransformEvent = 14
+        SetCamTransformEvent = 14,
+        PlaySoundEffectEvent = 15,
+        PlayMusicEvent = 16
     };
 
     //For creating new events, I use a list of dummy events. Each new event type must have a dummy event
@@ -50,9 +56,12 @@ namespace scene {
     /******We need to add for each event type one dummy event here (in .cpp)!******/
     void InitDummyEvents(en::Camera& cam,
                          en::SceneRenderer &sceneRenderer,
+                         sound::SoundManager& soundManager,
                          ObjectManager &objectManager,
                          particle::FireCreator& fireCreator,
                          particle::WaterCreator& waterCreator,
                          particle::SmokeCreator& smokeCreator
                          );
+
+    void DestroyDummyEvents();
 }

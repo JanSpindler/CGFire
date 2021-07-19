@@ -24,6 +24,8 @@
 #include <project/Events/DisconnectObjectFromAllObjectsEvent.h>
 #include <project/Events/SetObjectTransformEvent.h>
 #include <project/Events/SetCamTransformEvent.h>
+#include <project/Events/PlaySoundEffectEvent.h>
+#include <project/Events/PlayMusicEvent.h>
 
 
 namespace scene {
@@ -31,6 +33,7 @@ namespace scene {
 
     void InitDummyEvents(en::Camera& cam,
                          en::SceneRenderer &sceneRenderer,
+                         sound::SoundManager& soundManager,
                          ObjectManager &objectManager,
                          particle::FireCreator& fireCreator,
                          particle::WaterCreator& waterCreator,
@@ -55,5 +58,11 @@ namespace scene {
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetCamTransformEvent>(cam));
 
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectWaterRelativeToObjectEvent>(objectManager, waterCreator));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::PlaySoundEffectEvent>(soundManager, objectManager));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::PlayMusicEvent>(soundManager));
+    }
+
+    void DestroyDummyEvents(){
+        DummyEventsOfAllTypes.clear();
     }
 }

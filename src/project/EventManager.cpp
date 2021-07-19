@@ -16,6 +16,7 @@ namespace scene {
     EventManager::EventManager(en::Camera& camera,
                                SceneManager& sceneManager,
                                en::SceneRenderer &sceneRenderer,
+                               sound::SoundManager& soundManager,
                           scene::ObjectManager& objectManager,
                                particle::FireCreator& fireCreator,
                                particle::WaterCreator& waterCreator,
@@ -26,8 +27,7 @@ namespace scene {
             m_SceneRenderer(sceneRenderer),
             m_ObjectManager(objectManager)
     {
-
-        scene::InitDummyEvents(m_Camera, m_SceneRenderer, m_ObjectManager, fireCreator, waterCreator, smokeCreator);
+        scene::InitDummyEvents(m_Camera, m_SceneRenderer, soundManager, m_ObjectManager, fireCreator, waterCreator, smokeCreator);
 
 
 
@@ -75,6 +75,8 @@ namespace scene {
             delete e.first;
         }
         m_EventsAndTimes.clear();
+
+        DestroyDummyEvents();
     }
 
 
@@ -104,6 +106,10 @@ namespace scene {
     void EventManager::OnResetTime(){
         this->SortEvents();
         m_nextEventIndex = 0;
+
+        for (auto& e : m_EventsAndTimes){
+            e.first->OnResetTime();
+        }
     }
 
     void EventManager::OnUpdate(float sceneTime){
