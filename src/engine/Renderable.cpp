@@ -5,11 +5,15 @@
 #include "engine/render/Renderable.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <framework/imgui_util.hpp>
+#include "engine/Spline3D.hpp"
+#include "engine/Util.hpp"
 
 namespace en
 {
-    RenderObj::RenderObj(const std::string& name)
-    : name_(name)
+    RenderObj::RenderObj(const std::string& name) :
+        name_(name),
+        spline_(nullptr),
+        iterator_(nullptr)
     {
         t_ = glm::identity<glm::mat4>();
         prevM = t_;
@@ -34,6 +38,22 @@ namespace en
     void RenderObj::Render(const GLProgram *program) // Deprecated
     {
         SetMatrices(program);
+    }
+
+    void RenderObj::TrackSpline(const Spline3D* spline, float trackSpeed)
+    {
+        spline_ = spline;
+        trackSpeed_ = trackSpeed;
+        iterator_ = new Spline3DIterator(0, 0.0f);
+    }
+
+    void RenderObj::TrackStep(float deltaTime)
+    {
+        if (spline_ == nullptr || iterator_ == nullptr)
+            Log::Error("Spline and iterator must not be nullptr for track step", true);
+
+        Position = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
+        glm::vec3 dir = spline_->GetSegmentDir(iterator_->lastPoint);
     }
 
     glm::vec3 RenderObj::GetPos()

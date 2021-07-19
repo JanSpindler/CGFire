@@ -6,6 +6,7 @@
 #define CGFIRE_CAMERA_HPP
 
 #include <glm/glm.hpp>
+#include "Spline3D.hpp"
 
 namespace en
 {
@@ -33,7 +34,13 @@ namespace en
         void Move(glm::vec3 movement);
         void RotateViewDir(float phi, float theta);
 
+        void TrackSpline(const Spline3D* spline, float trackSpeed);
+        void TrackStep(float deltaTime, glm::vec3 center);
+
     private:
+        const Spline3D* spline_;
+        float trackSpeed_;
+        Spline3DIterator* iterator_;
 
         glm::vec3 pos_;
         glm::vec3 viewDir_;

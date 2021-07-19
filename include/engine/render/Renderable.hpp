@@ -10,6 +10,9 @@
 
 namespace en
 {
+    class Spline3D;
+    struct Spline3DIterator;
+
     class Renderable
     {
     public:
@@ -42,6 +45,9 @@ namespace en
 
         void Render(const GLProgram* program) override; // Deprecated
 
+        void TrackSpline(const Spline3D* spline, float trackSpeed);
+        void TrackStep(float deltaTime);
+
         virtual glm::vec3 GetPos();
 
         const std::string& GetName(){ return name_; }
@@ -53,6 +59,10 @@ namespace en
         void SetMatrices(const GLProgram* program);
     protected:
         std::string name_;
+
+        const Spline3D* spline_;
+        float trackSpeed_;
+        Spline3DIterator* iterator_;
     };
 }
 
