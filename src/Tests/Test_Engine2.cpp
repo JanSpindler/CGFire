@@ -12,6 +12,7 @@
 #include "engine/input/Input.hpp"
 #include "engine/render/SceneRenderer.hpp"
 #include "engine/Spline3D.hpp"
+#include "engine/prefab/BackgroundTerrain.hpp"
 
 #include <framework/imgui_util.hpp>
 #include <GLFW/glfw3.h>
@@ -62,6 +63,8 @@ int main()
     en::Model reflectModel("hd_sphere.obj", false, "reflect sphere");
     reflectModel.Position = glm::vec3(0.0f, 0.0, -8.0f);
 
+    en::BackgroundTerrain terrain(100, 20.0f, -4.0f, 1.0f, 128.0f, 0.0f);
+
     // Lights
     en::DirLight dirLight(glm::vec3(0.3f, -1.0f, 1.0f), glm::vec3(0.5f));
 
@@ -80,9 +83,10 @@ int main()
     sceneRenderer.SetDirLight(&dirLight);
     sceneRenderer.AddPointLight(&pointLight);
 
-    sceneRenderer.AddStandardRenderObj(&floorModel);
+    //sceneRenderer.AddStandardRenderObj(&floorModel);
     sceneRenderer.AddStandardRenderObj(&houseModel);
     sceneRenderer.AddStandardRenderObj(&roboModel);
+    sceneRenderer.AddStandardRenderObj(&terrain);
 
     sceneRenderer.AddFixedColorRenderObj(&pointLight);
 
