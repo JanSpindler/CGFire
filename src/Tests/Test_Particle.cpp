@@ -62,8 +62,10 @@ int main(int, char* argv[]) {
             { 10.0f, 10.0f, -5.0f },
             { 35.0f, 30.0f, -15.0f }
     };
-    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints, false, 40, en::Spline3D::TYPE_CATMULL_ROM);
-    en::Spline3DRenderable splineRenderable(spline.get());
+    std::shared_ptr<en::Spline3D> spline = std::make_shared<en::Spline3D>(splinePoints,
+                                           false,
+                                           40,
+                                           en::Spline3D::TYPE_CATMULL_ROM);
 
     smokeCreator.startSmokeStream(std::make_shared<SmokeStream>
                                    ("Rauch Uno",
@@ -133,7 +135,7 @@ int main(int, char* argv[]) {
         fixedColorProgram->Use();
         fixedColorProgram->SetUniformMat4("view_mat", false, &viewMat[0][0]);
         fixedColorProgram->SetUniformMat4("proj_mat", false, &projMat[0][0]);
-        splineRenderable.Render(fixedColorProgram);
+        spline->Render(fixedColorProgram);
     }
 
     cleanup_imgui();

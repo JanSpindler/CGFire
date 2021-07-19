@@ -103,7 +103,7 @@ namespace particle{
         std::vector<std::shared_ptr<sf::SoundBuffer>> m_SoundBuffers;
 
         float m_SndVolume = 50.f;
-        float m_SndAttenuation = 0.5f;
+        float m_SndAttenuation = 1.6f;
         float m_SndMinDistance = 5.f;
     };
 }

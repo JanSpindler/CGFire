@@ -18,7 +18,6 @@ namespace scene {
     {
         m_AutoSave =  true;
         m_ReloadEventsPeriodically = true;
-        m_RecalculateSplinesPeriodically = true;
 
         initObjects();
     }
@@ -44,10 +43,6 @@ namespace scene {
             ReloadEvents();
         }
 
-        if (m_RecalculateSplinesPeriodically){
-            m_TimeSinceRecalculateSplines = 0.f;
-            RecalculateSplines();
-        }
 
         m_FPS = static_cast<int>(1.f/dt);
 
@@ -57,7 +52,6 @@ namespace scene {
         m_SceneTime += dt;
         m_TimeSinceAutoSave += dt;
         m_TimeSinceReloadEvents += dt;
-        m_TimeSinceRecalculateSplines += dt;
 
         m_SceneRenderer.Resize(m_Window.GetWidth(), m_Window.GetHeight()); // TODO: maybe something more performant
 
@@ -72,6 +66,7 @@ namespace scene {
         m_ObjectManager.OnUpdate(m_SceneTime);
         m_EventManager.OnUpdate(m_SceneTime);
 
+        m_Cam.OnUpdate(dt);
 
         m_SceneRenderer.Update(dt);
     }
@@ -88,10 +83,8 @@ namespace scene {
 
         m_ObjectManager.OnResetTime();
         m_EventManager.OnResetTime();
-    }
 
-    void SceneManager::RecalculateSplines(){
-        m_ObjectManager.OnRecalculateSplines();
+        m_SceneRenderer.AddStandardRenderObj(m_Terrain.get());
     }
 
     void SceneManager::OnRender(){
@@ -172,17 +165,6 @@ namespace scene {
             ClearParticles();
         }
 
-        ImGui::Checkbox("Auto-Recalculate Splines every", &m_RecalculateSplinesPeriodically);
-        ImGui::SameLine();
-        ImGui::PushItemWidth(100);
-        ImGui::DragFloat("##RecalculateSplinesEveryXSeconds", &m_RecalculateSplinesEveryXSeconds, 0.1f, 0.f, 999.f);
-        ImGui::PopItemWidth();
-        ImGui::SameLine();
-        ImGui::Text("seconds");
-        ImGui::SameLine();
-        if (ImGui::Button("Recalculate Now")){
-            this->RecalculateSplines();
-        }
         ImGui::Checkbox("Show Splines", &m_ShowSplines);
         ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f),
                            "Make sure to turn these settings off\n"
@@ -209,5 +191,17 @@ namespace scene {
         m_WaterCreator.clear();
         m_SmokeCreator.clear();
         m_FireCreator.clear();
+    }
+
+    void SceneManager::initObjects(){
+
+        m_SkyboxTex = std::make_shared<en::GLSkyboxTex>("CGFire/skybox1", ".png", false);
+        m_SceneRenderer.SetSkyboxTex(m_SkyboxTex.get());
+
+        m_DirLight = std::make_shared<en::DirLight>(glm::vec3(0.743f, -0.287f, -0.605f), glm::vec3(1.f));
+        m_SceneRenderer.SetDirLight(m_DirLight.get());
+
+        m_Terrain = std::make_shared<en::BackgroundTerrain>
+                (100, 20.0f, -34.0f, 1.0f, 128.0f, 0.0f);
     }
 }

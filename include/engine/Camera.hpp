@@ -34,12 +34,15 @@ namespace en
         void Move(glm::vec3 movement);
         void RotateViewDir(float phi, float theta);
 
-        void TrackSpline(const Spline3D* spline, float trackSpeed);
-        void TrackStep(float deltaTime, glm::vec3 center);
+        void TrackSpline(const Spline3D* spline, float trackSpeed, bool viewInSplineDir);
+        void TrackStep(float deltaTime);
+
+        void OnUpdate(float dt);
 
     private:
         const Spline3D* spline_;
         float trackSpeed_;
+        bool viewInSplineDir_;
         Spline3DIterator* iterator_;
 
         glm::vec3 pos_;
@@ -49,6 +52,7 @@ namespace en
         float fov_;
         float near_;
         float far_;
+
     };
 }
 

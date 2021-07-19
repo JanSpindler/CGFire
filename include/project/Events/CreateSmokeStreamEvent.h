@@ -66,7 +66,7 @@ namespace scene {
 
         void SaveSpecificDataToCSV(util::CSVWriter& csv) override{
             csv << std::string(m_SmokeStream->Name)
-                << m_ObjectManager.GetNameOfSpline(m_SmokeStream->Spline.get())
+                << m_SmokeStream->Spline->GetName()
                 << m_SmokeStream->PositionVariation.x << m_SmokeStream->PositionVariation.y << m_SmokeStream->PositionVariation.z
                 << m_SmokeStream->ParticlesPerSecond
                 << m_SmokeStream->Speed
@@ -93,9 +93,9 @@ namespace scene {
 
 
             if (m_SmokeStream == nullptr)
-                s_SplineSelection = m_ObjectManager.GetNameOfSpline(m_DummySmokeStream->Spline.get());
+                s_SplineSelection = m_DummySmokeStream->Spline->GetName();
             else
-                s_SplineSelection = m_ObjectManager.GetNameOfSpline(m_SmokeStream->Spline.get());
+                s_SplineSelection = m_SmokeStream->Spline->GetName();
 
             if (ImGui::BeginCombo("Spline", s_SplineSelection.c_str()))
             {
@@ -103,14 +103,14 @@ namespace scene {
                 for (int i = 0; i < splines.size(); ++i)
                 {
                     auto& s = splines[i];
-                    bool is_selected = (s_SplineSelection == s.second->GetName());
+                    bool is_selected = (s_SplineSelection == s->GetName());
                     ImGui::PushID(i);
-                    if (ImGui::Selectable(s.second->GetName().c_str(), is_selected)) {
-                        s_SplineSelection = s.second->GetName();
+                    if (ImGui::Selectable(s->GetName().c_str(), is_selected)) {
+                        s_SplineSelection = s->GetName();
                         if (m_SmokeStream == nullptr)
-                            m_DummySmokeStream->Spline = s.first;
+                            m_DummySmokeStream->Spline = s;
                         else {
-                            m_SmokeStream->Spline = s.first;
+                            m_SmokeStream->Spline = s;
                             this->UpdateDescription();
                         }
                     }
@@ -133,7 +133,7 @@ namespace scene {
             return optionsOk;
         }
         bool IsRenderObjRelated(en::RenderObj* obj) override{
-            if (m_ObjectManager.GetNameOfSpline(m_SmokeStream->Spline.get()) == obj->GetName())
+            if (m_SmokeStream->Spline->GetName() == obj->GetName())
                 return true;
             return false;
         }

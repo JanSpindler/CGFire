@@ -131,19 +131,25 @@ namespace en
         viewDir_ = glm::normalize(thetaMat * phiMat * viewDir_);
     }
 
-    void Camera::TrackSpline(const Spline3D* spline, float trackSpeed)
+    void Camera::TrackSpline(const Spline3D* spline, float trackSpeed, bool viewInSplineDir)
     {
+        assert(spline != nullptr);
         spline_ = spline;
         trackSpeed_ = trackSpeed;
+        viewInSplineDir_ = viewInSplineDir;
         iterator_ = new Spline3DIterator(0, 0.0f);
     }
 
-    void Camera::TrackStep(float deltaTime, glm::vec3 center)
+    void Camera::TrackStep(float deltaTime)
     {
-        if (spline_ == nullptr || iterator_ == nullptr)
-            Log::Error("Spline or SplineIterator must not be nullptr for track step", true);
-
-        pos_ = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
-        viewDir_ = spline_->GetSegmentDir(iterator_->lastPoint);
+        if (spline_ != nullptr){
+            assert(iterator_ != nullptr);
+            pos_ = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
+            if (viewInSplineDir_)
+                viewDir_ = spline_->GetSegmentDir(iterator_->lastPoint);
+        }
+    }
+    void Camera::OnUpdate(float dt){
+        TrackStep(dt);
     }
 }

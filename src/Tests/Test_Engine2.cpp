@@ -59,11 +59,11 @@ int main()
     houseModel.SetName("house");
     houseModel.Position =glm::vec3(40.0f, 0.0f, 20.0f);
 
-    en::Model roboModel("vampire/Vampire.dae", false, false, "rob");
+    en::Model roboModel("vampire/Vampire.dae", false, false);
     roboModel.Position =glm::vec3(10.0f, 0.0f, 40.0f);
     roboModel.SetName("rob");
 
-    en::Model reflectModel("hd_sphere.obj", false, true, "reflect sphere");
+    en::Model reflectModel("hd_sphere.obj", false, true);
     reflectModel.SetName("reflect sphere");
     reflectModel.Position = glm::vec3(0.0f, 0.0, -8.0f);
 

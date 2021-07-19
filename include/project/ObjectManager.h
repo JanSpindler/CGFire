@@ -25,8 +25,6 @@ namespace scene {
     class EventManager;
     class SceneManager;
 
-    typedef std::pair<std::shared_ptr<en::Spline3D>, std::shared_ptr<en::Spline3DRenderable>> spline_t;
-
 
     enum class ObjectType {
         Model = 0,
@@ -53,8 +51,7 @@ namespace scene {
         std::vector<en::RenderObj*>& GetAllRenderObjects(){ return m_AllRenderObjects; };
         std::vector<std::shared_ptr<en::Model>>& GetModels(){ return m_Models; }
         std::vector<std::shared_ptr<en::Skeletal>>& GetSceletals(){ return m_Skeletals; }
-        std::vector<std::pair<std::shared_ptr<en::Spline3D>, std::shared_ptr<en::Spline3DRenderable>>>& GetSplines(){ return m_Splines; }
-        std::string GetNameOfSpline(en::Spline3D* spline);
+        std::vector<std::shared_ptr<en::Spline3D>>& GetSplines(){ return m_Splines; }
         std::shared_ptr<en::Spline3D> GetSplineByName(const std::string name);
 
         bool AreSplinesDrawn();
@@ -72,7 +69,7 @@ namespace scene {
 
         std::vector<std::shared_ptr<en::Model>> m_Models; //Those objects that are models but have no animation
         std::vector<std::shared_ptr<en::Skeletal>> m_Skeletals; //Those objects that are models and have an animation
-        std::vector<spline_t> m_Splines;
+        std::vector<std::shared_ptr<en::Spline3D>> m_Splines;
 
         std::vector<std::string> m_FoundObjectFiles; // stores all paths to object files in /models/ directory
         std::vector<std::string> m_FoundDaeFiles; // stores all paths to Animated object files in /models/ directory
@@ -96,7 +93,7 @@ namespace scene {
         std::shared_ptr<en::Model> LoadModel(const std::string& name, const std::string& file);
         std::shared_ptr<en::Skeletal> LoadSkeletal(const std::string& name, const std::string& file,
                                                    std::vector<std::pair<std::string, std::string>>& animationNamesAndFilePaths);
-        spline_t LoadSpline(const std::string& name,
+        std::shared_ptr<en::Spline3D> LoadSpline(const std::string& name,
                             bool loop,
                             uint32_t resolution,
                             uint8_t type,

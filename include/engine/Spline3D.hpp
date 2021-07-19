@@ -33,7 +33,6 @@ namespace en
         void RenderPosOnly(const GLProgram* program);
         void RenderDiffuse(const GLProgram* program);
         void RenderAll(const GLProgram* program);
-        void OnImGuiRender();
 
         glm::vec3 IterateRelative(Spline3DIterator* iterator, float t) const;
         glm::vec3 IterateAbsolute(float t) const;
@@ -52,6 +51,8 @@ namespace en
         uint8_t GetType() const;
 
         void OnImGuiRender();
+
+        bool Spline3D::IsRenderObjTypePossible(en::RenderObjType type) const;
 
     private:
         uint32_t pointVao_;

@@ -83,6 +83,8 @@ namespace en
             camMove.y = camMoveSpeed;
         else if (downPressed && !upPressed)
             camMove.y = -camMoveSpeed;
-        cam->Move(camMove);
+
+        if (camMove != glm::vec3(0.f, 0.f, 0.f))
+            cam->Move(camMove);
     }
 }

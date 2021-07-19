@@ -28,6 +28,7 @@
 #include "ObjectManager.h"
 #include "EventManager.h"
 #include <sound/SoundManager.h>
+#include <engine/prefab/BackgroundTerrain.hpp>
 
 
 namespace scene {
@@ -91,16 +92,8 @@ namespace scene {
         float m_ReloadEventsEveryXSeconds = 2.f;
         void ReloadEvents();
 
-        //Auto recalculate splines --> if splines did change (when modeling), we want to recalculate them every x seconds
-        bool m_RecalculateSplinesPeriodically;
-        float m_TimeSinceRecalculateSplines = 0.f;
-        float m_RecalculateSplinesEveryXSeconds = 0.3f;
-        void RecalculateSplines();
 
         bool m_ShowSplines = true;
-
-
-        std::vector<std::pair<std::shared_ptr<en::Animator>, bool>> m_AnimatorsAnd;
 
         /***************Renderer*/
         en::SceneRenderer m_SceneRenderer;
@@ -108,32 +101,10 @@ namespace scene {
         /***Objects that are always in the scene*/
         std::shared_ptr<en::DirLight> m_DirLight;
         std::shared_ptr<en::GLSkyboxTex> m_SkyboxTex;
-
-//        std::shared_ptr<en::Model> m_DummyPositionFinder;
-//
-//        std::shared_ptr<en::Model> m_ModelFloor;
-//
-//        std::shared_ptr<en::Model> m_ModelHouse;
-//
-//
-//        std::shared_ptr<en::Sceletal> m_Vampire1;
-//
-//        std::shared_ptr<en::Model> m_ModelTruck;
-//
-//        std::shared_ptr<en::Spline3D> m_TruckSpline;
-//        std::shared_ptr<en::Spline3DRenderable> m_TruckSplineRenderable;
-//
-//        std::shared_ptr<ObjToSplineConnector> m_TruckToTruckSplineConnector;
-//
-//
-////        std::shared_ptr<en::Model> m_ReflectModel;
-//
-//        std::shared_ptr<en::Spline3D> m_CamSpline;
-//        std::shared_ptr<en::Spline3DRenderable> m_CamSplineRenderable;
+        std::shared_ptr<en::BackgroundTerrain> m_Terrain;
 
         //This is where all objects are loaded at the start of the program
         void initObjects();
-
 
     };
 }

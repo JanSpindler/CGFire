@@ -27,6 +27,7 @@ namespace en
         void RenderDiffuse(const GLProgram* program) override;
         void RenderAll(const GLProgram* program) override;
 
+        bool IsRenderObjTypePossible(RenderObjType type) const override;
     private:
         float seed_;
 

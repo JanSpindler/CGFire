@@ -56,6 +56,7 @@ namespace scene {
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::DisconnectObjectFromAllObjectsEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetObjectTransformEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetCamTransformEvent>(cam));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectCamToSplineEvent>(objectManager, cam));
 
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectWaterRelativeToObjectEvent>(objectManager, waterCreator));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::PlaySoundEffectEvent>(soundManager, objectManager));

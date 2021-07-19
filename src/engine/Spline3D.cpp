@@ -11,9 +11,7 @@ namespace en
 {
     Spline3DIterator::Spline3DIterator(uint32_t lP, float lI) :
         lastPoint(lP),
-        lastInterp(lI),
-        resolution_(resolution),
-        type_(type)
+        lastInterp(lI)
     {
     }
 
@@ -86,13 +84,6 @@ namespace en
         RenderDiffuse(program);
     }
 
-    void Spline3D::OnImGuiRender()
-    {
-        //RenderObj::OnImGuiRender();
-
-        //TODO Spline verstellbar machen mittels slider + update button
-    }
-
     glm::vec3 Spline3D::IterateRelative(Spline3DIterator* iterator, float t) const
     {
         if (t == 0.0f)
@@ -114,6 +105,8 @@ namespace en
 
         iterator->lastInterp = t;
         iterator->lastPoint = i;
+        auto a =  glm::lerp(points_[i], points_[i + 1], t / segmentLengths_[i]);
+
         return glm::lerp(points_[i], points_[i + 1], t / segmentLengths_[i]);
     }
 
@@ -458,19 +451,29 @@ namespace en
     }
 
     void Spline3D::OnImGuiRender(){
-        ImGui::Checkbox("loop", &loop_);
+        if (ImGui::Checkbox("loop", &loop_)){
+            this->Recreate(controlPoints_);
+        }
 
-        ImGui::DragInt("Resolution", &resolution_, 1, 1, 150);
+        if (ImGui::DragInt("Resolution", &resolution_, 1, 16, 999)){
+            this->Recreate(controlPoints_);
+        }
 
-        ImGui::Combo("Type ", &type_, "CATMULL_ROM\0NATURAL_CUBIC\0");
+        if (ImGui::Combo("Type ", &type_, "CATMULL_ROM\0NATURAL_CUBIC\0")){
+            this->Recreate(controlPoints_);
+        }
 
         int i = 0;
         for (auto it = controlPoints_.begin(); it != controlPoints_.end(); ++it){
             ImGui::PushID(i);
-            ImGui::DragFloat3("", &(*it).x);
+            if (ImGui::DragFloat3("", &(*it).x)){
+                this->Recreate(controlPoints_);
+            }
             ImGui::SameLine();
             if(ImGui::Button("Clone")){
                 controlPoints_.insert(it, (*it));
+
+                this->Recreate(controlPoints_);
                 ImGui::PopID();
                 break;
 
@@ -479,6 +482,7 @@ namespace en
             if(ImGui::Button("Delete")){
                 if (controlPoints_.size() > 4) {
                     controlPoints_.erase(it);
+                    this->Recreate(controlPoints_);
                     ImGui::PopID();
                     break;
                 }

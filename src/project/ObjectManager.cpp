@@ -74,7 +74,7 @@ namespace scene {
                     controlPoints.emplace_back(glm::vec3(
                             std::stof(row[j]), std::stof(row[j+1]), std::stof(row[j+2])));
                 }
-                renderObj = this->LoadSpline(objName, loop, resolution, type, controlPoints).second.get();
+                renderObj = this->LoadSpline(objName, loop, resolution, type, controlPoints).get();
 
             } else {
                 std::cout << "unknown object type-id:!!" << static_cast<int>(id) << std::endl;
@@ -120,15 +120,15 @@ namespace scene {
         }
         for (auto &o : m_Splines) {
             csv << static_cast<int>(ObjectType::Spline)
-                << o.second->GetName()
-                << static_cast<int>(o.first->IsLooped())
-                << static_cast<int>(o.first->GetResolution())
-                << static_cast<int>(o.first->GetType());
-            for (auto& p : o.first->GetControlPoints()){
+                << o->GetName()
+                << static_cast<int>(o->IsLooped())
+                << static_cast<int>(o->GetResolution())
+                << static_cast<int>(o->GetType());
+            for (auto& p : o->GetControlPoints()){
                 csv << p.x << p.y << p.z;
             }
             csv << endrow;
-            SaveRenderObjDataToCSV(csv, *o.second);
+            SaveRenderObjDataToCSV(csv, *o);
         }
 
     }
@@ -184,6 +184,17 @@ namespace scene {
         }
 
         if (isOpen) {
+            if (type == ObjectType::Model){
+                auto model = dynamic_cast<en::Model*>(&o);
+                ImGui::Text("file: %s", model->GetPathName().c_str());
+            }
+            /******Skeletal Specific*****/
+            if (type == ObjectType::Skeletal) {
+                auto skeletal = dynamic_cast<en::Skeletal *>(&o);
+                ImGui::Text("file: %s", skeletal->GetPathName().c_str());
+            }
+
+
             if (type != ObjectType::Spline) {
                 ImGui::DragFloat3("Position", &o.Position.x, 0.25f);
                 //ImGui::DragFloat3("Quaternion", &o.EulerAngles.x, 0.05f, 0.f, 6.28318530718f);
@@ -203,6 +214,7 @@ namespace scene {
                 ImGui::TreePop();
             }
 
+
             /******Skeletal Specific*****/
             if (type == ObjectType::Skeletal) {
                 auto skeletal = dynamic_cast<en::Skeletal *>(&o);
@@ -216,8 +228,8 @@ namespace scene {
                 }
             } /********Spline Specific*********/
             else if (type == ObjectType::Spline){
-                auto splineRenderable = dynamic_cast<en::Spline3DRenderable *>(&o);
-                splineRenderable->GetSpline3D()->OnImGuiRender();
+                auto spline = dynamic_cast<en::Spline3D*>(&o);
+                spline->OnImGuiRender();
             }
 
             ImGui::TreePop();
@@ -290,8 +302,8 @@ namespace scene {
         /******Splines****/
         ImGui::TextColored(ImVec4(1.f, 0.f, 1.f, 1.f), "Spline ROs:");
         for (auto it = m_Splines.begin(); it != m_Splines.end(); ++it) {
-            spline_t tuple = *it;
-            auto o = tuple.second.get();
+            auto tuple = *it;
+            auto o = tuple.get();
 
             auto cloneOrDeleteHappened = OnImGuiObjectRender(ObjectType::Spline, *o);
             if (cloneOrDeleteHappened == ButtonClickHappened::Delete){
@@ -307,11 +319,11 @@ namespace scene {
                 //Clone
                 auto cloneSpline = this->LoadSpline(
                         this->FindNextAvailableName(o->GetName()),
-                        tuple.first->IsLooped(),
-                        tuple.first->GetResolution(),
-                        tuple.first->GetType(),
-                        tuple.first->GetControlPoints());
-                assert(cloneSpline.first != nullptr);
+                        tuple->IsLooped(),
+                        tuple->GetResolution(),
+                        tuple->GetType(),
+                        tuple->GetControlPoints());
+                assert(cloneSpline != nullptr);
                 m_SceneManager.Restart(false);
                 break;
             }
@@ -611,9 +623,9 @@ namespace scene {
             if (isLegit) {
                 //Add new Spline
                 auto spline = this->LoadSpline(name, s_Loop, s_Resolution, s_Type, s_ControlPoints);
-                if (spline.first != nullptr) {
+                if (spline != nullptr) {
                     SaveToFile();
-                    m_EventManager.OnCreateNewObj(ObjectType::Spline, spline.second.get()); //Creates by default a ShowRenderObjEvent event
+                    m_EventManager.OnCreateNewObj(ObjectType::Spline, spline.get()); //Creates by default a ShowRenderObjEvent event
                     ImGui::CloseCurrentPopup();
                 }
                 else{
@@ -649,7 +661,7 @@ namespace scene {
     std::shared_ptr<en::Model> ObjectManager::LoadModel(const std::string& name, const std::string& file){
         if (DoesObjNameExistAlready(name))
             return nullptr;
-        auto model = std::make_shared<en::Model>(file, true);
+        auto model = std::make_shared<en::Model>(file, true, true);
         model->SetName(name);
         m_Models.emplace_back(model);
         m_AllRenderObjects.emplace_back(model.get());
@@ -669,21 +681,20 @@ namespace scene {
         m_AllRenderObjects.emplace_back(skeletal.get());
         return skeletal;
     }
-    spline_t ObjectManager::LoadSpline(const std::string& name,
+    std::shared_ptr<Spline3D> ObjectManager::LoadSpline(const std::string& name,
                                        bool loop,
                                        uint32_t resolution,
                                        uint8_t type,
                                        const std::vector<glm::vec3>& controlPoints){
         if (DoesObjNameExistAlready(name))
-            return std::make_pair(nullptr, nullptr);
+            return nullptr;
         auto spline3d = std::make_shared<en::Spline3D>(controlPoints, loop, resolution, type);
-        auto splineRenderable = std::make_shared<en::Spline3DRenderable>(spline3d.get());
-        splineRenderable->SetName(name);
 
-        spline_t spline = std::make_pair(spline3d, splineRenderable);
-        m_Splines.emplace_back(spline);
-        m_AllRenderObjects.emplace_back(splineRenderable.get());
-        return spline;
+        spline3d->SetName(name);
+
+        m_Splines.emplace_back(spline3d);
+        m_AllRenderObjects.emplace_back(spline3d.get());
+        return spline3d;
     }
 
     void ObjectManager::OnRecalculateSplines(){
@@ -692,18 +703,10 @@ namespace scene {
         }
     }
 
-    std::string ObjectManager::GetNameOfSpline(en::Spline3D* spline){
-        for (auto& s : m_Splines){
-            if (s.first.get() == spline){
-                return s.second->GetName();
-            }
-        }
-        return "NoSpline";
-    }
     std::shared_ptr<en::Spline3D> ObjectManager::GetSplineByName(const std::string name){
         for (auto& s : m_Splines){
-            if (s.second->GetName() == name){
-                return s.first;
+            if (s->GetName() == name){
+                return s;
             }
         }
         return nullptr;

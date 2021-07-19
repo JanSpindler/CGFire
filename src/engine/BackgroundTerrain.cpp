@@ -49,7 +49,7 @@ namespace en
     {
         RenderObj::RenderAll(program);
         program->SetUniformB("use_diffuse_tex", false);
-        program->SetUniformVec4f("diffuse_color", glm::vec4(1.0f));
+        program->SetUniformVec4f("diffuse_color", glm::vec4(90.f/255.f, 60.f/255.f , 55.f/255.f, 1.f));
         program->SetUniformB("use_specular_tex", false);
         program->SetUniformVec4f("specular_color", glm::vec4(0.0f));
         program->SetUniformF("shininess", 0.0f);
@@ -58,6 +58,17 @@ namespace en
         glBindVertexArray(0);
     }
 
+
+    bool BackgroundTerrain::IsRenderObjTypePossible(RenderObjType type) const{
+        switch(type){
+            case RenderObjType::Standard:
+            case RenderObjType::FixedColor:
+            case RenderObjType::Reflective:
+                return true;
+            default:
+                return false;
+        }
+    }
     std::vector<std::vector<glm::vec3>> BackgroundTerrain::GenHeightMap(
             uint32_t vertexCount,
             float vertexSpacing,
