@@ -78,6 +78,16 @@ namespace en
         GLDrawCall();
     }
 
+    const Material* Mesh::GetMaterial() const
+    {
+        return material_;
+    }
+
+    void Mesh::SetMaterial(const Material *material)
+    {
+        material_ = material;
+    }
+
     void Mesh::GLDrawCall() const
     {
         glBindVertexArray(vao_);

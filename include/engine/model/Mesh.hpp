@@ -28,6 +28,9 @@ namespace en
         void RenderDiffuse(const GLProgram* program) override;
         void RenderAll(const GLProgram* program) override;
 
+        const Material* GetMaterial() const;
+        void SetMaterial(const Material* material);
+
     private:
         unsigned int vao_;
         std::vector<Vertex> vertices_;

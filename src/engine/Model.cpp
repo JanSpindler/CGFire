@@ -71,6 +71,25 @@ namespace en
             mesh->RenderAll(program);
     }
 
+    uint32_t Model::GetMeshCount() const
+    {
+        return meshes_.size();
+    }
+
+    const Material* Model::GetMeshMaterial(uint32_t meshIndex) const
+    {
+        if (meshIndex >= meshes_.size())
+            Log::Error("Mesh index exceeding boundaries", true);
+        return meshes_[meshIndex]->GetMaterial();
+    }
+
+    void Model::SetMeshMaterial(uint32_t meshIndex, const Material* material)
+    {
+        if (meshIndex >= meshes_.size())
+            Log::Error("Mesh index exceeding boundaries", true);
+        meshes_[meshIndex]->SetMaterial(material);
+    }
+
     const std::vector<Mesh*>& Model::GetMeshes() const
     {
         return meshes_;
