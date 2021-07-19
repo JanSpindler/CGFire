@@ -20,7 +20,7 @@ namespace en{
         current = anim;
         currenttime = 0.0f;
     }
-    void Animator::BoneTransform(aiNodeStructure node, glm::mat4 parenttransform) {
+    void Animator::BoneTransform(aiNodeStructure& node, const glm::mat4& parenttransform) {
         //Log::Info("Transforming Node" + node.name);
         Bone* bone = current->findbone(node.name);
         glm::mat4 nodetransform = node.transformation;
@@ -57,7 +57,7 @@ namespace en{
             BoneTransform(current->getrootnode(), glm::mat4(1.0f));
         }
     }
-    std::vector<glm::mat4> Animator::getfinalbonetransforms() {
+    const std::vector<glm::mat4>& Animator::getfinalbonetransforms() {
         return finalbonetransforms;
     }
 }

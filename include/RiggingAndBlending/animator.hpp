@@ -16,12 +16,12 @@ namespace en{
 
 
 
-        void BoneTransform(aiNodeStructure node, glm::mat4 parenttransform);
+        void BoneTransform(aiNodeStructure& node, const glm::mat4& parenttransform);
 
     public:
         explicit Animator(Animation* currentanim);
         void UpdateAnim(float dt);
-        std::vector<glm::mat4> getfinalbonetransforms();
+        const std::vector<glm::mat4>& getfinalbonetransforms();
 
         void playAnim(Animation* anim);
     };

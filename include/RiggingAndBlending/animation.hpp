@@ -28,11 +28,11 @@ namespace en{
         std::map<std::string, boneinfo> bonemap;
     public:
         Animation(const std::string& animpath, Model *model);
-        Bone* findbone(std::string& name);
-        std::map<std::string, boneinfo> getbonemap();
+        Bone* findbone(const std::string& name);
+        std::map<std::string, boneinfo>& getbonemap();
         float gettickspersec() const;
         float getduration() const;
-        aiNodeStructure getrootnode();
+        aiNodeStructure& getrootnode();
     private:
         void buildhierarchy(aiNodeStructure& dest, aiNode* source);
         void addbones(aiAnimation* anim, Model& model);

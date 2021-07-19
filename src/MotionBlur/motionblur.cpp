@@ -94,7 +94,7 @@ namespace en{
         quad = en::setup_fullscreen_quad();
         //Log::Info("Build done"+std::to_string(quad));
     }
-    void motionblur::updatetransforms(std::vector<glm::mat4> newtransforms) {
+    void motionblur::updatetransforms(const std::vector<glm::mat4>& newtransforms) {
         prevtransforms = currenttransforms;
         currenttransforms = newtransforms;
     }
@@ -133,7 +133,7 @@ namespace en{
         program->SetUniformMat4("prevPVM", false, glm::value_ptr(prevprojviewmodelmat));
     }
 
-    void motionblur::setprevprojviewmodelmat(glm::mat4 viewmat, glm::mat4 projmat) {
+    void motionblur::setprevprojviewmodelmat(const glm::mat4& viewmat, const glm::mat4& projmat) {
         prevprojviewmodelmat = projmat*viewmat;
     }
 }

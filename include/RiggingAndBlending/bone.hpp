@@ -30,10 +30,10 @@ class Bone{
     glm::mat4 current;
     int boneid;
 public:
-    Bone(int ID, const aiNodeAnim* channel, std::string name);
+    Bone(int ID, const aiNodeAnim* channel, const std::string& name);
     void PerFrame(float animationtime);
-    std::string getbonename();
-    glm::mat4 getcurrent();
+    const std::string& getbonename();
+    const glm::mat4& getcurrent();
 private:
     glm::mat4 interppos(float animationtime);
     glm::mat4 interpscale(float animationtime);

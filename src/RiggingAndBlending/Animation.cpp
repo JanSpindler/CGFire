@@ -28,18 +28,22 @@ namespace en{
             bonemap = modelbonemap;
         }
     }
-    std::map<std::string, boneinfo> Animation::getbonemap() {
+
+    std::map<std::string, boneinfo>& Animation::getbonemap() {
         return bonemap;
     }
+
     float Animation::gettickspersec() const {
         return tickspersec;
     }
     float Animation::getduration() const {
         return Duration;
     }
-    aiNodeStructure Animation::getrootnode() {
+
+    aiNodeStructure& Animation::getrootnode() {
         return rootnode;
     }
+
     void Animation::buildhierarchy(aiNodeStructure &dest, aiNode *source) {
         dest.name = source->mName.C_Str();
         dest.transformation = util::AssimptoGLM4x4(source->mTransformation);
@@ -50,7 +54,7 @@ namespace en{
             dest.children.push_back(newnode);
         }
     }
-    Bone* Animation::findbone(std::string &name) {
+    Bone* Animation::findbone(const std::string& name) {
         for (auto it = std::begin(bones); it != std::end(bones); it++){
             Bone bone = (*it);
             if (bone.getbonename()==name){

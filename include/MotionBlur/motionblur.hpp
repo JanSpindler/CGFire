@@ -20,7 +20,7 @@ namespace en{
         glm::mat4 prevprojviewmodelmat = glm::mat4();
         void doblur(const GLProgram* program, const GBuffer* buffer, const Camera* cam) const;
         motionblur(int width, int height);
-        void updatetransforms(std::vector<glm::mat4> newtransforms);
+        void updatetransforms(const std::vector<glm::mat4>& newtransforms);
         GLuint color_tex = 0;
         GLuint depth_rbo = 0;
         GLuint fbo = 0;
@@ -31,7 +31,7 @@ namespace en{
         const GLProgram* makerenderprog();
         void build_framebuffer(int width, int height);
         unsigned int quad;
-        void setprevprojviewmodelmat(glm::mat4 viewmat, glm::mat4 projmat);
+        void setprevprojviewmodelmat(const glm::mat4& viewmat, const glm::mat4& projmat);
     };
 }
 
