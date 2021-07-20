@@ -16,8 +16,6 @@ namespace scene {
               m_ObjectManager(*this, m_EventManager),
               m_EventManager(m_Cam, *this, m_SceneRenderer, m_SoundManager, m_ObjectManager, m_FireCreator, m_WaterCreator, m_SmokeCreator)
     {
-        m_AutoSave =  true;
-        m_ReloadEventsPeriodically = true;
 
         initObjects();
     }

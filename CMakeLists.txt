@@ -92,7 +92,13 @@ file(GLOB_RECURSE engineSOURCES
         src/RiggingAndBlending/*.cpp
         src/MotionBlur/*.cpp
         src/ssao/*.cpp
-        src/sound/*.cpp)
+        src/sound/*.cpp
+        src/project/*.cpp)
+
+get_filename_component(main_cpp_path ${CMAKE_CURRENT_SOURCE_DIR}/src/project/main.cpp ABSOLUTE)
+list(REMOVE_ITEM engineSOURCES "${main_cpp_path}")
+
+
 add_library(engineLibrary STATIC ${engineSOURCES})
 target_link_libraries(engineLibrary frameworkLibrary)
 

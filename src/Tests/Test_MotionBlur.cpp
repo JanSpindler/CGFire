@@ -46,7 +46,7 @@ int main()
     const en::GLShader* fragShader = en::GLShader::Load("skeletalblur.frag");
     const en::GLProgram* program = en::GLProgram::Load(vertShader, nullptr, fragShader);
 
-    en::Model vampiremodel("vampire/dancing_vampire.dae", true);
+    en::Model vampiremodel("vampire/dancing_vampire.dae", true, false);
     vampiremodel.SetName("vampire");
     en::Animation animation("vampire/dancing_vampire.dae", &vampiremodel);
     en::Animator animator(&animation);

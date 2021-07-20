@@ -15,6 +15,7 @@
 #include "engine/input/Input.hpp"
 
 #include "util/UserCamMovement.h"
+#include <project/ObjectManager.h>
 
 
 

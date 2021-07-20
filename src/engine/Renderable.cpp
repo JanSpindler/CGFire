@@ -52,7 +52,7 @@ namespace en
         if (spline_ != nullptr){
             assert(iterator_ != nullptr);
             Position = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
-            Quaternion = glm::quatLookAt(spline_->GetSegmentDir(iterator_->lastPoint), glm::vec3(0.f, 1.f, 0.f));
+            Quaternion = glm::quatLookAt(-spline_->GetSegmentDir(iterator_->lastPoint), glm::vec3(0.f, 1.f, 0.f));
         }
     }
     void RenderObj::StopSplineTracking(){

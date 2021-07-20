@@ -24,7 +24,6 @@
 
 #include "engine/Skeletal.hpp"
 
-#include "ObjToSplineConnector.h"
 #include "ObjectManager.h"
 #include "EventManager.h"
 #include <sound/SoundManager.h>
@@ -81,13 +80,13 @@ namespace scene {
         int m_FPS;
 
         //Auto Save
-        bool m_AutoSave;
+        bool m_AutoSave = true;
         float m_TimeSinceAutoSave = 0.f;
         float m_AutoSaveEveryXSeconds = 5.f;
         void Save(const std::string& folderName = "");
 
         //Auto reload Events--> Good for modelling the scene with actual data
-        bool m_ReloadEventsPeriodically;
+        bool m_ReloadEventsPeriodically = false;
         float m_TimeSinceReloadEvents = 0.f;
         float m_ReloadEventsEveryXSeconds = 2.f;
         void ReloadEvents();
