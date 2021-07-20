@@ -51,6 +51,10 @@ namespace scene {
             m_Obj->TrackSpline(m_Spline, m_TrackSpeed);
         }
 
+        void OnResetTime(){
+            m_Obj->TrackSpline(nullptr, m_TrackSpeed);
+        }
+
 
         bool OnImGuiRender() override{
             static std::string s_ObjSelection;

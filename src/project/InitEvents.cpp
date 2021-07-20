@@ -27,6 +27,9 @@
 #include <project/Events/SetCamFocusEvent.h>
 #include <project/Events/PlaySoundEffectEvent.h>
 #include <project/Events/PlayMusicEvent.h>
+#include <project/Events/PauseMusicEvent.h>
+#include <project/Events/UnpauseMusicEvent.h>
+#include <project/Events/SetObjectMotionBlurEvent.h>
 
 
 namespace scene {
@@ -66,6 +69,10 @@ namespace scene {
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectWaterRelativeToObjectEvent>(objectManager, waterCreator));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::PlaySoundEffectEvent>(soundManager, objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::PlayMusicEvent>(soundManager));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::PauseMusicEvent>(soundManager));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::UnpauseMusicEvent>(soundManager));
+
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetObjectMotionBlurEvent>(objectManager));
     }
 
     void DestroyDummyEvents(){

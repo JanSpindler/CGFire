@@ -26,9 +26,9 @@ namespace en
 
         void Update(float deltaTime);
 
-        void SetPrevViewMat(Camera* cam);
+        void SetPrevViewMat(const Camera* cam);
 
-        void Render(const Window* window, const Camera* cam) const;
+        void Render(const Window* window, const Camera* cam);
         void Resize(int32_t width, int32_t height);
 
         void AddSceletalRenderObj(Skeletal* renderObj);

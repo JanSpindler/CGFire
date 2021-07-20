@@ -89,6 +89,7 @@ namespace scene {
         m_SceneRenderer.Render(&m_Window, &m_Cam);
         m_ParticleSystemAdditiveBlendingOff.OnRender();
         m_ParticleSystemAdditiveBlendingOn.OnRender();
+        m_SceneRenderer.SetPrevViewMat(&m_Cam);
     }
 
     void SceneManager::onImGuiRender() {

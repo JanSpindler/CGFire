@@ -41,18 +41,33 @@ namespace en
 
     void RenderObj::TrackSpline(const Spline3D* spline, float trackSpeed)
     {
-        assert(spline != nullptr);
-        spline_ = spline;
         trackSpeed_ = trackSpeed;
-        iterator_ = new Spline3DIterator(0, 0.0f);
+        if (spline_ != spline){
+            if (iterator_ != nullptr)
+                delete iterator_;
+            iterator_ = new Spline3DIterator(0, 0.0f);
+        }
+        else if (spline == nullptr){
+            if (iterator_ != nullptr){
+                delete iterator_;
+                iterator_ = nullptr;
+            }
+        }
+        spline_ = spline;
     }
 
     void RenderObj::TrackStep(float deltaTime)
     {
         if (spline_ != nullptr){
             assert(iterator_ != nullptr);
-            Position = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
-            Quaternion = glm::quatLookAt(-spline_->GetSegmentDir(iterator_->lastPoint), glm::vec3(0.f, 1.f, 0.f));
+            auto pos = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
+            if (pos != glm::vec3(NAN, NAN, NAN)) {
+                Position = pos;
+                Quaternion = glm::quatLookAt(-spline_->GetSegmentDir(iterator_->lastPoint), glm::vec3(0.f, 1.f, 0.f));
+            }
+            else
+                spline_ = nullptr;
+
         }
     }
     void RenderObj::StopSplineTracking(){

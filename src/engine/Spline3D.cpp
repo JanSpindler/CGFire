@@ -100,12 +100,15 @@ namespace en
         {
             t -= segmentLengths_[i];
             i++;
-            i %= segmentLengths_.size();
+            if (i >= segmentLengths_.size()){
+                i--;
+                //return glm::vec3(NAN, NAN, NAN); // ich will keine loops
+                i %= segmentLengths_.size();
+            }
         }
 
         iterator->lastInterp = t;
         iterator->lastPoint = i;
-        auto a =  glm::lerp(points_[i], points_[i + 1], t / segmentLengths_[i]);
 
         return glm::lerp(points_[i], points_[i + 1], t / segmentLengths_[i]);
     }
@@ -455,7 +458,7 @@ namespace en
             this->Recreate(controlPoints_);
         }
 
-        if (ImGui::DragInt("Resolution", &resolution_, 0.05, 16, 999)){
+        if (ImGui::DragInt("Resolution", &resolution_, 0.05, controlPoints_.size() * 4, 999)){
             this->Recreate(controlPoints_);
         }
 
@@ -466,7 +469,7 @@ namespace en
         int i = 0;
         for (auto it = controlPoints_.begin(); it != controlPoints_.end(); ++it){
             ImGui::PushID(i);
-            if (ImGui::DragFloat3("", &(*it).x)){
+            if (ImGui::DragFloat3("", &(*it).x, 0.05f)){
                 this->Recreate(controlPoints_);
             }
             ImGui::SameLine();

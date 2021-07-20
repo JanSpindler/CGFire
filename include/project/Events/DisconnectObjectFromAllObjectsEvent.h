@@ -45,6 +45,7 @@ namespace scene {
 
         void OnAction() override {
             m_ObjectManager.DisconnectObjectFromOthers(m_Obj);
+            m_Obj->TrackSpline(nullptr, 0.f);
         }
 
 

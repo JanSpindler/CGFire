@@ -36,11 +36,11 @@ namespace en
             c->Update(deltaTime);
     }
 
-    void SceneRenderer::SetPrevViewMat(Camera *cam) {
+    void SceneRenderer::SetPrevViewMat(const Camera *cam) {
         motionblur_.prevprojviewmodelmat = cam->GetViewProjMat();
     }
 
-    void SceneRenderer::Render(const Window* window, const Camera* cam) const
+    void SceneRenderer::Render(const Window* window, const Camera* cam)
     {
         glm::mat4 viewMat = cam->GetViewMat();
         glm::mat4 skyboxViewMat = glm::mat4(glm::mat3(viewMat));

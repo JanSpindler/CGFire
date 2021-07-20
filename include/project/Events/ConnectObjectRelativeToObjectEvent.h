@@ -121,10 +121,13 @@ namespace scene {
 
 
 
-            ImGui::DragFloat3("Relative Position", &m_RelativePosition.x, 0.005f);
+            if (ImGui::DragFloat3("Relative Position", &m_RelativePosition.x, 0.005f)){
+                m_ObjCarried->Position = m_ObjCarry->Position + m_ObjCarry->Quaternion *  m_RelativePosition;
+            }
 
             //Draw Rotation Buttons
             util::DrawImGuiQuaternionRotationUI(m_RelativeRotation);
+            m_ObjCarried->Quaternion = m_ObjCarry->Quaternion * m_RelativeRotation;
 
 
             bool optionsOk = m_ObjCarried != nullptr && m_ObjCarry != nullptr;

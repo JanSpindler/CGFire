@@ -64,9 +64,17 @@ namespace sound{
             m_Music.stop();
             m_Music.play();
         }
+        void SoundManager::PauseMusic(){
+            m_Music.pause();
+        }
+        void SoundManager::UnpauseMusic(){
+            m_Music.play();
+        }
 
         void SoundManager::OnImGuiRender(){
             ImGui::Text("Music");
+
+            m_MusicVolume = m_Music.getVolume();
             if (ImGui::DragFloat("Volume", &m_MusicVolume, 1.f, 0.f, 100.f)){
                 m_Music.setVolume(m_MusicVolume);
             }

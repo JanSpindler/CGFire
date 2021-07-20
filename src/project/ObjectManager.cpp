@@ -348,7 +348,8 @@ namespace scene {
         using namespace util;
         writer << o.Position.x << o.Position.y << o.Position.z
                << o.Quaternion.w <<o.Quaternion.x << o.Quaternion.y << o.Quaternion.z
-               << o.Scaling.x << o.Scaling.y << o.Scaling.z << endrow;
+               << o.Scaling.x << o.Scaling.y << o.Scaling.z
+               << static_cast<int>(o.blur) << endrow;
     }
 
     void ObjectManager::ReadRenderObjDataFromStrings(const std::vector <std::string> &str, en::RenderObj &o) {
@@ -362,6 +363,7 @@ namespace scene {
         o.Scaling.x = std::stof(str[7]);
         o.Scaling.y = std::stof(str[8]);
         o.Scaling.z = std::stof(str[9]);
+        o.blur = static_cast<bool>(std::stoi(str[10]));
     }
 
     void ObjectManager::OnImGuiAddObjectRender(ObjectType type) {

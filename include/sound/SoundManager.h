@@ -37,6 +37,8 @@ namespace sound{
         }
 
         void PlayMusic(const std::string& file, float volume = NAN);
+        void PauseMusic();
+        void UnpauseMusic();
 
         void OnImGuiRender();
     private:
