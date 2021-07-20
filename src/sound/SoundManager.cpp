@@ -71,6 +71,7 @@ namespace sound{
                 m_Music.setVolume(m_MusicVolume);
             }
 
+            m_MusicOffset = m_Music.getPlayingOffset().asSeconds();
             if (ImGui::SliderFloat("Offset", &m_MusicOffset, 0.f, m_Music.getDuration().asSeconds())){
                 m_Music.setPlayingOffset(sf::seconds(m_MusicOffset));
             }

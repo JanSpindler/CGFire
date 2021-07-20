@@ -138,13 +138,19 @@ namespace en
     void Camera::TrackSpline(const Spline3D* spline, float trackSpeed, bool viewInSplineDir)
     {
         assert(spline != nullptr);
-        spline_ = spline;
+
         trackSpeed_ = trackSpeed;
         viewInSplineDir_ = viewInSplineDir;
         if (viewInSplineDir_) {
             this->DisableFocus();
         }
-        iterator_ = new Spline3DIterator(0, 0.0f);
+        if (spline == nullptr || spline_ != spline){
+            if (iterator_ != nullptr)
+                delete iterator_;
+            iterator_ = new Spline3DIterator(0, 0.0f);
+        }
+        spline_ = spline;
+
     }
 
     void Camera::TrackStep(float deltaTime)

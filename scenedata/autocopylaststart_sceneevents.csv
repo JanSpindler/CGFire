@@ -8,4 +8,9 @@
 0,10,"Vampir","KameraMove1",5
 0,2,"Fire 5. Stock",-10.15,7.9,-27.9,19.05,0,13.9,50,10,5,0.46,0.15,0,3.5,5.6,4.5,10,4.5,0.98,0.7
 0,16,"darren-curtis-ignite-the-fire.ogg",50
+0,0,"KameraFollow Car",3,1
+0,0,"Car Movement",3,1
 1.485,8,"KameraMove1",23.24,0
+30,17,1,0,0,0,"Truck"
+30,8,"KameraFollow Car",10,0
+30,10,"Truck","Car Movement",100

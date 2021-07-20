@@ -455,7 +455,7 @@ namespace en
             this->Recreate(controlPoints_);
         }
 
-        if (ImGui::DragInt("Resolution", &resolution_, 1, 16, 999)){
+        if (ImGui::DragInt("Resolution", &resolution_, 0.05, 16, 999)){
             this->Recreate(controlPoints_);
         }
 

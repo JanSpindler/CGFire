@@ -107,7 +107,7 @@ namespace scene {
                 ImGui::EndCombo();
             }
 
-            ImGui::DragFloat("Track speed", &m_TrackSpeed, 0.0001f, 0.0001f, 9999.f);
+            ImGui::DragFloat("Track speed", &m_TrackSpeed, 0.1f, 0.0001f, 9999.f);
 
             bool optionsOk = m_Obj != nullptr && m_Spline != nullptr;
             return optionsOk;
@@ -132,6 +132,6 @@ namespace scene {
 
         RenderObj* m_Obj = nullptr;
         Spline3D* m_Spline = nullptr;
-        float m_TrackSpeed = 0.1f;
+        float m_TrackSpeed = 10.f;
     };
 }
