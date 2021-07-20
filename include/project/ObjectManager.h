@@ -56,7 +56,7 @@ namespace scene {
 
         bool AreSplinesDrawn();
 
-        void ConnectObjectToSpline(en::RenderObj* obj, en::Spline3D* spline);
+        void ConnectObjectToSpline(en::RenderObj* obj, en::Spline3D* spline, float trackspeed);
         void ConnectObjectRelativeToObject(en::RenderObj* carried, en::RenderObj* carry,
                                            const glm::vec3& pos, const glm::quat& rot);
         void DisconnectObjectFromOthers(en::RenderObj* obj);
@@ -102,14 +102,10 @@ namespace scene {
         enum class ButtonClickHappened {None, Clone, Delete}; //There may be a better approach to this but idk
         ButtonClickHappened ObjectManager::OnImGuiObjectRender(ObjectType type, en::RenderObj& o);
 
-        //TODO
-        std::list<std::pair<en::RenderObj*, en::Spline3D*>> m_ObjectToSplineConnections;
-        void UpdateObjectToSplineConnections(float dt);
 
         typedef std::tuple<en::RenderObj*, en::RenderObj*, glm::vec3, glm::quat> ObjectToObjectConnection_t;
         std::list<ObjectToObjectConnection_t> m_ObjectToObjectConnections;
         void UpdateObjectToObjectConnections();
-
 
     };
 }

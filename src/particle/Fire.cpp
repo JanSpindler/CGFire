@@ -8,12 +8,16 @@ namespace particle{
 
     Flame::Flame(const char name[32],
                  const glm::vec3& position,
-          const glm::vec3& positionVariation,
-          int particlesPerEmit,
-          float buildUpTime,
-          float expiringTime,
-          float particleLifeTime,
-          float particleLifeTimeVariation)
+                 const glm::vec3& positionVariation,
+                 int particlesPerEmit,
+                 float buildUpTime,
+                 float expiringTime,
+                 float particleLifeTime,
+                 float particleLifeTimeVariation,
+                 const glm::vec3& velocity,
+                 const glm::vec3& velocityVariation,
+                 float sizeBegin,
+                 float sizeEnd)
             : PointLight(1.f),
               Position(position),
               PositionVariation(positionVariation),
@@ -21,10 +25,14 @@ namespace particle{
               BuildUpTime(buildUpTime),
               ExpiringTime(expiringTime),
               ParticleLifeTime(particleLifeTime),
-              ParticleLifeTimeVariation(particleLifeTimeVariation)
+              ParticleLifeTimeVariation(particleLifeTimeVariation),
+              Velocity(velocity),
+              VelocityVariation(velocityVariation),
+              SizeBegin(sizeBegin),
+              SizeEnd(sizeEnd)
+
     {
         strcpy_s(Name, name);
-
     }
 
 
@@ -38,15 +46,53 @@ namespace particle{
 
     void Flame::OnImGuiRender(){
         ImGui::InputText("Flame Name", Name, IM_ARRAYSIZE(Name));
-        if (ImGui::DragFloat3("Position", &Position.x, 0.05f)){
+        if (ImGui::DragFloat3("Position", &Position.x, 0.001f)){
             Sound.setPosition(Position.x, Position.y, Position.z);
         }
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
         ImGui::DragInt("ParticlesPerEmit", &ParticlesPerEmit, 1, 0, 999);
-        ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 10.f);
-        ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 10.f);
+        ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 999.f);
+        ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 999.f);
         ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.01f, 0.f, 999.f);
         ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.05f, 0.f, 999.f);
+        ImGui::DragFloat3("Velocity", &Velocity.x, 0.005f, 0.f);
+        ImGui::DragFloat3("VelocityVariation", &VelocityVariation.x, 0.001f, 0.f, 999.f);
+        ImGui::DragFloat("SizeBegin", &SizeBegin, 0.001f, 0.f, 999.f);
+        ImGui::DragFloat("SizeEnd", &SizeEnd, 0.001f, 0.f, 999.f);
+    }
+
+    std::shared_ptr<Flame> Flame::LoadDataFromStrings(const std::vector<std::string>& data){
+        std::string Name = data[0];
+        glm::vec3 Position = glm::vec3(std::stof(data[1]), std::stof(data[2]), std::stof(data[3]));
+        glm::vec3 PositionVariation = glm::vec3(std::stof(data[4]), std::stof(data[5]), std::stof(data[6]));
+        int ParticlesPerEmit = std::stoi(data[7]);
+        float BuildUpTime = std::stof(data[8]);
+        float ExpireTime = std::stof(data[9]);
+        float ParticleLifeTime = std::stof(data[10]);
+        float ParticleLifeTimeVariation = std::stof(data[11]);
+        glm::vec3 Velocity = glm::vec3(std::stof(data[12]), std::stof(data[13]), std::stof(data[14]));
+        glm::vec3 VelocityVariation = glm::vec3(std::stof(data[15]), std::stof(data[16]), std::stof(data[17]));
+        float SizeBegin = std::stof(data[18]);
+        float SizeEnd = std::stof(data[19]);
+
+
+        auto flame = std::make_shared<Flame>(Name.c_str(), Position, PositionVariation, ParticlesPerEmit,
+                                          BuildUpTime, ExpireTime, ParticleLifeTime, ParticleLifeTimeVariation,
+                                          Velocity, VelocityVariation, SizeBegin, SizeEnd);
+        return flame;
+    }
+    void Flame::SaveSpecificDataToCSV(util::CSVWriter& csv){
+        csv << Name
+            << Position.x << Position.y << Position.z
+            << PositionVariation.x << PositionVariation.y << PositionVariation.z
+            << ParticlesPerEmit
+            << BuildUpTime
+            << ExpiringTime
+            << ParticleLifeTimeVariation
+            << ParticleLifeTime
+            << Velocity.x << Velocity.y << Velocity.z
+            << VelocityVariation.x << VelocityVariation.y << VelocityVariation.z
+            << SizeBegin << SizeEnd;
     }
 
     FireCreator::FireCreator(ParticleSystem& particleSystem, sound::SoundManager& soundManager)
@@ -82,14 +128,10 @@ namespace particle{
 
 
 
-        m_BaseFlameProps.Velocity = { 0.0f, 8.0f, 0.0f };
-        m_BaseFlameProps.VelocityVariation = { 4.5f, 10.0f, 4.5f };
         m_BaseFlameProps.GravityFactor = 0.1f; // we barely want gravity to work on fire
         m_BaseFlameProps.ColorBegin = { 1.f, 1.f, 1.f, 1.0f };
         m_BaseFlameProps.ColorEnd = { 1.f, 1.f, 1.f, 0.3f };
-        m_BaseFlameProps.SizeBegin = 1.f;
         m_BaseFlameProps.SizeVariationFactor = 0.1f;
-        m_BaseFlameProps.SizeEnd = 0.8f;
         m_BaseFlameProps.TexCoordAnimFrames = {4, 4};
 
     }
@@ -129,8 +171,10 @@ namespace particle{
                     props.LifeTime = flameSizeFactor * flame->ParticleLifeTime;
                     props.LifeTimeVariation = flameSizeFactor * flame->ParticleLifeTimeVariation;
 
-                    props.SizeBegin = flameSizeFactor * m_BaseFlameProps.SizeBegin;
-                    props.SizeEnd = flameSizeFactor * m_BaseFlameProps.SizeEnd;
+                    props.Velocity = flame->Velocity;
+                    props.VelocityVariation = flame->VelocityVariation;
+                    props.SizeBegin = flameSizeFactor * flame->SizeBegin;
+                    props.SizeEnd = flameSizeFactor * flame->SizeEnd;
                     props.SizeVariationFactor = m_BaseFlameProps.SizeVariationFactor;
 
                     uint32_t numParticlesEmitted = static_cast<uint32_t>(
@@ -159,14 +203,10 @@ namespace particle{
         ImGui::Begin("Fire");
         ImGui::TextColored(ImVec4(0, 1, 1, 1), "Flame Particle Props (General)");
         ImGui::TextColored(ImVec4(1, 1, 1, 1), "#Particles:  %d", m_ParticleSystem.getActiveParticleCount());
-        ImGui::DragFloat3("Velocity", &m_BaseFlameProps.Velocity.x, 0.05f, 0.f);
-        ImGui::DragFloat3("VelocityVariation", &m_BaseFlameProps.VelocityVariation.x, 0.05f, 0.f, 999.f);
         ImGui::DragFloat("GravityFactor", &m_BaseFlameProps.GravityFactor, 0.001f, 0.f, 999.f);
         ImGui::ColorEdit4("ColorBegin", &m_BaseFlameProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseFlameProps.ColorEnd.x);
-        ImGui::DragFloat("SizeBegin", &m_BaseFlameProps.SizeBegin, 0.01f, 0.f, 999.f);
         ImGui::DragFloat("SizeVariationFactor", &m_BaseFlameProps.SizeVariationFactor, 0.005f, 0.f, 1.f);
-        ImGui::DragFloat("SizeEnd", &m_BaseFlameProps.SizeEnd, 0.01f, 0.f, 999.f);
 
         if (ImGui::DragFloat("SoundVolume", &m_SndVolume, 1.f, 0.f, 100.f)){
             for (auto& f : m_Flames){
@@ -202,7 +242,7 @@ namespace particle{
         flame->Timer = 0.f;
         flame->Expired = false;
         flame->BuildingUp = true;
-        m_Flames.emplace_back(flame);
+        m_Flames.push_back(flame);
 
         auto& s = flame->Sound;
         s.setBuffer(*m_SoundBuffers[util::Random::Uint32(0, static_cast<uint32_t>(m_SoundBuffers.size())-1)]);

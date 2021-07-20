@@ -58,6 +58,8 @@ namespace en
 
         void TrackSpline(const Spline3D* spline, float trackSpeed);
         void TrackStep(float deltaTime);
+        void StopSplineTracking();
+
 
         virtual glm::vec3 GetPos();
 

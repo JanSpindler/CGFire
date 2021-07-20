@@ -9,7 +9,11 @@
 #include <engine/Spline3D.hpp>
 #include <utility>
 #include "engine/render/Light.hpp"
+#include <util/CSVWriter.h>
 
+namespace scene{
+    class ObjectManager;
+}
 namespace particle{
 
     /*A smoke stream can be placed in the scene, using a spline for the movement of the particles*/
@@ -45,6 +49,9 @@ namespace particle{
 
         void startExpiring();
         void OnImGuiRender();
+        static std::shared_ptr<SmokeStream> LoadDataFromStrings(scene::ObjectManager& objectManager,
+                                                                const std::vector<std::string>& data);
+        void SaveSpecificDataToCSV(util::CSVWriter& csv);
     private:
         bool BuildingUp = true;
         bool Expiring = false; //if set true, the fire will start to expire

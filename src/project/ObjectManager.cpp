@@ -716,13 +716,6 @@ namespace scene {
         return m_SceneManager.AreSplinesDrawn();
     }
 
-    void ObjectManager::ConnectObjectToSpline(en::RenderObj* obj, en::Spline3D* spline){
-        //TODO sobald Jan es gepusht hat
-    }
-
-    void ObjectManager::UpdateObjectToSplineConnections(float dt){
-        //TODO sobald Jan es gepusht hat
-    }
 
     void ObjectManager::ConnectObjectRelativeToObject(en::RenderObj* carried, en::RenderObj* carry,
                                                            const glm::vec3& pos,
@@ -751,24 +744,16 @@ namespace scene {
                     it++;
             }
         }
-        {
-            auto it = m_ObjectToSplineConnections.begin();
-            while (it != m_ObjectToSplineConnections.end()) {
-                if (obj == it->first) { // if obj is carried by connection c
-                    it = m_ObjectToSplineConnections.erase(it);
-                } else
-                    it++;
-            }
-        }
     }
 
     void ObjectManager::OnUpdate(float dt) {
-        UpdateObjectToSplineConnections(dt);
         UpdateObjectToObjectConnections();
+        for (auto o : m_AllRenderObjects){
+            o->TrackStep(dt);
+        }
     }
 
     void ObjectManager::OnResetTime(){
         m_ObjectToObjectConnections.clear();
-        m_ObjectToSplineConnections.clear();
     }
 }

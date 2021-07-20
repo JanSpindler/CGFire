@@ -34,7 +34,7 @@ namespace scene {
             e->m_Loop = m_Loop;
             e->m_Obj = m_Obj;
             e->m_Position = m_Position;
-            e->m_RelativeToObj = m_RelativeToObj;
+            e->m_IsRelativeToObj = m_IsRelativeToObj;
 
             return e;
         }
@@ -50,9 +50,9 @@ namespace scene {
             m_Attenuation = std::stof(data[4]);
             m_MinDistance = std::stof(data[5]);
             m_Position = glm::vec3(std::stof(data[6]), std::stof(data[7]), std::stof(data[8]));
-            m_RelativeToObj = static_cast<bool>(std::stoi(data[9]));
+            m_IsRelativeToObj = static_cast<bool>(std::stoi(data[9]));
 
-            if (m_RelativeToObj) {
+            if (m_IsRelativeToObj) {
                 std::string objName = data[10];
 
                 m_Obj = m_ObjectManager.GetRenderObj(objName);
@@ -69,7 +69,7 @@ namespace scene {
                 << m_Attenuation
                 << m_MinDistance
                 << m_Position.x << m_Position.y << m_Position.z
-                << static_cast<int>(m_RelativeToObj) << (m_Obj == nullptr ? "" : m_Obj->GetName());
+                << static_cast<int>(m_IsRelativeToObj) << (m_Obj == nullptr ? "" : m_Obj->GetName());
         }
 
         void OnResetTime(){
@@ -84,7 +84,7 @@ namespace scene {
             m_Sound.setMinDistance(m_MinDistance);
 
             m_SoundManager.RegisterSoundAsName(m_SoundName, &m_Sound);
-            if (m_RelativeToObj){
+            if (m_IsRelativeToObj){
                 if (m_Obj != nullptr) {
                     m_SoundManager.RegisterSoundAtObject(&m_Sound, m_Obj);
                 }
@@ -133,9 +133,13 @@ namespace scene {
             if (ImGui::DragFloat("Volume", &m_Volume, 1.f, 0.f, 100.f)){
                 m_Sound.setVolume(m_Volume);
             }
-            ImGui::Checkbox("Relative to Object", &m_RelativeToObj);
+            if (ImGui::Checkbox("Relative to Object", &m_IsRelativeToObj)){
+                if (!m_IsRelativeToObj){
+                    m_Obj = nullptr;
+                }
+            }
 
-            if (m_RelativeToObj) {
+            if (m_IsRelativeToObj) {
                 static std::string s_ObjSelection;
 
                 if (m_Obj != nullptr)
@@ -185,7 +189,7 @@ namespace scene {
             bool optionsOk = true;
             if (std::string(m_SoundName).empty() || m_SoundFile.empty())
                 optionsOk = false;
-            if (m_RelativeToObj && m_Obj == nullptr)
+            if (m_IsRelativeToObj && m_Obj == nullptr)
                 optionsOk = false;
             return optionsOk;
         }
@@ -198,8 +202,8 @@ namespace scene {
         void UpdateDescription() override{
             m_Description = "Plays the sound \'" + std::string(m_SoundName) + "\'"
                     + (m_Loop ? "(looped)" : "")
-                    + (m_RelativeToObj ?
-                    (m_Obj != nullptr ? ("relative to object " + m_Obj->GetName()) : "") : "");
+                    + (m_IsRelativeToObj ?
+                       (m_Obj != nullptr ? ("relative to object " + m_Obj->GetName()) : "") : "");
         }
 
 
@@ -214,7 +218,7 @@ namespace scene {
         bool m_Loop = false;
         float m_Volume = 50.f;
         glm::vec3 m_Position = glm::vec3(0.f,0.f, 0.f); //only used if not relative to obj
-        bool m_RelativeToObj = false;
+        bool m_IsRelativeToObj = false;
 
         float m_Attenuation = 0.5f;
         float m_MinDistance = 5.f;

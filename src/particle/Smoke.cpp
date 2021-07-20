@@ -3,56 +3,92 @@
 //
 
 #include "particle/Smoke.h"
+#include "project/ObjectManager.h"
 
 
 namespace particle{
-        SmokeStream::SmokeStream(
-                const char name[32],
-                std::shared_ptr<en::Spline3D> spline,
-                const glm::vec3& positionVariation,
-                int particlesPerSecond,
-                float speed,
-                float speedVariation,
-                float sizeBegin,
-                float sizeEnd,
-                float sizeVariationFactor,
-                float buildUpTime,
-                float expiringTime)
-                : Spline(std::move(spline)),
-                  PositionVariation(positionVariation),
-                  Speed(speed),
-                  SpeedVariation(speedVariation),
-                  SizeBegin(sizeBegin),
-                  SizeEnd(sizeEnd),
-                  SizeVariationFactor(sizeVariationFactor),
-                  ParticlesPerSecond(particlesPerSecond),
-                  BuildUpTime(buildUpTime),
-                  ExpiringTime(expiringTime)
-        {
-            strcpy_s(Name, name);
-        }
+    SmokeStream::SmokeStream(
+            const char name[32],
+            std::shared_ptr<en::Spline3D> spline,
+            const glm::vec3& positionVariation,
+            int particlesPerSecond,
+            float speed,
+            float speedVariation,
+            float sizeBegin,
+            float sizeEnd,
+            float sizeVariationFactor,
+            float buildUpTime,
+            float expiringTime)
+            : Spline(std::move(spline)),
+              PositionVariation(positionVariation),
+              Speed(speed),
+              SpeedVariation(speedVariation),
+              SizeBegin(sizeBegin),
+              SizeEnd(sizeEnd),
+              SizeVariationFactor(sizeVariationFactor),
+              ParticlesPerSecond(particlesPerSecond),
+              BuildUpTime(buildUpTime),
+              ExpiringTime(expiringTime)
+    {
+        strcpy_s(Name, name);
+    }
 
-        void SmokeStream::startExpiring(){
-            if (Timer < BuildUpTime)
-                Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
-            else
-                Timer = 0.f;
-            BuildingUp = false; Expiring = true;
-        }
+    void SmokeStream::startExpiring(){
+        if (Timer < BuildUpTime)
+            Timer = (1.f-(Timer/BuildUpTime))*ExpiringTime;
+        else
+            Timer = 0.f;
+        BuildingUp = false; Expiring = true;
+    }
 
 
-        void SmokeStream::OnImGuiRender(){
-            ImGui::InputText("SmokeStream Name", Name, IM_ARRAYSIZE(Name));
-            ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.005f);
-            ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
-            ImGui::DragFloat("Speed", &Speed, 0.005f, 0.f, 999.f);
-            ImGui::DragFloat("SpeedVariation", &SpeedVariation, 0.005f, 0.f, 999.f);
-            ImGui::DragFloat("SizeBegin", &SizeBegin, 0.005f);
-            ImGui::DragFloat("SizeEnd", &SizeEnd, 0.005f);
-            ImGui::DragFloat("SizeVariationFactor", &SizeVariationFactor, 0.005f, 0.f, 1.f);
-            ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 10.f);
-            ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 10.f);
-        }
+    void SmokeStream::OnImGuiRender(){
+        ImGui::InputText("SmokeStream Name", Name, IM_ARRAYSIZE(Name));
+        ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.001f);
+        ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
+        ImGui::DragFloat("Speed", &Speed, 0.001f, 0.f, 999.f);
+        ImGui::DragFloat("SpeedVariation", &SpeedVariation, 0.001f, 0.f, 999.f);
+        ImGui::DragFloat("SizeBegin", &SizeBegin, 0.001f);
+        ImGui::DragFloat("SizeEnd", &SizeEnd, 0.001f);
+        ImGui::DragFloat("SizeVariationFactor", &SizeVariationFactor, 0.005f, 0.f, 1.f);
+        ImGui::DragFloat("BuildUpTime", &BuildUpTime, 0.01f, 0.f, 999.f);
+        ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 999.f);
+    }
+
+    std::shared_ptr<SmokeStream> SmokeStream::LoadDataFromStrings(scene::ObjectManager& objectManager,
+            const std::vector<std::string>& data){
+        std::string Name = data[0];
+        std::string SplineName = data[1];
+        glm::vec3 PositionVariation = glm::vec3(std::stof(data[2]), std::stof(data[3]), std::stof(data[4]));
+        int ParticlesPerSecond = std::stoi(data[5]);
+        float Speed = std::stof(data[6]);
+        float SpeedVariation = std::stof(data[7]);
+        float SizeBegin = std::stof(data[8]);
+        float SizeEnd = std::stof(data[9]);
+        float SizeVariationFactor = std::stof(data[10]);
+        float BuildUpTime = std::stof(data[11]);
+        float ExpiringTime = std::stof(data[12]);
+
+        auto smokeStream = std::make_shared<SmokeStream>(Name.c_str(), objectManager.GetSplineByName(SplineName),
+                                                      PositionVariation, ParticlesPerSecond,
+                                                      Speed, SpeedVariation, SizeBegin, SizeEnd, SizeVariationFactor,
+                                                      BuildUpTime, ExpiringTime);
+        return smokeStream;
+
+    }
+    void SmokeStream::SaveSpecificDataToCSV(util::CSVWriter& csv){
+        csv << std::string(Name)
+            << Spline->GetName()
+            << PositionVariation.x << PositionVariation.y << PositionVariation.z
+            << ParticlesPerSecond
+            << Speed
+            << SpeedVariation
+            << SizeBegin
+            << SizeEnd
+            << SizeVariationFactor
+            << BuildUpTime
+            << ExpiringTime;
+    }
 
 
     SmokeCreator::SmokeCreator(ParticleSystem& particleSystem)
@@ -165,7 +201,7 @@ namespace particle{
         smoke->Timer = 0.f;
         smoke->Expired = false;
         smoke->BuildingUp = true;
-        m_SmokeStreams.emplace_back(smoke);
+        m_SmokeStreams.push_back(smoke);
     }
 
     void SmokeCreator::startExpiringSmokeStreamOfName(const std::string& name){

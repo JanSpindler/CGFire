@@ -37,6 +37,9 @@ namespace en
         void TrackSpline(const Spline3D* spline, float trackSpeed, bool viewInSplineDir);
         void TrackStep(float deltaTime);
 
+        void SetFocus(const glm::vec3& pos);
+        void SetFocus(const en::RenderObj& obj);
+
         void OnUpdate(float dt);
 
     private:
@@ -44,6 +47,12 @@ namespace en
         float trackSpeed_;
         bool viewInSplineDir_;
         Spline3DIterator* iterator_;
+
+        bool doFocus_;
+        glm::vec3 focusPos_;
+        const en::RenderObj* focusObj_ = nullptr; // if nullptr, cam focus is focusPos
+
+        void DisableFocus();
 
         glm::vec3 pos_;
         glm::vec3 viewDir_;

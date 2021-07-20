@@ -46,7 +46,8 @@ namespace scene {
         SetObjectTransformEvent = 13,
         SetCamTransformEvent = 14,
         PlaySoundEffectEvent = 15,
-        PlayMusicEvent = 16
+        PlayMusicEvent = 16,
+        SetCamFocusEvent = 17
     };
 
     //For creating new events, I use a list of dummy events. Each new event type must have a dummy event

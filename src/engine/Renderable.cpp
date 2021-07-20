@@ -41,6 +41,7 @@ namespace en
 
     void RenderObj::TrackSpline(const Spline3D* spline, float trackSpeed)
     {
+        assert(spline != nullptr);
         spline_ = spline;
         trackSpeed_ = trackSpeed;
         iterator_ = new Spline3DIterator(0, 0.0f);
@@ -48,11 +49,18 @@ namespace en
 
     void RenderObj::TrackStep(float deltaTime)
     {
-        if (spline_ == nullptr || iterator_ == nullptr)
-            Log::Error("Spline and iterator must not be nullptr for track step", true);
-
-        Position = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
-        glm::vec3 dir = spline_->GetSegmentDir(iterator_->lastPoint);
+        if (spline_ != nullptr){
+            assert(iterator_ != nullptr);
+            Position = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
+            Quaternion = glm::quatLookAt(spline_->GetSegmentDir(iterator_->lastPoint), glm::vec3(0.f, 1.f, 0.f));
+        }
+    }
+    void RenderObj::StopSplineTracking(){
+        if (spline_){
+            spline_ = nullptr;
+            delete iterator_;
+            iterator_ = nullptr;
+        }
     }
 
     glm::vec3 RenderObj::GetPos()

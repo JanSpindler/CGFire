@@ -18,7 +18,9 @@ namespace particle {
                        float buildUpTime,
                        float expiringTime,
                        float particleLifeTime,
-                       float particleLifeTimeVariation)
+                       float particleLifeTimeVariation,
+                       float sizeBegin,
+                       float sizeEnd)
             : Position(position),
               PositionVariation(positionVariation),
               WaterDirection(waterDirection),
@@ -28,7 +30,9 @@ namespace particle {
               BuildUpTime(buildUpTime),
               ExpiringTime(expiringTime),
               ParticleLifeTime(particleLifeTime),
-              ParticleLifeTimeVariation(particleLifeTimeVariation) {
+              ParticleLifeTimeVariation(particleLifeTimeVariation),
+              SizeBegin(sizeBegin),
+              SizeEnd(sizeEnd){
         strcpy_s(Name, name);
     }
 
@@ -44,8 +48,8 @@ namespace particle {
 
     void WaterJet::OnImGuiRender() {
         ImGui::InputText("WaterJet Name", Name, IM_ARRAYSIZE(Name));
-        ImGui::DragFloat3("Position", &Position.x, 0.05f);
-        ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
+        ImGui::DragFloat3("Position", &Position.x, 0.001f);
+        ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.001f);
         ImGui::DragFloat3("WaterDirection", &WaterDirection.x, 0.01f);
         ImGui::DragFloat("Speed", &Speed, 0.1f, 0.f, 999.f);
         ImGui::DragFloat("SpeedVariation", &SpeedVariationFactor, 0.1f, 0.f, 999.f);
@@ -54,7 +58,49 @@ namespace particle {
         ImGui::DragFloat("ExpiringTime", &ExpiringTime, 0.01f, 0.f, 10.f);
         ImGui::DragFloat("ParticleLifeTime", &ParticleLifeTime, 0.01f, 0.f, 999.f);
         ImGui::DragFloat("ParticleLifeTimeVariation", &ParticleLifeTimeVariation, 0.001f, 0.f, 999.f);
+        ImGui::DragFloat("SizeBegin", &SizeBegin, 0.005f, 0.f, 999.f);
+        ImGui::DragFloat("SizeEnd", &SizeEnd, 0.005f, 0.f, 999.f);
     }
+
+    std::shared_ptr<WaterJet> WaterJet::LoadDataFromStrings(const std::vector<std::string>& data){
+        std::string Name = data[0];
+        glm::vec3 Position = glm::vec3(std::stof(data[1]), std::stof(data[2]), std::stof(data[3]));
+        glm::vec3 PositionVariation = glm::vec3(std::stof(data[4]), std::stof(data[5]), std::stof(data[6]));
+        glm::vec3 WaterDirection = glm::vec3(std::stof(data[7]), std::stof(data[8]), std::stof(data[9]));
+        float Speed = std::stof(data[10]);
+        float SpeedVariationFactor = std::stof(data[11]);
+        int ParticlesPerSecond = std::stoi(data[12]);
+        float BuildUpTime = std::stof(data[13]);
+        float ExpireTime = std::stof(data[14]);
+        float ParticleLifeTime = std::stof(data[15]);
+        float ParticleLifeTimeVariation = std::stof(data[16]);
+        float SizeBegin = std::stof(data[17]);
+        float SizeEnd = std::stof(data[18]);
+
+
+        auto waterJet = std::make_shared<WaterJet>(Name.c_str(), Position, PositionVariation, WaterDirection, Speed, SpeedVariationFactor,
+                                            ParticlesPerSecond, BuildUpTime, ExpireTime, ParticleLifeTime, ParticleLifeTimeVariation,
+                                            SizeBegin, SizeEnd);
+
+        return waterJet;
+    }
+
+    void WaterJet::SaveSpecificDataToCSV(util::CSVWriter& csv) const{
+        csv << Name
+        << Position.x << Position.y << Position.z
+        << PositionVariation.x << PositionVariation.y << PositionVariation.z
+        << WaterDirection.x << WaterDirection.y << WaterDirection.z
+        << Speed
+        << SpeedVariationFactor
+        << ParticlesPerSecond
+        << BuildUpTime
+        << ExpiringTime
+        << ParticleLifeTime
+        << ParticleLifeTimeVariation
+        << SizeBegin
+        << SizeEnd;
+    }
+
 
     WaterCreator::WaterCreator(ParticleSystem &particleSystem, sound::SoundManager& soundManager)
             : m_ParticleSystem(particleSystem),
@@ -92,9 +138,7 @@ namespace particle {
         m_BaseWaterJetProps.GravityFactor = 8.f;
         m_BaseWaterJetProps.ColorBegin = {255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f};
         m_BaseWaterJetProps.ColorEnd = {255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f};
-        m_BaseWaterJetProps.SizeBegin = 1.f;
         m_BaseWaterJetProps.SizeVariationFactor = 0.1f;
-        m_BaseWaterJetProps.SizeEnd = 3.5f;
         m_BaseWaterJetProps.TexCoordAnimFrames = {4, 4};
 
     }
@@ -130,7 +174,7 @@ namespace particle {
 
                     const float FREQUENCY = 1.f / (sizeFactor * static_cast<float>(waterJet->ParticlesPerSecond));
                     if (waterJet->SecondsSinceEmit > FREQUENCY) {
-                        uint32_t numParticlesToEmit = static_cast<uint32_t>(waterJet->SecondsSinceEmit / FREQUENCY);
+                        auto numParticlesToEmit = static_cast<uint32_t>(waterJet->SecondsSinceEmit / FREQUENCY);
                         ParticleProps props = m_BaseWaterJetProps;
 
                         for (size_t i = 0; i < numParticlesToEmit; ++i) {
@@ -147,6 +191,8 @@ namespace particle {
 
                             props.LifeTime = waterJet->ParticleLifeTime;
                             props.LifeTimeVariation = waterJet->ParticleLifeTimeVariation;
+                            props.SizeBegin = waterJet->SizeBegin;
+                            props.SizeEnd = waterJet->SizeEnd;
 
                             //use random texture
                             uint32_t randTextureID = util::Random::Uint32(0,
@@ -182,9 +228,7 @@ namespace particle {
         ImGui::DragFloat("GravityFactor", &m_BaseWaterJetProps.GravityFactor, 0.001f, 0.f, 999.f);
         ImGui::ColorEdit4("ColorBegin", &m_BaseWaterJetProps.ColorBegin.x);
         ImGui::ColorEdit4("ColorEnd", &m_BaseWaterJetProps.ColorEnd.x);
-        ImGui::DragFloat("SizeBegin", &m_BaseWaterJetProps.SizeBegin, 0.005f, 0.f, 999.f);
         ImGui::DragFloat("SizeVariationFactor", &m_BaseWaterJetProps.SizeVariationFactor, 0.005f, 0.f, 1.f);
-        ImGui::DragFloat("SizeEnd", &m_BaseWaterJetProps.SizeEnd, 0.005f, 0.f, 999.f);
 
         if (ImGui::DragFloat("SoundVolume", &m_SndVolume, 1.f, 0.f, 100.f)){
             for (auto& f : m_WaterJets){
@@ -219,7 +263,7 @@ namespace particle {
         waterJet->Timer = 0.f;
         waterJet->Expired = false;
         waterJet->BuildingUp = true;
-        m_WaterJets.emplace_back(waterJet);
+        m_WaterJets.push_back(waterJet);
 
         auto& s = waterJet->Sound;
         s.setBuffer(*m_SoundBuffers[util::Random::Uint32(0, static_cast<uint32_t>(m_SoundBuffers.size())-1)]);

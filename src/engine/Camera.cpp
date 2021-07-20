@@ -58,6 +58,7 @@ namespace en
             delete iterator_;
             iterator_ = nullptr;
         }
+        this->DisableFocus();
         pos_ = pos;
     }
 
@@ -69,6 +70,7 @@ namespace en
             delete iterator_;
             iterator_ = nullptr;
         }
+        this->DisableFocus();
         viewDir_ = glm::normalize(viewDir);
     }
 
@@ -105,6 +107,7 @@ namespace en
             delete iterator_;
             iterator_ = nullptr;
         }
+        this->DisableFocus();
 
         glm::vec3 frontMove = viewDir_ * movement.z;
         glm::vec3 leftMove = glm::normalize(glm::cross(viewDir_, up_)) * movement.x;
@@ -121,6 +124,7 @@ namespace en
             delete iterator_;
             iterator_ = nullptr;
         }
+        this->DisableFocus();
 
         glm::vec3 phiAxis = up_;
         glm::mat3 phiMat = glm::rotate(glm::identity<glm::mat4>(), phi, phiAxis);
@@ -137,6 +141,9 @@ namespace en
         spline_ = spline;
         trackSpeed_ = trackSpeed;
         viewInSplineDir_ = viewInSplineDir;
+        if (viewInSplineDir_) {
+            this->DisableFocus();
+        }
         iterator_ = new Spline3DIterator(0, 0.0f);
     }
 
@@ -147,9 +154,30 @@ namespace en
             pos_ = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
             if (viewInSplineDir_)
                 viewDir_ = spline_->GetSegmentDir(iterator_->lastPoint);
+            else if (doFocus_){
+                if (focusObj_ != nullptr)
+                    viewDir_ = focusObj_->Position - pos_;
+                else
+                    viewDir_ = focusPos_ - pos_;
+            }
         }
     }
     void Camera::OnUpdate(float dt){
         TrackStep(dt);
+    }
+
+    void Camera::SetFocus(const glm::vec3& pos){
+        doFocus_ = true;
+        focusPos_ = pos;
+        focusObj_ = nullptr;
+    }
+    void Camera::SetFocus(const en::RenderObj& obj){
+        doFocus_ = true;
+        focusObj_ = &obj;
+    }
+
+    void Camera::DisableFocus(){
+        focusObj_ = nullptr;
+        doFocus_ = false;
     }
 }

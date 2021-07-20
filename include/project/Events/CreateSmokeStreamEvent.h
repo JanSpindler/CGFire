@@ -42,40 +42,13 @@ namespace scene {
         }
 
         void LoadDataFromStrings(const std::vector<std::string>& data) override{
-            //<specific data>: see "Relevant Data" in Smoke.h, except Spline will be represented by its name
-
-            std::string Name = data[0];
-            std::string SplineName = data[1];
-            glm::vec3 PositionVariation = glm::vec3(std::stof(data[2]), std::stof(data[3]), std::stof(data[4]));
-            int ParticlesPerSecond = std::stoi(data[5]);
-            float Speed = std::stof(data[6]);
-            float SpeedVariation = std::stof(data[7]);
-            float SizeBegin = std::stof(data[8]);
-            float SizeEnd = std::stof(data[9]);
-            float SizeVariationFactor = std::stof(data[10]);
-            float BuildUpTime = std::stof(data[11]);
-            float ExpiringTime = std::stof(data[12]);
-
-            m_SmokeStream = std::make_shared<SmokeStream>(Name.c_str(), m_ObjectManager.GetSplineByName(SplineName),
-                                                          PositionVariation, ParticlesPerSecond,
-                                                          Speed, SpeedVariation, SizeBegin, SizeEnd, SizeVariationFactor,
-                                                          BuildUpTime, ExpiringTime);
+            m_SmokeStream = SmokeStream::LoadDataFromStrings(m_ObjectManager, data);
 
             this->UpdateDescription();
         }
 
         void SaveSpecificDataToCSV(util::CSVWriter& csv) override{
-            csv << std::string(m_SmokeStream->Name)
-                << m_SmokeStream->Spline->GetName()
-                << m_SmokeStream->PositionVariation.x << m_SmokeStream->PositionVariation.y << m_SmokeStream->PositionVariation.z
-                << m_SmokeStream->ParticlesPerSecond
-                << m_SmokeStream->Speed
-                << m_SmokeStream->SpeedVariation
-                << m_SmokeStream->SizeBegin
-                << m_SmokeStream->SizeEnd
-                << m_SmokeStream->SizeVariationFactor
-                << m_SmokeStream->BuildUpTime
-                << m_SmokeStream->ExpiringTime;
+            m_SmokeStream->SaveSpecificDataToCSV(csv);
         }
 
         void OnAction() override {

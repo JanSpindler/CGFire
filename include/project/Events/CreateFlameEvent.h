@@ -36,33 +36,13 @@ namespace scene {
         }
 
         void LoadDataFromStrings(const std::vector<std::string>& data) override{
-            //<specific data>: see "Relevant Data" in Fire.h
-
-            std::string Name = data[0];
-            glm::vec3 Position = glm::vec3(std::stof(data[1]), std::stof(data[2]), std::stof(data[3]));
-            glm::vec3 PositionVariation = glm::vec3(std::stof(data[4]), std::stof(data[5]), std::stof(data[6]));
-            int ParticlesPerEmit = std::stoi(data[7]);
-            float BuildUpTime = std::stof(data[8]);
-            float ExpireTime = std::stof(data[9]);
-            float ParticleLifeTime = std::stof(data[10]);
-            float ParticleLifeTimeVariation = std::stof(data[11]);
-
-
-            m_Flame = std::make_shared<Flame>(Name.c_str(), Position, PositionVariation, ParticlesPerEmit,
-                                              BuildUpTime, ExpireTime, ParticleLifeTime, ParticleLifeTimeVariation);
+            m_Flame = Flame::LoadDataFromStrings(data);
 
             this->UpdateDescription();
         }
 
         void SaveSpecificDataToCSV(util::CSVWriter& csv) override{
-            csv << m_Flame->Name
-                << m_Flame->Position.x << m_Flame->Position.y << m_Flame->Position.z
-                << m_Flame->PositionVariation.x << m_Flame->PositionVariation.y << m_Flame->PositionVariation.z
-                << m_Flame->ParticlesPerEmit
-                << m_Flame->BuildUpTime
-                << m_Flame->ExpiringTime
-                << m_Flame->ParticleLifeTime
-                << m_Flame->ParticleLifeTimeVariation;
+            m_Flame->SaveSpecificDataToCSV(csv);
         }
 
         void OnAction() override {

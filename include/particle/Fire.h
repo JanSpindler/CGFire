@@ -8,6 +8,7 @@
 #include <framework/imgui_util.hpp>
 #include "engine/render/Light.hpp"
 #include <sound/SoundManager.h>
+#include <util/CSVWriter.h>
 
 namespace particle{
 
@@ -22,7 +23,11 @@ namespace particle{
               float buildUpTime = 5.f,
               float expiringTime = 5.f,
               float particleLifeTime = 1.f,
-              float particleLifeTimeVariation = 0.2f);
+              float particleLifeTimeVariation = 0.2f,
+              const glm::vec3& velocity = { 0.0f, 8.0f, 0.0f },
+              const glm::vec3& velocityVariation = { 4.5f, 10.0f, 4.5f },
+              float sizeBegin = 1.f,
+              float sizeEnd = 0.8f);
 
         ~Flame(){
             Sound.stop();
@@ -37,10 +42,16 @@ namespace particle{
         float ExpiringTime; //the amount of time the fire takes to expire
         float ParticleLifeTime;
         float ParticleLifeTimeVariation;
+        glm::vec3 Velocity;
+        glm::vec3 VelocityVariation;
+        float SizeBegin;
+        float SizeEnd;
 
 
         void startExpiring();
         void OnImGuiRender();
+        static std::shared_ptr<Flame> LoadDataFromStrings(const std::vector<std::string>& data);
+        void SaveSpecificDataToCSV(util::CSVWriter& csv);
 
         //PointLight abstract methods
         glm::vec3 GetPos() const override { return Position; }
@@ -89,7 +100,7 @@ namespace particle{
         std::vector<std::shared_ptr<sf::SoundBuffer>> m_SoundBuffers;
 
         float m_SndVolume = 50.f;
-        float m_SndAttenuation = 0.5f;
+        float m_SndAttenuation = 1.6f;
         float m_SndMinDistance = 5.f;
 
 

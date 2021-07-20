@@ -6,7 +6,7 @@
 #include "engine/render/GLTexture.hpp"
 #include "particle/ParticleSystem.h"
 #include <framework/imgui_util.hpp>
-
+#include <util/CSVWriter.h>
 #include <sound/SoundManager.h>
 
 namespace en{
@@ -29,7 +29,9 @@ namespace particle{
                        float buildUpTime = 3.f,
                        float expiringTime = 1.f,
                        float particleLifeTime = 5.f,
-                       float particleLifeTimeVariation = 0.2f);
+                       float particleLifeTimeVariation = 0.2f,
+                       float sizeBegin = 1.f,
+                       float sizeEnd = 3.5f);
 
 
         ~WaterJet(){
@@ -48,10 +50,13 @@ namespace particle{
         float ExpiringTime; //the amount of time the fire takes to expire
         float ParticleLifeTime;
         float ParticleLifeTimeVariation;
+        float SizeBegin;
+        float SizeEnd;
 
         void startExpiring();
         void OnImGuiRender();
-
+        static std::shared_ptr<WaterJet> LoadDataFromStrings(const std::vector<std::string>& data);
+        void SaveSpecificDataToCSV(util::CSVWriter& csv) const;
     private:
         bool BuildingUp = true;
         bool Expiring = false; //if set true, the fire will start to expire

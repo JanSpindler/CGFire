@@ -63,7 +63,7 @@ namespace scene {
 
         m_SoundManager.OnUpdate();
 
-        m_ObjectManager.OnUpdate(m_SceneTime);
+        m_ObjectManager.OnUpdate(dt);
         m_EventManager.OnUpdate(m_SceneTime);
 
         m_Cam.OnUpdate(dt);
@@ -202,6 +202,6 @@ namespace scene {
         m_SceneRenderer.SetDirLight(m_DirLight.get());
 
         m_Terrain = std::make_shared<en::BackgroundTerrain>
-                (100, 20.0f, -34.0f, 1.0f, 128.0f, 0.0f);
+                (100, 20.0f, -28.0f, 1.0f, 128.0f, 0.0f);
     }
 }

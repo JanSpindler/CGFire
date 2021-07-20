@@ -24,6 +24,7 @@
 #include <project/Events/DisconnectObjectFromAllObjectsEvent.h>
 #include <project/Events/SetObjectTransformEvent.h>
 #include <project/Events/SetCamTransformEvent.h>
+#include <project/Events/SetCamFocusEvent.h>
 #include <project/Events/PlaySoundEffectEvent.h>
 #include <project/Events/PlayMusicEvent.h>
 
@@ -55,8 +56,12 @@ namespace scene {
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectObjectRelativeToObjectEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::DisconnectObjectFromAllObjectsEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetObjectTransformEvent>(objectManager));
-        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetCamTransformEvent>(cam));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectObjectToSplineEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectCamToSplineEvent>(objectManager, cam));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetCamTransformEvent>(cam));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetCamFocusEvent>(objectManager, cam));
+
+
 
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectWaterRelativeToObjectEvent>(objectManager, waterCreator));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::PlaySoundEffectEvent>(soundManager, objectManager));
