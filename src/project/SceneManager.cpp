@@ -25,7 +25,7 @@ namespace scene {
 
 
         if (resetTime) {
-            m_SceneTime = 0.f;
+            m_SceneTime = -5.f;
         }
         m_TimePaused = false;
 

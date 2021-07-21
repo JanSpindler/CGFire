@@ -22,7 +22,7 @@ namespace scene {
         Event* Clone() override{
             ExpireSmokeStreamEvent* e = new ExpireSmokeStreamEvent(m_SceneRenderer, m_SmokeCreator);
 
-            strcpy_s(m_SmokeName, e->m_SmokeName);
+            strcpy_s(e->m_SmokeName, m_SmokeName);
 
             return e;
         }

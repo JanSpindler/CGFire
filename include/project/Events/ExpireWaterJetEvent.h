@@ -22,7 +22,7 @@ namespace scene {
         Event* Clone() override{
             ExpireWaterJetEvent* e = new ExpireWaterJetEvent(m_SceneRenderer, m_WaterCreator);
 
-            strcpy_s(m_WaterJetName, e->m_WaterJetName);
+            strcpy_s(e->m_WaterJetName, m_WaterJetName);
 
             return e;
         }

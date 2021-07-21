@@ -22,7 +22,7 @@ namespace scene {
         Event* Clone() override{
             ExpireFlameEvent* e = new ExpireFlameEvent(m_SceneRenderer, m_FireCreator);
 
-            strcpy_s(m_FlameName, e->m_FlameName);
+            strcpy_s(e->m_FlameName, m_FlameName);
 
             return e;
         }
