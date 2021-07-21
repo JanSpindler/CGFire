@@ -44,20 +44,25 @@ namespace scene {
 
         m_FPS = static_cast<int>(1.f/dt);
 
+        if (!m_TimePaused || m_TimePaused && m_DontPauseParticles) {
+            m_ParticleSystemAdditiveBlendingOff.OnUpdate(dt);
+            m_ParticleSystemAdditiveBlendingOn.OnUpdate(dt);
+            m_WaterCreator.onUpdate(dt);
+            m_SmokeCreator.onUpdate(dt);
+            m_FireCreator.onUpdate(dt);
+        }
+
+        m_TimeSinceAutoSave += dt;
+        m_TimeSinceReloadEvents += dt;
+
         if (m_TimePaused)
             return;
 
         m_SceneTime += dt;
-        m_TimeSinceAutoSave += dt;
-        m_TimeSinceReloadEvents += dt;
 
         m_SceneRenderer.Resize(m_Window.GetWidth(), m_Window.GetHeight()); // TODO: maybe something more performant
 
-        m_ParticleSystemAdditiveBlendingOff.OnUpdate(dt);
-        m_ParticleSystemAdditiveBlendingOn.OnUpdate(dt);
-        m_WaterCreator.onUpdate(dt);
-        m_SmokeCreator.onUpdate(dt);
-        m_FireCreator.onUpdate(dt);
+
 
         m_SoundManager.OnUpdate();
 
@@ -163,6 +168,8 @@ namespace scene {
         if (ImGui::Button("Clear Particles")){
             ClearParticles();
         }
+
+        ImGui::Checkbox("Don't pause particles", &m_DontPauseParticles);
 
         ImGui::Checkbox("Show Splines", &m_ShowSplines);
         ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f),

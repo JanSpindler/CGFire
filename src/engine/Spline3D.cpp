@@ -102,7 +102,7 @@ namespace en
             i++;
             if (i >= segmentLengths_.size()){
                 i--;
-                //return glm::vec3(NAN, NAN, NAN); // ich will keine loops
+                return glm::vec3(0.f, 0.f, 0.f); // ich will keine loops
                 i %= segmentLengths_.size();
             }
         }
@@ -118,17 +118,21 @@ namespace en
         if (t < 0.0f)
             Log::Error("t cannot be negative", true);
 
-        while (t > totalLength_)
-            t -= totalLength_;
+        while (t > totalLength_) {
+            return glm::vec3(0.f, 0.f, 0.f);
+            //t -= totalLength_;
+        }
 
         uint32_t i = 0;
-        while (t > segmentLengths_[i])
+        while (segmentLengths_.size()>i && t > segmentLengths_[i])
         {
             t -= segmentLengths_[i];
             i++;
         }
-        if (i == points_.size() - 1)
+        if (i == points_.size() - 1) {
+            return glm::vec3(0.f, 0.f, 0.f);
             i = 0;
+        }
 
         t /= segmentLengths_[i];
         return glm::lerp(points_[i], points_[i + 1], t);
@@ -243,6 +247,7 @@ namespace en
             segmentLengths_[i] = segmentLength;
             totalLength_ += segmentLength;
         }
+
     }
 
     glm::vec3 Spline3D::CatmullRom(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, float t)

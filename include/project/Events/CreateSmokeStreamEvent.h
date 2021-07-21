@@ -65,8 +65,13 @@ namespace scene {
             static std::string s_SplineSelection;
 
 
-            if (m_SmokeStream == nullptr)
-                s_SplineSelection = m_DummySmokeStream->Spline->GetName();
+            if (m_SmokeStream == nullptr) {
+                if (m_DummySmokeStream->Spline!= nullptr) {
+                    s_SplineSelection = m_DummySmokeStream->Spline->GetName();
+                }
+                else
+                    s_SplineSelection = "";
+            }
             else
                 s_SplineSelection = m_SmokeStream->Spline->GetName();
 
@@ -84,7 +89,7 @@ namespace scene {
                             m_DummySmokeStream->Spline = s;
                         else {
                             m_SmokeStream->Spline = s;
-                            this->UpdateDescription();
+
                         }
                     }
                     ImGui::PopID();
@@ -94,14 +99,13 @@ namespace scene {
                 ImGui::EndCombo();
             }
 
+            this->UpdateDescription();
 
             bool optionsOk = true;
-
             if (m_SmokeStream == nullptr){ //In Menu Creation of Event
                 if (m_DummySmokeStream->Spline == nullptr)
                     optionsOk = false;
             }
-
 
             return optionsOk;
         }
@@ -112,7 +116,8 @@ namespace scene {
         }
 
         void UpdateDescription() override{
-            m_Description = "Creates the smoke stream \'" + std::string(m_SmokeStream->Name)+ "\'";
+            if (m_SmokeStream != nullptr)
+                m_Description = "Creates the smoke stream \'" + std::string(m_SmokeStream->Name)+ "\'";
         }
 
     private:

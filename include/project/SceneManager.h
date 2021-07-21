@@ -64,6 +64,7 @@ namespace scene {
         particle::FireCreator m_FireCreator;
         void ClearParticles();
 
+        bool m_DontPauseParticles = false;
 
         /****************Objects*/
         ObjectManager m_ObjectManager; //stores all objects of the scene that are static + object ui

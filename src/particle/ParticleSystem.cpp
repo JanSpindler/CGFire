@@ -37,8 +37,9 @@ namespace particle {
                 particle.LifeRemaining += ts; //so LifeRemaining here means Life Time Lived
 
                 //in Velocity.x is the speed of the smoke particle
-                float t = (particle.Velocity.x * particle.LifeRemaining) / particle.Spline->GetTotalLength();
-                if (t > 1.f){
+                float t = (particle.Velocity.x * particle.LifeRemaining);
+                glm::vec3 p = particle.Spline->IterateAbsolute(t);
+                if (p == glm::vec3(0.f, 0.f, 0.f)){
                     particle.Active = false;
                     particle.CameraDistance = -1.f;
                     particle.Spline = nullptr;
@@ -46,14 +47,14 @@ namespace particle {
                     continue;
                 }
 
-                float exactPoint = t * static_cast<float>(particle.Spline->GetPointCount());
-                exactPoint = std::clamp(exactPoint, 0.f, static_cast<float>(particle.Spline->GetPointCount()-1));
+                //float exactPoint = t * static_cast<float>(particle.Spline->GetPointCount());
+                //exactPoint = std::clamp(exactPoint, 0.f, static_cast<float>(particle.Spline->GetPointCount()-1));
 
 
-                particle.Position = glm::lerp(particle.Spline->GetPoints()[static_cast<int>(std::floor(exactPoint))],
+                particle.Position = p;/*glm::lerp(particle.Spline->GetPoints()[static_cast<int>(std::floor(exactPoint))],
                                               particle.Spline->GetPoints()[static_cast<int>(std::ceil(exactPoint))],
-                                              exactPoint - std::floor(exactPoint));
-                particle.LifeTime = t; // save for the ParticleSystemRenderer
+                                              exactPoint - std::floor(exactPoint));*/
+                particle.LifeTime = t / particle.Spline->GetTotalLength(); // save for the ParticleSystemRenderer
             }
 
             auto dif = particle.Position - m_Cam.GetPos();

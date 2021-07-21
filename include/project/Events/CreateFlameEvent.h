@@ -58,6 +58,7 @@ namespace scene {
             else
                 m_Flame->OnImGuiRender();
 
+            UpdateDescription();
             bool optionsOk = true;
             return optionsOk;
         }
@@ -66,7 +67,8 @@ namespace scene {
         }
 
         void UpdateDescription() override{
-            m_Description = "Creates a the flame \'" + std::string(m_Flame->Name)+ "\'";
+            if (m_Flame != nullptr)
+                m_Description = "Creates a the flame \'" + std::string(m_Flame->Name)+ "\'";
         }
 
 

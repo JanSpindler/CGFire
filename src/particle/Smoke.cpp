@@ -46,8 +46,8 @@ namespace particle{
         ImGui::InputText("SmokeStream Name", Name, IM_ARRAYSIZE(Name));
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.001f);
         ImGui::DragInt("ParticlesPerSecond", &ParticlesPerSecond, 1, 0, 999);
-        ImGui::DragFloat("Speed", &Speed, 0.001f, 0.f, 999.f);
-        ImGui::DragFloat("SpeedVariation", &SpeedVariation, 0.001f, 0.f, 999.f);
+        ImGui::DragFloat("Speed", &Speed, 0.001f, SpeedVariation+0.1f, 999.f);
+        ImGui::DragFloat("SpeedVariation", &SpeedVariation, 0.001f, 0.f, Speed);
         ImGui::DragFloat("SizeBegin", &SizeBegin, 0.001f);
         ImGui::DragFloat("SizeEnd", &SizeEnd, 0.001f);
         ImGui::DragFloat("SizeVariationFactor", &SizeVariationFactor, 0.005f, 0.f, 1.f);

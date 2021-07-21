@@ -32,9 +32,9 @@ void main(){
     float hit = 0;
     float posz = dot(texture(postex,TexCoord0).xyz-campos, camdir);
     for (int i = 1; i<= sampling; i++){
-        texcoord = TexCoord0 - i*4*motionvec/sampling;
+        texcoord = TexCoord0 - i*2*motionvec/sampling;
         float samplez = dot(texture(postex, texcoord).xyz-campos, camdir);
-        if (length(samplez-posz)<=4.f){
+        if (length(samplez-posz)<=12.f){
             hit++;
             color += texture(colortex, texcoord);
         }

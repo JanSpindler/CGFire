@@ -608,7 +608,7 @@ namespace scene {
         ImGui::DragInt("Resolution", &s_Resolution, 1, 1, 150);
 
         static int s_Type = 0;
-        ImGui::Combo("Type ", &s_Type, "CATMULL_ROM\0NATURAL_CUBIC\0");
+        ImGui::Combo("Type ", &s_Type, "CATMULL_ROM\0");//NATURAL_CUBIC\0");
 
         static std::vector<glm::vec3> s_ControlPoints({
             glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 5.f, 0.f),

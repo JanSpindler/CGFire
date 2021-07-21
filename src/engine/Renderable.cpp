@@ -61,7 +61,7 @@ namespace en
         if (spline_ != nullptr){
             assert(iterator_ != nullptr);
             auto pos = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
-            if (pos != glm::vec3(NAN, NAN, NAN)) {
+            if (pos != glm::vec3(0.f, 0.f, 0.f)) {
                 Position = pos;
                 Quaternion = glm::quatLookAt(-spline_->GetSegmentDir(iterator_->lastPoint), glm::vec3(0.f, 1.f, 0.f));
             }

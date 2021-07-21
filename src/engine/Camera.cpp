@@ -158,19 +158,24 @@ namespace en
         if (spline_ != nullptr){
             assert(iterator_ != nullptr);
             auto p = spline_->IterateRelative(iterator_, trackSpeed_ * deltaTime);
-            if (p != glm::vec3(NAN, NAN, NAN)) {
+            if (p != glm::vec3(0.f, 0.f, 0.f)) {
                 pos_ = p;
                 if (viewInSplineDir_)
                     viewDir_ = spline_->GetSegmentDir(iterator_->lastPoint);
                 else if (doFocus_) {
                     if (focusObj_ != nullptr)
-                        viewDir_ = focusObj_->Position - pos_;
+                        viewDir_ = glm::normalize(focusObj_->Position - pos_);
                     else
-                        viewDir_ = focusPos_ - pos_;
+                        viewDir_ = glm::normalize(focusPos_ - pos_);
                 }
             }
             else
                 spline_ = nullptr; //ich will keine loops
+        }else if (doFocus_){
+            if (focusObj_ != nullptr)
+                viewDir_ = glm::normalize(focusObj_->Position - pos_);
+            else
+                viewDir_ = glm::normalize(focusPos_ - pos_);
         }
     }
     void Camera::OnUpdate(float dt){

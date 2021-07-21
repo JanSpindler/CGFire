@@ -48,7 +48,7 @@ namespace particle {
 
     void WaterJet::OnImGuiRender() {
         ImGui::InputText("WaterJet Name", Name, IM_ARRAYSIZE(Name));
-        ImGui::DragFloat3("Position", &Position.x, 0.001f);
+        ImGui::DragFloat3("Position", &Position.x, 0.01f);
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.001f);
         ImGui::DragFloat3("WaterDirection", &WaterDirection.x, 0.01f);
         ImGui::DragFloat("Speed", &Speed, 0.1f, 0.f, 999.f);
@@ -107,8 +107,8 @@ namespace particle {
             m_SoundManager(soundManager){
 
         // TEXTURES
-        std::vector<std::string> waterTextures(8);
-        for (size_t i = 0; i < 8; i++) {
+        std::vector<std::string> waterTextures(11);
+        for (size_t i = 0; i < 11; i++) {
             waterTextures[i] = DATA_ROOT + "water/watersprite" + std::to_string(i) + ".png";
         }
         // load textures

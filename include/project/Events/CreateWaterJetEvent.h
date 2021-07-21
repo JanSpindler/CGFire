@@ -56,6 +56,8 @@ namespace scene {
             else
                 m_WaterJet->OnImGuiRender();
 
+            UpdateDescription();
+
             bool optionsOk = true;
             return optionsOk;
         }
@@ -64,7 +66,8 @@ namespace scene {
         }
 
         void UpdateDescription() override{
-            m_Description = "Creates a the water jet \'" + std::string(m_WaterJet->Name)+ "\'";
+            if (m_WaterJet != nullptr)
+                m_Description = "Creates a the water jet \'" + std::string(m_WaterJet->Name)+ "\'";
         }
 
 

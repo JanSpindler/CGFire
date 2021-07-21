@@ -26,7 +26,7 @@ namespace particle{
                 const glm::vec3& positionVariation = glm::vec3(1.f, 0.f, 1.f),
                 int particlesPerSecond = 14,
                 float speed = 4.f,
-                float speedVariation = 2.f,
+                float speedVariation = 1.f,
                 float sizeBegin = 3.f,
                 float sizeEnd = 40.f,
                 float sizeVariationFactor = 0.1f,

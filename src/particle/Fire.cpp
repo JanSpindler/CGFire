@@ -46,7 +46,7 @@ namespace particle{
 
     void Flame::OnImGuiRender(){
         ImGui::InputText("Flame Name", Name, IM_ARRAYSIZE(Name));
-        if (ImGui::DragFloat3("Position", &Position.x, 0.001f)){
+        if (ImGui::DragFloat3("Position", &Position.x, 0.01f)){
             Sound.setPosition(Position.x, Position.y, Position.z);
         }
         ImGui::DragFloat3("PositionVariation", &PositionVariation.x, 0.05f);
