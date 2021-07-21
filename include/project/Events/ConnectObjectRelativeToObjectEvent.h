@@ -126,8 +126,8 @@ namespace scene {
             }
 
             //Draw Rotation Buttons
-            util::DrawImGuiQuaternionRotationUI(m_RelativeRotation);
-            m_ObjCarried->Quaternion = m_ObjCarry->Quaternion * m_RelativeRotation;
+            if (util::DrawImGuiQuaternionRotationUI(m_RelativeRotation))
+                m_ObjCarried->Quaternion = m_ObjCarry->Quaternion * m_RelativeRotation;
 
 
             bool optionsOk = m_ObjCarried != nullptr && m_ObjCarry != nullptr;

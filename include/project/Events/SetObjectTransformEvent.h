@@ -39,7 +39,7 @@ namespace scene {
 
         void LoadDataFromStrings(const std::vector<std::string>& data) override{
             //<specific data>: objectName
-            // (bool)changePos (bool)changeRotaxis (bool)changeRotAngle (bool)changeScaling
+            // (bool)changePos (bool)changerotation (bool)changeScaling
             // 3fPosition 3fRotationAxis 3fRotationAngle 3fScaling
 
 
@@ -113,18 +113,24 @@ namespace scene {
             ImGui::Checkbox("Change Position", &m_ChangePos);
             if (m_ChangePos) {
                 ImGui::SameLine();
-                ImGui::DragFloat3("##change pos", &m_Position.x, 0.005f);
+                if (ImGui::DragFloat3("##change pos", &m_Position.x, 0.005f)) {
+                    m_Obj->Position = m_Position;
+                }
             }
             ImGui::Checkbox("Change Rotation", &m_ChangeRotation);
             if (m_ChangeRotation) {
                 ImGui::SameLine();
-                util::DrawImGuiQuaternionRotationUI(m_Rotation);
+                if (util::DrawImGuiQuaternionRotationUI(m_Rotation)) {
+                    m_Obj->Quaternion = m_Rotation;
+                }
             }
 
             ImGui::Checkbox("Change Scaling", &m_ChangeScaling);
             if (m_ChangeScaling) {
                 ImGui::SameLine();
-                ImGui::DragFloat3("##change Scaling", &m_Scaling.x, 0.005f);
+                if (ImGui::DragFloat3("##change Scaling", &m_Scaling.x, 0.005f)){
+                    m_Obj->Scaling = m_Scaling;
+                }
             }
 
             bool optionsOk = true;

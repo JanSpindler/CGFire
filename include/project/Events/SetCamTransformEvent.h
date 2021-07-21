@@ -54,7 +54,15 @@ namespace scene {
 
         bool OnImGuiRender() override{
             ImGui::DragFloat3("Position", &m_Position.x, 0.25f);
+            ImGui::SameLine();
+            if (ImGui::Button("set to current Cam Position")){
+                m_Position = m_Cam.GetPos();
+            }
             ImGui::DragFloat3("View Direction", &m_ViewDirection.x, 0.25f);
+            ImGui::SameLine();
+            if (ImGui::Button("set to current Cam view direction")){
+                m_ViewDirection = m_Cam.GetViewDir();
+            }
 
             bool optionsOk = true;
             return optionsOk;
