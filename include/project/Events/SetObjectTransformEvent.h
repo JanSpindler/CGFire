@@ -40,7 +40,7 @@ namespace scene {
         void LoadDataFromStrings(const std::vector<std::string>& data) override{
             //<specific data>: objectName
             // (bool)changePos (bool)changerotation (bool)changeScaling
-            // 3fPosition 3fRotationAxis 3fRotationAngle 3fScaling
+            // 3fPosition 4fRotation 3fScaling
 
 
             std::string objName = data[0];

@@ -1,0 +1,101 @@
+0,0,"House",1,1
+0,0,"KameraMove1",3,1
+0,0,"Ground",1,1
+0,16,"darren-curtis-ignite-the-fire.ogg",50
+0,0,"KameraFollow Car",3,1
+0,0,"Car Movement",3,1
+0,17,0,-10,0,-27.5,""
+0,8,"KameraMove1",23.24,0
+0,0,"Smokespline Stock5 Nr1",3,0
+0,0,"Smokespline Stock5 Nr2",3,0
+0,0,"Smokespline Stock5 Nr3",3,0
+0,0,"Smokespline Stock5 Nr4",3,0
+0,0,"Smokespline Stock5 Nr5",3,0
+0,0,"Smokespline Stock5 Nr6",3,0
+0,0,"Smokespline Stock5 Nr7",3,0
+0,0,"Smokespline Stock5 Nr8",3,0
+0,0,"Smokespline Stock5 Nr10",3,0
+0,0,"Smokespline Stock5 Nr9",3,0
+0,0,"Smokespline Stock5 Nr11",3,0
+0,0,"Smokespline Stock5 Nr12",3,0
+0,0,"Smokespline Stock5 Nr13",3,0
+0,0,"Smokespline Stock5 Nr14",3,0
+0,0,"CivilHouseMovement",3,1
+0,0,"CamFocus_Dummy",2,1
+0,0,"Spline Elvis Movement0",3,1
+0,0,"SplineSec64.5CamPosition",3,1
+0,0,"SplineSec64.5CamFocus",3,1
+0,0,"SplineSec75CamPosition0",3,1
+0,0,"Spline Vamp movement",3,1
+0,0,"Spline Elvis Movement1",3,1
+0,0,"Spline Elvis Focus",3,1
+0.01,4,"Smoke 5. Stock Nr.1","Smokespline Stock5 Nr1",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.7","Smokespline Stock5 Nr7",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.11","Smokespline Stock5 Nr11",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.12","Smokespline Stock5 Nr12",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.13","Smokespline Stock5 Nr13",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.6","Smokespline Stock5 Nr6",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.2","Smokespline Stock5 Nr2",1,0,1,3,4.397,2,0.503,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.4","Smokespline Stock5 Nr4",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.5","Smokespline Stock5 Nr5",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.14","Smokespline Stock5 Nr14",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.10","Smokespline Stock5 Nr10",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.3","Smokespline Stock5 Nr3",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.8","Smokespline Stock5 Nr8",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+0.01,4,"Smoke 5. Stock Nr.9","Smokespline Stock5 Nr9",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+0.02,2,"Fire 5. Stock Nr.1",-2.23,7.9,-22.06,3.4,0,2.45,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+0.02,2,"Fire 5. Stock Nr.2",-2.92,7.9,-26.86,1.85,0,1.95,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+0.02,2,"Fire 5. Stock Nr.7",-9.94,7.9,-18.94,6,0,0,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+0.02,2,"Fire 5. Stock Nr.5",-17.56,7.9,-27.21,3.4,0,2.45,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+0.02,2,"Fire 5. Stock Nr.3",-3.37,7.9,-32.28,3.4,0,4.95,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+0.02,2,"Fire 5. Stock Nr.6",-17.62,7.9,-22.44,3.4,0,2.45,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+0.02,2,"Fire 5. Stock Nr.4",-16.8,7.9,-31.68,3.4,0,2.45,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+15,0,"Civil 5. Stock",0,1
+22,1,"Civil 5. Stock","walk"
+22,10,"Civil 5. Stock","CivilHouseMovement",2
+27,1,"Civil 5. Stock","waving"
+30,0,"Elvis",0,1
+30,17,1,0,0,0,"Truck"
+30,19
+30,9,"Elvis","Truck",2,1.935,-2.21,-0.730975,0.0962348,-0.669816,-0.0881829
+30,12,"Vampir"
+30,0,"Truck",1,1
+30,10,"Truck","Car Movement",18.646
+30,0,"Vampir",0,1
+30,18,"Elvis",1
+30,1,"Vampir","sitting"
+30,15,"HipHop","maxkomusic-positive-hip-hop-selection25sec.wav",0,100,0.5,5,0,0,0,1,"Truck"
+30,18,"Truck",1
+30,8,"KameraFollow Car",21.39,0
+30,1,"Elvis","sitting"
+30,18,"Vampir",1
+30,9,"Vampir","Truck",1.64,3.495,2.2,0.642791,0,0.766048,0
+45,14,-50,3,58,0.81,-0.17,-0.56
+61,18,"Vampir",0
+61,18,"Truck",0
+61,18,"Elvis",0
+61,20
+61.99,12,"Elvis"
+61.99,12,"Vampir"
+61.99,12,"Truck"
+62,10,"Elvis","Spline Elvis Movement0",2
+62,13,"Vampir",1,1,0,-15.286,-13.509,-2.42436,-0.921702,-0.0162616,0.386745,0.0252691,1,1,1
+62,1,"Elvis","jumpdown"
+62,1,"Vampir","jumpdown"
+62.001,13,"Truck",1,1,0,-12,-14.35,-2,-0.296194,0.00890443,0.954655,0.0286996,1,1,1
+62.001,14,-20.1781,-14.3616,-4.5018,0.789281,0.39572,0.469512
+62.001,13,"Elvis",1,1,0,-11.8028,-12.6066,1.73649,0.862641,-0.100396,-0.487009,-0.0927788,1,1,1
+63.353,1,"Elvis","standup"
+63.4275,10,"Elvis","Spline Elvis Movement0",0.001
+64.5,14,-12.4781,5.93257,9.20659,-0.000347071,-0.801323,-0.598232
+64.5,1,"Vampir","walk"
+64.5,10,"Vampir","Spline Vamp movement",2
+64.5,10,"Elvis","Spline Elvis Movement1",2
+64.5,1,"Elvis","walking"
+64.5,17,1,0,0,0,"CamFocus_Dummy"
+64.5,10,"CamFocus_Dummy","SplineSec64.5CamFocus",2.9
+64.5,8,"SplineSec64.5CamPosition",5,0
+75,8,"Spline Elvis Focus",2,0
+75,17,1,0,0,0,"Elvis"
+110,8,"SplineSec75CamPosition0",5,0
+110,17,1,0,0,0,"Civil 5. Stock"

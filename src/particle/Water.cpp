@@ -107,15 +107,15 @@ namespace particle {
             m_SoundManager(soundManager){
 
         // TEXTURES
-        std::vector<std::string> waterTextures(11);
-        for (size_t i = 0; i < 11; i++) {
+        std::vector<std::string> waterTextures(12);
+        for (size_t i = 0; i < 12; i++) {
             waterTextures[i] = DATA_ROOT + "water/watersprite" + std::to_string(i) + ".png";
         }
         // load textures
         for (auto &file : waterTextures) {
             m_Textures.emplace_back(std::make_shared<en::GLPictureTex>(
                     en::GLPictureTex::WrapMode::CLAMP_TO_BORDER,
-                    en::GLPictureTex::FilterMode::NEAREST,
+                    en::GLPictureTex::FilterMode::LINEAR,
                     file, true));
         }
 
@@ -296,6 +296,23 @@ namespace particle {
 
         auto w = GetWaterJetByName(waterJetName);
         if (w != nullptr){
+            for (auto& c : m_WaterJetToObjectConnections){
+                auto carried = std::get<0>(c);
+                if (std::string(carried->Name) == waterJetName){
+
+                    //update
+                    std::get<1>(c) = obj;
+                    std::get<2>(c) = relativePos;
+                    std::get<3>(c) = quaternion;
+
+                    auto carry = std::get<1>(c);
+
+                    carried->Position = carry->Position + carry->Quaternion * relativePos;
+                    carried->WaterDirection = (carry->Quaternion * quaternion) * glm::vec3(0.f, 0.f, -1.f);
+
+                    return; //already have it connected
+                }
+            }
             m_WaterJetToObjectConnections.emplace_back(w, obj, relativePos, quaternion);
         }
     }

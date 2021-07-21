@@ -33,7 +33,7 @@ namespace scene {
         }
 
         void LoadDataFromStrings(const std::vector<std::string>& data) override{
-            //<specific data>: objCarryName objCarriedName 3fPosition 3fEulerAngles
+            //<specific data>: objCarryName objCarriedName 3fPosition 4fRotation
             std::string objCarriedName = data[0];
             std::string objCarryName = data[1];
             m_RelativePosition = glm::vec3(std::stof(data[2]), std::stof(data[3]),std::stof(data[4]));

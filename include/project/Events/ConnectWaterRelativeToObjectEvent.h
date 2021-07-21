@@ -97,10 +97,14 @@ namespace scene {
             }
 
 
-            ImGui::DragFloat3("Relative Position", &m_RelativePosition.x, 0.005f);
+            if (ImGui::DragFloat3("Relative Position", &m_RelativePosition.x, 0.005f)){
+                m_WaterCreator.ConnectWaterJetRelativeToObject(m_WaterName, m_Obj, m_RelativePosition, m_RelativeRotation);
+            }
 
             //Draw Rotation Buttons
-            util::DrawImGuiQuaternionRotationUI(m_RelativeRotation);
+            if (util::DrawImGuiQuaternionRotationUI(m_RelativeRotation)){
+                m_WaterCreator.ConnectWaterJetRelativeToObject(m_WaterName, m_Obj, m_RelativePosition, m_RelativeRotation);
+            }
 
 
             bool optionsOk = m_Obj != nullptr;
