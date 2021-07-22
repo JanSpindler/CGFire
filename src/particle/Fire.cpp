@@ -155,6 +155,7 @@ namespace particle{
                 if (flame->Timer > flame->ExpiringTime){
                     flame->Expired = true;
                     flameSizeFactor = 1.f;
+                    flame->Sound.stop();
                 }
                 flame->Sound.setVolume(flameSizeFactor * m_SndVolume);
             }
@@ -193,10 +194,16 @@ namespace particle{
         }
 
         //Remove expired flames
-        m_Flames.erase(std::remove_if(m_Flames.begin(), m_Flames.end(),
-                                      [](std::shared_ptr<Flame> f) { return f->Expired; }), m_Flames.end());
-
-
+        auto it = m_Flames.begin();
+        while(it != m_Flames.end()){
+            if ((*it)->Expired){
+                auto sp = *it;
+                it = m_Flames.erase(it);
+                sp.reset();
+            }
+            else
+                ++it;
+        }
 
     }
     void FireCreator::onImGuiRender(){

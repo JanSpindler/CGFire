@@ -750,6 +750,7 @@ namespace scene {
 
     void ObjectManager::OnUpdate(float dt) {
         UpdateObjectToObjectConnections();
+        UpdateRotateOverTimeTasks(dt);
         for (auto o : m_AllRenderObjects){
             o->TrackStep(dt);
         }
@@ -757,5 +758,33 @@ namespace scene {
 
     void ObjectManager::OnResetTime(){
         m_ObjectToObjectConnections.clear();
+    }
+
+    void ObjectManager::RotateObjectOverTime(en::RenderObj* obj, glm::quat& destRot, float time){
+        m_RotateOverTimeTasks.emplace_back(obj, destRot, obj->Quaternion, time, time);
+    }
+    void ObjectManager::UpdateRotateOverTimeTasks(float dt){
+
+        auto it = m_RotateOverTimeTasks.begin();
+        while(it != m_RotateOverTimeTasks.end()){
+            auto& task = *it;
+
+            en::RenderObj* obj = std::get<0>(task);
+            glm::quat& destRot = std::get<1>(task);
+            glm::quat& origRot = std::get<2>(task);
+            float& timeRemaining = std::get<3>(task);
+            float& timeLength = std::get<4>(task);
+
+            timeRemaining -= dt;
+            if (timeRemaining <= 0){
+                obj->Quaternion = destRot;
+                it = m_RotateOverTimeTasks.erase(it);
+            }
+            else{
+                obj->Quaternion = glm::mix(origRot, destRot, (timeLength-timeRemaining)/timeLength);
+
+                ++it;
+            }
+        }
     }
 }

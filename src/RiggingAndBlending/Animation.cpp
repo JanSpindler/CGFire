@@ -23,7 +23,7 @@ namespace en{
         for (size_t i = 0; i<anim->mNumChannels;i++){
             aiNodeAnim* channel = anim->mChannels[i];
             //add code for bones missing from bonemap if necessary
-            assert(modelbonemap.find(channel->mNodeName.C_Str())!= modelbonemap.end());
+            //assert(modelbonemap.find(channel->mNodeName.C_Str())!= modelbonemap.end());
             bones.emplace_back(modelbonemap[channel->mNodeName.C_Str()].boneid, channel, channel->mNodeName.C_Str());
             bonemap = modelbonemap;
         }

@@ -30,6 +30,7 @@
 #include <project/Events/PauseMusicEvent.h>
 #include <project/Events/UnpauseMusicEvent.h>
 #include <project/Events/SetObjectMotionBlurEvent.h>
+#include <project/Events/RotateObjectOverTimeEvent.h>
 
 
 namespace scene {
@@ -59,6 +60,7 @@ namespace scene {
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectObjectRelativeToObjectEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::DisconnectObjectFromAllObjectsEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetObjectTransformEvent>(objectManager));
+        DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::RotateObjectOverTimeEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectObjectToSplineEvent>(objectManager));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::ConnectCamToSplineEvent>(objectManager, cam));
         DummyEventsOfAllTypes.emplace_back(std::make_unique<scene::SetCamTransformEvent>(cam));

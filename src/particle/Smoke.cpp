@@ -170,11 +170,17 @@ namespace particle{
             }
         }
 
-        //Remove expired smokes
-        m_SmokeStreams.erase(std::remove_if(m_SmokeStreams.begin(), m_SmokeStreams.end(),
-                                      [](std::shared_ptr<SmokeStream> s) { return s->Expired; }), m_SmokeStreams.end());
-
-
+        //Remove expired flames
+        auto it = m_SmokeStreams.begin();
+        while(it != m_SmokeStreams.end()){
+            if ((*it)->Expired){
+                auto sp = *it;
+                it = m_SmokeStreams.erase(it);
+                sp.reset();
+            }
+            else
+                ++it;
+        }
 
     }
     void SmokeCreator::onImGuiRender(){

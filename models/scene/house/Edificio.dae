@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.93.1 commit date:2021-06-22, commit time:05:57, hash:1b8d33b18c2f</authoring_tool>
     </contributor>
-    <created>2021-07-20T18:16:46</created>
-    <modified>2021-07-20T18:16:46</modified>
+    <created>2021-07-22T18:08:10</created>
+    <modified>2021-07-22T18:08:10</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -676,7 +676,7 @@
         <instance_geometry url="#Cube_004-mesh" name="Cube.001"/>
       </node>
       <node id="Innere_Wand" name="Innere Wand" type="NODE">
-        <matrix sid="transform">2.015179 0 0 4.69059e-4 0 2.015179 0 0.002871573 0 0 2.015179 0 0 0 0 1</matrix>
+        <matrix sid="transform">1.980314 0 0 4.69059e-4 0 1.980314 0 0.002871573 0 0 1.980314 0 0 0 0 1</matrix>
         <instance_geometry url="#Cube_001-mesh" name="Innere Wand"/>
       </node>
       <node id="Edificio" name="Edificio" type="NODE">

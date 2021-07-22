@@ -160,6 +160,7 @@ namespace particle {
                 sizeFactor = 1.f - (waterJet->Timer / waterJet->ExpiringTime);
                 if (waterJet->Timer > waterJet->ExpiringTime) {
                     waterJet->Expired = true;
+                    waterJet->Sound.stop();
                     sizeFactor = 1.f;
                 }
 
@@ -212,7 +213,9 @@ namespace particle {
         auto it = m_WaterJets.begin();
         while(it != m_WaterJets.end()){
             if ((*it)->Expired){
+                auto sp = *it;
                 it = m_WaterJets.erase(it);
+                sp.reset();
             }
             else
                 ++it;

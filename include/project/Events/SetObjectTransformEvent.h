@@ -78,7 +78,6 @@ namespace scene {
 
         bool OnImGuiRender() override{
             static std::string s_ObjSelection;
-            static std::string s_SplineSelection;
 
             if (m_Obj !=  nullptr)
                 s_ObjSelection = m_Obj->GetName();

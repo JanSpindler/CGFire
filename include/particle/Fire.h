@@ -29,9 +29,6 @@ namespace particle{
               float sizeBegin = 1.f,
               float sizeEnd = 0.8f);
 
-        ~Flame(){
-            Sound.stop();
-        }
 
         //Relevant Data
         char Name[32];

@@ -34,10 +34,6 @@ namespace particle{
                        float sizeEnd = 3.5f);
 
 
-        ~WaterJet(){
-            Sound.stop();
-        }
-
         //Relevant Data
         char Name[32];
         glm::vec3 Position;

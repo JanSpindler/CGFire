@@ -1,0 +1,197 @@
+0,0,"House",1,1
+0,0,"KameraMove1",3,1
+0,0,"Ground",1,1
+0,16,"darren-curtis-ignite-the-fire.ogg",50
+0,0,"KameraFollow Car",3,1
+0,0,"Car Movement",3,1
+0,17,0,-10,0,-27.5,""
+0,8,"KameraMove1",23.24,0
+0,0,"Smokespline Stock5 Nr1",3,0
+0,0,"Smokespline Stock5 Nr2",3,0
+0,0,"Smokespline Stock5 Nr3",3,0
+0,0,"Smokespline Stock5 Nr4",3,0
+0,0,"Smokespline Stock5 Nr5",3,0
+0,0,"Smokespline Stock5 Nr6",3,0
+0,0,"Smokespline Stock5 Nr7",3,0
+0,0,"Smokespline Stock5 Nr8",3,0
+0,0,"Smokespline Stock5 Nr10",3,0
+0,0,"Smokespline Stock5 Nr9",3,0
+0,0,"Smokespline Stock5 Nr11",3,0
+0,0,"Smokespline Stock5 Nr12",3,0
+0,0,"Smokespline Stock5 Nr13",3,0
+0,0,"Smokespline Stock5 Nr14",3,0
+0,0,"CivilHouseMovement",3,1
+0,0,"CamFocus_Dummy",2,0
+0,0,"Spline Elvis Movement0",3,1
+0,0,"SplineSec64.5CamPosition",3,1
+0,0,"SplineSec64.5CamFocus",3,1
+0,0,"SplineSec75CamPosition0",3,1
+0,0,"Spline Vamp movement",3,1
+0,0,"Spline Elvis Movement1",3,1
+0,0,"Spline Elvis 75 CamPos",3,1
+0,0,"Spline Elvis 75 FocusPos",3,1
+0,0,"CamFocus_Dummy0",2,0
+0,0,"Spline CamFocus 87",3,1
+0,0,"Civil 5. Stock Old Man",0,1
+0,12,"Civil 5. Stock Old Man"
+0,0,"SplinePlane0",3,1
+0,0,"SplinePlane1",3,1
+0,0,"SplinePlane2",3,1
+0,0,"Plane0",1,0
+0,0,"Plane1",1,0
+0,13,"Elvis",1,0,0,0,-1e+07,0,0,0,0,0,1,1,1
+0,0,"Cam Move 127",3,1
+0,0,"Vamp Move 127",3,1
+0,0,"Cam Move 132",3,1
+0,0,"Cam Move 145",3,1
+0,0,"Cam Focus 145",3,1
+0,0,"Car Move 145",3,1
+1,4,"Smoke 5. Stock Nr.14","Smokespline Stock5 Nr14",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+1,4,"Smoke 5. Stock Nr.1","Smokespline Stock5 Nr1",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+1,2,"Fire 5. Stock Nr.1",-2.23,7.9,-22.06,3.4,0,2.45,15,5,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+2,15,"OldManScream1","screamoldman1.wav",0,100,0.1,5,0,0,0,1,"Civil 5. Stock Old Man"
+5,4,"Smoke 5. Stock Nr.2","Smokespline Stock5 Nr2",1,0,1,3,4.397,2,0.503,20,0.1,10,20
+5,2,"Fire 5. Stock Nr.2",-2.92,7.9,-26.86,1.85,0,1.95,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+6.375,15,"OldManScream2","screamoldman2.wav",0,100,0.1,5,0,0,0,1,"Civil 5. Stock Old Man"
+7,4,"Smoke 5. Stock Nr.3","Smokespline Stock5 Nr3",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+7,2,"Fire 5. Stock Nr.3",-3.37,7.9,-32.28,3.4,0,4.95,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+7,4,"Smoke 5. Stock Nr.4","Smokespline Stock5 Nr4",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+10,4,"Smoke 5. Stock Nr.6","Smokespline Stock5 Nr6",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+10,4,"Smoke 5. Stock Nr.5","Smokespline Stock5 Nr5",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+10,2,"Fire 5. Stock Nr.4",-16.8,7.9,-31.68,3.4,0,2.45,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+11,2,"Fire 5. Stock Nr.5",-17.56,7.9,-27.21,3.4,0,2.45,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+11,4,"Smoke 5. Stock Nr.7","Smokespline Stock5 Nr7",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+11,4,"Smoke 5. Stock Nr.8","Smokespline Stock5 Nr8",1,0,1,3,4.397,2,0.5,20,0.1,10,20
+12,4,"Smoke 5. Stock Nr.10","Smokespline Stock5 Nr10",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+12,4,"Smoke 5. Stock Nr.9","Smokespline Stock5 Nr9",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+12,4,"Smoke 5. Stock Nr.11","Smokespline Stock5 Nr11",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+12,2,"Fire 5. Stock Nr.6",-17.62,7.9,-22.44,3.4,0,2.45,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+14,4,"Smoke 5. Stock Nr.12","Smokespline Stock5 Nr12",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+14,2,"Fire 5. Stock Nr.7",-9.94,7.9,-18.94,6,0,0,15,4,5,0.35,0.46,0,3.5,0,4.5,10,4.5,0.627,0.7
+14,4,"Smoke 5. Stock Nr.13","Smokespline Stock5 Nr13",1,0,1,3,4.397,2,0.4,20,0.1,10,20
+14.04,15,"OldManScream3","screamoldman3.wav",0,100,0.1,5,0,0,0,1,"Civil 5. Stock Old Man"
+19,10,"Civil 5. Stock Old Man","CivilHouseMovement",2
+22,1,"Civil 5. Stock Old Man","walk"
+22,14,-0.402382,8.33115,-15.417,-0.36859,0.20591,-0.9065
+24.27,15,"OldManScream4","screamoldman4.wav",0,100,0.1,5,0,0,0,1,"Civil 5. Stock Old Man"
+27,1,"Civil 5. Stock Old Man","waving"
+30,18,"Vampir",0
+30,12,"Vampir"
+30,0,"Truck",1,1
+30,10,"Truck","Car Movement",18.646
+30,18,"Elvis",0
+30,1,"Vampir","sitting"
+30,18,"Truck",1
+30,15,"car sound","car.wav",0,100,0.5,5,0,0,0,1,"Truck"
+30,19
+30,17,1,0,0,0,"Truck"
+30,0,"Elvis",0,1
+30,0,"Vampir",0,1
+30,15,"HipHop","maxkomusic-positive-hip-hop-selection25sec.wav",0,100,0.5,5,0,0,0,1,"Truck"
+30,9,"Elvis","Truck",2,1.935,-2.21,-0.730975,0.0962348,-0.669816,-0.0881829
+30,8,"KameraFollow Car",21.39,0
+30,1,"Elvis","sitting"
+30,9,"Vampir","Truck",1.64,3.495,2.2,0.642791,0,0.766048,0
+45,14,-50,3,58,0.81,-0.17,-0.56
+61,18,"Vampir",0
+61,18,"Truck",0
+61,18,"Elvis",0
+61.99,12,"Vampir"
+61.99,12,"Truck"
+61.99,12,"Elvis"
+62,13,"Vampir",1,1,0,-15.286,-13.509,-2.42436,-0.921702,-0.0162616,0.386745,0.0252691,1,1,1
+62,1,"Vampir","jumpdown"
+62,1,"Elvis","jumpdown"
+62,10,"Elvis","Spline Elvis Movement0",2
+62.001,14,-20.1781,-14.3616,-4.5018,0.789281,0.39572,0.469512
+62.001,13,"Truck",1,1,0,-12,-14.35,-2,-0.296194,0.00890443,0.954655,0.0286996,1,1,1
+62.001,13,"Elvis",1,1,0,-11.8028,-12.6066,1.73649,0.862641,-0.100396,-0.487009,-0.0927788,1,1,1
+63.353,1,"Elvis","standup"
+63.4275,10,"Elvis","Spline Elvis Movement0",0.001
+64.7,20
+64.7,10,"Vampir","Spline Vamp movement",2
+64.7,10,"Elvis","Spline Elvis Movement1",2
+64.7,1,"Vampir","walk"
+64.7,10,"CamFocus_Dummy","SplineSec64.5CamFocus",2.9
+64.7,17,1,0,0,0,"CamFocus_Dummy"
+64.7,8,"SplineSec64.5CamPosition",5,0
+64.7,1,"Elvis","walking"
+73,15,"OldManScream1","screamoldman2.wav",0,50,0.5,5,0,0,0,1,"Civil 5. Stock Old Man"
+75,10,"CamFocus_Dummy0","Spline Elvis 75 FocusPos",2
+75,8,"Spline Elvis 75 CamPos",2,0
+75.001,17,1,0,0,0,"CamFocus_Dummy0"
+79,1,"Elvis","pointing"
+79.5,15,"LetsGo Elvis","letsgo_elvis.wav",0,100,0.5,5,0,0,0,0,""
+81.5,12,"Elvis"
+81.5,13,"Elvis",1,1,0,-6,-14.15,-7.2,0.126079,0.0778285,-0.957663,-0.24684,1,1,1
+81.5,14,3.38534,-14.7386,1.04025,-0.452251,0.542578,-0.707869
+81.5,6,"ElvisWaterJet",277.747,-41.3833,101.079,0,0,0,0.430758,0.874897,-0.221437,65.9,0.1,571,0,2.54,1.01,0.148,0.28,0.7
+81.5,1,"Elvis","spitwater"
+81.501,11,"Elvis","ElvisWaterJet",0.415,0.095,-1.415,0.0556629,-0.0543249,0.907571,-0.412638
+84,4,"Smoke 5. Stock Nr.11 ExtraDampf","Smokespline Stock5 Nr11",1,0,1,8,4.397,2,0.4,20,0.1,10,20
+87,10,"CamFocus_Dummy","Spline CamFocus 87",3
+87,14,-7.90013,73.6077,5.47385,-0.00350789,-0.9726,-0.232457
+87,17,1,0,0,0,"CamFocus_Dummy"
+88,10,"Plane0","SplinePlane0",31
+88,0,"Plane0",1,1
+88,15,"PlaneSound0","plane0.wav",0,100,0.5,5,0,0,0,1,"Plane0"
+92,6,"Plane0WaterJet",-1e+06,-1e+07,-1e+06,1.605,0.5,1.676,0.678938,0.0524609,0.732319,0,0.1,784,0,1,1,0.2,2.175,2.245
+92.0001,11,"Plane0","Plane0WaterJet",0,-0.685,0,1,0,0,0
+93.5,7,"Plane0WaterJet"
+100,13,"Plane1",0,0,0,0,-1e+07,0,0,0,0,0,1,1,1
+100,13,"Plane0",1,0,0,0,-1e+07,0,0,0,0,0,1,1,1
+110,17,1,0,0,0,"Civil 5. Stock Old Man"
+110,8,"SplineSec75CamPosition0",5,0
+112,15,"OldManScream1","screamoldman1.wav",0,100,0.5,5,0,0,0,1,"Civil 5. Stock Old Man"
+117,18,"Plane0",1
+117,0,"Plane0",1,1
+117,14,60.2875,52.1022,-92.9453,-0.542745,-0.309725,0.780704
+117,0,"Plane1",1,1
+117,18,"Plane1",1
+117,15,"Plane1","plane1.wav",0,100,0.1,5,0,0,0,1,"SplinePlane1"
+117,15,"Plane2","plane1.wav",0,100,0.1,5,0,0,0,1,"SplinePlane2"
+117,10,"Plane0","SplinePlane1",31.5
+117,10,"Plane1","SplinePlane2",31.5
+121,6,"Plane1WaterJet",-1e+06,-1e+07,-1e+06,1.605,0.5,1.676,0.678938,0.0524609,0.732319,0,0.1,784,0,1,1,0.2,2.175,2.245
+121.001,11,"Plane0","Plane1WaterJet",0,-0.685,0,1,0,0,0
+121.5,6,"Plane2WaterJet",-1e+06,-1e+07,-1e+06,1.605,0.5,1.676,-0.852198,0.511557,-0.109855,0,0.1,784,0,1,1,0.2,2.175,2.245
+121.501,11,"Plane1","Plane2WaterJet",0,-0.685,0,1,0,0,0
+122,7,"Plane2WaterJet"
+122,7,"Plane1WaterJet"
+122.574,12,"Plane0"
+122.574,12,"Plane1"
+122.575,13,"Plane1",1,0,0,-1e+06,-1e+07,-1e+06,0,0,0,0,1,1,1
+122.575,2,"BigPlaneExplosion",-10.25,30.75,-26.55,10,7.65,10,40,0,0.17,0.15,0.2,0,0,0,10,8.294,10,3.407,2.353
+122.575,0,"Plane1",1,0
+122.575,0,"Plane0",1,0
+122.575,15,"Explosion of Planes","explosion.wav",0,100,0.1,5,-10.25,30.75,-26.55,0,""
+122.575,13,"Plane0",1,0,0,-1e+06,-1e+07,-1e+06,0,0,0,0,1,1,1
+124,3,"BigPlaneExplosion"
+124.05,3,"Fire 5. Stock Nr.2"
+124.05,3,"Fire 5. Stock Nr.3"
+124.05,3,"Fire 5. Stock Nr.4"
+124.05,3,"Fire 5. Stock Nr.5"
+124.05,3,"Fire 5. Stock Nr.6"
+124.05,3,"Fire 5. Stock Nr.1"
+124.05,3,"Fire 5. Stock Nr.7"
+127,17,0,-11,3,-25,""
+127,8,"Cam Move 127",5,0
+129.91,10,"Vampir","Vamp Move 127",2
+130,7,"ElvisWaterJet"
+132,8,"Cam Move 132",1.82,0
+136,15,"LetsGoVamp","letsgo_vamp.wav",0,100,0.5,4.4,0,0,0,1,"Vampir"
+145,15,"car sound","car.wav",0,100,0.5,5,0,0,0,1,"Truck"
+145,10,"CamFocus_Dummy","Cam Focus 145",10.1
+145,1,"Vampir","sitting"
+145,8,"Cam Move 145",0.4,0
+145,17,1,-7,-0.42,-0.2,"CamFocus_Dummy"
+145,1,"Elvis","sitting"
+145,9,"Elvis","Truck",1.395,3.69,-2.21,-0.730975,0.0962348,-0.669816,-0.0881829
+145,1,"Civil 5. Stock Old Man","wavingbye"
+145,18,"Truck",1
+145,10,"Truck","Car Move 145",18.3
+145,15,"HipHop","maxkomusic-positive-hip-hop-selection25sec.wav",0,100,0.5,5,0,0,0,1,"Truck"
+145,12,"Civil 5. Stock Old Man"
+145,19
+145,9,"Vampir","Truck",1.64,3.495,2.2,0.642791,0,0.766048,0
+145.001,13,"Civil 5. Stock Old Man",0,1,0,0,0,0,-0.939693,0,-0.342021,0,1,1,1

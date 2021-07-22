@@ -62,6 +62,9 @@ namespace scene {
         void DisconnectObjectFromOthers(en::RenderObj* obj);
 
         void OnResetTime();
+
+
+        void RotateObjectOverTime(en::RenderObj* obj, glm::quat& destRot, float time);
     private:
         SceneManager& m_SceneManager; //TODO probably we should simply create a static instance of each manager
         EventManager& m_EventManager;
@@ -107,5 +110,10 @@ namespace scene {
         std::list<ObjectToObjectConnection_t> m_ObjectToObjectConnections;
         void UpdateObjectToObjectConnections();
 
+
+
+        typedef std::tuple<en::RenderObj*, glm::quat, glm::quat, float, float> rotateOverTime_t;
+        std::list<rotateOverTime_t> m_RotateOverTimeTasks;
+        void UpdateRotateOverTimeTasks(float dt);
     };
 }
