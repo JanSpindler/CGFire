@@ -35,7 +35,14 @@ namespace en
 
         // Create Window
         Log::Info("Creating GLFW Window");
-        handle_ = glfwCreateWindow(width, height, title, nullptr, nullptr);
+        handle_ = glfwCreateWindow(width, height, title,
+#ifdef NDEBUG
+                                   glfwGetPrimaryMonitor()
+#else
+                                   nullptr
+#endif
+
+                                   , nullptr);
         if (handle_ == nullptr)
         {
             Log::Error("Failed to create GLFW Window", true);

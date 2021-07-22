@@ -15,7 +15,7 @@
 
 
 int main(int, char* argv[]) {
-    en::Window window(1200, 800, "CGFire");
+    en::Window window(1900, 1080, "CGFire");
     init_imgui(window.GetHandle());
 
     en::Camera cam(

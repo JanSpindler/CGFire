@@ -3,7 +3,7 @@
 0,"Ground","scene\ground\ground.obj"
 0,-25,0,1,0,0,0,1,1,1,0
 0,"Truck","scene\car\truck.obj"
--12,-14.35,-2,-0.296194,0.00890443,0.954655,0.0286996,7,7,7,0
+227.629,-39.8838,46.4155,0.944066,-0.00596963,-0.329697,-0.00208478,7,7,7,1
 0,"CamFocus_Dummy","Aufgaben\cornell_box.obj"
 -0.663437,7.79441,-17.3145,0.154077,-0.081339,0.87081,0.459711,0.1,0.1,0.1,0
 0,"CamFocus_Dummy0","Aufgaben\cornell_box.obj"
@@ -15,11 +15,11 @@
 0,"GPU","gpu\GPU.obj"
 -33.6563,-10.0756,13.1955,0.448319,-0.00436453,-0.893751,-0.0146042,0.4,0.4,0.4,0
 1,"Vampir","vampire/vampire.dae","sitting","vampire\Male Sitting Pose.dae","jumpdown","vampire\Jumping_Down.dae","walk","vampire\Walking.dae","carrying","vampire\Carrying.dae","sittingholdinggpu","vampire\SittingHolding.dae"
--18.1499,-9.95869,-28.1031,-0.000571154,5.24955e-05,0.995803,0.0915255,2,2,2,0
+227.863,-36.3681,48.7762,0.857903,-0.00216057,0.513786,-0.005653,2,2,2,0
 1,"Civil 5. Stock Old Man","oldman/oldman.dae","walk","oldman\Old Man Walk.dae","waving","oldman\Waving.dae","wavingbye","oldman\Waving2.dae"
--1.04799,7.75,-18.5423,0.999262,0,-0.038423,-0,1,1,1,0
+-1.04959,7.75,-18.5155,0.999912,0,-0.0132936,-0,1,1,1,0
 1,"Elvis","elvis\elvis.dae","spitwater","elvis\Yelling While Standing.dae","pointing","elvis\Pointing.dae","walking","elvis\Strut Walking.dae","sitting","elvis\Female Sitting Pose.dae","jumpdown","elvis\Jump.dae","standup","elvis\Standing Up.dae"
--5.99525,-14.1509,-7.19106,-0.241334,0.01021,0.969521,0.0410172,1.5,1.5,1.5,0
+0,-1e+07,0,-0.909402,0.12263,-0.394708,-0.0465957,1.5,1.5,1.5,0
 2,"KameraMove1",0,56,0,-63,30,89,-30,23,58,-17,13,33,36,12,14,55,18,-17,58,18,-42,44,18,-56,2,24,-58,-44,24,-51,-61,24,-13,-55,40,41,-38,53,77,-14,49,75,-12,23,34
 0,0,0,1,0,0,0,1,1,1,0
 2,"KameraFollow Car",0,100,0,325,-34.9,31,288.15,-37.1,14.4,232,-18.7,-16,221.75,-20.45,82,182.1,-34.5,88.3

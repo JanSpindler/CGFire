@@ -46,7 +46,7 @@
 0,0,"Cam Move 145",3,1
 0,0,"Cam Focus 145",3,1
 0,0,"Car Move 145",3,1
-0,0,"GPU",1,1
+0,0,"GPU",1,0
 1,4,"Smoke 5. Stock Nr.1","Smokespline Stock5 Nr1",1,0,1,3,4.397,2,0.4,20,0.1,10,20
 1,2,"Fire 5. Stock Nr.1",-2.23,7.9,-22.06,3.4,0,2.45,15,5,5,0.46,0.35,0,3.5,0,4.5,10,4.5,0.627,0.7
 1,4,"Smoke 5. Stock Nr.14","Smokespline Stock5 Nr14",1,0,1,3,4.397,2,0.4,20,0.1,10,20
@@ -191,6 +191,7 @@
 127,8,"Cam Move 127",5,0
 129,1,"Vampir","carrying"
 129,9,"GPU","Vampir",0.13,3.285,1.1,-0.476803,-0.536617,-0.4276,-0.54942
+129,0,"GPU",1,1
 129.91,10,"Vampir","Vamp Move 127",2
 130,7,"ElvisWaterJet"
 132,8,"Cam Move 132",1.82,0
@@ -199,7 +200,6 @@
 136,15,"LetsGoVamp","letsgo_vamp.wav",0,100,0.5,4.4,0,0,0,1,"Vampir"
 144.999,12,"GPU"
 145,15,"car sound","car.wav",0,100,0.5,5,0,0,0,1,"Truck"
-145,1,"Vampir","sittingholdinggpu"
 145,12,"Civil 5. Stock Old Man"
 145,9,"Vampir","Truck",1.64,3.495,2.2,0.642791,0,0.766048,0
 145,17,1,-7,-0.42,-0.2,"CamFocus_Dummy"
@@ -209,6 +209,7 @@
 145,8,"Cam Move 145",0.4,0
 145,9,"GPU","Vampir",0.05,1.81,1.42,-0.707108,0,-0.707108,0
 145,10,"CamFocus_Dummy","Cam Focus 145",10.1
+145,1,"Vampir","sittingholdinggpu"
 145.001,13,"Civil 5. Stock Old Man",0,1,0,0,0,0,-0.939693,0,-0.342021,0,1,1,1
 145.6,18,"Truck",1
 145.6,10,"Truck","Car Move 145",18.3
