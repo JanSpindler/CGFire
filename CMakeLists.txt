@@ -58,6 +58,7 @@ include_directories(vendor/AudioFile)
 
 
 #SFML for sound
+set(BUILD_SHARED_LIBS TRUE)
 set(SFML_BUILD_AUDIO TRUE)
 set(SFML_BUILD_GRAPHICS FALSE)
 set(SFML_BUILD_WINDOW FALSE)
